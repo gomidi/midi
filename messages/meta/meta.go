@@ -9,6 +9,20 @@ import (
 	"math/big"
 )
 
+type metaMessage struct {
+	Typ  byte
+	Data []byte
+}
+
+func (m *metaMessage) Bytes() []byte {
+	b := []byte{byte(0xFF), m.Typ}
+	b = append(b, lib.VlqEncode(uint32(len(m.Data)))...)
+	if len(m.Data) != 0 {
+		b = append(b, m.Data...)
+	}
+	return b
+}
+
 type Message interface {
 	String() string
 	Raw() []byte
@@ -126,7 +140,7 @@ func (m endOfTrack) String() string {
 }
 
 func (m endOfTrack) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ: byte(byteEndOfTrack),
 	}).Bytes()
 }
@@ -160,7 +174,7 @@ func (m MIDIPort) String() string {
 }
 
 func (m MIDIPort) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byte(byteMIDIPort),
 		Data: []byte{byte(m)},
 	}).Bytes()
@@ -205,7 +219,7 @@ func (m MIDIChannel) String() string {
 }
 
 func (m MIDIChannel) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byte(byteMIDIChannel),
 		Data: []byte{byte(m)},
 	}).Bytes()
@@ -274,7 +288,7 @@ func (m Tempo) Raw() []byte {
 		b[0] = b4[0]
 	}
 
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteTempo,
 		Data: b,
 	}).Bytes()
@@ -322,7 +336,7 @@ func (m SequenceNumber) String() string {
 func (m SequenceNumber) Raw() []byte {
 	var bf bytes.Buffer
 	binary.Write(&bf, binary.BigEndian, m.Number())
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteSequenceNumber,
 		Data: bf.Bytes(),
 	}).Bytes()
@@ -414,7 +428,7 @@ func (m TimeSignature) Raw() []byte {
 
 	var denom = dec2binDenom(m.Denominator)
 
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteTimeSignature,
 		Data: []byte{m.Numerator, denom, cpcl, dsqpq},
 	}).Bytes()
@@ -510,7 +524,7 @@ func (m KeySignature) Raw() []byte {
 		sf = sf * (-1)
 	}
 
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteKeySignature,
 		Data: []byte{byte(sf), byte(mi)},
 	}).Bytes()
@@ -727,7 +741,7 @@ func (m Text) String() string {
 func (m Text) meta() {}
 
 func (m Text) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteText,
 		Data: []byte(m),
 	}).Bytes()
@@ -762,7 +776,7 @@ func (m Copyright) readFrom(rd io.Reader) (Message, error) {
 }
 
 func (m Copyright) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteCopyright,
 		Data: []byte(m),
 	}).Bytes()
@@ -797,7 +811,7 @@ func (m Sequence) Text() string {
 func (m Sequence) meta() {}
 
 func (m Sequence) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteSequence,
 		Data: []byte(m),
 	}).Bytes()
@@ -810,7 +824,7 @@ func (m TrackInstrument) String() string {
 }
 
 func (m TrackInstrument) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byteTrackInstrument,
 		Data: []byte(m),
 	}).Bytes()
@@ -843,7 +857,7 @@ func (m Marker) Text() string {
 }
 
 func (m Marker) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byte(byteMarker),
 		Data: []byte(m),
 	}).Bytes()
@@ -878,7 +892,7 @@ func (m Lyric) readFrom(rd io.Reader) (Message, error) {
 }
 
 func (m Lyric) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byte(byteLyric),
 		Data: []byte(m),
 	}).Bytes()
@@ -897,7 +911,7 @@ func (m CuePoint) Text() string {
 }
 
 func (m CuePoint) Raw() []byte {
-	return (&lib.MetaMessage{
+	return (&metaMessage{
 		Typ:  byte(byteCuePoint),
 		Data: []byte(m),
 	}).Bytes()

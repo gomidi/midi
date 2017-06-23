@@ -26,20 +26,6 @@ import (
 	"strconv"
 )
 
-type MetaMessage struct {
-	Typ  byte
-	Data []byte
-}
-
-func (m *MetaMessage) Bytes() []byte {
-	b := []byte{byte(0xFF), m.Typ}
-	b = append(b, VlqEncode(uint32(len(m.Data)))...)
-	if len(m.Data) != 0 {
-		b = append(b, m.Data...)
-	}
-	return b
-}
-
 // Variable-Length Quantity (VLQ) is an way of representing arbitrarly
 // see https://blogs.infosupport.com/a-primer-on-vlq/
 // we use the variant of the midi-spec
