@@ -2,7 +2,7 @@ package channel
 
 import (
 	"fmt"
-	"lib"
+	"github.com/gomidi/midi/internal/lib"
 )
 
 type PolyphonicAfterTouch struct {

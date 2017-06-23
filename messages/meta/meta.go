@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/gomidi/midi/internal/lib"
 	"io"
-	"lib"
 	"math/big"
 )
 

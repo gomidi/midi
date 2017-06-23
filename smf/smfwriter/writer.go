@@ -8,7 +8,7 @@ import (
 
 	"github.com/gomidi/midi"
 	// "github.com/gomidi/midiwriter"
-	"lib"
+	"github.com/gomidi/midi/internal/lib"
 
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/smf"

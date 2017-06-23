@@ -2,9 +2,9 @@ package smfreader
 
 import (
 	"fmt"
+	"github.com/gomidi/midi/internal/lib"
 	"io"
 	"io/ioutil"
-	"lib"
 
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/channel"

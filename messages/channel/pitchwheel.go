@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"lib"
+	"github.com/gomidi/midi/internal/lib"
 )
 
 type PitchWheel struct {

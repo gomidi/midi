@@ -2,10 +2,10 @@ package midireader
 
 import (
 	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/internal/lib"
 	"github.com/gomidi/midi/messages/syscommon"
 	"github.com/gomidi/midi/messages/sysex"
 	"io"
-	"lib"
 
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"

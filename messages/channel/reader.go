@@ -1,8 +1,8 @@
 package channel
 
 import (
+	"github.com/gomidi/midi/internal/lib"
 	"io"
-	"lib"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	// "fmt"
 	"io"
 	// "io/ioutil"
-	"lib"
+	"github.com/gomidi/midi/internal/lib"
 	// "github.com/gomidi/midi"
 	// "github.com/gomidi/midi/messages/channel"
 	// "github.com/gomidi/midi/messages/meta"

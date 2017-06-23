@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/gomidi/midi/messages/realtime"
 	// "io"
-	"lib"
+	"github.com/gomidi/midi/internal/lib"
 )
 
 // if canary >= 0xF0 && canary <= 0xF7 {

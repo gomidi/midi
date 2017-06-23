@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	// "fmt"
 	// "io"
-	"lib"
+	"github.com/gomidi/midi/internal/lib"
 )
 
 type setter1 interface {
