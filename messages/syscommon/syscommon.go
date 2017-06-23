@@ -4,15 +4,17 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/gomidi/midi/internal/lib"
 	"io"
+
+	"github.com/gomidi/midi/internal/lib"
 )
 
 var (
 	_ Message = SongPositionPointer(0)
 	_ Message = SongSelect(0)
 	_ Message = TuneRequest
-	_ Message = Unknown(nil)
+	_ Message = Undefined4(0)
+	_ Message = Undefined5(0)
 	_ Message = MIDITimingCode(0)
 )
 
@@ -88,8 +90,8 @@ var systemMessages = map[byte]Message{
 	byteSysSongPositionPointer: SongPositionPointer(0),
 	byteSysSongSelect:          SongSelect(0),
 	byteSysTuneRequest:         TuneRequest,
-	0xF4:                       nil, // unused (ignore them)
-	0xF5:                       nil, // unused (ignore them)
+	0xF4:                       Undefined4(0), // unused (ignore them)
+	0xF5:                       Undefined5(0), // unused (ignore them)
 }
 
 // Reader read a syscommon
@@ -225,29 +227,36 @@ func (m tuneRequest) Raw() []byte {
 	return []byte{byte(0xF6)}
 }
 
-type Unknown []byte
+type Undefined4 int
 
-func (m Unknown) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+func (m Undefined4) String() string {
+	return fmt.Sprintf("%T", m)
 }
 
-func (m Unknown) Len() int {
-	return len(m)
-}
-
-func (m Unknown) meta() {}
-
-func (m Unknown) Bytes() []byte {
-	return nil
-}
-
-// TODO: don't know if I should implement
-func (m Unknown) readFrom(rd io.Reader) (Message, error) {
+func (m Undefined4) readFrom(rd io.Reader) (Message, error) {
 	return m, nil
 }
 
-func (m Unknown) sysCommon() {}
+func (m Undefined4) sysCommon() {}
 
-func (m Unknown) Raw() []byte {
-	panic("not implemented")
+func (m Undefined4) Raw() []byte {
+	return nil
+}
+
+type Undefined5 int
+
+func (m Undefined5) String() string {
+	return fmt.Sprintf("%T", m)
+}
+
+func (m Undefined5) meta() {}
+
+func (m Undefined5) readFrom(rd io.Reader) (Message, error) {
+	return m, nil
+}
+
+func (m Undefined5) sysCommon() {}
+
+func (m Undefined5) Raw() []byte {
+	return nil
 }

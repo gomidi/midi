@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/gomidi/midi/internal/lib"
 	"io"
 	"math/big"
+
+	"github.com/gomidi/midi/internal/lib"
 )
 
 type metaMessage struct {
@@ -30,12 +31,13 @@ type Message interface {
 	readFrom(io.Reader) (Message, error)
 }
 
-func ReadFrom(ev Message, rd io.Reader) (Message, error) {
-	if ev != nil {
-		return ev.readFrom(rd)
+func ReadFrom(typ byte, rd io.Reader) (Message, error) {
+	m := Dispatch(typ)
+	if m != nil {
+		m = Undefined{Typ: typ}
 	}
-	// TODO: read an unknown meta message
-	return nil, nil
+
+	return m.readFrom(rd)
 }
 
 const (
@@ -81,6 +83,7 @@ var (
 	_ Message = TimeSignature{}
 	_ Message = KeySignature{}
 	_ Message = EndOfTrack
+	_ Message = Undefined{}
 )
 
 const (
@@ -661,21 +664,33 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 
 func (m KeySignature) meta() {}
 
-// TODO: check if needed, what about Sequencer Specific meta-Event?
-type metaUnknown []byte
-
-func (m metaUnknown) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+type Undefined struct {
+	Typ  byte
+	Data []byte
 }
 
-func (m metaUnknown) Bytes() []byte {
-	return []byte(m)
+func (m Undefined) String() string {
+	return fmt.Sprintf("%T type: % X", m, m.Typ)
 }
 
-func (m metaUnknown) Len() int {
-	return len(m)
+func (m Undefined) Raw() []byte {
+	return (&metaMessage{
+		Typ:  m.Typ,
+		Data: m.Data,
+	}).Bytes()
 }
-func (m metaUnknown) meta() {}
+
+func (m Undefined) readFrom(rd io.Reader) (Message, error) {
+	data, err := lib.ReadVarLengthData(rd)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return Undefined{m.Typ, data}, nil
+}
+
+func (m Undefined) meta() {}
 
 /*
 	http://midi.teragonaudio.com/tech/midifile/port.htm

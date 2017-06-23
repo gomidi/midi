@@ -101,6 +101,9 @@ type Handler struct {
 	Sequence        func(p *Pos, name string)
 	SequenceNumber  func(p *Pos, number uint16)
 
+	// SMF port description
+	DevicePort func(p *Pos, name string)
+
 	// SMF text entries
 	Marker   func(p *Pos, text string)
 	CuePoint func(p *Pos, text string)
@@ -135,16 +138,17 @@ type Handler struct {
 	Start       func()
 	Continue    func()
 	Stop        func()
-	Undefined   func()
 	ActiveSense func()
 
 	// deprecated
 	MIDIChannel func(p *Pos, channel uint8)
 	MIDIPort    func(p *Pos, port uint8)
-	DevicePort  func(p *Pos, name string)
 
-	// unknown
-	//Unknown func(p *Pos, data []byte)
+	// undefined
+	UndefinedMeta       func(p *Pos, typ byte, data []byte)
+	UndefinedSysCommon4 func(p *Pos)
+	UndefinedSysCommon5 func(p *Pos)
+	UndefinedRealtime4  func()
 
 	// is called in addition to other functions, if set.
 	Each func(*Pos, midi.Message)
@@ -214,8 +218,8 @@ func (h *Handler) ReadLive(src io.Reader) (err error) {
 
 			// put any user defined realtime message here
 			case realtime.Undefined4:
-				if h.Undefined != nil {
-					h.Undefined()
+				if h.UndefinedRealtime4 != nil {
+					h.UndefinedRealtime4()
 				}
 
 			// ok, stopping is not so urgent
@@ -406,12 +410,20 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.DevicePort(h.pos, ev.Text())
 			}
 
-			/*
-				case midi.UnknownMsg:
-					if h.Unknown != nil {
-						h.Unknown(h.pos, ev.Bytes())
-					}
-			*/
+		case meta.Undefined:
+			if h.UndefinedMeta != nil {
+				h.UndefinedMeta(h.pos, ev.Typ, ev.Data)
+			}
+
+		case syscommon.Undefined4:
+			if h.UndefinedSysCommon4 != nil {
+				h.UndefinedSysCommon4(h.pos)
+			}
+
+		case syscommon.Undefined5:
+			if h.UndefinedSysCommon5 != nil {
+				h.UndefinedSysCommon5(h.pos)
+			}
 
 		default:
 			switch evt {

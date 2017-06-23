@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"fmt"
 	"github.com/gomidi/midi/internal/lib"
 	"io"
 )
@@ -13,8 +14,6 @@ const (
 	bytePolyphonicKeyPressure = 0xA
 	byteControlChange         = 0xB
 	bytePitchWheel            = 0xE
-	byteSystemCommon          = 0xF
-	byteMetaEvents            = 0xF
 )
 
 // Reader read a channel message
@@ -78,8 +77,7 @@ func (r *reader) getMsg1(typ uint8, channel uint8, arg uint8) (msg setter1) {
 	case byteChannelPressure:
 		msg = AfterTouch{}
 	default:
-		// unsupported
-		return nil
+		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
 	}
 
 	msg = msg.set(channel, arg)
@@ -100,8 +98,7 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 	case bytePitchWheel:
 		msg = PitchWheel{}
 	default:
-		// unsupported
-		return nil
+		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
 	}
 
 	msg = msg.set(channel, arg1, arg2)
