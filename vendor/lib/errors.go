@@ -2,7 +2,7 @@ package lib
 
 import "errors"
 
-func UnexpectedEventLengthError(s string) error {
+func UnexpectedMessageLengthError(s string) error {
 	return errors.New(s)
 }
 

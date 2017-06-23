@@ -26,17 +26,19 @@ import (
 	"strconv"
 )
 
-const (
-	CodeProgramChange         = 0xC
-	CodeChannelPressure       = 0xD
-	CodeNoteOff               = 0x8
-	CodeNoteOn                = 0x9
-	CodePolyphonicKeyPressure = 0xA
-	CodeControlChange         = 0xB
-	CodePitchWheel            = 0xE
-	CodeSystemCommon          = 0xF
-	CodeMetaEvents            = 0xF
-)
+type MetaMessage struct {
+	Typ  byte
+	Data []byte
+}
+
+func (m *MetaMessage) Bytes() []byte {
+	b := []byte{byte(0xFF), m.Typ}
+	b = append(b, VlqEncode(uint32(len(m.Data)))...)
+	if len(m.Data) != 0 {
+		b = append(b, m.Data...)
+	}
+	return b
+}
 
 // Variable-Length Quantity (VLQ) is an way of representing arbitrarly
 // see https://blogs.infosupport.com/a-primer-on-vlq/

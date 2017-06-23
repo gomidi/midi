@@ -4,14 +4,18 @@ import (
 	"fmt"
 	"io"
 
-	midi "github.com/gomidi/midi"
-	"github.com/gomidi/midi/channel"
-	"github.com/gomidi/midi/meta"
-	"github.com/gomidi/midi/realtime"
+	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/messages/syscommon"
+	"github.com/gomidi/midi/messages/sysex"
+	"github.com/gomidi/midi/midireader"
 	"github.com/gomidi/midi/smf"
+	"github.com/gomidi/midi/smf/smfreader"
 )
 
-// Logger is the inferface used by Handler fpr logging incoming events.
+// Logger is the inferface used by Handler for logging incoming messages.
 type Logger interface {
 	Printf(format string, vals ...interface{})
 }
@@ -31,7 +35,7 @@ type Pos struct {
 	// the Track number
 	Track uint16
 
-	// the delta time to the previous event in the same track
+	// the delta time to the previous message in the same track
 	Delta uint32
 
 	// the absolute time from the beginning of the track
@@ -81,9 +85,9 @@ type Handler struct {
 	logger Logger
 
 	// SMF header informations
-	Format           func(smfformat uint8) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
-	NumTracks        func(n uint16)        // number of tracks
-	TimeCodeTicks    func(uint16)
+	Format           func(smf.Format) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
+	NumTracks        func(n uint16)   // number of tracks
+	TimeCode         func(uint16)
 	QuarterNoteTicks func(uint16)
 
 	// SMF general settings
@@ -103,6 +107,9 @@ type Handler struct {
 	Text     func(p *Pos, text string)
 	Lyric    func(p *Pos, text string)
 
+	// SMF end of track
+	EndOfTrack func(p *Pos)
+
 	// channel messages
 	NoteOff              func(p *Pos, channel, pitch uint8)
 	NoteOn               func(p *Pos, channel, pitch, velocity uint8)
@@ -113,11 +120,13 @@ type Handler struct {
 	PitchWheel           func(p *Pos, channel uint8, value int16)
 
 	// system messages
-	SysEx                  func(p *Pos, data []byte)
-	SysTuneRequest         func(p *Pos)
-	SysSongSelect          func(p *Pos, num uint8)
-	SysSongPositionPointer func(p *Pos, pos uint16)
-	SysMTCQuarterFrame     func(p *Pos, frame uint8)
+	SysEx func(p *Pos, data []byte)
+
+	// system common
+	TuneRequest         func()
+	SongSelect          func(num uint8)
+	SongPositionPointer func(pos uint16)
+	MIDITimingCode      func(frame uint8)
 
 	// realtime messages
 	Reset       func()
@@ -131,39 +140,43 @@ type Handler struct {
 
 	// deprecated
 	MIDIChannel func(p *Pos, channel uint8)
-	DevicePort  func(p *Pos, name string)
 	MIDIPort    func(p *Pos, port uint8)
+	DevicePort  func(p *Pos, name string)
 
 	// unknown
-	Unknown func(p *Pos, data []byte)
+	//Unknown func(p *Pos, data []byte)
 
 	// is called in addition to other functions, if set.
-	Each func(p *Pos, evt midi.Event)
+	Each func(*Pos, midi.Message)
 }
 
 // log does the logging
-func (h *Handler) log(ev midi.Event) {
+func (h *Handler) log(m midi.Message) {
 	if h.pos != nil {
-		h.logger.Printf("#%v [%v d:%v] %#v\n", h.pos.Track, h.pos.AbsTime, h.pos.Delta, ev)
+		h.logger.Printf("#%v [%v d:%v] %#v\n", h.pos.Track, h.pos.AbsTime, h.pos.Delta, m)
 	} else {
-		h.logger.Printf("%#v\n", ev)
+		h.logger.Printf("%#v\n", m)
 	}
 }
 
-// ReadLive reads midi events from src until an error or io.EOF happens.
+// ReadLive reads midi messages from src until an error or io.EOF happens.
 //
 // If io.EOF happend the returned error is nil.
 //
 // ReadLive does not close the src.
 //
-// The events are dispatched to the corresponding attached functions of the handler.
+// The messages are dispatched to the corresponding attached functions of the handler.
 //
 // They must be attached before Handler.ReadLive is called
 // and they must not be unset or replaced until ReadLive returns.
 //
 // The *Pos parameter that is passed to the functions is nil, because we are in a live setting.
 func (h *Handler) ReadLive(src io.Reader) (err error) {
-	realtimeStream := make(chan midi.Event, 15)
+	realtimeStream := make(chan realtime.Message, 15)
+
+	rthandler := func(m realtime.Message) {
+		realtimeStream <- m
+	}
 
 	go func() {
 
@@ -222,7 +235,7 @@ func (h *Handler) ReadLive(src io.Reader) (err error) {
 
 	}()
 
-	rd := midi.NewReader(src, realtimeStream)
+	rd := midireader.New(src, rthandler)
 	err = h.read(rd)
 	close(realtimeStream)
 
@@ -236,7 +249,7 @@ func (h *Handler) ReadLive(src io.Reader) (err error) {
 // read reads the events from the midi.Reader (which might be an smf reader
 // for realtime reading, the passed *Pos is nil
 func (h *Handler) read(rd midi.Reader) (err error) {
-	var evt midi.Event
+	var evt midi.Message
 
 	for {
 		evt, err = rd.Read()
@@ -326,19 +339,18 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.CuePoint(h.pos, ev.Text())
 			}
 
-		case meta.SysEx:
+		case sysex.SysEx:
 			if h.SysEx != nil {
 				h.SysEx(h.pos, ev.Bytes())
 			}
 
-			// this usually takes some time
+		// this usually takes some time
 		case channel.ProgramChange:
 			if h.ProgramChange != nil {
 				h.ProgramChange(h.pos, ev.Channel(), ev.Program())
 			}
 
-			// the rest is not that interesting for performance
-
+		// the rest is not that interesting for performance
 		case meta.KeySignature:
 			if h.KeySignature != nil {
 				h.KeySignature(h.pos, ev.Key, ev.IsMajor, ev.Num, ev.IsFlat)
@@ -369,19 +381,19 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Text(h.pos, ev.Text())
 			}
 
-		case meta.SysSongSelect:
-			if h.SysSongSelect != nil {
-				h.SysSongSelect(h.pos, ev.Number())
+		case syscommon.SongSelect:
+			if h.SongSelect != nil {
+				h.SongSelect(ev.Number())
 			}
 
-		case meta.SysSongPositionPointer:
-			if h.SysSongPositionPointer != nil {
-				h.SysSongPositionPointer(h.pos, ev.Number())
+		case syscommon.SongPositionPointer:
+			if h.SongPositionPointer != nil {
+				h.SongPositionPointer(ev.Number())
 			}
 
-		case meta.SysMTCQuarterFrame:
-			if h.SysMTCQuarterFrame != nil {
-				h.SysMTCQuarterFrame(h.pos, ev.Number())
+		case syscommon.MIDITimingCode:
+			if h.MIDITimingCode != nil {
+				h.MIDITimingCode(ev.QuarterFrame())
 			}
 
 		case meta.Copyright:
@@ -394,21 +406,29 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.DevicePort(h.pos, ev.Text())
 			}
 
-		case midi.UnknownEvent:
-			if h.Unknown != nil {
-				h.Unknown(h.pos, ev.Bytes())
-			}
+			/*
+				case midi.UnknownMsg:
+					if h.Unknown != nil {
+						h.Unknown(h.pos, ev.Bytes())
+					}
+			*/
 
 		default:
 			switch evt {
-			case meta.SysTuneRequest:
-				if h.SysTuneRequest != nil {
-					h.SysTuneRequest(h.pos)
+			case syscommon.TuneRequest:
+				if h.TuneRequest != nil {
+					h.TuneRequest()
+				}
+			case meta.EndOfTrack:
+				if h.EndOfTrack != nil {
+					h.EndOfTrack(h.pos)
 				}
 			default:
-				if h.Unknown != nil {
-					h.Unknown(h.pos, nil)
-				}
+				/*
+					if h.Unknown != nil {
+						h.Unknown(h.pos, nil)
+					}
+				*/
 			}
 
 		}
@@ -434,7 +454,7 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 func (h *Handler) ReadSMF(src io.Reader) error {
 	h.pos = &Pos{}
 
-	rd := smf.NewReader(src)
+	rd := smfreader.New(src)
 
 	hd, err := rd.ReadHeader()
 
@@ -443,7 +463,7 @@ func (h *Handler) ReadSMF(src io.Reader) error {
 	}
 
 	if h.Format != nil {
-		h.Format(uint8(hd.Format()))
+		h.Format(hd.Format())
 	}
 
 	if h.NumTracks != nil {
@@ -452,8 +472,8 @@ func (h *Handler) ReadSMF(src io.Reader) error {
 
 	tf, tval := hd.TimeFormat()
 
-	if tf == smf.TimeCodeTicks && h.TimeCodeTicks != nil {
-		h.TimeCodeTicks(tval)
+	if tf == smf.TimeCode && h.TimeCode != nil {
+		h.TimeCode(tval)
 	}
 
 	if tf == smf.QuarterNoteTicks && h.QuarterNoteTicks != nil {
