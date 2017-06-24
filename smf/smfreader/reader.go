@@ -16,30 +16,6 @@ import (
 	"github.com/gomidi/midi/smf"
 )
 
-type state int
-
-const (
-	// At the start of the MIDI file.
-	// Expect SMF Header chunk.
-	stateExpectHeader state = 0
-
-	// Expect a chunk. Any kind of chunk. Except MThd.
-	// But really, anything other than MTrk would be weird.
-	stateExpectChunk state = 1
-
-	// We're in a Track, expect a track midi.
-	stateExpectTrackEvent state = 2
-
-	// This has to happen sooner or later.
-	stateDone state = 3
-)
-
-type Logger interface {
-	Printf(format string, vals ...interface{})
-}
-
-var ErrInterruptedByCallback = fmt.Errorf("interrupted by callback")
-
 // ReadFile opens file, calls callback with a reader and closes file
 func ReadFile(file string, callback func(smf.Reader), options ...Option) error {
 	f, err := os.Open(file)
@@ -72,31 +48,17 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 	return rd
 }
 
-// ReadNoteOffPedantic lets the reader differenciate between "fake" noteoff messages
-// (which are in fact noteon messages (typ 9) with velocity of 0) and "real" noteoff messages (typ 8)
-// The former are returned as NoteOffPedantic messages and keep the given velocity, the later
-// are returned as NoteOff messages without velocity. That means in order to get all noteoff messages,
-// there must be checks for NoteOff and NoteOffPedantic (if this option is set).
-// If this option is not set, both kinds are returned as NoteOff (default).
-func ReadNoteOffPedantic() Option {
-	return func(rd *reader) {
-		rd.readNoteOffPedantic = true
-	}
-}
-
-// filereader is a Standard Midi File reader.
-// Pass this a ReadSeeker to a MIDI file and EventHandler
-// and it'll run over the file, EventHandlers HandleEvent method for each midi.
 type reader struct {
 	input  io.Reader
 	logger Logger
-	// State of the parser, as per the above constants.
-	state               state
-	runningStatus       runningstatus.Reader
-	processedTracks     uint16
-	absTrackTime        uint64
-	deltatime           uint32
-	mthd                mThdData
+
+	state           state
+	runningStatus   runningstatus.Reader
+	processedTracks uint16
+	deltatime       uint32
+	mthd            mThdData
+
+	// options
 	failOnUnknownChunks bool
 	headerIsRead        bool
 	headerError         error
@@ -258,7 +220,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 			// since System Common messages are not allowed within smf files, there could only be meta messages
 			// all (event unknown) meta messages must be handled by the meta dispatcher
-			m, err = meta.ReadFrom(typ, p.input)
+			m, err = meta.NewReader(p.input, typ).Read()
 			p.log("got meta: %T", m)
 		default:
 			panic(fmt.Sprintf("must not happen: invalid status % X", canary))
@@ -282,7 +244,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	if m == meta.EndOfTrack {
 		p.log("got end of track")
 		p.processedTracks++
-		p.absTrackTime = 0
+		// p.absTrackTime = 0
 		p.deltatime = 0
 		// Expect the next chunk midi.
 		p.state = stateExpectChunk
@@ -307,9 +269,6 @@ func (p *reader) readEvent() (m midi.Message, err error) {
 	}
 
 	p.deltatime = deltatime
-
-	// we have to set the absTrackTime in any case, so lets do it early on
-	p.absTrackTime += uint64(deltatime)
 
 	// read the canary in the coal mine to see, if we have a running status byte or a given one
 	var canary byte

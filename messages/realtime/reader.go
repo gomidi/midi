@@ -5,10 +5,63 @@ import (
 	"io"
 )
 
+// Reader is a realtime.Reader
 // every realtime.Reader is an io.Reader but not every io.Reader is a realtime.Reader
 type Reader interface {
 	io.Reader
 	realtime()
+}
+
+// NewReader returns an io.Reader that filters realtime midi messages.
+// For each realtime midi message, rthandler is called (if it is not nil)
+// The Reader does no buffering and makes no attempt to close input.
+func NewReader(input io.Reader, rthandler func(Message)) Reader {
+	if rthandler == nil {
+		return &discardReader{input}
+	}
+	return &reader{input, rthandler}
+}
+
+func (r *reader) Read(target []byte) (n int, err error) {
+	var bf []byte
+	var one int
+
+	for {
+		if n == len(target) {
+			return
+
+		}
+		bf = make([]byte, 1)
+
+		one, err = r.input.Read(bf)
+
+		if err != nil {
+			return
+		}
+
+		if one != 1 {
+			err = fmt.Errorf("could not read %v byte(s)", len(target))
+			return
+		}
+
+		// => no realtime message
+		if bf[0] < 0xF8 {
+			target[n] = bf[0]
+			n++
+			continue
+		}
+
+		// error needed here to be able to interrupt the reading from the callback (handler)
+		// then an io.EOF error is returned and propagated to midireader.read()
+		ev := dispatch(bf[0])
+
+		// we know that r.handler is not nil (otherwise we would be inside discardReader)
+		if ev != nil {
+			r.handler(ev)
+		}
+
+	}
+	return
 }
 
 /*
@@ -68,54 +121,10 @@ func (r *discardReader) Read(target []byte) (n int, err error) {
 	return
 }
 
-// NewReader returns an io.Reader that filters realtime midi messages.
-// For each realtime midi message, rthandler is called (if it is not nil)
-// The Reader does no buffering and makes no attempt to close input.
-func NewReader(input io.Reader, rthandler func(Message)) Reader {
-	if rthandler == nil {
-		return &discardReader{input}
+func dispatch(b byte) Message {
+	m := msg(b)
+	if _, has := msg2String[m]; !has {
+		return nil
 	}
-	return &reader{input, rthandler}
-}
-
-func (r *reader) Read(target []byte) (n int, err error) {
-	var bf []byte
-	var one int
-
-	for {
-		if n == len(target) {
-			return
-
-		}
-		bf = make([]byte, 1)
-
-		one, err = r.input.Read(bf)
-
-		if err != nil {
-			return
-		}
-
-		if one != 1 {
-			err = fmt.Errorf("could not read %v byte(s)", len(target))
-			return
-		}
-
-		// => no realtime message
-		if bf[0] < 0xF8 {
-			target[n] = bf[0]
-			n++
-			continue
-		}
-
-		// error needed here to be able to interrupt the reading from the callback (handler)
-		// then an io.EOF error is returned and propagated to midireader.read()
-		ev := Dispatch(bf[0])
-
-		// we know that r.handler is not nil (otherwise we would be inside discardReader)
-		if ev != nil {
-			r.handler(ev)
-		}
-
-	}
-	return
+	return m
 }
