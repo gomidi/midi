@@ -67,7 +67,7 @@ func (p *reader) discardUntilNextStatus() (canary byte, err error) {
 }
 
 func (p *reader) readMsg(canary byte) (ev midi.Message, err error) {
-	status, _ := p.runningStatus.Handle(canary)
+	status, _ := p.runningStatus.HandleLive(canary)
 
 	if status != 0 {
 		// on a voice/channel message
@@ -89,7 +89,7 @@ func (p *reader) readMsg(canary byte) (ev midi.Message, err error) {
 				3. on the next read, the status is missing in the source (since it already has been read). but since it is inside the running status buffer, the correct status should be found
 			*/
 			if status != 0 {
-				p.runningStatus.Handle(status)
+				p.runningStatus.HandleLive(status)
 			}
 
 		case 0xF7:

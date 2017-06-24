@@ -15,13 +15,33 @@ type RunningStatus struct {
        Any data bytes are ignored when the buffer is 0. (I think that only holds for realtime midi)
 */
 
-func (r *RunningStatus) Handle(canary byte) (status byte, changed bool) {
+func (r *RunningStatus) HandleLive(canary byte) (status byte, changed bool) {
 	if canary >= 0x80 && canary <= 0xEF {
 		r.status = canary
 		return r.status, true
 	}
 
 	if canary >= 0xF0 && canary <= 0xF7 {
+		r.status = 0
+		return 0, true
+	}
+
+	return 0, false
+}
+
+func (r *RunningStatus) HandleSMF(canary byte) (status byte, changed bool) {
+	if canary >= 0x80 && canary <= 0xEF {
+		r.status = canary
+		return r.status, true
+	}
+
+	if canary >= 0xF0 && canary <= 0xF7 {
+		r.status = 0
+		return 0, true
+	}
+
+	// here we also clear for meta events
+	if canary == 0xFF {
 		r.status = 0
 		return 0, true
 	}

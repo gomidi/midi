@@ -12,6 +12,183 @@ func newControlCaseSwitch(ch channel.Channel, controller uint8, on bool) channel
 	return ch.ControlChange(controller, value)
 }
 
+/* http://www.somascape.org/midi/tech/spec.html
+RPNs and NRPNs
+
+Controller numbers 98 & 99 (Non-Registered Parameter Number, LSB & MSB), and 100 & 101 (Registered Parameter Number, LSB & MSB), in conjunction with Controller numbers 6 & 38 (Data Entry, MSB & LSB), 96 (Data Increment), and 97 (Data Decrement) extend the number of controllers available via MIDI.
+
+Their use involves selecting the parameter number to be edited using Controllers 98 & 99 or 100 & 101, and then adjusting the value for that parameter using Controller number 6/38, 96, or 97. Controllers 6/38 would be used to set a specific value, whereas Controllers 96 and 97 would be used to nudge the current value up or down, respectively (with the Data2 byte specifying the step size, 1-127).
+
+Note that two 7-bit values are used both to specify the RPN/NRPN itself, and its value. I.e. there are 16,384 possible RPNs (and 16,384 NRPNs) each of which can be set with 14-bit precision. The MSB and LSB data values need not represent a single 0-16,383 range, and can be used to represent different quantities, as in the case of RPN 00,00 (Pitch Bend Sensitivity) where the MSB represents 'semitones' and the LSB represents 'cents'.
+
+To calculate the full number from its LSB and MSB : N = MSB * 128 + LSB
+
+Once the required RPN/NRPN has been specified (using CC98 & CC99, or CC100 & CC101) the value needs to be specified. There are several options :
+
+    High resolution values (i.e. ranging 0-16,383) require two messages :
+        A CC6 Data Entry message, where the Data2 byte contains the MSB of the value.
+        A CC38 Data Entry message, where the Data2 byte contains the LSB of the value.
+    Low resolution values (i.e. 0-127) can be sent in one message. It could be either a CC6 or a CC38 Data Entry message.
+    A CC96 Data Increment message can be sent. Its Data2 byte holds a value (0-127) to be added to the current parameter value.
+    A CC97 Data Decrement message can be sent. Its Data2 byte holds a value (0-127) to be subtracted from the current parameter value.
+
+None of the Non-Registered Parameter Numbers have been assigned specific functions. They may be used for different functions by different manufacturers, and are thus manufacturer-specific.
+
+Registered Parameter Numbers are those which have been assigned some particular function by the MIDI Manufacturers Association (MMA) and the Japan MIDI Standards Committee (JMSC). The following RPNs are currently defined :
+RPN	Description
+MSB	LSB
+00	00	Pitch Bend Sensitivity
+The coarse adjustment (Controller 6) sets the number of semitones.
+The fine adjustment (Controller 38) sets the number of cents.
+00	01	Channel Fine Tuning
+Use controllers 6 and 38 to set MSB and LSB :
+00 00 = -100 cents; 40 00 = A440; 7F 7F = +100 cents. 	See also the Real Time Universal System Exclusive Master Tuning messages.
+00	02	Channel Coarse Tuning
+Coarse adjustment only, using controller 6 :
+00 = -64 semitones; 40 = A440; 7F = +63 semitones.
+00	03	Select Tuning Program 	See also the Real Time Universal System Exclusive MIDI Tuning Standard messages.
+00	04	Select Tuning Bank
+00	05	Modulation Depth Range
+Used to scale the effective range of Controller 1 (Modulation Wheel).
+7F	7F	Null Function
+Used to cancel a RPN or NRPN. After it is received, any additional value updates received should no longer be applied to the previously selected RPN or NRPN.
+
+It is recommended that the Null Function (RPN 7F,7F) should be sent immediately after a RPN or NRPN and its value are sent.
+
+Example usage :
+
+To set the Pitch Bend Sensitivity on channel 'n' to +/- 7 semitones (ie +/- a fifth) :
+11 bytes 	Bn 64 00 65 00 06 07 64 7F 65 7F
+Bn 64 00	RPN LSB = 00 	Select RPN : Pitch Bend Sensitivity
+65 00	RPN MSB = 00 (running status in effect)
+06 07	Data Entry MSB = 07 (running status in effect) 	Coarse adjustment (semitones)
+64 7F	RPN LSB = 7F (running status in effect) 	Null Function (Cancel RPN)
+65 7F	RPN MSB = 7F (running status in effect)
+
+Or, to set Tuning Program 'tt' on channel 'n' :
+11 bytes 	Bn 64 03 65 00 06 tt 64 7F 65 7F
+Bn 64 03	RPN LSB = 03 	Select RPN : Select Tuning Program
+65 00	RPN MSB = 00 (running status in effect)
+06 tt	Data Entry MSB = tt (running status in effect) 	Coarse adjustment
+64 7F	RPN LSB = 7F (running status in effect) 	Null Function (Cancel RPN)
+65 7F	RPN MSB = 7F (running status in effect)
+
+Or, to increment (by 1) the current Tuning Bank on channel 'n' :
+11 bytes 	Bn 64 04 65 00 60 01 64 7F 65 7F
+Bn 64 04	RPN LSB = 04 	Select RPN : Select Tuning Bank
+65 00	RPN MSB = 00 (running status in effect)
+60 01	Data Increment (running status in effect) 	Increment (by 1)
+64 7F	RPN LSB = 7F (running status in effect) 	Null Function (Cancel RPN)
+65 7F	RPN MSB = 7F (running status in effect)
+
+When sending successive RPN (or NRPN) messages, the standard allows the ommision of CC100 & CC101 (or CC98 & CC99) if their value is unchanged.
+
+For example, to send a pair of Channel Coarse Tuning and Channel Fine Tuning RPN messages (with a low-res and high-res data value, respectively) :
+17 bytes 	Bn 64 02 65 00 06 TM 64 01 06 tM 26 tL 64 7F 65 7F
+Bn 64 02	RPN LSB = 02 	Select RPN : Channel Coarse Tuning
+65 00	RPN MSB = 00 (running status in effect)
+06 TM	Data Entry, MSB (running status in effect) 	Coarse adjustment (of 'coarse tuning')
+64 01	RPN LSB = 01 (running status in effect) 	Select RPN : Channel Fine Tuning (RPN MSB = 00 is still in effect)
+06 tM	Data Entry, MSB (running status in effect) 	Coarse adjustment (of 'fine tuning')
+26 tL	Data Entry, LSB (running status in effect) 	Fine adjustment (of 'fine tuning')
+64 7F	RPN LSB = 7F (running status in effect) 	Null Function (Cancel RPN)
+65 7F	RPN MSB = 7F (running status in effect)
+
+
+Controller Numbers
+
+The controller number is the first data byte (0ccccccc) following a Controller Change status byte (Bn). The 128 available controller numbers are split into four groups :
+0-63	High resolution continuous controllers (0-31 = MSB; 32-63 = LSB)
+64-69	Switches
+70-119	Low resolution continuous controllers
+120-127	Channel Mode messages
+
+Note that for switches, the second data byte (0vvvvvvv) is either 0 (Off) or 127 (On), and that for high and low resolution continuous controllers, the second data byte takes the range 0-127.
+
+The high resolution continuous controllers are divided into MSB and LSB values, providing a maximum of 14-bit resolution. If only 7-bit resolution is needed for a specific controller, only the MSB is used - it is not necessary to send the LSB. If the full resolution is required, then the MSB should be sent first, followed by the LSB. If only the LSB has changed in value, the LSB may be sent without re-sending the MSB.
+
+The controller numbers missing from the following list (3, 9, 14, 15, 20-31, 35, 41, 46, 47, 52-63, 85-87, 89, 90 and 102-119) are currently undefined.
+High resolution continuous controllers (MSB)
+0	Bank Select   (Detail)
+1	Modulation Wheel
+2	Breath Controller
+4	Foot Controller
+5	Portamento Time
+6	Data Entry   (used with RPNs/NRPNs)
+7	Channel Volume
+8	Balance
+10	Pan
+11	Expression Controller
+12	Effect Control 1
+13	Effect Control 2
+16	Gen Purpose Controller 1
+17	Gen Purpose Controller 2
+18	Gen Purpose Controller 3
+19	Gen Purpose Controller 4
+High resolution continuous controllers (LSB)
+32	Bank Select
+33	Modulation Wheel
+34	Breath Controller
+36	Foot Controller
+37	Portamento Time
+38	Data Entry
+39	Channel Volume
+40	Balance
+42	Pan
+43	Expression Controller
+44	Effect Control 1
+45	Effect Control 2
+48	General Purpose Controller 1
+49	General Purpose Controller 2
+50	General Purpose Controller 3
+51	General Purpose Controller 4
+Switches
+64	Sustain On/Off
+65	Portamento On/Off
+66	Sostenuto On/Off
+67	Soft Pedal On/Off
+68	Legato On/Off
+69	Hold 2 On/Off
+Low resolution continuous controllers
+70	Sound Controller 1   (TG: Sound Variation;   FX: Exciter On/Off)
+71	Sound Controller 2   (TG: Harmonic Content;   FX: Compressor On/Off)
+72	Sound Controller 3   (TG: Release Time;   FX: Distortion On/Off)
+73	Sound Controller 4   (TG: Attack Time;   FX: EQ On/Off)
+74	Sound Controller 5   (TG: Brightness;   FX: Expander On/Off)
+75	Sound Controller 6   (TG: Decay Time;   FX: Reverb On/Off)
+76	Sound Controller 7   (TG: Vibrato Rate;   FX: Delay On/Off)
+77	Sound Controller 8   (TG: Vibrato Depth;   FX: Pitch Transpose On/Off)
+78	Sound Controller 9   (TG: Vibrato Delay;   FX: Flange/Chorus On/Off)
+79	Sound Controller 10   (TG: Undefined;   FX: Special Effects On/Off)
+80	General Purpose Controller 5
+81	General Purpose Controller 6
+82	General Purpose Controller 7
+83	General Purpose Controller 8
+84	Portamento Control (PTC)   (0vvvvvvv is the source Note number)   (Detail)
+88	High Resolution Velocity Prefix
+91	Effects 1 Depth (Reverb Send Level)
+92	Effects 2 Depth (Tremelo Depth)
+93	Effects 3 Depth (Chorus Send Level)
+94	Effects 4 Depth (Celeste Depth)
+95	Effects 5 Depth (Phaser Depth)
+RPNs / NRPNs - (Detail)
+96	Data Increment
+97	Data Decrement
+98	Non Registered Parameter Number (LSB)
+99	Non Registered Parameter Number (MSB)
+100	Registered Parameter Number (LSB)
+101	Registered Parameter Number (MSB)
+Channel Mode messages - (Detail)
+120	All Sound Off
+121	Reset All Controllers
+122	Local Control On/Off
+123	All Notes Off
+124	Omni Mode Off (also causes ANO)
+125	Omni Mode On (also causes ANO)
+126	Mono Mode On (Poly Off; also causes ANO)
+127	Poly Mode On (Mono Off; also causes ANO)
+*/
+
 /*
 from http://midi.teragonaudio.com/tech/midispec.htm
 

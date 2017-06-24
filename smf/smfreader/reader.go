@@ -189,30 +189,34 @@ func (p *reader) readChunk() (err error) {
 func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	p.log("_readEvent, canary: % X", canary)
 
-	status, changed := p.runningStatus.Handle(canary)
+	status, changed := p.runningStatus.HandleSMF(canary)
 	p.log("got status: % X, changed: %v", status, changed)
 
 	// system common category status
 	if status == 0 {
-		var typ byte
-		typ, err = lib.ReadByte(p.input)
-		p.log("read system common type: % X, err: %v", typ, err)
 
-		if err != nil {
-			return nil, nil
-		}
-
-		switch typ {
+		switch canary {
 
 		// both 0xF0 and 0xF7 may start a sysex in SMF files
 		case 0xF0, 0xF7:
-			return sysex.ReadSMF(typ, p.input)
+			return sysex.ReadSMF(canary, p.input)
 
-		default:
+		// meta event
+		case 0xFF:
+			var typ byte
+			typ, err = lib.ReadByte(p.input)
+			p.log("read system common type: % X, err: %v", typ, err)
+
+			if err != nil {
+				return nil, nil
+			}
+
 			// since System Common messages are not allowed within smf files, there could only be meta messages
 			// all (event unknown) meta messages must be handled by the meta dispatcher
 			m, err = meta.ReadFrom(typ, p.input)
 			p.log("got meta: %T", m)
+		default:
+			panic(fmt.Sprintf("must not happen: invalid status % X", canary))
 		}
 
 		// on a voice/channel category status

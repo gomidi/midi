@@ -10,6 +10,105 @@ import (
 	"github.com/gomidi/midi/internal/lib"
 )
 
+/* http://www.somascape.org/midi/tech/mfile.html
+SMPTE Offset
+
+FF 54 05 hr mn se fr ff
+hr is a byte specifying the hour, which is also encoded with the SMPTE format (frame rate), just as it is in MIDI Time Code, i.e. 0rrhhhhh, where :
+rr = frame rate : 00 = 24 fps, 01 = 25 fps, 10 = 30 fps (drop frame), 11 = 30 fps (non-drop frame)
+hhhhh = hour (0-23)
+mn se are 2 bytes specifying the minutes (0-59) and seconds (0-59), respectively.
+fr is a byte specifying the number of frames (0-23/24/28/29, depending on the frame rate specified in the hr byte).
+ff is a byte specifying the number of fractional frames, in 100ths of a frame (even in SMPTE-based tracks using a different frame subdivision, defined in the MThd chunk).
+
+This optional event, if present, should occur at the start of a track, at time = 0, and prior to any MIDI events. It is used to specify the SMPTE time at which the track is to start.
+
+For a format 1 MIDI file, a SMPTE Offset Meta event should only occur within the first MTrk chunk.
+
+Time Signature
+
+FF 58 04 nn dd cc bb
+
+nn is a byte specifying the numerator of the time signature (as notated).
+dd is a byte specifying the denominator of the time signature as a negative power of 2 (i.e. 2 represents a quarter-note, 3 represents an eighth-note, etc).
+cc is a byte specifying the number of MIDI clocks between metronome clicks.
+bb is a byte specifying the number of notated 32nd-notes in a MIDI quarter-note (24 MIDI Clocks). The usual value for this parameter is 8, though some sequencers allow the user to specify that what MIDI thinks of as a quarter note, should be notated as something else.
+Examples
+
+A time signature of 4/4, with a metronome click every 1/4 note, would be encoded :
+FF 58 04 04 02 18 08
+There are 24 MIDI Clocks per quarter-note, hence cc=24 (0x18).
+
+A time signature of 6/8, with a metronome click every 3rd 1/8 note, would be encoded :
+FF 58 04 06 03 24 08
+Remember, a 1/4 note is 24 MIDI Clocks, therefore a bar of 6/8 is 72 MIDI Clocks.
+Hence 3 1/8 notes is 36 (=0x24) MIDI Clocks.
+
+There should generally be a Time Signature Meta event at the beginning of a track (at time = 0), otherwise a default 4/4 time signature will be assumed. Thereafter they can be used to effect an immediate time signature change at any point within a track.
+
+For a format 1 MIDI file, Time Signature Meta events should only occur within the first MTrk chunk.
+
+Key Signature
+
+FF 59 02 sf mi
+
+sf is a byte specifying the number of flats (-ve) or sharps (+ve) that identifies the key signature (-7 = 7 flats, -1 = 1 flat, 0 = key of C, 1 = 1 sharp, etc).
+mi is a byte specifying a major (0) or minor (1) key.
+
+For a format 1 MIDI file, Key Signature Meta events should only occur within the first MTrk chunk.
+
+Sequencer Specific Event
+
+FF 7F length data
+
+The first 1 or 3 bytes of data is a manufacturer's ID code (same format as for System Exclusive messages). This optional event can be used to store sequencer-specific information.
+
+Program Name
+
+FF 08 length text
+
+This optional event is used to embed the patch/program name that is called up by the immediately subsequent Bank Select and Program Change messages. It serves to aid the end user in making an intelligent program choice when using different hardware.
+
+This event may appear anywhere in a track, and there may be multiple occurrences within a track.
+*/
+
+/*
+Marker
+
+FF 06 length text
+
+This optional event is used to label points within a sequence, e.g. rehearsal letters, loop points, or section names (such as 'First verse').
+
+For a format 1 MIDI file, Marker Meta events should only occur within the first MTrk chunk.
+Cue Point
+
+FF 07 length text
+
+This optional event is used to describe something that happens within a film, video or stage production at that point in the musical score. E.g. 'Car crashes', 'Door opens', etc.
+
+For a format 1 MIDI file, Cue Point Meta events should only occur within the first MTrk chunk.
+*/
+
+/* from: http://www.somascape.org/midi/tech/mfile.html
+
+Meta events
+
+Meta events are used for special non-MIDI events, and use the 0xFF status that in a MIDI data stream would be used for a System Reset message (a System Reset message would not be useful within a MIDI file).
+
+They have the general form : FF type length data
+
+type specifies the type of Meta event (0 - 127).
+length is a variable length quantity (as used to represent delta times) specifying the number of bytes that make up the following data. Some Meta events do not have a data field, whereupon length is 0.
+
+The use of a variable length quantity, rather than a fixed single byte, for length meams that data fields longer than 127 bytes are possible.
+
+The length field should always be read, and should not be assumed, as the definition may change. A MIDI file reader/player should ignore any Meta event types that it does not know about. It should also ignore any additional data if an event's length is longer than expected (it is safe to assume that any extension to the data field will be appended to the current definition). For example if at some time in the future the Sequence Number Meta event is extended with a third data byte, then the first 2 will still have the same interpretation as currently.
+
+Meta event types 0x01 to 0x0F inclusive are reserved for text events. In each case it is best to use the standard 7-bit ASCII character set to ensure reliable interchangeability when transferring files between different computing platforms, however an 8-bit character set may be used. Many text events are best located at or near the beginning of a track (e.g. Copyright, Sequence/Track name, Instrument name), whereas others (Lyric, Marker, Cue point) can occur at various places within a track – their position being an integral aspect of the event.
+
+Although most Meta events are optional, a few are mandatory. Also some events have restrictions regarding their placement.
+*/
+
 type metaMessage struct {
 	Typ  byte
 	Data []byte
