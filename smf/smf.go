@@ -70,7 +70,7 @@ const (
 	// QuarterNoteTicks represents the "ticks per quarter note" (metric) time format
 	QuarterNoteTicks = timeformat("QuarterNoteTicks")
 
-	// TimeCode represents the SMTPE/Timecode time formats
+	// TimeCode represents the SMPTE/Timecode time formats
 	TimeCode = timeformat("TimeCode")
 )
 
