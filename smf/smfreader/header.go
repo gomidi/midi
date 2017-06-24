@@ -152,12 +152,3 @@ func (h *mThdData) readFrom(reader io.Reader) error {
 
 	return err
 }
-
-func UnpackTimeCode(raw uint16) (fps, subframes uint8) {
-	// bit shifting first byte to second inverting sign
-	fps = uint8(int8(byte(raw>>8)) * (-1))
-
-	// taking the second byte
-	subframes = byte(raw & uint16(255))
-	return
-}

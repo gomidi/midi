@@ -43,6 +43,15 @@ type Header interface {
 	NumTracks() uint16
 }
 
+func UnpackTimeCode(raw uint16) (fps, subframes uint8) {
+	// bit shifting first byte to second inverting sign
+	fps = uint8(int8(byte(raw>>8)) * (-1))
+
+	// taking the second byte
+	subframes = byte(raw & uint16(255))
+	return
+}
+
 const (
 	// SingleTrack represents the singletrack SMF format (0)
 	SingleTrack = format(0)
