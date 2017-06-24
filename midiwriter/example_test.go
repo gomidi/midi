@@ -14,7 +14,7 @@ import (
 func Example() {
 	var bf bytes.Buffer
 
-	wr := midiwriter.New(&bf)
+	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
 	wr.Write(channel.Ch2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
 	wr.Write(channel.Ch2.NoteOff(65))

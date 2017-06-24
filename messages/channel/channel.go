@@ -40,6 +40,10 @@ func (c Channel) NoteOff(pitch uint8) NoteOff {
 	return NoteOff{channel: c.Number(), pitch: pitch}
 }
 
+func (c Channel) NoteOffPedantic(pitch uint8, velocity uint8) NoteOffPedantic {
+	return NoteOffPedantic{NoteOff{channel: c.Number(), pitch: pitch}, velocity}
+}
+
 func (c Channel) NoteOn(pitch uint8, veloctiy uint8) NoteOn {
 	return NoteOn{channel: c.Number(), pitch: pitch, velocity: veloctiy}
 }

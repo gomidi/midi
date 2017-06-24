@@ -498,7 +498,3 @@ func hasBitU8(n uint8, pos uint8) bool {
 	return (val > 0)
 }
 */
-
-func IsStatusByte(b uint8) bool {
-	return hasBitU8(b, 7)
-}

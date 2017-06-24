@@ -23,16 +23,37 @@ type Reader interface {
 	Read() (Message, error)
 }
 
+type ReaderOption func(*reader)
+
+// ReadNoteOffPedantic lets the reader differenciate between "fake" noteoff messages
+// (which are in fact noteon messages (typ 9) with velocity of 0) and "real" noteoff messages (typ 8)
+// The former are returned as NoteOffPedantic messages and keep the given velocity, the later
+// are returned as NoteOff messages without velocity. That means in order to get all noteoff messages,
+// there must be checks for NoteOff and NoteOffPedantic (if this option is set).
+// If this option is not set, both kinds are returned as NoteOff (default).
+func ReadNoteOffPedantic() ReaderOption {
+	return func(rd *reader) {
+		rd.readNoteOffPedantic = true
+	}
+}
+
 // NewReader returns a reader that can read a single channel message
 // Read may just be called once per Reader. A second call returns io.EOF
-func NewReader(input io.Reader, status byte) Reader {
-	return &reader{input, status, false}
+func NewReader(input io.Reader, status byte, options ...ReaderOption) Reader {
+	rd := &reader{input, status, false, false}
+
+	for _, opt := range options {
+		opt(rd)
+	}
+
+	return rd
 }
 
 type reader struct {
-	input  io.Reader
-	status byte
-	done   bool
+	input               io.Reader
+	status              byte
+	done                bool
+	readNoteOffPedantic bool
 }
 
 // Read may just be called once per Reader. A second call returns io.EOF
@@ -88,7 +109,11 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 
 	switch typ {
 	case byteNoteOff:
-		msg = NoteOff{}
+		if r.readNoteOffPedantic {
+			msg = NoteOffPedantic{}
+		} else {
+			msg = NoteOff{}
+		}
 	case byteNoteOn:
 		msg = NoteOn{}
 	case bytePolyphonicKeyPressure:

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/gomidi/midi/internal/runningstatus"
 	"io"
+	"os"
 
 	"github.com/gomidi/midi"
 	// "github.com/gomidi/midiwriter"
@@ -216,6 +218,12 @@ func (c *chunk) writeTo(wr io.Writer) (int, error) {
 	return wr.Write(bf.Bytes())
 }
 
+func NoRunningStatus() Option {
+	return func(w *writer) {
+		w.noRunningStatus = true
+	}
+}
+
 func QuarterNoteTicks(ticks uint16) Option {
 	return func(e *writer) {
 		e.header.TickHeader = resQuarterNote(ticks)
@@ -311,23 +319,29 @@ type writer struct {
 	currentTrack    *track
 	tracksProcessed uint16
 	deltatime       uint32
+	noRunningStatus bool
 }
 
 // WriteTo writes a midi file to writer
 // Pass NumTracks to write multiple tracks (SMF1), otherwise everything will be written
 // into a single track (SMF0). However SMF1 can also be enforced with a single track by passing SMF1 as an option
-func newWriter(wr io.Writer, opts ...Option) *writer {
+func newWriter(output io.Writer, opts ...Option) *writer {
 	enc := &writer{
 		header: &header{
 		// MidiFormat: format(10), // not existing, only for checking if it is undefined to be able to set the default
 		},
 		writeHeader:  true,
-		wr:           wr,
 		currentTrack: &track{},
 	}
 
 	for _, opt := range opts {
 		opt(enc)
+	}
+
+	if enc.noRunningStatus {
+		enc.wr = output
+	} else {
+		enc.wr = runningstatus.NewSMFWriter(output)
 	}
 
 	if enc.header.NumTracks == 0 {
@@ -357,39 +371,81 @@ func (e *writer) SetDelta(deltatime uint32) {
 	e.deltatime = deltatime
 }
 
-// WriteEvent writes the header on the first call, if e.writeHeader is true
-// in realtime mode, no header and no track is written, instead each event is
-// written as is to the output writer until an end of track event had come
-// then io.EOF is returned
-// WriteEvent returns any writing error or io.EOF if the last track has been written
-func (e *writer) Write(m midi.Message) (err error) {
+// WriteFile creates file, calls callback with a writer and closes file
+// WriteFile makes sure that the data of the last track is written by sending
+// an meta.EndOfTrack message after callback has been run.
+// So callback may skip the sending of the last meta.EndOfTrack message although
+// it does no harm if send twice. Especially for single track (SMF0) files this
+// is interesting, since no meta.EndOfTrack message must then be send from callback.
+func WriteFile(file string, callback func(smf.Writer), options ...Option) error {
+	f, err := os.Create(file)
+
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		f.Close()
+	}()
+
+	wr := New(f, options...)
+	callback(wr)
+
+	// make sure the data of the last track is written
+	wr.Write(meta.EndOfTrack)
+
+	return nil
+}
+
+// Write writes a midi message to the SMF file.
+// Due to the nature of SMF files there is some maybe surprising behavior.
+// - If the header has not been written yet, it will be written before writing the first message.
+// - The first message will be written to track 0 which will be implicetly created.
+// - All messages of a track will be buffered inside the track and only be written if an EndOfTrack
+//   message is written.
+// - The number of tracks that are written will never execeed the NumTracks that have been defined as
+//   an option. If the last track has been written, io.EOF will be returned. (Also for any further attempt to write).
+// - It is the responsability of the caller to make sure the provided NumTracks (which defaults to 1) is not
+//   larger as the number of tracks in the file. smfreader is tolerant when reading such a file; so may be other
+//   SMF readers.
+// - It is the responsability of the caller to open and close any file where appropriate. The writer just uses an io.Writer.
+// Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
+// that have been physically written.
+func (e *writer) Write(m midi.Message) (nbytes int, err error) {
 	defer func() {
 		e.deltatime = 0
 	}()
 
+	if e.header.NumTracks == e.tracksProcessed {
+		err = io.EOF
+		return
+	}
+
 	if e.writeHeader {
-		err = e.WriteHeader()
+		nbytes, err = e.WriteHeader()
 		if err != nil {
-			return err
+			return
 		}
 		e.writeHeader = false
 	}
 	// fmt.Printf("%T\n", ev)
 	if m == meta.EndOfTrack {
 		e.currentTrack.Add(e.deltatime, m.Raw())
-		_, err = e.currentTrack.WriteTo(e.wr)
+		var tnum int
+		tnum, err = e.currentTrack.WriteTo(e.wr)
+		nbytes += tnum
 		e.tracksProcessed++
 		if e.header.NumTracks == e.tracksProcessed {
-			return io.EOF
+			err = io.EOF
+			return
 		}
 		e.currentTrack = &track{}
-		return nil
+		return
 	}
 	e.currentTrack.Add(e.deltatime, m.Raw())
-	return nil
+	return
 }
 
-func (e *writer) WriteHeader() (err error) {
-	_, err = e.header.WriteTo(e.wr)
-	return
+func (e *writer) WriteHeader() (nbytes int, err error) {
+	return e.header.WriteTo(e.wr)
 }

@@ -6,6 +6,7 @@ import (
 	// "encoding/binary"
 	"fmt"
 	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/runningstatus"
 	"github.com/gomidi/midi/messages/realtime"
 	"io"
 )
@@ -457,7 +458,7 @@ func ReadLive(rd realtime.Reader) (sys SysEx, status byte, err error) {
 		}
 
 		// not so elegant way to terminate by sending a new status
-		if lib.IsStatusByte(b) {
+		if runningstatus.IsStatusByte(b) {
 			sys = SysEx(bf.Bytes())
 			status = b
 			return

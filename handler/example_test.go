@@ -31,13 +31,13 @@ func Example() {
 		fmt.Printf("[%v] NoteOn at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
 	}
 
-	hd.NoteOff = func(p *handler.Pos, channel, pitch uint8) {
-		fmt.Printf("[%v] NoteOff at channel %v: pitch %v\n", p.Delta, channel, pitch)
+	hd.NoteOff = func(p *handler.Pos, channel, pitch, vel uint8) {
+		fmt.Printf("[%v] NoteOff at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
 	}
 
 	hd.ReadSMF(mkMIDI())
 
 	// Output: [0] NoteOn at channel 2: pitch 65 velocity: 90
-	// [2] NoteOff at channel 2: pitch 65
+	// [2] NoteOff at channel 2: pitch 65 velocity: 0
 
 }

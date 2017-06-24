@@ -70,9 +70,9 @@ func New(opts ...Option) *Handler {
 	return h
 }
 
-// Handler handles the midi events coming from an SMF file or a live stream.
+// Handler handles the midi messages coming from an SMF file or a live stream.
 //
-// The events are dispatched to the corresponding functions that are not nil.
+// The messages are dispatched to the corresponding functions that are not nil.
 //
 // The desired functions must be attached before Handler.ReadLive or Handler.ReadSMF is called
 // and they must not be changed while these methods are running.
@@ -114,8 +114,12 @@ type Handler struct {
 	EndOfTrack func(p *Pos)
 
 	// channel messages
-	NoteOff              func(p *Pos, channel, pitch uint8)
-	NoteOn               func(p *Pos, channel, pitch, velocity uint8)
+	// NoteOn is just called for noteon messages with a velocity > 0
+	// noteon messages with velocity == 0 will trigger NoteOff with a velocity of 0
+	NoteOn func(p *Pos, channel, pitch, velocity uint8)
+	// NoteOff is triggered by noteoff messages (then the given velocity is passed)
+	// and by noteon messages of velocity 0 (then velocity is 0)
+	NoteOff              func(p *Pos, channel, pitch uint8, velocity uint8)
 	PolyphonicAfterTouch func(p *Pos, channel, pitch, pressure uint8)
 	ControlChange        func(p *Pos, channel, controller, value uint8)
 	ProgramChange        func(p *Pos, channel, program uint8)
@@ -149,9 +153,12 @@ type Handler struct {
 	UndefinedSysCommon4 func(p *Pos)
 	UndefinedSysCommon5 func(p *Pos)
 	UndefinedRealtime4  func()
+	Unknown             func(p *Pos, info string)
 
 	// is called in addition to other functions, if set.
 	Each func(*Pos, midi.Message)
+
+	errSMF error
 }
 
 // log does the logging
@@ -175,73 +182,61 @@ func (h *Handler) log(m midi.Message) {
 // and they must not be unset or replaced until ReadLive returns.
 //
 // The *Pos parameter that is passed to the functions is nil, because we are in a live setting.
-func (h *Handler) ReadLive(src io.Reader) (err error) {
-	realtimeStream := make(chan realtime.Message, 15)
-
+func (h *Handler) ReadLive(src io.Reader, options ...midireader.Option) (err error) {
 	rthandler := func(m realtime.Message) {
-		realtimeStream <- m
+		switch m {
+		// ticks (most important, must be sent every 10 milliseconds) comes first
+		case realtime.Tick:
+			if h.Tick != nil {
+				h.Tick()
+			}
+
+		// clock a bit slower synchronization method (24 MIDI Clocks in every quarter note) comes next
+		case realtime.TimingClock:
+			if h.Clock != nil {
+				h.Clock()
+			}
+
+		// ok starting and continuing should not take too lpng
+		case realtime.Start:
+			if h.Start != nil {
+				h.Start()
+			}
+
+		case realtime.Continue:
+			if h.Continue != nil {
+				h.Continue()
+			}
+
+		// Active Sense must come every 300 milliseconds (but is seldom implemented)
+		case realtime.ActiveSensing:
+			if h.ActiveSense != nil {
+				h.ActiveSense()
+			}
+
+		// put any user defined realtime message here
+		case realtime.Undefined4:
+			if h.UndefinedRealtime4 != nil {
+				h.UndefinedRealtime4()
+			}
+
+		// ok, stopping is not so urgent
+		case realtime.Stop:
+			if h.Stop != nil {
+				h.Stop()
+			}
+
+		// reset may take some time
+		case realtime.Reset:
+			if h.Reset != nil {
+				h.Reset()
+			}
+
+		}
 	}
 
-	go func() {
-
-		// range should stop on closing of the channel
-		for evt := range realtimeStream {
-			switch evt {
-			// ticks (most important, must be sent every 10 milliseconds) comes first
-			case realtime.Tick:
-				if h.Tick != nil {
-					h.Tick()
-				}
-
-			// clock a bit slower synchronization method (24 MIDI Clocks in every quarter note) comes next
-			case realtime.TimingClock:
-				if h.Clock != nil {
-					h.Clock()
-				}
-
-			// ok starting and continuing should not take too lpng
-			case realtime.Start:
-				if h.Start != nil {
-					h.Start()
-				}
-
-			case realtime.Continue:
-				if h.Continue != nil {
-					h.Continue()
-				}
-
-			// Active Sense must come every 300 milliseconds (but is seldom implemented)
-			case realtime.ActiveSensing:
-				if h.ActiveSense != nil {
-					h.ActiveSense()
-				}
-
-			// put any user defined realtime message here
-			case realtime.Undefined4:
-				if h.UndefinedRealtime4 != nil {
-					h.UndefinedRealtime4()
-				}
-
-			// ok, stopping is not so urgent
-			case realtime.Stop:
-				if h.Stop != nil {
-					h.Stop()
-				}
-
-			// reset may take some time
-			case realtime.Reset:
-				if h.Reset != nil {
-					h.Reset()
-				}
-
-			}
-		}
-
-	}()
-
-	rd := midireader.New(src, rthandler)
+	rd := midireader.New(src, rthandler, options...)
 	err = h.read(rd)
-	close(realtimeStream)
 
 	if err == io.EOF {
 		return nil
@@ -250,7 +245,7 @@ func (h *Handler) ReadLive(src io.Reader) (err error) {
 	return
 }
 
-// read reads the events from the midi.Reader (which might be an smf reader
+// read reads the messages from the midi.Reader (which might be an smf reader
 // for realtime reading, the passed *Pos is nil
 func (h *Handler) read(rd midi.Reader) (err error) {
 	var evt midi.Message
@@ -286,7 +281,12 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 		// proably second most common
 		case channel.NoteOff:
 			if h.NoteOff != nil {
-				h.NoteOff(h.pos, ev.Channel(), ev.Pitch())
+				h.NoteOff(h.pos, ev.Channel(), ev.Pitch(), 0)
+			}
+
+		case channel.NoteOffPedantic:
+			if h.NoteOff != nil {
+				h.NoteOff(h.pos, ev.Channel(), ev.Pitch(), ev.Velocity())
 			}
 
 		// if send there often are a lot of them
@@ -436,11 +436,11 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 					h.EndOfTrack(h.pos)
 				}
 			default:
-				/*
-					if h.Unknown != nil {
-						h.Unknown(h.pos, nil)
-					}
-				*/
+
+				if h.Unknown != nil {
+					h.Unknown(h.pos, fmt.Sprintf("%T %#v", evt, evt))
+				}
+
 			}
 
 		}
@@ -450,28 +450,51 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 	return
 }
 
-// ReadSMF reads midi events from src (which is supposed to be the content of a standard midi file (SMF))
+// ReadSMFFile open, reads and closes a complete SMF file.
+// If the read content was a valid midi file, nil is returned.
+//
+// The messages are dispatched to the corresponding attached functions of the handler.
+//
+// They must be attached before Handler.ReadSMF is called
+// and they must not be unset or replaced until ReadSMF returns.
+//
+// The *Pos parameter that is passed to the functions is always, because we are reading a file.
+func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
+	h.errSMF = nil
+	err := smfreader.ReadFile(file, h.readSMF, options...)
+	if err != nil {
+		return err
+	}
+	return h.errSMF
+}
+
+// ReadSMF reads midi messages from src (which is supposed to be the content of a standard midi file (SMF))
 // until an error or io.EOF happens.
 //
 // ReadSMF does not close the src.
 //
 // If the read content was a valid midi file, nil is returned.
 //
-// The events are dispatched to the corresponding attached functions of the handler.
+// The messages are dispatched to the corresponding attached functions of the handler.
 //
 // They must be attached before Handler.ReadSMF is called
 // and they must not be unset or replaced until ReadSMF returns.
 //
 // The *Pos parameter that is passed to the functions is always, because we are reading a file.
-func (h *Handler) ReadSMF(src io.Reader) error {
+func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
+	h.errSMF = nil
 	h.pos = &Pos{}
+	rd := smfreader.New(src, options...)
+	h.readSMF(rd)
+	return h.errSMF
+}
 
-	rd := smfreader.New(src)
-
+func (h *Handler) readSMF(rd smf.Reader) {
 	hd, err := rd.ReadHeader()
 
 	if err != nil {
-		return err
+		h.errSMF = err
+		return
 	}
 
 	if h.Format != nil {
@@ -494,9 +517,9 @@ func (h *Handler) ReadSMF(src io.Reader) error {
 
 	// use err here
 	err = h.read(rd)
-	if err == io.EOF {
-		return nil
+	if err != io.EOF {
+		h.errSMF = err
 	}
 
-	return err
+	return
 }
