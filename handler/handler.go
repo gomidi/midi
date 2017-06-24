@@ -2,33 +2,14 @@ package handler
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/live/midireader"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
-	"github.com/gomidi/midi/messages/realtime"
 	"github.com/gomidi/midi/messages/syscommon"
 	"github.com/gomidi/midi/messages/sysex"
 	"github.com/gomidi/midi/smf"
-	"github.com/gomidi/midi/smf/smfreader"
 )
-
-// Logger is the inferface used by Handler for logging incoming messages.
-type Logger interface {
-	Printf(format string, vals ...interface{})
-}
-
-type logfunc func(format string, vals ...interface{})
-
-func (l logfunc) Printf(format string, vals ...interface{}) {
-	l(format, vals...)
-}
-
-func printf(format string, vals ...interface{}) {
-	fmt.Printf(format, vals...)
-}
 
 // Pos is the position of the event inside a standard midi file (SMF).
 type Pos struct {
@@ -40,23 +21,6 @@ type Pos struct {
 
 	// the absolute time from the beginning of the track
 	AbsTime uint64
-}
-
-// Option configures the handler
-type Option func(*Handler)
-
-// SetLogger allows to set a custom logger for the handler
-func SetLogger(l Logger) Option {
-	return func(h *Handler) {
-		h.logger = l
-	}
-}
-
-// NoLogger is an option to disable the defaut logging of a handler
-func NoLogger() Option {
-	return func(h *Handler) {
-		h.logger = nil
-	}
 }
 
 // New returns a new handler
@@ -174,88 +138,13 @@ func (h *Handler) log(m midi.Message) {
 	}
 }
 
-// ReadLive reads midi messages from src until an error or io.EOF happens.
-//
-// If io.EOF happend the returned error is nil.
-//
-// ReadLive does not close the src.
-//
-// The messages are dispatched to the corresponding attached functions of the handler.
-//
-// They must be attached before Handler.ReadLive is called
-// and they must not be unset or replaced until ReadLive returns.
-//
-// The *Pos parameter that is passed to the functions is nil, because we are in a live setting.
-func (h *Handler) ReadLive(src io.Reader, options ...midireader.Option) (err error) {
-	rthandler := func(m realtime.Message) {
-		switch m {
-		// ticks (most important, must be sent every 10 milliseconds) comes first
-		case realtime.Tick:
-			if h.Tick != nil {
-				h.Tick()
-			}
-
-		// clock a bit slower synchronization method (24 MIDI Clocks in every quarter note) comes next
-		case realtime.TimingClock:
-			if h.Clock != nil {
-				h.Clock()
-			}
-
-		// ok starting and continuing should not take too lpng
-		case realtime.Start:
-			if h.Start != nil {
-				h.Start()
-			}
-
-		case realtime.Continue:
-			if h.Continue != nil {
-				h.Continue()
-			}
-
-		// Active Sense must come every 300 milliseconds (but is seldom implemented)
-		case realtime.ActiveSensing:
-			if h.ActiveSense != nil {
-				h.ActiveSense()
-			}
-
-		// put any user defined realtime message here
-		case realtime.Undefined4:
-			if h.UndefinedRealtime4 != nil {
-				h.UndefinedRealtime4()
-			}
-
-		// ok, stopping is not so urgent
-		case realtime.Stop:
-			if h.Stop != nil {
-				h.Stop()
-			}
-
-		// reset may take some time
-		case realtime.Reset:
-			if h.Reset != nil {
-				h.Reset()
-			}
-
-		}
-	}
-
-	rd := midireader.New(src, rthandler, options...)
-	err = h.read(rd)
-
-	if err == io.EOF {
-		return nil
-	}
-
-	return
-}
-
 // read reads the messages from the midi.Reader (which might be an smf reader
 // for realtime reading, the passed *Pos is nil
 func (h *Handler) read(rd midi.Reader) (err error) {
-	var evt midi.Message
+	var m midi.Message
 
 	for {
-		evt, err = rd.Read()
+		m, err = rd.Read()
 		if err != nil {
 			break
 		}
@@ -267,176 +156,176 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 		}
 
 		if h.logger != nil {
-			h.log(evt)
+			h.log(m)
 		}
 
 		if h.Each != nil {
-			h.Each(h.pos, evt)
+			h.Each(h.pos, m)
 		}
 
-		switch ev := evt.(type) {
+		switch msg := m.(type) {
 
 		// most common event, should be exact
 		case channel.NoteOn:
 			if h.NoteOn != nil {
-				h.NoteOn(h.pos, ev.Channel(), ev.Pitch(), ev.Velocity())
+				h.NoteOn(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
 			}
 
 		// proably second most common
 		case channel.NoteOff:
 			if h.NoteOff != nil {
-				h.NoteOff(h.pos, ev.Channel(), ev.Pitch(), 0)
+				h.NoteOff(h.pos, msg.Channel(), msg.Pitch(), 0)
 			}
 
 		case channel.NoteOffPedantic:
 			if h.NoteOff != nil {
-				h.NoteOff(h.pos, ev.Channel(), ev.Pitch(), ev.Velocity())
+				h.NoteOff(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
 			}
 
 		// if send there often are a lot of them
 		case channel.PitchWheel:
 			if h.PitchWheel != nil {
-				h.PitchWheel(h.pos, ev.Channel(), ev.Value())
+				h.PitchWheel(h.pos, msg.Channel(), msg.Value())
 			}
 
 		case channel.PolyphonicAfterTouch:
 			if h.PolyphonicAfterTouch != nil {
-				h.PolyphonicAfterTouch(h.pos, ev.Channel(), ev.Pitch(), ev.Pressure())
+				h.PolyphonicAfterTouch(h.pos, msg.Channel(), msg.Pitch(), msg.Pressure())
 			}
 
 		case channel.AfterTouch:
 			if h.AfterTouch != nil {
-				h.AfterTouch(h.pos, ev.Channel(), ev.Pressure())
+				h.AfterTouch(h.pos, msg.Channel(), msg.Pressure())
 			}
 
 		case channel.ControlChange:
 			if h.ControlChange != nil {
-				h.ControlChange(h.pos, ev.Channel(), ev.Controller(), ev.Value())
+				h.ControlChange(h.pos, msg.Channel(), msg.Controller(), msg.Value())
 			}
 
 		case meta.Tempo:
 			if h.Tempo != nil {
-				h.Tempo(h.pos, ev.BPM())
+				h.Tempo(h.pos, msg.BPM())
 			}
 
 		case meta.TimeSignature:
 			if h.TimeSignature != nil {
-				h.TimeSignature(h.pos, ev.Numerator, ev.Denominator)
+				h.TimeSignature(h.pos, msg.Numerator, msg.Denominator)
 			}
 
 			// may be for karaoke we need to be fast
 		case meta.Lyric:
 			if h.Lyric != nil {
-				h.Lyric(h.pos, ev.Text())
+				h.Lyric(h.pos, msg.Text())
 			}
 
 		// may be useful to synchronize by sequence number
 		case meta.SequenceNumber:
 			if h.SequenceNumber != nil {
-				h.SequenceNumber(h.pos, ev.Number())
+				h.SequenceNumber(h.pos, msg.Number())
 			}
 
 		// markers and cuepoints could also be useful when communication sections or sequences between devices
 		case meta.Marker:
 			if h.Marker != nil {
-				h.Marker(h.pos, ev.Text())
+				h.Marker(h.pos, msg.Text())
 			}
 
 		case meta.CuePoint:
 			if h.CuePoint != nil {
-				h.CuePoint(h.pos, ev.Text())
+				h.CuePoint(h.pos, msg.Text())
 			}
 
 		case sysex.SysEx:
 			if h.SysExComplete != nil {
-				h.SysExComplete(h.pos, ev.Data())
+				h.SysExComplete(h.pos, msg.Data())
 			}
 
 		case sysex.Start:
 			if h.SysExStart != nil {
-				h.SysExStart(h.pos, ev.Data())
+				h.SysExStart(h.pos, msg.Data())
 			}
 
 		case sysex.End:
 			if h.SysExEnd != nil {
-				h.SysExEnd(h.pos, ev.Data())
+				h.SysExEnd(h.pos, msg.Data())
 			}
 
 		case sysex.Continue:
 			if h.SysExContinue != nil {
-				h.SysExContinue(h.pos, ev.Data())
+				h.SysExContinue(h.pos, msg.Data())
 			}
 
 		case sysex.Escape:
 			if h.SysExEscape != nil {
-				h.SysExEscape(h.pos, ev.Data())
+				h.SysExEscape(h.pos, msg.Data())
 			}
 
 		// this usually takes some time
 		case channel.ProgramChange:
 			if h.ProgramChange != nil {
-				h.ProgramChange(h.pos, ev.Channel(), ev.Program())
+				h.ProgramChange(h.pos, msg.Channel(), msg.Program())
 			}
 
 		// the rest is not that interesting for performance
 		case meta.KeySignature:
 			if h.KeySignature != nil {
-				h.KeySignature(h.pos, ev.Key, ev.IsMajor, ev.Num, ev.IsFlat)
+				h.KeySignature(h.pos, msg.Key, msg.IsMajor, msg.Num, msg.IsFlat)
 			}
 
 		case meta.Sequence:
 			if h.Sequence != nil {
-				h.Sequence(h.pos, ev.Text())
+				h.Sequence(h.pos, msg.Text())
 			}
 
 		case meta.TrackInstrument:
 			if h.TrackInstrument != nil {
-				h.TrackInstrument(h.pos, ev.Text())
+				h.TrackInstrument(h.pos, msg.Text())
 			}
 
 		case meta.MIDIChannel:
 			if h.MIDIChannel != nil {
-				h.MIDIChannel(h.pos, ev.Number())
+				h.MIDIChannel(h.pos, msg.Number())
 			}
 
 		case meta.MIDIPort:
 			if h.MIDIPort != nil {
-				h.MIDIPort(h.pos, ev.Number())
+				h.MIDIPort(h.pos, msg.Number())
 			}
 
 		case meta.Text:
 			if h.Text != nil {
-				h.Text(h.pos, ev.Text())
+				h.Text(h.pos, msg.Text())
 			}
 
 		case syscommon.SongSelect:
 			if h.SongSelect != nil {
-				h.SongSelect(ev.Number())
+				h.SongSelect(msg.Number())
 			}
 
 		case syscommon.SongPositionPointer:
 			if h.SongPositionPointer != nil {
-				h.SongPositionPointer(ev.Number())
+				h.SongPositionPointer(msg.Number())
 			}
 
 		case syscommon.MIDITimingCode:
 			if h.MIDITimingCode != nil {
-				h.MIDITimingCode(ev.QuarterFrame())
+				h.MIDITimingCode(msg.QuarterFrame())
 			}
 
 		case meta.Copyright:
 			if h.Copyright != nil {
-				h.Copyright(h.pos, ev.Text())
+				h.Copyright(h.pos, msg.Text())
 			}
 
 		case meta.DevicePort:
 			if h.DevicePort != nil {
-				h.DevicePort(h.pos, ev.Text())
+				h.DevicePort(h.pos, msg.Text())
 			}
 
 		case meta.Undefined:
 			if h.UndefinedMeta != nil {
-				h.UndefinedMeta(h.pos, ev.Typ, ev.Data)
+				h.UndefinedMeta(h.pos, msg.Typ, msg.Data)
 			}
 
 		case syscommon.Undefined4:
@@ -450,7 +339,7 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 			}
 
 		default:
-			switch evt {
+			switch m {
 			case syscommon.TuneRequest:
 				if h.TuneRequest != nil {
 					h.TuneRequest()
@@ -462,87 +351,13 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 			default:
 
 				if h.Unknown != nil {
-					h.Unknown(h.pos, fmt.Sprintf("%T %#v", evt, evt))
+					h.Unknown(h.pos, fmt.Sprintf("%T %#v", m, m))
 				}
 
 			}
 
 		}
 
-	}
-
-	return
-}
-
-// ReadSMFFile open, reads and closes a complete SMF file.
-// If the read content was a valid midi file, nil is returned.
-//
-// The messages are dispatched to the corresponding attached functions of the handler.
-//
-// They must be attached before Handler.ReadSMF is called
-// and they must not be unset or replaced until ReadSMF returns.
-//
-// The *Pos parameter that is passed to the functions is always, because we are reading a file.
-func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
-	h.errSMF = nil
-	err := smfreader.ReadFile(file, h.readSMF, options...)
-	if err != nil {
-		return err
-	}
-	return h.errSMF
-}
-
-// ReadSMF reads midi messages from src (which is supposed to be the content of a standard midi file (SMF))
-// until an error or io.EOF happens.
-//
-// ReadSMF does not close the src.
-//
-// If the read content was a valid midi file, nil is returned.
-//
-// The messages are dispatched to the corresponding attached functions of the handler.
-//
-// They must be attached before Handler.ReadSMF is called
-// and they must not be unset or replaced until ReadSMF returns.
-//
-// The *Pos parameter that is passed to the functions is always, because we are reading a file.
-func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
-	h.errSMF = nil
-	h.pos = &Pos{}
-	rd := smfreader.New(src, options...)
-	h.readSMF(rd)
-	return h.errSMF
-}
-
-func (h *Handler) readSMF(rd smf.Reader) {
-	hd, err := rd.ReadHeader()
-
-	if err != nil {
-		h.errSMF = err
-		return
-	}
-
-	if h.Format != nil {
-		h.Format(hd.Format())
-	}
-
-	if h.NumTracks != nil {
-		h.NumTracks(hd.NumTracks())
-	}
-
-	tf, tval := hd.TimeFormat()
-
-	if tf == smf.TimeCode && h.TimeCode != nil {
-		h.TimeCode(tval)
-	}
-
-	if tf == smf.QuarterNoteTicks && h.QuarterNoteTicks != nil {
-		h.QuarterNoteTicks(tval)
-	}
-
-	// use err here
-	err = h.read(rd)
-	if err != io.EOF {
-		h.errSMF = err
 	}
 
 	return
