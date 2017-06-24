@@ -3,11 +3,11 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package smfreader provides a reader for standard midi format (SMF) files.
+	Package smfreader provides a reader for Standard MIDI Files (SMF).
 
 	There is also a more comfortable handler package:
 
-	  github.com/gomidi/midi/handler    (reading midi messages from streams or SMF files)
+	  github.com/gomidi/midi/handler    (reading MIDI messages live or from SMF files)
 
 	Usage
 

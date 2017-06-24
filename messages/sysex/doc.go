@@ -2,5 +2,5 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-// Package sysex provides midi system exclusive messages
+// Package sysex provides MIDI System Exclusive Messages
 package sysex

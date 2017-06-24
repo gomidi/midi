@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package smfwriter provides a writer for standard midi format (SMF) files.
+	Package smfwriter provides a writer for Standard MIDI Files (SMF).
 
 	Usage
 

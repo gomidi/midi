@@ -1,23 +1,23 @@
 package midi
 
-// Message is a midi message
+// Message is a MIDI message
 type Message interface {
-	// String() inspects the midi message in an informative way
+	// String() inspects the MIDI message in an informative way
 	String() string
 
-	// Raw() returns the raw bytes of the midi message
+	// Raw() returns the raw bytes of the MIDI message
 	Raw() []byte
 }
 
-// Writer write midi messages
+// Writer writes MIDI messages
 type Writer interface {
-	// Write writes the given midi message and returns the number of written bytes and any error
+	// Write writes the given MIDI message and returns the number of written bytes and any error
 	Write(Message) (nBytes int, err error)
 }
 
-// Reader reads midi messages
+// Reader reads MIDI messages
 type Reader interface {
-	// Read reads the next midi message
+	// Read reads a MIDI message
 	Read() (Message, error)
 }
 
@@ -61,21 +61,21 @@ type Reader interface {
 */
 
 /*
-			   read in the next byte (uint8)
+   read in the next byte (uint8)
 
-			   if it is FF -> meta event
-			   if it is F0 or F7 -> sysex event
-			   else ->
-			      System Common Message F0-FF
+   if it is FF -> meta event
+   if it is F0 or F7 -> sysex event
+   else ->
+      System Common Message F0-FF
 
-			      F0 1111 0000 sysex event
-			      F7 1111 0111 sysex event
-						FF 1111 1111 meta event
+      F0 1111 0000 sysex event
+      F7 1111 0111 sysex event
+      FF 1111 1111 meta event
 
-			   		channel voice message D7-D0
+      channel voice message D7-D0
 
-			   		D0 1101 0000
-	          D7 1101 0111
+      D0 1101 0000
+      D7 1101 0111
 
 
 */

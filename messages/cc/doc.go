@@ -2,5 +2,5 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-// Package cc provides midi control change messages
+// Package cc provides MIDI Control Change Messages
 package cc
