@@ -36,6 +36,9 @@ type Header interface {
 	Format() Format
 
 	// TimeFormat returns the time format (QuarterNoteTicks or TimeCode) and the value of that format
+	// If TimeFormat is QuarterNoteTicks, the value is the ticks per quarter note.
+	// If TimeFormat is TimeCode, the value is a raw value that must be unpacked with the help of
+	// UnpackTimeCode.
 	TimeFormat() (format TimeFormat, value uint16)
 
 	// NumTracks returns the number of tracks as defined inside the SMF header. It should be the same
@@ -43,6 +46,8 @@ type Header interface {
 	NumTracks() uint16
 }
 
+// UnpackTimeCode unpacks the raw value returned from Header.TimeFormat if the format is TimeCode
+// It returns SMPTE frames per second (29 corresponds to 30 drop frame) and the subframes.
 func UnpackTimeCode(raw uint16) (fps, subframes uint8) {
 	// bit shifting first byte to second inverting sign
 	fps = uint8(int8(byte(raw>>8)) * (-1))
