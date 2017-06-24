@@ -17,7 +17,7 @@ type Writer interface {
 
 // Reader reads midi messages
 type Reader interface {
-	// Read reads the next midi message from the stream
+	// Read reads the next midi message
 	Read() (Message, error)
 }
 

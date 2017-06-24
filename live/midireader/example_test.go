@@ -1,12 +1,12 @@
-package midiwriter_test
+package midireader_test
 
 import (
 	"bytes"
 	"fmt"
+	"github.com/gomidi/midi/live/midireader"
+	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"
-	"github.com/gomidi/midi/midireader"
-	"github.com/gomidi/midi/midiwriter"
 
 	"github.com/gomidi/midi"
 )

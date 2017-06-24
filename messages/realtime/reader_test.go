@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"
-	"github.com/gomidi/midi/midiwriter"
 	"testing"
 )
 
 func mkInput(events ...midi.Message) []byte {
 	var bf bytes.Buffer
-	wr := midiwriter.New(&bf)
+	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
 
 	for _, ev := range events {
 		wr.Write(ev)
@@ -49,21 +49,21 @@ func TestRead(t *testing.T) {
 			mkInput(channel.Ch1.NoteOn(65, 100), channel.Ch1.NoteOff(65)),
 			2,
 			3,
-			"91 41 64 81 41 00",
+			"91 41 64 91 41 00",
 			"",
 		},
 		{
 			mkInput(channel.Ch1.NoteOn(65, 100), realtime.Continue, channel.Ch1.NoteOff(65)),
 			2,
 			3,
-			"91 41 64 81 41 00",
+			"91 41 64 91 41 00",
 			"Continue\n",
 		},
 		{
 			mkInput(realtime.Start, channel.Ch1.NoteOn(65, 100), realtime.Stop, channel.Ch1.NoteOff(65)),
 			2,
 			3,
-			"91 41 64 81 41 00",
+			"91 41 64 91 41 00",
 			"Start\nStop\n",
 		},
 		{

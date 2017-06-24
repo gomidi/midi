@@ -1,12 +1,12 @@
-package midireader_test
+package midiwriter_test
 
 import (
 	"bytes"
 	"fmt"
+	"github.com/gomidi/midi/live/midireader"
+	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"
-	"github.com/gomidi/midi/midireader"
-	"github.com/gomidi/midi/midiwriter"
 
 	"github.com/gomidi/midi"
 )
@@ -14,7 +14,7 @@ import (
 func Example() {
 	var bf bytes.Buffer
 
-	wr := midiwriter.New(&bf)
+	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
 	wr.Write(channel.Ch2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
 	wr.Write(channel.Ch2.NoteOff(65))

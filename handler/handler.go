@@ -5,12 +5,12 @@ import (
 	"io"
 
 	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/live/midireader"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/messages/realtime"
 	"github.com/gomidi/midi/messages/syscommon"
 	"github.com/gomidi/midi/messages/sysex"
-	"github.com/gomidi/midi/midireader"
 	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfreader"
 )

@@ -2,8 +2,8 @@ package midireader
 
 import (
 	"bytes"
+	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/midiwriter"
 	"io"
 	"testing"
 )
