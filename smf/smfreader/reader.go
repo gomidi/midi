@@ -39,6 +39,7 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 		input:         src,
 		state:         stateExpectHeader,
 		runningStatus: runningstatus.NewSMFReader(),
+		sysexreader:   sysex.NewSMFReader(),
 	}
 
 	for _, opt := range opts {
@@ -57,6 +58,8 @@ type reader struct {
 	processedTracks uint16
 	deltatime       uint32
 	mthd            mThdData
+
+	sysexreader sysex.SMFReader
 
 	// options
 	failOnUnknownChunks bool
@@ -206,7 +209,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 		// both 0xF0 and 0xF7 may start a sysex in SMF files
 		case 0xF0, 0xF7:
-			return sysex.ReadSMF(canary, p.input)
+			return p.sysexreader.Read(canary, p.input)
 
 		// meta event
 		case 0xFF:

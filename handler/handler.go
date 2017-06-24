@@ -127,7 +127,11 @@ type Handler struct {
 	PitchWheel           func(p *Pos, channel uint8, value int16)
 
 	// system messages
-	SysEx func(p *Pos, data []byte)
+	SysExComplete func(p *Pos, data []byte)
+	SysExStart    func(p *Pos, data []byte)
+	SysExContinue func(p *Pos, data []byte)
+	SysExEnd      func(p *Pos, data []byte)
+	SysExEscape   func(p *Pos, data []byte)
 
 	// system common
 	TuneRequest         func()
@@ -344,8 +348,28 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 			}
 
 		case sysex.SysEx:
-			if h.SysEx != nil {
-				h.SysEx(h.pos, ev.Bytes())
+			if h.SysExComplete != nil {
+				h.SysExComplete(h.pos, ev.Data())
+			}
+
+		case sysex.Start:
+			if h.SysExStart != nil {
+				h.SysExStart(h.pos, ev.Data())
+			}
+
+		case sysex.End:
+			if h.SysExEnd != nil {
+				h.SysExEnd(h.pos, ev.Data())
+			}
+
+		case sysex.Continue:
+			if h.SysExContinue != nil {
+				h.SysExContinue(h.pos, ev.Data())
+			}
+
+		case sysex.Escape:
+			if h.SysExEscape != nil {
+				h.SysExEscape(h.pos, ev.Data())
 			}
 
 		// this usually takes some time

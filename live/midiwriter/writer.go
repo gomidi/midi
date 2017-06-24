@@ -6,20 +6,6 @@ import (
 	"io"
 )
 
-type config struct {
-	noRunningStatus bool
-}
-
-type Option func(*config)
-
-// NoRunningStatus is an option for the writer that prevents it from
-// using the running status.
-func NoRunningStatus() Option {
-	return func(c *config) {
-		c.noRunningStatus = true
-	}
-}
-
 // New returns a new midi.Writer.
 //
 // The Writer does no buffering and makes no attempt to close dest.
