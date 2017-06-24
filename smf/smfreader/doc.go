@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package smfreader provides a reader for Standard MIDI Files (SMF).
+	Package smfreader provides a reader of Standard MIDI Files (SMF).
 
 	There is also a more comfortable handler package:
 
