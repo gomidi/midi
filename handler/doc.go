@@ -2,5 +2,5 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-// Package handler provides reading of MIDI messages live or from SMF files.
+// Package handler provides reading of MIDI data live or from SMF files.
 package handler
