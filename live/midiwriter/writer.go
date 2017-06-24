@@ -12,6 +12,8 @@ type config struct {
 
 type Option func(*config)
 
+// NoRunningStatus is an option for the writer that prevents it from
+// using the running status.
 func NoRunningStatus() Option {
 	return func(c *config) {
 		c.noRunningStatus = true
@@ -21,6 +23,10 @@ func NoRunningStatus() Option {
 // New returns a new midi.Writer.
 //
 // The Writer does no buffering and makes no attempt to close dest.
+//
+// By default the writer uses running status for efficiency.
+// You can disable that behaviour by passing the NoRunningStatus() option.
+// If you don't know what running status is, keep the default.
 func New(dest io.Writer, opts ...Option) midi.Writer {
 	var c = &config{}
 

@@ -3,27 +3,44 @@
 // license that can be found in the LICENSE file.
 
 /*
-  Package midi provides interfaces for reading and writing of midi messages.
+  Package midi provides interfaces for reading and writing of MIDI messages.
 
-  The implementations can be found here:
+  Since they are handled slightly different, this packages introduces the terminology of
+  "live" MIDI reading/writing for dealing with MIDI messages as "over the wire" (in realtime)
+  as opposed to smf MIDI reading/writing to Standard MIDI Files (SMF).
 
-    github.com/gomidi/midi/midireader (read a stream of midi messages)
-    github.com/gomidi/midi/midiwriter (write a stream of midi messages)
-    github.com/gomidi/midi/smf/smfreader (read midi messages from standard midi file)
-    github.com/gomidi/midi/smf/smfwriter (write midi messages to standard midi file)
+  However both variants can be used with io.Writer and io.Reader and can thus be "streamed".
 
-  The midi messages that can be read/written from/to can be found here:
+  This package provides a Reader and Writer interface that is common to live and SMF MIDI handling.
+  This should allow to easily develop transformations (e.g. quantization,
+  filtering) that may be used in both cases.
 
-    github.com/gomidi/midi/messages/channel    (voice/channel messages)
-    github.com/gomidi/midi/messages/cc         (control change messages)
-    github.com/gomidi/midi/messages/meta       (meta messages)
-    github.com/gomidi/midi/messages/realtime   (realtime messages)
-    github.com/gomidi/midi/messages/syscommon  (system common messages)
-    github.com/gomidi/midi/messages/sysex      (system exclusive messages)
+  One package providing a unified access in both cases is the handler package for reading MIDI data.
 
-  For reading there is also a more comfortable handler package:
+    github.com/gomidi/midi/handler    (reading MIDI messages from wire or SMF files)
 
-    github.com/gomidi/midi/handler    (reading midi messages from streams or SMF files)
+  The core implementations can be found here:
+
+    github.com/gomidi/midi/live/midireader (live reading)
+    github.com/gomidi/midi/live/midiwriter (live writing)
+    github.com/gomidi/midi/smf/smfreader   (SMF reading)
+    github.com/gomidi/midi/smf/smfwriter   (SMF writing)
+    github.com/gomidi/midi/smf/smfmodify   (SMF modification)
+
+  The MIDI messages themselves that can be written or analyzed can be found here:
+
+    github.com/gomidi/midi/messages/channel    (Channel Messages)
+    github.com/gomidi/midi/messages/cc         (Control Change Messages)
+    github.com/gomidi/midi/messages/meta       (Meta Messages)
+    github.com/gomidi/midi/messages/realtime   (System Realtime Messages)
+    github.com/gomidi/midi/messages/syscommon  (System Common messages)
+    github.com/gomidi/midi/messages/sysex      (System Exclusive messages)
+
+  Please keep in mind that that not all kinds of MIDI messages can be used in both scenarios.
+
+  System Realtime and System Common Messages are restricted to "over the wire",
+  while Meta Messages are restricted to SMF files. However System Realtime and System Common Messages
+  can be saved inside a SMF file which the help of SysEx escaping (F7).
 
 */
 package midi

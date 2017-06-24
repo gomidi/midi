@@ -9,6 +9,7 @@ import (
 	"github.com/gomidi/midi/messages/realtime"
 
 	"github.com/gomidi/midi"
+	"time"
 )
 
 func Example() {
@@ -17,6 +18,7 @@ func Example() {
 	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
 	wr.Write(channel.Ch2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
+	time.Sleep(time.Second)
 	wr.Write(channel.Ch2.NoteOff(65))
 
 	rthandler := func(m realtime.Message) {
