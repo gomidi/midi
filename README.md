@@ -43,7 +43,7 @@ On my laptop, sending 1000 messages (noteon and noteoff; live)
     BenchmarkRunningStatusDisabled  111918 ns/op  12000 B/op  3000 allocs/op
 
 On my laptop, reading 1000 messages (noteon and noteoff; live).
-(Same channel makes use of running status byte).
+("Samechannel" makes use of running status byte).
 
     BenchmarkSameChannel            356137 ns/op  12000 B/op  7000 allocs/op
     BenchmarkAlternatingChannel     426428 ns/op  14000 B/op  8500 allocs/op
