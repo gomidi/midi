@@ -3,18 +3,18 @@ Reading and writing of MIDI messages with Go.
 
 ## Goals
 
-- [?] implementation of complete MIDI standard (including SMF)
+- [ ] implementation of complete MIDI standard (including SMF)
 - [x] common ground for live MIDI processing and processing of Standard MIDI Files (SMF)
-- [?] correctness
+- [ ] correctness
 - [ ] high test coverage
-- [?] stable API
+- [ ] stable API
 - [x] usage of small interfaces when possible of the standard library
 - [x] provide building blocks for MIDI applications
-- [?] performance
+- [ ] performance
 - [x] no dependencies outside the standard library
 - [x] as little dependencies to the standard library as possible
 - [x] small modular packages (see below)
-- [?] beginner friendlyness
+- [ ] beginner friendlyness
 - [ ] quality documentation
 
 ## Non-Goals
