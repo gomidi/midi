@@ -17,9 +17,9 @@ func NoRunningStatus() Option {
 	}
 }
 
-// CheckMsgType is an option for Writer to check, if the message can
+// CheckMessageType is an option for Writer to check, if the message can
 // be send as live MIDI data to an instrument. If not, an error will be returned.
-func CheckMsgType() Option {
+func CheckMessageType() Option {
 	return func(c *config) {
 		c.checkMessageType = true
 	}
