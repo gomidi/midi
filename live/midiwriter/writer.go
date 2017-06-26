@@ -1,6 +1,7 @@
 package midiwriter
 
 import (
+	"fmt"
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/runningstatus"
 	"io"
@@ -13,7 +14,7 @@ import (
 // By default the writer uses running status for efficiency.
 // You can disable that behaviour by passing the NoRunningStatus() option.
 // If you don't know what running status is, keep the default.
-func New(dest io.Writer, opts ...Option) midi.Writer {
+func New(dest io.Writer, opts ...Option) (wr midi.Writer) {
 	var c = &config{}
 
 	for _, opt := range opts {
@@ -21,11 +22,51 @@ func New(dest io.Writer, opts ...Option) midi.Writer {
 	}
 
 	if c.noRunningStatus {
-		return &notRunningWriter{output: dest}
+		wr = &notRunningWriter{output: dest}
+	} else {
+		wr = &runningWriter{
+			runningstatus: runningstatus.NewLiveWriter(dest),
+		}
 	}
-	return &runningWriter{
-		runningstatus: runningstatus.NewLiveWriter(dest),
+
+	if c.checkMessageType {
+		return &checkWriter{wr}
 	}
+
+	if c.ignoreWrongMessageType {
+		return &skipNonLiveWriter{wr}
+	}
+	return wr
+}
+
+type liveMessage interface {
+	IsLiveMessage()
+}
+
+type skipNonLiveWriter struct {
+	midi.Writer
+}
+
+// Write checks if msg is valid for live usage before writing
+func (w *skipNonLiveWriter) Write(msg midi.Message) (int, error) {
+	if _, ok := msg.(liveMessage); !ok {
+		return 0, nil
+	}
+
+	return w.Writer.Write(msg)
+}
+
+type checkWriter struct {
+	midi.Writer
+}
+
+// Write checks if msg is valid for live usage before writing
+func (w *checkWriter) Write(msg midi.Message) (int, error) {
+	if _, ok := msg.(liveMessage); !ok {
+		return 0, fmt.Errorf("not a MIDI live message: %s", msg)
+	}
+
+	return w.Writer.Write(msg)
 }
 
 type notRunningWriter struct {

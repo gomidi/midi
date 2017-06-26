@@ -32,6 +32,10 @@ func (p PitchWheel) AbsValue() uint16 {
 	return p.absValue
 }
 
+func (p PitchWheel) IsLiveMessage() {
+
+}
+
 func (p PitchWheel) Channel() uint8 {
 	return p.channel
 }

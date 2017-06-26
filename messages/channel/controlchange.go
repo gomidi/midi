@@ -12,6 +12,9 @@ func (c ControlChange) Controller() uint8 {
 	return c.controller
 }
 
+func (c ControlChange) IsLiveMessage() {
+}
+
 func (c ControlChange) Value() uint8 {
 	return c.value
 }

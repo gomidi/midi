@@ -31,6 +31,7 @@ type Message interface {
 	String() string
 	Raw() []byte
 	realTime()
+	IsLiveMessage()
 }
 
 type msg byte
@@ -41,6 +42,10 @@ func (m msg) String() string {
 
 func (m msg) Raw() []byte {
 	return []byte{byte(m)}
+}
+
+func (m msg) IsLiveMessage() {
+
 }
 
 func (m msg) realTime() {}

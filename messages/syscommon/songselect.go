@@ -10,6 +10,10 @@ func (m SongSelect) Pos() uint16 {
 	return uint16(m)
 }
 
+func (m SongSelect) IsLiveMessage() {
+
+}
+
 // TODO Test
 func (m SongSelect) Raw() []byte {
 	// TODO check - it is a guess

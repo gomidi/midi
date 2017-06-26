@@ -12,6 +12,10 @@ func (n NoteOn) Pitch() uint8 {
 	return n.pitch
 }
 
+func (n NoteOn) IsLiveMessage() {
+
+}
+
 func (n NoteOn) Velocity() uint8 {
 	return n.velocity
 }

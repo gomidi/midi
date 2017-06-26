@@ -28,6 +28,10 @@ func (m MIDITimingCode) String() string {
 	return fmt.Sprintf("%T: %v", m, uint8(m))
 }
 
+func (m MIDITimingCode) IsLiveMessage() {
+
+}
+
 func (m MIDITimingCode) Raw() []byte {
 	// TODO check - it is a guess
 	return []byte{byte(0xF1), byte(m)}

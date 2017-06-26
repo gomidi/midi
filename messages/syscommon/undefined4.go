@@ -15,6 +15,10 @@ func (m Undefined4) readFrom(rd io.Reader) (Message, error) {
 	return m, nil
 }
 
+func (m Undefined4) IsLiveMessage() {
+
+}
+
 func (m Undefined4) sysCommon() {}
 
 func (m Undefined4) Raw() []byte {

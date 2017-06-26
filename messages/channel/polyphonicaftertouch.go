@@ -16,6 +16,10 @@ func (p PolyphonicAfterTouch) Pressure() uint8 {
 	return p.pressure
 }
 
+func (p PolyphonicAfterTouch) IsLiveMessage() {
+
+}
+
 func (p PolyphonicAfterTouch) Channel() uint8 {
 	return p.channel
 }

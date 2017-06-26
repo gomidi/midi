@@ -11,6 +11,10 @@ func (a AfterTouch) Pressure() uint8 {
 	return a.pressure
 }
 
+func (a AfterTouch) IsLiveMessage() {
+
+}
+
 func (a AfterTouch) Channel() uint8 {
 	return a.channel
 }

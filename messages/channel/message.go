@@ -4,10 +4,12 @@ type Message interface {
 	String() string
 	Raw() []byte
 	Channel() uint8
+	IsLiveMessage()
 }
 
 var (
 	_ Message = NoteOff{}
+	_ Message = NoteOffPedantic{}
 	_ Message = NoteOn{}
 	_ Message = PolyphonicAfterTouch{}
 	_ Message = ControlChange{}
@@ -16,6 +18,7 @@ var (
 	_ Message = PitchWheel{}
 
 	_ setter2 = NoteOff{}
+	_ setter2 = NoteOffPedantic{}
 	_ setter2 = NoteOn{}
 	_ setter2 = PolyphonicAfterTouch{}
 	_ setter2 = ControlChange{}

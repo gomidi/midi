@@ -15,6 +15,10 @@ func (m ProgramChange) Channel() uint8 {
 	return m.channel
 }
 
+func (m ProgramChange) IsLiveMessage() {
+
+}
+
 func (c ProgramChange) Raw() []byte {
 	return channelMessage1(c.channel, 12, c.program)
 }

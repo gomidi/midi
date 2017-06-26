@@ -9,6 +9,10 @@ type NoteOffPedantic struct {
 	velocity uint8
 }
 
+func (n NoteOffPedantic) IsLiveMessage() {
+
+}
+
 func (n NoteOffPedantic) Velocity() uint8 {
 	return n.velocity
 }
@@ -31,6 +35,10 @@ func (n NoteOffPedantic) Raw() []byte {
 type NoteOff struct {
 	channel uint8
 	pitch   uint8
+}
+
+func (n NoteOff) IsLiveMessage() {
+
 }
 
 func (n NoteOff) Pitch() uint8 {

@@ -27,6 +27,10 @@ func msbLsbUnsigned(n uint16) uint16 {
 	return lsb | msb
 }
 
+func (m SongPositionPointer) IsLiveMessage() {
+
+}
+
 func (m SongPositionPointer) readFrom(rd io.Reader) (Message, error) {
 
 	bt, err := midilib.ReadNBytes(2, rd)

@@ -150,6 +150,11 @@ func (m SysEx) Data() []byte {
 	return []byte(m)
 }
 
+// only complete sysex are ok for sending live
+func (m SysEx) IsLiveMessage() {
+
+}
+
 func (m SysEx) sysex() {}
 
 func (m SysEx) String() string {
