@@ -133,11 +133,25 @@ func (p *reader) readSysEx() (sys sysex.SysEx, status byte, err error) {
 }
 
 func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
-	status, _ := p.runningStatus.Read(canary)
+	status, changed := p.runningStatus.Read(canary)
+
+	//	fmt.Printf("canary: % X, status: % X\n", canary, status)
 
 	if status != 0 {
 		// on a voice/channel message
-		m, err = p.channelReader.Read(status)
+
+		var arg1 = canary // assume running status - we already got arg1
+
+		// was no running status, we have to read arg1
+		if changed {
+			arg1, err = midilib.ReadByte(p.input)
+			if err != nil {
+				return
+			}
+		}
+
+		// fmt.Printf("read channel message\n")
+		m, err = p.channelReader.Read(status, arg1)
 
 	} else {
 		// on a system common message

@@ -230,8 +230,18 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 		// on a voice/channel category status
 	} else {
+		var arg1 = canary // assume running status - we already got arg1
+
+		// was no running status, we have to read arg1
+		if changed {
+			arg1, err = midilib.ReadByte(p.input)
+			if err != nil {
+				return
+			}
+		}
+
 		// since every possible status is covered by a voice message type, m can't be nil
-		m, err = p.channelReader.Read(status)
+		m, err = p.channelReader.Read(status, arg1)
 		p.log("got channel message: %#v, err: %v", m, err)
 	}
 

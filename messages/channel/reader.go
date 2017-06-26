@@ -20,7 +20,7 @@ const (
 type Reader interface {
 	// Read reads a single channel message.
 	// It may just be called once per Reader. A second call returns io.EOF
-	Read(status byte) (Message, error)
+	Read(status, arg1 byte) (Message, error)
 }
 
 type ReaderOption func(*reader)
@@ -54,12 +54,12 @@ type reader struct {
 }
 
 // Read reads a channel message
-func (r *reader) Read(status byte) (msg Message, err error) {
-	var typ, channel, arg1 uint8
+func (r *reader) Read(status byte, arg1 byte) (msg Message, err error) {
+	typ, channel := parseStatus(status)
 
-	typ, channel = parseStatus(status)
+	// fmt.Printf("typ: %v channel: %v\n", typ, channel)
 
-	arg1, err = midilib.ReadByte(r.input)
+	// fmt.Printf("arg1: %v, err: %v\n", arg1, err)
 
 	if err != nil {
 		return

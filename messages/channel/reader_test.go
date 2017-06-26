@@ -2,6 +2,7 @@ package channel_test
 
 import (
 	"bytes"
+	"github.com/gomidi/midi/internal/midilib"
 	// "fmt"
 	"io"
 	"testing"
@@ -24,6 +25,8 @@ func (r *readTest) func_name() {
 
 func mkTest(event midi.Message, expected string) *readTest {
 	var bf bytes.Buffer
+	// we take no running status here, since the handling of running status
+	// involves the runningstatus lib and midireader or smfreader
 	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
 	wr.Write(event)
 
@@ -60,13 +63,22 @@ func TestRead(t *testing.T) {
 	for n, test := range tests {
 		var out bytes.Buffer
 
-		ev, err := channel.NewReader(test.input).Read(test.status)
+		// ignore running status (see above) and always read the first argument
+		arg1, err := midilib.ReadByte(test.input)
+		if err != nil {
+			t.Errorf("[%v] ReadByte() returned error: %v", n, test.rawinput, err)
+			continue
+		}
+
+		var m midi.Message
+
+		m, err = channel.NewReader(test.input).Read(test.status, arg1)
 
 		if err != nil {
 			t.Errorf("[%v] Read(% X) returned error: %v", n, test.rawinput, err)
 			continue
 		}
-		out.WriteString(ev.String())
+		out.WriteString(m.String())
 
 		if got, want := out.String(), test.expected; got != want {
 			t.Errorf("[%v] Read(% X) = %#v; want %#v", n, test.rawinput, got, want)
