@@ -44,8 +44,8 @@ On my laptop, sending 1000 messages (noteon and noteoff; live)
 On my laptop, reading 1000 messages (noteon and noteoff; live).
 (Same channel makes use of running status byte).
 
-    BenchmarkSameChannel             400257 ns/op  13334 B/op  8333 allocs/op
-    BenchmarkAlternatingChannel      407524 ns/op  14000 B/op  8500 allocs/op
+    BenchmarkSameChannel            400257 ns/op  13334 B/op  8333 allocs/op
+    BenchmarkAlternatingChannel     407524 ns/op  14000 B/op  8500 allocs/op
 
 ## Documentation
 
