@@ -54,15 +54,15 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-Supported Go versions: 1.2 to 1.8.
-Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
-
 alpha (usable, but API may change)
 
 The implementation is almost complete (there are some missing meta messages).
 Lots of test have to be written. Some open questions about naming of functions and types prevent the API from being stable. Maybe reading performance could be improved. 
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
+
+Supported Go versions: 1.2 to 1.8.
+Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
 
 ## License
 
