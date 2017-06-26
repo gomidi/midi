@@ -33,7 +33,7 @@ see http://godoc.org/github.com/gomidi/midi
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
 
-alpha (usable, but expect bugs and incompatible changes in the API)
+alpha (usable, but API may change)
 
 ## License
 
