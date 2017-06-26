@@ -8,7 +8,7 @@ Reading and writing of MIDI messages with Go.
 - [ ] correctness
 - [ ] high test coverage
 - [ ] stable API
-- [x] usage of small interfaces where possible of the standard library
+- [x] usage of small interfaces preferably of the standard library
 - [x] provide building blocks for MIDI applications
 - [ ] performance
 - [x] no dependencies outside the standard library
