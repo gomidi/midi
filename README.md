@@ -23,7 +23,7 @@ what you really need. This keeps packages and dependencies small, better testabl
 
 Also it allows for small interfaces in libraries reusing this building blocks.
 
-For reading and writing of live and SMF MIDI data io.Readers are accepted as input and io.Writers as output. Furthermore there is are common interfaces for live and SMF MIDI data handling: midi.Reader and midi.Writer. The typed MIDI messages used in each case are the same.
+For reading and writing of live and SMF MIDI data io.Readers are accepted as input and io.Writers as output. Furthermore there are common interfaces for live and SMF MIDI data handling: midi.Reader and midi.Writer. The typed MIDI messages used in each case are the same.
 
 ## Documentation
 
