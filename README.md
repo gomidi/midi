@@ -27,7 +27,7 @@ For reading and writing of live and SMF MIDI data io.Readers are accepted as inp
 
 ## Documentation
 
-see http://godoc/github.com/gomidi/midi
+see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
