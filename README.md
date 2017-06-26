@@ -54,6 +54,8 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
+supported Go versions: 1.2 to 1.8.
+
 alpha (usable, but API may change)
 
 The implementation is almost complete (there are some missing meta messages).
