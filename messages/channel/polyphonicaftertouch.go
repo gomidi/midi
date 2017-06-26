@@ -1,9 +1,6 @@
 package channel
 
-import (
-	"fmt"
-	"github.com/gomidi/midi/internal/lib"
-)
+import "fmt"
 
 type PolyphonicAfterTouch struct {
 	channel  uint8
@@ -34,6 +31,6 @@ func (p PolyphonicAfterTouch) Raw() []byte {
 func (PolyphonicAfterTouch) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m PolyphonicAfterTouch
 	m.channel = channel
-	m.pitch, m.pressure = lib.ParseTwoUint7(arg1, arg2)
+	m.pitch, m.pressure = parseTwoUint7(arg1, arg2)
 	return m
 }

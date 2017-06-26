@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/smf"
 )
 
 /*
@@ -96,41 +97,41 @@ func (m TimeSignature) String() string {
 }
 
 func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
-	length, err := lib.ReadVarLength(rd)
+	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if length != 4 {
-		err = lib.UnexpectedMessageLengthError("TimeSignature expected length 4")
+		err = smf.UnexpectedMessageLengthError("TimeSignature expected length 4")
 		return nil, err
 	}
 
 	// TODO TEST
 	var numerator uint8
-	numerator, err = lib.ReadByte(rd)
+	numerator, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	var denomenator uint8
-	denomenator, err = lib.ReadByte(rd)
+	denomenator, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	var clocksPerClick uint8
-	clocksPerClick, err = lib.ReadByte(rd)
+	clocksPerClick, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	var demiSemiQuaverPerQuarter uint8
-	demiSemiQuaverPerQuarter, err = lib.ReadByte(rd)
+	demiSemiQuaverPerQuarter, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err

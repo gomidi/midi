@@ -1,9 +1,6 @@
 package channel
 
-import (
-	"fmt"
-	"github.com/gomidi/midi/internal/lib"
-)
+import "fmt"
 
 type NoteOn struct {
 	channel  uint8
@@ -34,6 +31,6 @@ func (n NoteOn) String() string {
 func (NoteOn) set(channel, arg1, arg2 uint8) setter2 {
 	var m NoteOn
 	m.channel = channel
-	m.pitch, m.velocity = lib.ParseTwoUint7(arg1, arg2)
+	m.pitch, m.velocity = parseTwoUint7(arg1, arg2)
 	return m
 }

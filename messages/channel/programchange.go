@@ -1,9 +1,6 @@
 package channel
 
-import (
-	"fmt"
-	"github.com/gomidi/midi/internal/lib"
-)
+import "fmt"
 
 type ProgramChange struct {
 	channel uint8
@@ -29,6 +26,6 @@ func (c ProgramChange) String() string {
 func (ProgramChange) set(channel uint8, firstArg uint8) setter1 {
 	var m ProgramChange
 	m.channel = channel
-	m.program = lib.ParseUint7(firstArg)
+	m.program = parseUint7(firstArg)
 	return m
 }

@@ -6,13 +6,12 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/gomidi/midi/internal/lib"
 	"github.com/gomidi/midi/internal/runningstatus"
 
 	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
-	"github.com/gomidi/midi/messages/sysex"
 	"github.com/gomidi/midi/smf"
 )
 
@@ -39,11 +38,17 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 		input:         src,
 		state:         stateExpectHeader,
 		runningStatus: runningstatus.NewSMFReader(),
-		sysexreader:   sysex.NewSMFReader(),
+		sysexreader:   newSysexReader(),
 	}
 
 	for _, opt := range opts {
 		opt(rd)
+	}
+
+	if rd.readNoteOffPedantic {
+		rd.channelReader = channel.NewReader(rd.input, channel.ReadNoteOffPedantic())
+	} else {
+		rd.channelReader = channel.NewReader(rd.input)
 	}
 
 	return rd
@@ -59,20 +64,14 @@ type reader struct {
 	deltatime       uint32
 	mthd            mThdData
 
-	sysexreader sysex.SMFReader
+	sysexreader   *sysexReader
+	channelReader channel.Reader
 
 	// options
 	failOnUnknownChunks bool
 	headerIsRead        bool
 	headerError         error
 	readNoteOffPedantic bool
-}
-
-func (p *reader) readChannelMsg(status byte) (ev midi.Message, err error) {
-	if p.readNoteOffPedantic {
-		return channel.NewReader(p.input, status, channel.ReadNoteOffPedantic()).Read()
-	}
-	return channel.NewReader(p.input, status).Read()
 }
 
 func (p *reader) Delta() uint32 {
@@ -165,7 +164,7 @@ func (p *reader) readChunk() (err error) {
 	if err != nil {
 		// If we expect a chunk and we hit the end of the file, that's not so unexpected after all.
 		// The file has to end some time, and this is the correct boundary upon which to end it.
-		if err == lib.ErrUnexpectedEOF {
+		if err == smf.ErrUnexpectedEOF {
 			p.state = stateDone
 			return io.EOF
 		}
@@ -214,7 +213,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		// meta event
 		case 0xFF:
 			var typ byte
-			typ, err = lib.ReadByte(p.input)
+			typ, err = midilib.ReadByte(p.input)
 			p.log("read system common type: % X, err: %v", typ, err)
 
 			if err != nil {
@@ -232,7 +231,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		// on a voice/channel category status
 	} else {
 		// since every possible status is covered by a voice message type, m can't be nil
-		m, err = p.readChannelMsg(status)
+		m, err = p.channelReader.Read(status)
 		p.log("got channel message: %#v, err: %v", m, err)
 	}
 
@@ -265,7 +264,7 @@ func (p *reader) readEvent() (m midi.Message, err error) {
 
 	var deltatime uint32
 
-	deltatime, err = lib.ReadVarLength(p.input)
+	deltatime, err = midilib.ReadVarLength(p.input)
 	p.log("read delta: %v, err: %v", deltatime, err)
 	if err != nil {
 		return
@@ -275,7 +274,7 @@ func (p *reader) readEvent() (m midi.Message, err error) {
 
 	// read the canary in the coal mine to see, if we have a running status byte or a given one
 	var canary byte
-	canary, err = lib.ReadByte(p.input)
+	canary, err = midilib.ReadByte(p.input)
 	p.log("read canary: %v, err: %v", canary, err)
 
 	if err != nil {

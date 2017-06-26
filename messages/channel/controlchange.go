@@ -1,9 +1,6 @@
 package channel
 
-import (
-	"fmt"
-	"github.com/gomidi/midi/internal/lib"
-)
+import "fmt"
 
 type ControlChange struct {
 	channel    uint8
@@ -30,7 +27,7 @@ func (c ControlChange) Raw() []byte {
 func (ControlChange) set(channel uint8, firstArg, secondArg uint8) setter2 {
 	var m ControlChange
 	m.channel = channel
-	m.controller, m.value = lib.ParseTwoUint7(firstArg, secondArg)
+	m.controller, m.value = parseTwoUint7(firstArg, secondArg)
 	// TODO split this into ChannelMode for values [120, 127]?
 	// TODO implement separate callbacks for each type of:
 	// - All sound off

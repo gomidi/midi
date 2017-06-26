@@ -2,9 +2,9 @@ package meta
 
 import (
 	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/smf"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
 
 type MIDIChannel uint8
@@ -31,18 +31,18 @@ func (m MIDIChannel) readFrom(rd io.Reader) (Message, error) {
 	// Obsolete 'MIDI Channel'
 	//	we can't ignore it, since it advanced in deltatime
 
-	length, err := lib.ReadVarLength(rd)
+	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if length != 1 {
-		return nil, lib.UnexpectedMessageLengthError("Midi Channel Message expected length 1")
+		return nil, smf.UnexpectedMessageLengthError("Midi Channel Message expected length 1")
 	}
 
 	var ch uint8
-	ch, err = lib.ReadByte(rd)
+	ch, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err

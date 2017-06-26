@@ -3,8 +3,6 @@ package meta
 import (
 	"fmt"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
 
 /*
@@ -45,7 +43,7 @@ func (m DevicePort) String() string {
 func (m DevicePort) meta() {}
 
 func (m DevicePort) readFrom(rd io.Reader) (Message, error) {
-	text, err := lib.ReadText(rd)
+	text, err := readText(rd)
 	if err != nil {
 		return nil, err
 	}

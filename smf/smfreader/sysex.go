@@ -1,23 +1,20 @@
-package sysex
+package smfreader
 
 import (
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/messages/sysex"
 	"io"
 )
 
-type SMFReader interface {
-	Read(startcode byte, rd io.Reader) (sys Message, err error)
+func newSysexReader() *sysexReader {
+	return &sysexReader{}
 }
 
-func NewSMFReader() SMFReader {
-	return &smfreader{}
-}
-
-type smfreader struct {
+type sysexReader struct {
 	inSequence bool
 }
 
-func (s *smfreader) Read(startcode byte, rd io.Reader) (sys Message, err error) {
+func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err error) {
 	/*
 		what this means to us is relatively simple:
 		we read the data after the startcode based of the following length
@@ -29,7 +26,7 @@ func (s *smfreader) Read(startcode byte, rd io.Reader) (sys Message, err error) 
 	switch startcode {
 	case 0xF0:
 		var data []byte
-		data, err = lib.ReadVarLengthData(rd)
+		data, err = midilib.ReadVarLengthData(rd)
 
 		if err != nil {
 			return nil, err
@@ -38,16 +35,16 @@ func (s *smfreader) Read(startcode byte, rd io.Reader) (sys Message, err error) 
 		// complete sysex
 		if data[len(data)-1] == 0xF7 {
 			s.inSequence = false
-			return SysEx(data), nil
+			return sysex.SysEx(data), nil
 		} else {
 			// casio style
 			s.inSequence = true
-			return Start(data), nil
+			return sysex.Start(data), nil
 		}
 
 	case 0xF7:
 		var data []byte
-		data, err = lib.ReadVarLengthData(rd)
+		data, err = midilib.ReadVarLengthData(rd)
 
 		if err != nil {
 			return nil, err
@@ -58,16 +55,16 @@ func (s *smfreader) Read(startcode byte, rd io.Reader) (sys Message, err error) 
 			// casio style
 			if s.inSequence {
 				s.inSequence = false
-				return End(data), nil
+				return sysex.End(data), nil
 			} else {
-				return Escape(data), nil
+				return sysex.Escape(data), nil
 			}
 		} else {
 			// casio style
 			if s.inSequence {
-				return Continue(data), nil
+				return sysex.Continue(data), nil
 			} else {
-				return Escape(data), nil
+				return sysex.Escape(data), nil
 			}
 		}
 

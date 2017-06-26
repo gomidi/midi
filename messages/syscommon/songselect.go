@@ -2,9 +2,8 @@ package syscommon
 
 import (
 	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
 
 func (m SongSelect) Pos() uint16 {
@@ -32,7 +31,7 @@ func (m SongSelect) sysCommon() {}
 // TODO: check
 func (m SongSelect) readFrom(rd io.Reader) (Message, error) {
 
-	b, err := lib.ReadByte(rd)
+	b, err := midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err

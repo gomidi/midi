@@ -1,7 +1,7 @@
 package smfwriter
 
 import (
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/vlq"
 	"io"
 )
 
@@ -22,12 +22,12 @@ func (t *track) Add(deltaTime uint32, msg []byte) {
 	// set msg to msg[0] + length of msg[1:] + msg[1:]
 	if msg[0] == 0xF0 || msg[0] == 0xF7 {
 		b := []byte{msg[0]}
-		b = append(b, lib.VlqEncode(uint32(len(msg[1:])))...)
+		b = append(b, vlq.Encode(uint32(len(msg[1:])))...)
 		if len(msg[1:]) != 0 {
 			b = append(b, msg[1:]...)
 		}
 		msg = b
 	}
 
-	t.chunk.data = append(t.chunk.data, append(lib.VlqEncode(deltaTime), msg...)...)
+	t.chunk.data = append(t.chunk.data, append(vlq.Encode(deltaTime), msg...)...)
 }

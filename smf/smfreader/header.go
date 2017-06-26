@@ -1,14 +1,9 @@
 package smfreader
 
 import (
-	// "fmt"
-	"io"
-	// "io/ioutil"
-	"github.com/gomidi/midi/internal/lib"
-	// "github.com/gomidi/midi"
-	// "github.com/gomidi/midi/messages/channel"
-	// "github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/smf"
+	"io"
 )
 
 // Header data
@@ -51,7 +46,7 @@ func (p mThdData) TimeFormat() (smf.TimeFormat, uint16) {
 // It returns the ChunkHeader struct as a value and an error.
 func (h *mThdData) readFrom(reader io.Reader) error {
 	// Format
-	_format, err := lib.ReadUint16(reader)
+	_format, err := midilib.ReadUint16(reader)
 
 	if err != nil {
 		return err
@@ -69,14 +64,14 @@ func (h *mThdData) readFrom(reader io.Reader) error {
 	}
 
 	// Num tracks
-	h.numTracks, err = lib.ReadUint16(reader)
+	h.numTracks, err = midilib.ReadUint16(reader)
 
 	if err != nil {
 		return err
 	}
 	// Division
 	var division uint16
-	division, err = lib.ReadUint16(reader)
+	division, err = midilib.ReadUint16(reader)
 
 	// "If bit 15 of <division> is zero, the bits 14 thru 0 represent the number
 	// of delta time "ticks" which make up a quarter-note."

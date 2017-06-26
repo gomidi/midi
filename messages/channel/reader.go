@@ -2,7 +2,7 @@ package channel
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
 	"io"
 )
 
@@ -20,7 +20,7 @@ const (
 type Reader interface {
 	// Read reads a single channel message.
 	// It may just be called once per Reader. A second call returns io.EOF
-	Read() (Message, error)
+	Read(status byte) (Message, error)
 }
 
 type ReaderOption func(*reader)
@@ -37,10 +37,9 @@ func ReadNoteOffPedantic() ReaderOption {
 	}
 }
 
-// NewReader returns a reader that can read a single channel message
-// Read may just be called once per Reader. A second call returns io.EOF
-func NewReader(input io.Reader, status byte, options ...ReaderOption) Reader {
-	rd := &reader{input, status, false, false}
+// NewReader returns a reader
+func NewReader(input io.Reader, options ...ReaderOption) Reader {
+	rd := &reader{input, false}
 
 	for _, opt := range options {
 		opt(rd)
@@ -51,22 +50,16 @@ func NewReader(input io.Reader, status byte, options ...ReaderOption) Reader {
 
 type reader struct {
 	input               io.Reader
-	status              byte
-	done                bool
 	readNoteOffPedantic bool
 }
 
-// Read may just be called once per Reader. A second call returns io.EOF
-func (r *reader) Read() (msg Message, err error) {
-	if r.done {
-		return nil, io.EOF
-	}
+// Read reads a channel message
+func (r *reader) Read(status byte) (msg Message, err error) {
 	var typ, channel, arg1 uint8
 
-	typ, channel = lib.ParseStatus(r.status)
+	typ, channel = parseStatus(status)
 
-	arg1, err = lib.ReadByte(r.input)
-	r.done = true
+	arg1, err = midilib.ReadByte(r.input)
 
 	if err != nil {
 		return
@@ -81,7 +74,7 @@ func (r *reader) Read() (msg Message, err error) {
 	// two Arguments needed
 	default:
 		var arg2 byte
-		arg2, err = lib.ReadByte(r.input)
+		arg2, err = midilib.ReadByte(r.input)
 
 		if err != nil {
 			return
@@ -130,8 +123,7 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 
 	// handle noteOn messages with velocity of 0 as note offs
 	if noteOn, is := msg.(NoteOn); is && noteOn.velocity == 0 {
-		msg = NoteOff{}
-		msg = msg.set(channel, arg1, 0)
+		msg = (NoteOff{}).set(channel, arg1, 0)
 	}
 	return
 }

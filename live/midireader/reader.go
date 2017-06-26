@@ -2,7 +2,7 @@ package midireader
 
 import (
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/internal/runningstatus"
 	"github.com/gomidi/midi/messages/syscommon"
 	"github.com/gomidi/midi/messages/sysex"
@@ -27,6 +27,13 @@ func New(src io.Reader, rthandler func(realtime.Message), options ...Option) mid
 	for _, opt := range options {
 		opt(rd)
 	}
+
+	if rd.readNoteOffPedantic {
+		rd.channelReader = channel.NewReader(rd.input, channel.ReadNoteOffPedantic())
+	} else {
+		rd.channelReader = channel.NewReader(rd.input)
+	}
+
 	return rd
 
 }
@@ -34,6 +41,7 @@ func New(src io.Reader, rthandler func(realtime.Message), options ...Option) mid
 type reader struct {
 	input               realtime.Reader
 	runningStatus       runningstatus.Reader
+	channelReader       channel.Reader
 	readNoteOffPedantic bool
 }
 
@@ -41,7 +49,7 @@ type reader struct {
 func (p *reader) Read() (ev midi.Message, err error) {
 	// read the canary in the coal mine to see, if we have a running status byte or a given one
 	var canary byte
-	canary, err = lib.ReadByte(p.input)
+	canary, err = midilib.ReadByte(p.input)
 
 	if err != nil {
 		return
@@ -61,7 +69,7 @@ func (p *reader) discardUntilNextStatus() (canary byte, err error) {
 	*/
 
 	for {
-		canary, err = lib.ReadByte(p.input)
+		canary, err = midilib.ReadByte(p.input)
 
 		if err != nil {
 			return
@@ -75,19 +83,61 @@ func (p *reader) discardUntilNextStatus() (canary byte, err error) {
 	return
 }
 
-func (p *reader) readChannelMsg(status byte) (ev midi.Message, err error) {
-	if p.readNoteOffPedantic {
-		return channel.NewReader(p.input, status, channel.ReadNoteOffPedantic()).Read()
+/*
+   Furthermore, although the 0xF7 is supposed to mark the end of a SysEx message, in fact, any status
+   (except for Realtime Category messages) will cause a SysEx message to be
+   considered "done" (ie, actually "aborted" is a better description since such a scenario
+   indicates an abnormal MIDI condition). For example, if a 0x90 happened to be sent sometime
+   after a 0xF0 (but before the 0xF7), then the SysEx message would be considered
+   aborted at that point. It should be noted that, like all System Common messages,
+   SysEx cancels any current running status. In other words, the next Voice Category
+   message (after the SysEx message) must begin with a Status.
+*/
+
+// readSysEx reads a sysex "over the wire", "in live mode", "as a stream" - you name it -
+// opposed to reading a sysex from a SMF standard midi file
+// the sysex has already been started (0xF0 has been read)
+// we need a realtime.Reader here, since realtime messages must be handled (or ignored from the viewpoit of sysex)
+// here we can ignore incomplete casio style messages (since they are only interrupted in time)
+func (p *reader) readSysEx() (sys sysex.SysEx, status byte, err error) {
+	var b byte
+	var bf []byte
+	// read byte by byte
+	for {
+		b, err = midilib.ReadByte(p.input)
+		if err != nil {
+			break
+		}
+
+		// the normal way to terminate
+		if b == byte(0xF7) {
+			sys = sysex.SysEx(bf)
+			return
+		}
+
+		// not so elegant way to terminate by sending a new status
+		if runningstatus.IsStatusByte(b) {
+			sys = sysex.SysEx(bf)
+			status = b
+			return
+		}
+
+		bf = append(bf, b)
 	}
-	return channel.NewReader(p.input, status).Read()
+
+	// any error, especially io.EOF is considered a failure.
+	// however return the sysex that had been received so far back to the user
+	// and leave him to decide what to do.
+	sys = sysex.SysEx(bf)
+	return
 }
 
-func (p *reader) readMsg(canary byte) (ev midi.Message, err error) {
+func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 	status, _ := p.runningStatus.Read(canary)
 
 	if status != 0 {
 		// on a voice/channel message
-		ev, err = p.readChannelMsg(status)
+		m, err = p.channelReader.Read(status)
 
 	} else {
 		// on a system common message
@@ -95,7 +145,7 @@ func (p *reader) readMsg(canary byte) (ev midi.Message, err error) {
 
 		/* start sysex */
 		case 0xF0:
-			ev, status, err = sysex.ReadLive(p.input)
+			m, status, err = p.readSysEx()
 
 			// TODO check if that works
 			/*
@@ -114,7 +164,7 @@ func (p *reader) readMsg(canary byte) (ev midi.Message, err error) {
 
 		default:
 			// must be a system common message, but no sysex (0xF0 < canary < 0xF7)
-			ev, err = syscommon.NewReader(p.input, canary).Read()
+			m, err = syscommon.NewReader(p.input, canary).Read()
 		}
 	}
 
@@ -123,7 +173,7 @@ func (p *reader) readMsg(canary byte) (ev midi.Message, err error) {
 	}
 
 	// unknown event: ignore all until next status byte
-	if ev == nil {
+	if m == nil {
 		canary, err = p.discardUntilNextStatus()
 		if err != nil {
 			return

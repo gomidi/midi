@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 type SequenceNumber uint16
@@ -29,7 +29,7 @@ func (m SequenceNumber) Raw() []byte {
 }
 
 func (m SequenceNumber) readFrom(rd io.Reader) (Message, error) {
-	length, err := lib.ReadByte(rd)
+	length, err := midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (m SequenceNumber) readFrom(rd io.Reader) (Message, error) {
 
 	// Otherwise length will be 2 to hold the uint16.
 	var sequenceNumber uint16
-	sequenceNumber, err = lib.ReadUint16(rd)
+	sequenceNumber, err = midilib.ReadUint16(rd)
 
 	if err != nil {
 		return nil, err

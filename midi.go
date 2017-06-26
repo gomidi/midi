@@ -1,5 +1,9 @@
 package midi
 
+import (
+	"errors"
+)
+
 // Message is a MIDI message
 type Message interface {
 	// String() inspects the MIDI message in an informative way
@@ -20,6 +24,8 @@ type Reader interface {
 	// Read reads a MIDI message
 	Read() (Message, error)
 }
+
+var ErrUnexpectedEOF = errors.New("Unexpected End of File found.")
 
 /*
    A MIDI message is made up of an eight-bit status byte which is generally followed by one or two data bytes.

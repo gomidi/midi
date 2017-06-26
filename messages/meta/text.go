@@ -3,8 +3,6 @@ package meta
 import (
 	"fmt"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
 
 type Text string
@@ -23,7 +21,7 @@ func (m Text) Raw() []byte {
 }
 
 func (m Text) readFrom(rd io.Reader) (Message, error) {
-	text, err := lib.ReadText(rd)
+	text, err := readText(rd)
 	if err != nil {
 		return nil, err
 	}

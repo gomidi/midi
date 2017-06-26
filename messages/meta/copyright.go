@@ -3,8 +3,6 @@ package meta
 import (
 	"fmt"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
 
 type Copyright string
@@ -13,7 +11,7 @@ func (m Copyright) String() string {
 	return fmt.Sprintf("%T: %#v", m, string(m))
 }
 func (m Copyright) readFrom(rd io.Reader) (Message, error) {
-	text, err := lib.ReadText(rd)
+	text, err := readText(rd)
 
 	if err != nil {
 		return nil, err

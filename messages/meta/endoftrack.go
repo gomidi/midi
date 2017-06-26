@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/smf"
 )
 
 type endOfTrack bool
@@ -27,14 +28,14 @@ func (m endOfTrack) meta() {}
 
 func (m endOfTrack) readFrom(rd io.Reader) (Message, error) {
 
-	length, err := lib.ReadVarLength(rd)
+	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if length != 0 {
-		err = lib.UnexpectedMessageLengthError("EndOfTrack expected length 0")
+		err = smf.UnexpectedMessageLengthError("EndOfTrack expected length 0")
 		return nil, err
 	}
 

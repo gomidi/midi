@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/smf"
 )
 
 /* http://www.somascape.org/midi/tech/mfile.html
@@ -165,20 +166,20 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 	var sharpsOrFlats int8
 	var mode uint8
 
-	length, err := lib.ReadVarLength(rd)
+	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if length != 2 {
-		err = lib.UnexpectedMessageLengthError("KeySignature expected length 2")
+		err = smf.UnexpectedMessageLengthError("KeySignature expected length 2")
 		return nil, err
 	}
 
 	// Signed int, positive is sharps, negative is flats.
 	var b byte
-	b, err = lib.ReadByte(rd)
+	b, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
@@ -187,7 +188,7 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 	sharpsOrFlats = int8(b)
 
 	// Mode is Major or Minor.
-	mode, err = lib.ReadByte(rd)
+	mode, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err

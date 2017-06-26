@@ -23,24 +23,19 @@ func NewReader(input io.Reader, rthandler func(Message)) Reader {
 }
 
 func (r *reader) Read(target []byte) (n int, err error) {
-	var bf []byte
-	var one int
+	var bf = make([]byte, 1)
 
 	for {
 		if n == len(target) {
 			return
 
 		}
-		bf = make([]byte, 1)
 
-		one, err = r.input.Read(bf)
+		// error needed here to be able to interrupt the reading from the callback (handler)
+		// then an io.EOF error is returned and propagated to midireader.read()
+		_, err = r.input.Read(bf)
 
 		if err != nil {
-			return
-		}
-
-		if one != 1 {
-			err = fmt.Errorf("could not read %v byte(s)", len(target))
 			return
 		}
 
@@ -51,15 +46,10 @@ func (r *reader) Read(target []byte) (n int, err error) {
 			continue
 		}
 
-		// error needed here to be able to interrupt the reading from the callback (handler)
-		// then an io.EOF error is returned and propagated to midireader.read()
-		ev := dispatch(bf[0])
-
-		// we know that r.handler is not nil (otherwise we would be inside discardReader)
-		if ev != nil {
-			r.handler(ev)
+		if m := dispatch(bf[0]); m != nil {
+			// we know that r.handler is not nil (otherwise we would be inside discardReader)
+			r.handler(m)
 		}
-
 	}
 	return
 }

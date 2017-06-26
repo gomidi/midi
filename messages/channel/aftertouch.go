@@ -1,9 +1,6 @@
 package channel
 
-import (
-	"fmt"
-	"github.com/gomidi/midi/internal/lib"
-)
+import "fmt"
 
 type AfterTouch struct {
 	channel  uint8
@@ -29,6 +26,6 @@ func (a AfterTouch) String() string {
 func (AfterTouch) set(channel uint8, firstArg uint8) setter1 {
 	var m AfterTouch
 	m.channel = channel
-	m.pressure = lib.ParseUint7(firstArg)
+	m.pressure = parseUint7(firstArg)
 	return m
 }

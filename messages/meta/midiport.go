@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/smf"
 )
 
 type MIDIPort uint8
@@ -31,18 +32,18 @@ func (m MIDIPort) readFrom(rd io.Reader) (Message, error) {
 	// Obsolete 'MIDI Port'
 	//	we can't ignore it, since it advanced in deltatime
 
-	length, err := lib.ReadVarLength(rd)
+	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if length != 1 {
-		return nil, lib.UnexpectedMessageLengthError("MIDI Port Message expected length 1")
+		return nil, smf.UnexpectedMessageLengthError("MIDI Port Message expected length 1")
 	}
 
 	var port uint8
-	port, err = lib.ReadByte(rd)
+	port, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err

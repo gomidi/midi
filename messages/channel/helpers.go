@@ -1,13 +1,5 @@
 package channel
 
-import (
-	"bytes"
-	"encoding/binary"
-	// "fmt"
-	// "io"
-	"github.com/gomidi/midi/internal/lib"
-)
-
 type setter1 interface {
 	Message
 	set(channel uint8, firstArg uint8) setter1
@@ -41,24 +33,26 @@ type channelMessage struct {
 
 func (m *channelMessage) getCompleteStatus() uint8 {
 	s := m.status << 4
-	lib.ClearBitU8(s, 0)
-	lib.ClearBitU8(s, 1)
-	lib.ClearBitU8(s, 2)
-	lib.ClearBitU8(s, 3)
+	clearBitU8(s, 0)
+	clearBitU8(s, 1)
+	clearBitU8(s, 2)
+	clearBitU8(s, 3)
 	s = s | m.channel
 	return s
 }
 
 func (m *channelMessage) bytes() []byte {
-	var bf bytes.Buffer
-	binary.Write(&bf, binary.BigEndian, m.getCompleteStatus())
-	bf.WriteByte(m.data[0])
 	if m.twoBytes {
-		bf.WriteByte(m.data[1])
+		return []byte{m.getCompleteStatus(), m.data[0], m.data[1]}
 	}
-	// var b []byte
-	// b = append(b, m.getCompleteStatus())
-	// b = append(b, m.data[0])
-	// b = append(b, m.data[1])
-	return bf.Bytes()
+	return []byte{m.getCompleteStatus(), m.data[0]}
+	/*
+		var bf bytes.Buffer
+		binary.Write(&bf, binary.BigEndian, m.getCompleteStatus())
+		bf.WriteByte(m.data[0])
+		if m.twoBytes {
+			bf.WriteByte(m.data[1])
+		}
+		return bf.Bytes()
+	*/
 }

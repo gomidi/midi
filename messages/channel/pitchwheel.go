@@ -1,10 +1,8 @@
 package channel
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/gomidi/midi/internal/lib"
 )
 
 /* http://www.somascape.org/midi/tech/mfile.html#sysex
@@ -39,12 +37,11 @@ func (p PitchWheel) Channel() uint8 {
 }
 
 func (p PitchWheel) Raw() []byte {
-	r := lib.MsbLsbSigned(p.value)
+	r := msbLsbSigned(p.value)
 
-	var bf bytes.Buffer
-	//	binary.Write(&bf, binary.BigEndian, uint16(change))
-	binary.Write(&bf, binary.BigEndian, r)
-	b := bf.Bytes()
+	var b = make([]byte, 2)
+
+	binary.BigEndian.PutUint16(b, r)
 	return channelMessage2(p.channel, 14, b[0], b[1])
 }
 
@@ -56,6 +53,18 @@ func (PitchWheel) set(channel uint8, firstArg, secondArg uint8) setter2 {
 	var m PitchWheel
 	m.channel = channel
 	// The value is a signed int (relative to centre), and absoluteValue is the actual value in the file.
-	m.value, m.absValue = lib.ParsePitchWheelVals(firstArg, secondArg)
+	m.value, m.absValue = parsePitchWheelVals(firstArg, secondArg)
 	return m
+}
+
+func parsePitchWheelVals(b1 byte, b2 byte) (relative int16, absolute uint16) {
+	var val uint16 = 0
+
+	val = uint16((b2)&0x7f) << 7
+	val |= uint16(b1) & 0x7f
+
+	// Turn into a signed value relative to the centre.
+	relative = int16(val) - 0x2000
+
+	return relative, val
 }

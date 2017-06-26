@@ -2,7 +2,8 @@ package meta
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/lib"
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/smf"
 	"io"
 	"math/big"
 )
@@ -52,19 +53,19 @@ func (m Tempo) meta() {}
 
 func (m Tempo) readFrom(rd io.Reader) (Message, error) {
 	// TODO TEST
-	length, err := lib.ReadVarLength(rd)
+	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if length != 3 {
-		err = lib.UnexpectedMessageLengthError("Tempo expected length 3")
+		err = smf.UnexpectedMessageLengthError("Tempo expected length 3")
 		return nil, err
 	}
 
 	var microsecondsPerCrotchet uint32
-	microsecondsPerCrotchet, err = lib.ReadUint24(rd)
+	microsecondsPerCrotchet, err = midilib.ReadUint24(rd)
 
 	if err != nil {
 		return nil, err

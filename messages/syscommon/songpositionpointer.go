@@ -1,24 +1,37 @@
 package syscommon
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
+
+func clearBitU16(n uint16, pos uint16) uint16 {
+	mask := ^(uint16(1) << pos)
+	n &= mask
+	return n
+}
+
+// takes a 14bit uint and pads it to 16 bit like in the specs for e.g. pitchbend
+func msbLsbUnsigned(n uint16) uint16 {
+	if n > 16383 {
+		panic("n must not overflow 14bits (max 16383)")
+	}
+
+	lsb := n << 8
+	lsb = clearBitU16(lsb, 15)
+	lsb = clearBitU16(lsb, 7)
+
+	// 0x7f = 127 = 0000000001111111
+	msb := 0x7f & (n >> 7)
+	return lsb | msb
+}
 
 func (m SongPositionPointer) readFrom(rd io.Reader) (Message, error) {
 
-	bt, err := lib.ReadN(2, rd)
+	bt, err := midilib.ReadNBytes(2, rd)
 
 	if err != nil {
-		return nil, err
-	}
-
-	if len(bt) != 2 {
-		err = lib.UnexpectedMessageLengthError("SongPositionPointer expected length 2")
 		return nil, err
 	}
 
@@ -43,13 +56,8 @@ func (m SongPositionPointer) String() string {
 func (m SongPositionPointer) Raw() []byte {
 	// TODO check - it is totally a guess at the moment
 
-	r := lib.MsbLsbUnsigned(uint16(m))
+	r := msbLsbUnsigned(uint16(m))
 
-	var bf bytes.Buffer
-	//	binary.Write(&bf, binary.BigEndian, uint16(change))
-	binary.Write(&bf, binary.BigEndian, 0xF2)
-
-	binary.Write(&bf, binary.BigEndian, r)
-	return bf.Bytes()
+	return []byte{0xF2, byte(r)}
 }
 func (m SongPositionPointer) sysCommon() {}

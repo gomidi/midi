@@ -2,9 +2,8 @@ package meta
 
 import (
 	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
 	"io"
-
-	"github.com/gomidi/midi/internal/lib"
 )
 
 type Undefined struct {
@@ -24,7 +23,7 @@ func (m Undefined) Raw() []byte {
 }
 
 func (m Undefined) readFrom(rd io.Reader) (Message, error) {
-	data, err := lib.ReadVarLengthData(rd)
+	data, err := midilib.ReadVarLengthData(rd)
 
 	if err != nil {
 		return nil, err

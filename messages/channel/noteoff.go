@@ -1,9 +1,6 @@
 package channel
 
-import (
-	"fmt"
-	"github.com/gomidi/midi/internal/lib"
-)
+import "fmt"
 
 // NoteOffPedantic is offered as an alternative to NoteOff for getting
 // the "real" noteoff message (type 8) and preserving velocity.
@@ -19,7 +16,7 @@ func (n NoteOffPedantic) Velocity() uint8 {
 func (NoteOffPedantic) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m NoteOffPedantic
 	m.channel = channel
-	m.pitch, m.velocity = lib.ParseTwoUint7(arg1, arg2)
+	m.pitch, m.velocity = parseTwoUint7(arg1, arg2)
 	return m
 }
 
@@ -58,6 +55,6 @@ func (m NoteOff) String() string {
 func (NoteOff) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m NoteOff
 	m.channel = channel
-	m.pitch, _ = lib.ParseTwoUint7(arg1, arg2)
+	m.pitch, _ = parseTwoUint7(arg1, arg2)
 	return m
 }

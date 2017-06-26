@@ -3,7 +3,7 @@ package channel_test
 import (
 	"bytes"
 	// "fmt"
-	// "io"
+	"io"
 	"testing"
 
 	"github.com/gomidi/midi"
@@ -12,21 +12,25 @@ import (
 )
 
 type readTest struct {
-	input    *bytes.Buffer
+	input    io.Reader
 	rawinput []byte
 	status   byte
 	expected string
 }
 
+func (r *readTest) func_name() {
+
+}
+
 func mkTest(event midi.Message, expected string) *readTest {
 	var bf bytes.Buffer
-	wr := midiwriter.New(&bf)
+	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
 	wr.Write(event)
 
 	t := &readTest{}
 	t.rawinput = bf.Bytes()
 
-	rd := bytes.NewBuffer(t.rawinput)
+	rd := bytes.NewReader(t.rawinput)
 
 	var bt = make([]byte, 1)
 
@@ -56,7 +60,7 @@ func TestRead(t *testing.T) {
 	for n, test := range tests {
 		var out bytes.Buffer
 
-		ev, err := channel.NewReader(test.input, test.status).Read()
+		ev, err := channel.NewReader(test.input).Read(test.status)
 
 		if err != nil {
 			t.Errorf("[%v] Read(% X) returned error: %v", n, test.rawinput, err)

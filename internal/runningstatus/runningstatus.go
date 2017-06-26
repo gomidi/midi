@@ -1,8 +1,6 @@
 package runningstatus
 
-import (
-	"io"
-)
+import "io"
 
 type Reader interface {
 	Read(canary byte) (status byte, changed bool)
