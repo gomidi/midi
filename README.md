@@ -15,7 +15,6 @@ Reading and writing of MIDI messages with Go.
 - [x] small modular packages (see below)
 - [x] shortcuts for known control changes
 - [x] pure Go library (no C, no assembler) 
-- [ ] beginner friendlyness
 - [ ] quality documentation
 
 ## Non-Goals
