@@ -3,18 +3,27 @@ Reading and writing of MIDI messages with Go.
 
 ## Goals
 
-- implement complete MIDI standard (including SMF)
-- common ground for live MIDI processing and processing of Standard MIDI Files (SMF)
-- correctness and high test coverage
-- stable API
-- usage of small interfaces when possible of the standard library
-- provide building blocks for MIDI applications
-- performance
-- no dependencies outside the standard library
-- as little dependencies to the standard library as possible
-- small modular packages (see below)
-- beginner friendlyness
-- quality documentation
+- [?] implementation of complete MIDI standard (including SMF)
+- [x] common ground for live MIDI processing and processing of Standard MIDI Files (SMF)
+- [?] correctness
+- [ ] high test coverage
+- [?] stable API
+- [x] usage of small interfaces when possible of the standard library
+- [x] provide building blocks for MIDI applications
+- [?] performance
+- [x] no dependencies outside the standard library
+- [x] as little dependencies to the standard library as possible
+- [x] small modular packages (see below)
+- [?] beginner friendlyness
+- [ ] quality documentation
+
+## Non-Goals
+
+- connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi )
+- abstractions over the inner meat of sysex messages
+- CLI tools (will be in separate package)
+- shortcuts for certain devices (belong to separate packages)
+- MIDI apps (belong to separate packages)
 
 ## Modularity
 
