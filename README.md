@@ -35,14 +35,14 @@ For reading and writing of live and SMF MIDI data io.Readers are accepted as inp
 
 ## Perfomance
 
-On my laptop, sending 1000 noteon and noteoff messages (live)
+On my laptop, sending 1000 messages (noteon and noteoff; live)
 
     BenchmarkSameChannel            129701 ns/op  12000 B/op  3000 allocs/op
     BenchmarkAlternatingChannel     129951 ns/op  12000 B/op  3000 allocs/op
     BenchmarkRunningStatusDisabled  111795 ns/op  12000 B/op  3000 allocs/op
 
-On my laptop, reading 1000 noteon and noteoff messages (live).
-(Same channel makes use of running status).
+On my laptop, reading 1000 messages (noteon and noteoff; live).
+(Same channel makes use of running status byte).
 
     BenchmarkSameChannel             400257 ns/op  13334 B/op  8333 allocs/op
     BenchmarkAlternatingChannel      407524 ns/op  14000 B/op  8500 allocs/op
