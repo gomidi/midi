@@ -1,5 +1,5 @@
 # midi
-reading and writing of MIDI data
+Reading and writing of MIDI messages with Go.
 
 ## Goals
 
