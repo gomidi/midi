@@ -54,9 +54,12 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-[![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
-
 alpha (usable, but API may change)
+
+The implementation is almost complete (there are some missing meta messages).
+Lots of test have to be written. Some open questions about naming of functions and types prevent the API from being stable. Maybe reading performance could be improved. 
+
+[![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
 
 ## License
 
