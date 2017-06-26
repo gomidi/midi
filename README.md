@@ -54,7 +54,8 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-supported Go versions: 1.2 to 1.8.
+Supported Go versions: 1.2 to 1.8.
+Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
 
 alpha (usable, but API may change)
 
