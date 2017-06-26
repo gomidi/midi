@@ -1,6 +1,12 @@
 package runningstatus
 
-import "io"
+import (
+	"github.com/gomidi/midi/internal/midilib"
+	// "fmt"
+	"github.com/gomidi/midi"
+
+	"io"
+)
 
 type Reader interface {
 	Read(canary byte) (status byte, changed bool)
@@ -69,66 +75,86 @@ func NewSMFReader() Reader {
 	return &smfreader{}
 }
 
-func hasBitU8(n uint8, pos uint8) bool {
-	val := n & (1 << pos)
-	return (val > 0)
-}
-
-func IsStatusByte(b uint8) bool {
-	return hasBitU8(b, 7)
-}
-
 type Writer interface {
 	io.Writer
 	runningstatus()
 }
 
-func NewSMFWriter(output io.Writer) Writer {
-	return &smfwriter{output, 0}
+func NewSMFWriter() SMFWriter {
+	return &smfwriter{0}
+}
+
+type SMFWriter interface {
+	Write(midi.Message) []byte
 }
 
 func NewLiveWriter(output io.Writer) Writer {
-	return &liveWriter{&smfwriter{output, 0}}
+	return &liveWriter{output, 0}
 }
 
 type smfwriter struct {
+	status byte
+}
+
+func (w *smfwriter) Write(msg midi.Message) []byte {
+	raw := msg.Raw()
+	// fmt.Printf("should write %s (% X)\n", msg, raw)
+	firstByte := raw[0]
+
+	// for non channel messages, reset status and write whole message
+	if !midilib.IsChannelMessage(firstByte) {
+		// fmt.Printf("is no channel message, resetting status\n")
+		w.status = 0
+		return raw
+	}
+
+	// for a different status, store runningStatus and write whole message
+	if firstByte != w.status {
+		// fmt.Printf("setting status to: % X (was: % X)\n", firstByte, w.status)
+		w.status = firstByte
+		return raw
+	}
+
+	// we got the same status as runningStatus, so omit the status byte when writing
+	// fmt.Printf("taking running status (% X), writing: % X\n", w.status, raw[1:])
+	return raw[1:]
+}
+
+func (w *liveWriter) runningstatus() {
+
+}
+
+func (w *liveWriter) write(b []byte) (n int, err error) {
+	return w.output.Write(b)
+}
+
+type liveWriter struct {
 	output io.Writer
 	status byte
 }
 
-func (w *smfwriter) runningstatus() {}
-
-func (w *smfwriter) write(b []byte) (n int, err error) {
-	return w.output.Write(b)
-}
-
-func (w *smfwriter) Write(msg []byte) (int, error) {
+func (w *liveWriter) Write(msg []byte) (int, error) {
+	// fmt.Printf("should write % X\n", msg)
+	// for realtime system messages, don't affect status and write the whole message
+	if msg[0] > 0xF7 {
+		return w.write(msg)
+	}
 
 	// for non channel messages, reset status and write whole message
-	if !IsStatusByte(msg[0]) {
+	if !midilib.IsChannelMessage(msg[0]) {
+		// fmt.Printf("is no channel message, resetting status\n")
 		w.status = 0
 		return w.write(msg)
 	}
 
 	// for a different status, store runningStatus and write whole message
 	if msg[0] != w.status {
+		// fmt.Printf("setting status to: % X (was: % X)\n", msg[0], w.status)
 		w.status = msg[0]
 		return w.write(msg)
 	}
 
 	// we got the same status as runningStatus, so omit the status byte when writing
+	// fmt.Printf("taking running status (% X), writing: % X\n", w.status, msg[1:])
 	return w.write(msg[1:])
-}
-
-type liveWriter struct {
-	*smfwriter
-}
-
-func (w *liveWriter) Write(msg []byte) (int, error) {
-	// for realtime system messages, don't affect status and write the whole message
-	if msg[0] > 0xF7 {
-		return w.smfwriter.write(msg)
-	}
-
-	return w.smfwriter.Write(msg)
 }

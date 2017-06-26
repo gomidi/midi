@@ -35,10 +35,11 @@ func ReadFile(file string, callback func(smf.Reader), options ...Option) error {
 // NewReader returns a smf.Reader
 func New(src io.Reader, opts ...Option) smf.Reader {
 	rd := &reader{
-		input:         src,
-		state:         stateExpectHeader,
-		runningStatus: runningstatus.NewSMFReader(),
-		sysexreader:   newSysexReader(),
+		input:           src,
+		state:           stateExpectHeader,
+		processedTracks: -1,
+		runningStatus:   runningstatus.NewSMFReader(),
+		sysexreader:     newSysexReader(),
 	}
 
 	for _, opt := range opts {
@@ -60,7 +61,7 @@ type reader struct {
 
 	state           state
 	runningStatus   runningstatus.Reader
-	processedTracks uint16
+	processedTracks int16
 	deltatime       uint32
 	mthd            mThdData
 
@@ -78,7 +79,7 @@ func (p *reader) Delta() uint32 {
 	return p.deltatime
 }
 
-func (p *reader) Track() uint16 {
+func (p *reader) Track() int16 {
 	return p.processedTracks
 }
 
@@ -123,7 +124,7 @@ func (p *reader) log(format string, vals ...interface{}) {
 
 func (p *reader) readMThd() error {
 	if p.headerIsRead {
-		p.log("header already read: %v", p.headerError)
+		p.log("header already read, error: %v", p.headerError)
 		return p.headerError
 	}
 
@@ -133,7 +134,7 @@ func (p *reader) readMThd() error {
 
 	var head chunkHeader
 	p.headerError = head.readFrom(p.input)
-	p.log("reading chunkHeader of header: %v", p.headerError)
+	p.log("reading chunkHeader of header, error: %v", p.headerError)
 
 	if p.headerError != nil {
 		return p.headerError
@@ -174,6 +175,7 @@ func (p *reader) readChunk() (err error) {
 	p.log("got chunk type: %v", head.typ)
 	// We have a MTrk
 	if head.typ == "MTrk" {
+		p.processedTracks++
 		p.state = stateExpectTrackEvent
 		// we are done, lets go to the track events
 		return
@@ -201,7 +203,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	status, changed := p.runningStatus.Read(canary)
 	p.log("got status: % X, changed: %v", status, changed)
 
-	// system common category status
+	// a non-channel message has reset the status
 	if status == 0 {
 
 		switch canary {
@@ -228,7 +230,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			panic(fmt.Sprintf("must not happen: invalid status % X", canary))
 		}
 
-		// on a voice/channel category status
+		// on a voice/channel category message with status either given or cached (running status)
 	} else {
 		var arg1 = canary // assume running status - we already got arg1
 
@@ -255,9 +257,8 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 	if m == meta.EndOfTrack {
 		p.log("got end of track")
-		p.processedTracks++
 		// p.absTrackTime = 0
-		p.deltatime = 0
+		//p.deltatime = 0
 		// Expect the next chunk midi.
 		p.state = stateExpectChunk
 	}
@@ -266,7 +267,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 }
 
 func (p *reader) readEvent() (m midi.Message, err error) {
-	if p.processedTracks == p.mthd.numTracks {
+	if p.processedTracks > -1 && uint16(p.processedTracks) == p.mthd.numTracks {
 		p.log("last track has been read")
 		p.state = stateDone
 		return nil, io.EOF

@@ -27,7 +27,8 @@ type Reader interface {
 	Delta() (ticks uint32)
 
 	// Track returns the number of the track of the last read midi message (starting with 0)
-	Track() uint16
+	// It returns -1 if no message has been read yet.
+	Track() int16
 }
 
 // Header represents the header of a SMF file

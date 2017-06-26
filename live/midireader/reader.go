@@ -75,7 +75,7 @@ func (p *reader) discardUntilNextStatus() (canary byte, err error) {
 			return
 		}
 
-		if runningstatus.IsStatusByte(canary) {
+		if midilib.IsStatusByte(canary) {
 			return
 		}
 	}
@@ -116,7 +116,7 @@ func (p *reader) readSysEx() (sys sysex.SysEx, status byte, err error) {
 		}
 
 		// not so elegant way to terminate by sending a new status
-		if runningstatus.IsStatusByte(b) {
+		if midilib.IsStatusByte(b) {
 			sys = sysex.SysEx(bf)
 			status = b
 			return
@@ -137,23 +137,10 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 
 	//	fmt.Printf("canary: % X, status: % X\n", canary, status)
 
-	if status != 0 {
-		// on a voice/channel message
+	// the cached running status has been reset, because a status byte
+	// came in from a non channel message
+	if status == 0 {
 
-		var arg1 = canary // assume running status - we already got arg1
-
-		// was no running status, we have to read arg1
-		if changed {
-			arg1, err = midilib.ReadByte(p.input)
-			if err != nil {
-				return
-			}
-		}
-
-		// fmt.Printf("read channel message\n")
-		m, err = p.channelReader.Read(status, arg1)
-
-	} else {
 		// on a system common message
 		switch canary {
 
@@ -180,6 +167,22 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 			// must be a system common message, but no sysex (0xF0 < canary < 0xF7)
 			m, err = syscommon.NewReader(p.input, canary).Read()
 		}
+
+	} else {
+		// on a voice/channel message, status came directly or from running status
+
+		var arg1 = canary // assume running status - we already got arg1
+
+		// was no running status, we have to read arg1
+		if changed {
+			arg1, err = midilib.ReadByte(p.input)
+			if err != nil {
+				return
+			}
+		}
+
+		// fmt.Printf("read channel message\n")
+		m, err = p.channelReader.Read(status, arg1)
 	}
 
 	if err != nil {

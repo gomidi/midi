@@ -72,10 +72,10 @@ func newWriter(output io.Writer, opts ...Option) *writer {
 		opt(enc)
 	}
 
-	if enc.noRunningStatus {
-		enc.wr = output
-	} else {
-		enc.wr = runningstatus.NewSMFWriter(output)
+	enc.wr = output
+
+	if !enc.noRunningStatus {
+		enc.currentTrack.runningWriter = runningstatus.NewSMFWriter()
 	}
 
 	if enc.header.NumTracks == 0 {
@@ -138,7 +138,7 @@ func (e *writer) Write(m midi.Message) (nbytes int, err error) {
 	}
 	// fmt.Printf("%T\n", ev)
 	if m == meta.EndOfTrack {
-		e.currentTrack.Add(e.deltatime, m.Raw())
+		e.currentTrack.Add(e.deltatime, m)
 		var tnum int
 		tnum, err = e.currentTrack.WriteTo(e.wr)
 		nbytes += tnum
@@ -148,9 +148,13 @@ func (e *writer) Write(m midi.Message) (nbytes int, err error) {
 			return
 		}
 		e.currentTrack = &track{}
+
+		if !e.noRunningStatus {
+			e.currentTrack.runningWriter = runningstatus.NewSMFWriter()
+		}
 		return
 	}
-	e.currentTrack.Add(e.deltatime, m.Raw())
+	e.currentTrack.Add(e.deltatime, m)
 	return
 }
 

@@ -14,7 +14,7 @@ import (
 // Pos is the position of the event inside a standard midi file (SMF).
 type Pos struct {
 	// the Track number
-	Track uint16
+	Track int16
 
 	// the delta time to the previous message in the same track
 	Delta uint32

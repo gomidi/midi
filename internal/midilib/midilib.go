@@ -5,6 +5,19 @@ import (
 	"io"
 )
 
+func hasBitU8(n uint8, pos uint8) bool {
+	val := n & (1 << pos)
+	return (val > 0)
+}
+
+func IsChannelMessage(b uint8) bool {
+	return !hasBitU8(b, 6)
+}
+
+func IsStatusByte(b uint8) bool {
+	return hasBitU8(b, 7)
+}
+
 func ReadNBytes(n int, rd io.Reader) ([]byte, error) {
 	var b []byte = make([]byte, n)
 	num, err := rd.Read(b)

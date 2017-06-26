@@ -71,7 +71,7 @@ func (r *reader) Read() (Message, error) {
 	}
 
 	m := metaMessages[r.typ]
-	if m != nil {
+	if m == nil {
 		m = Undefined{Typ: r.typ}
 	}
 

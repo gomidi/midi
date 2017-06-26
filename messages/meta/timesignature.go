@@ -36,6 +36,41 @@ For a format 1 MIDI file, Time Signature Meta events should only occur within th
 
 */
 
+// TimeSignatureDetailed allows to specify
+// ClocksPerClick and DemiSemiQuaverPerQuarter explicit, instead of taking
+// the defaults
+type TimeSignatureDetailed struct {
+	Numerator                uint8
+	Denominator              uint8
+	ClocksPerClick           uint8
+	DemiSemiQuaverPerQuarter uint8
+}
+
+func (m TimeSignatureDetailed) Raw() []byte {
+	cpcl := m.ClocksPerClick
+	if cpcl == 0 {
+		cpcl = byte(8)
+	}
+
+	dsqpq := m.DemiSemiQuaverPerQuarter
+	if dsqpq == 0 {
+		dsqpq = byte(8)
+	}
+
+	var denom = dec2binDenom(m.Denominator)
+
+	return (&metaMessage{
+		Typ:  byteTimeSignature,
+		Data: []byte{m.Numerator, denom, cpcl, dsqpq},
+	}).Bytes()
+
+}
+
+func (m TimeSignatureDetailed) String() string {
+	return fmt.Sprintf("%T %v/%v clocksperclick %v dsqpq %v", m, m.Numerator, m.Denominator, m.ClocksPerClick, m.DemiSemiQuaverPerQuarter)
+	//return fmt.Sprintf("%T %v/%v", m, m.Numerator, m.Denominator)
+}
+
 type TimeSignature struct {
 	Numerator   uint8
 	Denominator uint8

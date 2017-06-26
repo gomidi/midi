@@ -31,6 +31,10 @@ func (n NoteOffPedantic) Raw() []byte {
 	return channelMessage2(n.channel, 8, n.pitch, n.velocity)
 }
 
+func (m NoteOffPedantic) String() string {
+	return fmt.Sprintf("%T channel %v pitch %v velocity: %v", m, m.channel, m.pitch, m.velocity)
+}
+
 // NoteOff creates a "fake" noteoff message by creating a NoteOn with velocity of 0 (helps for running status).
 type NoteOff struct {
 	channel uint8
