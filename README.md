@@ -5,7 +5,7 @@ Reading and writing of MIDI messages with Go.
 
 - [ ] implementation of complete MIDI standard (including SMF)
 - [x] common ground for live MIDI processing and processing of Standard MIDI Files (SMF)
-- [ ] correctness
+- [x] no known bugs 
 - [ ] high test coverage
 - [ ] stable API
 - [x] usage of small interfaces preferably of the standard library
@@ -13,6 +13,8 @@ Reading and writing of MIDI messages with Go.
 - [x] no dependencies outside the standard library
 - [x] as little dependencies to the standard library as possible
 - [x] small modular packages (see below)
+- [x] shortcuts for known control changes
+- [x] pure Go library (no C, no assembler) 
 - [ ] beginner friendlyness
 - [ ] quality documentation
 
