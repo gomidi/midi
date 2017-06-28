@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gomidi/midi/smf"
 
 	"github.com/gomidi/midi"
@@ -44,87 +43,106 @@ func New(opts ...Option) *Handler {
 // When reading an SMF file (via Handler.ReadSMF), the passed *Pos is set,
 // when reading live data (via Handler.ReadLive) it is nil.
 type Handler struct {
-	pos *Pos
-	//Event  Event
+
+	// callback functions for SMF (Standard MIDI File) header data
+	SMFHeader struct {
+		Format     func(smf.Format) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
+		NumTracks  func(n uint16)   // number of tracks
+		TimeFormat func(smf.TimeFormat)
+	}
+
+	// callback functions for MIDI messages
+	Message struct {
+		// is called in addition to other functions, if set.
+		Each func(*Pos, midi.Message)
+
+		// undefined or unknown messages
+		Unknown func(p *Pos, msg midi.Message)
+
+		// meta messages (only in SMF files)
+		Meta struct {
+			// SMF general settings
+			Copyright     func(p Pos, text string)
+			Tempo         func(p Pos, bpm uint32)
+			TimeSignature func(p Pos, num, denom uint8)
+			KeySignature  func(p Pos, key uint8, ismajor bool, num_accidentals uint8, accidentals_are_flat bool)
+
+			// SMF tracks and sequence definitions
+			TrackInstrument func(p Pos, name string)
+			Sequence        func(p Pos, name string)
+			SequenceNumber  func(p Pos, number uint16)
+
+			// SMF port description
+			DevicePort func(p Pos, name string)
+
+			// SMF text entries
+			Marker   func(p Pos, text string)
+			CuePoint func(p Pos, text string)
+			Text     func(p Pos, text string)
+			Lyric    func(p Pos, text string)
+
+			// SMF end of track
+			EndOfTrack func(p Pos)
+
+			// deprecated
+			MIDIChannel func(p Pos, channel uint8)
+			MIDIPort    func(p Pos, port uint8)
+		}
+
+		// channel messages, may be in SMF files and in live data
+		// for live data *Pos is nil
+		Channel struct {
+			// NoteOn is just called for noteon messages with a velocity > 0
+			// noteon messages with velocity == 0 will trigger NoteOff with a velocity of 0
+			NoteOn func(p *Pos, channel, pitch, velocity uint8)
+
+			// NoteOff is triggered by noteoff messages (then the given velocity is passed)
+			// and by noteon messages of velocity 0 (then velocity is 0)
+			NoteOff              func(p *Pos, channel, pitch uint8, velocity uint8)
+			PolyphonicAfterTouch func(p *Pos, channel, pitch, pressure uint8)
+			ControlChange        func(p *Pos, channel, controller, value uint8)
+			ProgramChange        func(p *Pos, channel, program uint8)
+			AfterTouch           func(p *Pos, channel, pressure uint8)
+			PitchWheel           func(p *Pos, channel uint8, value int16)
+		}
+
+		// realtime messages: just in live data
+		Realtime struct {
+			// realtime messages
+			Reset       func()
+			Clock       func()
+			Tick        func()
+			Start       func()
+			Continue    func()
+			Stop        func()
+			ActiveSense func()
+		}
+
+		// system common messages: just in live data
+		SysCommon struct {
+			// system common
+			TuneRequest         func()
+			SongSelect          func(num uint8)
+			SongPositionPointer func(pos uint16)
+			MIDITimingCode      func(frame uint8)
+		}
+
+		// system exclusive, may be in SMF files and in live data
+		// for live data *Pos is nil
+		SysEx struct {
+			// system exclusive
+			Complete func(p *Pos, data []byte)
+			Start    func(p *Pos, data []byte)
+			Continue func(p *Pos, data []byte)
+			End      func(p *Pos, data []byte)
+			Escape   func(p *Pos, data []byte)
+		}
+	}
+
+	// optional logger
 	logger Logger
 
-	// SMF header informations
-	Format     func(smf.Format) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
-	NumTracks  func(n uint16)   // number of tracks
-	TimeFormat func(smf.TimeFormat)
-
-	// SMF general settings
-	Copyright     func(p *Pos, text string)
-	Tempo         func(p *Pos, bpm uint32)
-	TimeSignature func(p *Pos, num, denom uint8)
-	KeySignature  func(p *Pos, key uint8, ismajor bool, num_accidentals uint8, accidentals_are_flat bool)
-
-	// SMF tracks and sequence definitions
-	TrackInstrument func(p *Pos, name string)
-	Sequence        func(p *Pos, name string)
-	SequenceNumber  func(p *Pos, number uint16)
-
-	// SMF port description
-	DevicePort func(p *Pos, name string)
-
-	// SMF text entries
-	Marker   func(p *Pos, text string)
-	CuePoint func(p *Pos, text string)
-	Text     func(p *Pos, text string)
-	Lyric    func(p *Pos, text string)
-
-	// SMF end of track
-	EndOfTrack func(p *Pos)
-
-	// channel messages
-	// NoteOn is just called for noteon messages with a velocity > 0
-	// noteon messages with velocity == 0 will trigger NoteOff with a velocity of 0
-	NoteOn func(p *Pos, channel, pitch, velocity uint8)
-	// NoteOff is triggered by noteoff messages (then the given velocity is passed)
-	// and by noteon messages of velocity 0 (then velocity is 0)
-	NoteOff              func(p *Pos, channel, pitch uint8, velocity uint8)
-	PolyphonicAfterTouch func(p *Pos, channel, pitch, pressure uint8)
-	ControlChange        func(p *Pos, channel, controller, value uint8)
-	ProgramChange        func(p *Pos, channel, program uint8)
-	AfterTouch           func(p *Pos, channel, pressure uint8)
-	PitchWheel           func(p *Pos, channel uint8, value int16)
-
-	// system messages
-	SysExComplete func(p *Pos, data []byte)
-	SysExStart    func(p *Pos, data []byte)
-	SysExContinue func(p *Pos, data []byte)
-	SysExEnd      func(p *Pos, data []byte)
-	SysExEscape   func(p *Pos, data []byte)
-
-	// system common
-	TuneRequest         func()
-	SongSelect          func(num uint8)
-	SongPositionPointer func(pos uint16)
-	MIDITimingCode      func(frame uint8)
-
-	// realtime messages
-	Reset       func()
-	Clock       func()
-	Tick        func()
-	Start       func()
-	Continue    func()
-	Stop        func()
-	ActiveSense func()
-
-	// deprecated
-	MIDIChannel func(p *Pos, channel uint8)
-	MIDIPort    func(p *Pos, port uint8)
-
-	// undefined
-	UndefinedMeta       func(p *Pos, typ byte, data []byte)
-	UndefinedSysCommon4 func(p *Pos)
-	UndefinedSysCommon5 func(p *Pos)
-	UndefinedRealtime4  func()
-	Unknown             func(p *Pos, info string)
-
-	// is called in addition to other functions, if set.
-	Each func(*Pos, midi.Message)
-
+	pos    *Pos
 	errSMF error
 }
 
@@ -158,203 +176,193 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 			h.log(m)
 		}
 
-		if h.Each != nil {
-			h.Each(h.pos, m)
+		if h.Message.Each != nil {
+			h.Message.Each(h.pos, m)
 		}
 
 		switch msg := m.(type) {
 
 		// most common event, should be exact
 		case channel.NoteOn:
-			if h.NoteOn != nil {
-				h.NoteOn(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
+			if h.Message.Channel.NoteOn != nil {
+				h.Message.Channel.NoteOn(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
 			}
 
 		// proably second most common
 		case channel.NoteOff:
-			if h.NoteOff != nil {
-				h.NoteOff(h.pos, msg.Channel(), msg.Pitch(), 0)
+			if h.Message.Channel.NoteOff != nil {
+				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Pitch(), 0)
 			}
 
 		case channel.NoteOffPedantic:
-			if h.NoteOff != nil {
-				h.NoteOff(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
+			if h.Message.Channel.NoteOff != nil {
+				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
 			}
 
 		// if send there often are a lot of them
 		case channel.PitchWheel:
-			if h.PitchWheel != nil {
-				h.PitchWheel(h.pos, msg.Channel(), msg.Value())
+			if h.Message.Channel.PitchWheel != nil {
+				h.Message.Channel.PitchWheel(h.pos, msg.Channel(), msg.Value())
 			}
 
 		case channel.PolyphonicAfterTouch:
-			if h.PolyphonicAfterTouch != nil {
-				h.PolyphonicAfterTouch(h.pos, msg.Channel(), msg.Pitch(), msg.Pressure())
+			if h.Message.Channel.PolyphonicAfterTouch != nil {
+				h.Message.Channel.PolyphonicAfterTouch(h.pos, msg.Channel(), msg.Pitch(), msg.Pressure())
 			}
 
 		case channel.AfterTouch:
-			if h.AfterTouch != nil {
-				h.AfterTouch(h.pos, msg.Channel(), msg.Pressure())
+			if h.Message.Channel.AfterTouch != nil {
+				h.Message.Channel.AfterTouch(h.pos, msg.Channel(), msg.Pressure())
 			}
 
 		case channel.ControlChange:
-			if h.ControlChange != nil {
-				h.ControlChange(h.pos, msg.Channel(), msg.Controller(), msg.Value())
+			if h.Message.Channel.ControlChange != nil {
+				h.Message.Channel.ControlChange(h.pos, msg.Channel(), msg.Controller(), msg.Value())
 			}
 
 		case meta.Tempo:
-			if h.Tempo != nil {
-				h.Tempo(h.pos, msg.BPM())
+			if h.Message.Meta.Tempo != nil {
+				h.Message.Meta.Tempo(*h.pos, msg.BPM())
 			}
 
 		case meta.TimeSignature:
-			if h.TimeSignature != nil {
-				h.TimeSignature(h.pos, msg.Numerator, msg.Denominator)
+			if h.Message.Meta.TimeSignature != nil {
+				h.Message.Meta.TimeSignature(*h.pos, msg.Numerator, msg.Denominator)
 			}
 
 			// may be for karaoke we need to be fast
 		case meta.Lyric:
-			if h.Lyric != nil {
-				h.Lyric(h.pos, msg.Text())
+			if h.Message.Meta.Lyric != nil {
+				h.Message.Meta.Lyric(*h.pos, msg.Text())
 			}
 
 		// may be useful to synchronize by sequence number
 		case meta.SequenceNumber:
-			if h.SequenceNumber != nil {
-				h.SequenceNumber(h.pos, msg.Number())
+			if h.Message.Meta.SequenceNumber != nil {
+				h.Message.Meta.SequenceNumber(*h.pos, msg.Number())
 			}
 
 		// markers and cuepoints could also be useful when communication sections or sequences between devices
 		case meta.Marker:
-			if h.Marker != nil {
-				h.Marker(h.pos, msg.Text())
+			if h.Message.Meta.Marker != nil {
+				h.Message.Meta.Marker(*h.pos, msg.Text())
 			}
 
 		case meta.CuePoint:
-			if h.CuePoint != nil {
-				h.CuePoint(h.pos, msg.Text())
+			if h.Message.Meta.CuePoint != nil {
+				h.Message.Meta.CuePoint(*h.pos, msg.Text())
 			}
 
 		case sysex.SysEx:
-			if h.SysExComplete != nil {
-				h.SysExComplete(h.pos, msg.Data())
+			if h.Message.SysEx.Complete != nil {
+				h.Message.SysEx.Complete(h.pos, msg.Data())
 			}
 
 		case sysex.Start:
-			if h.SysExStart != nil {
-				h.SysExStart(h.pos, msg.Data())
+			if h.Message.SysEx.Start != nil {
+				h.Message.SysEx.Start(h.pos, msg.Data())
 			}
 
 		case sysex.End:
-			if h.SysExEnd != nil {
-				h.SysExEnd(h.pos, msg.Data())
+			if h.Message.SysEx.End != nil {
+				h.Message.SysEx.End(h.pos, msg.Data())
 			}
 
 		case sysex.Continue:
-			if h.SysExContinue != nil {
-				h.SysExContinue(h.pos, msg.Data())
+			if h.Message.SysEx.Continue != nil {
+				h.Message.SysEx.Continue(h.pos, msg.Data())
 			}
 
 		case sysex.Escape:
-			if h.SysExEscape != nil {
-				h.SysExEscape(h.pos, msg.Data())
+			if h.Message.SysEx.Escape != nil {
+				h.Message.SysEx.Escape(h.pos, msg.Data())
 			}
 
 		// this usually takes some time
 		case channel.ProgramChange:
-			if h.ProgramChange != nil {
-				h.ProgramChange(h.pos, msg.Channel(), msg.Program())
+			if h.Message.Channel.ProgramChange != nil {
+				h.Message.Channel.ProgramChange(h.pos, msg.Channel(), msg.Program())
 			}
 
 		// the rest is not that interesting for performance
 		case meta.KeySignature:
-			if h.KeySignature != nil {
-				h.KeySignature(h.pos, msg.Key, msg.IsMajor, msg.Num, msg.IsFlat)
+			if h.Message.Meta.KeySignature != nil {
+				h.Message.Meta.KeySignature(*h.pos, msg.Key, msg.IsMajor, msg.Num, msg.IsFlat)
 			}
 
 		case meta.Sequence:
-			if h.Sequence != nil {
-				h.Sequence(h.pos, msg.Text())
+			if h.Message.Meta.Sequence != nil {
+				h.Message.Meta.Sequence(*h.pos, msg.Text())
 			}
 
 		case meta.TrackInstrument:
-			if h.TrackInstrument != nil {
-				h.TrackInstrument(h.pos, msg.Text())
+			if h.Message.Meta.TrackInstrument != nil {
+				h.Message.Meta.TrackInstrument(*h.pos, msg.Text())
 			}
 
 		case meta.MIDIChannel:
-			if h.MIDIChannel != nil {
-				h.MIDIChannel(h.pos, msg.Number())
+			if h.Message.Meta.MIDIChannel != nil {
+				h.Message.Meta.MIDIChannel(*h.pos, msg.Number())
 			}
 
 		case meta.MIDIPort:
-			if h.MIDIPort != nil {
-				h.MIDIPort(h.pos, msg.Number())
+			if h.Message.Meta.MIDIPort != nil {
+				h.Message.Meta.MIDIPort(*h.pos, msg.Number())
 			}
 
 		case meta.Text:
-			if h.Text != nil {
-				h.Text(h.pos, msg.Text())
+			if h.Message.Meta.Text != nil {
+				h.Message.Meta.Text(*h.pos, msg.Text())
 			}
 
 		case syscommon.SongSelect:
-			if h.SongSelect != nil {
-				h.SongSelect(msg.Number())
+			if h.Message.SysCommon.SongSelect != nil {
+				h.Message.SysCommon.SongSelect(msg.Number())
 			}
 
 		case syscommon.SongPositionPointer:
-			if h.SongPositionPointer != nil {
-				h.SongPositionPointer(msg.Number())
+			if h.Message.SysCommon.SongPositionPointer != nil {
+				h.Message.SysCommon.SongPositionPointer(msg.Number())
 			}
 
 		case syscommon.MIDITimingCode:
-			if h.MIDITimingCode != nil {
-				h.MIDITimingCode(msg.QuarterFrame())
+			if h.Message.SysCommon.MIDITimingCode != nil {
+				h.Message.SysCommon.MIDITimingCode(msg.QuarterFrame())
 			}
 
 		case meta.Copyright:
-			if h.Copyright != nil {
-				h.Copyright(h.pos, msg.Text())
+			if h.Message.Meta.Copyright != nil {
+				h.Message.Meta.Copyright(*h.pos, msg.Text())
 			}
 
 		case meta.DevicePort:
-			if h.DevicePort != nil {
-				h.DevicePort(h.pos, msg.Text())
+			if h.Message.Meta.DevicePort != nil {
+				h.Message.Meta.DevicePort(*h.pos, msg.Text())
 			}
 
-		case meta.Undefined:
-			if h.UndefinedMeta != nil {
-				h.UndefinedMeta(h.pos, msg.Typ, msg.Data)
-			}
-
-		case syscommon.Undefined4:
-			if h.UndefinedSysCommon4 != nil {
-				h.UndefinedSysCommon4(h.pos)
-			}
-
-		case syscommon.Undefined5:
-			if h.UndefinedSysCommon5 != nil {
-				h.UndefinedSysCommon5(h.pos)
+		case meta.Undefined, syscommon.Undefined4, syscommon.Undefined5:
+			if h.Message.Unknown != nil {
+				h.Message.Unknown(h.pos, m)
 			}
 
 		default:
 			switch m {
 			case syscommon.TuneRequest:
-				if h.TuneRequest != nil {
-					h.TuneRequest()
+				if h.Message.SysCommon.TuneRequest != nil {
+					h.Message.SysCommon.TuneRequest()
 				}
 			case meta.EndOfTrack:
 				if _, ok := rd.(smf.Reader); ok && h.pos != nil {
 					h.pos.Delta = 0
 					h.pos.AbsTime = 0
 				}
-				if h.EndOfTrack != nil {
-					h.EndOfTrack(h.pos)
+				if h.Message.Meta.EndOfTrack != nil {
+					h.Message.Meta.EndOfTrack(*h.pos)
 				}
 			default:
 
-				if h.Unknown != nil {
-					h.Unknown(h.pos, fmt.Sprintf("%T %#v", m, m))
+				if h.Message.Unknown != nil {
+					h.Message.Unknown(h.pos, m)
 				}
 
 			}
