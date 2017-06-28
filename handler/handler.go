@@ -65,17 +65,18 @@ type Handler struct {
 			Sequence        func(p SMFPosition, name string)
 			SequenceNumber  func(p SMFPosition, number uint16)
 
-			// SMF port description
-			DevicePort func(p SMFPosition, name string)
-
 			// SMF text entries
 			Marker   func(p SMFPosition, text string)
 			CuePoint func(p SMFPosition, text string)
 			Text     func(p SMFPosition, text string)
 			Lyric    func(p SMFPosition, text string)
 
-			// SMF end of track
-			EndOfTrack func(p SMFPosition)
+			// SMF diverse
+			EndOfTrack        func(p SMFPosition)
+			DevicePort        func(p SMFPosition, name string)
+			ProgramName       func(p SMFPosition, text string)
+			SMPTEOffset       func(p SMFPosition, hour, minute, second, frame, fractionalFrame byte)
+			SequencerSpecific func(p SMFPosition, data []byte)
 
 			// deprecated
 			MIDIChannel func(p SMFPosition, channel uint8)
@@ -213,6 +214,11 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Message.Channel.ControlChange(h.pos, msg.Channel(), msg.Controller(), msg.Value())
 			}
 
+		case meta.SMPTEOffset:
+			if h.Message.Meta.SMPTEOffset != nil {
+				h.Message.Meta.SMPTEOffset(*h.pos, msg.Hour, msg.Minute, msg.Second, msg.Frame, msg.FractionalFrame)
+			}
+
 		case meta.Tempo:
 			if h.Message.Meta.Tempo != nil {
 				h.Message.Meta.Tempo(*h.pos, msg.BPM())
@@ -235,7 +241,6 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Message.Meta.SequenceNumber(*h.pos, msg.Number())
 			}
 
-		// markers and cuepoints could also be useful when communication sections or sequences between devices
 		case meta.Marker:
 			if h.Message.Meta.Marker != nil {
 				h.Message.Meta.Marker(*h.pos, msg.Text())
@@ -244,6 +249,16 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 		case meta.CuePoint:
 			if h.Message.Meta.CuePoint != nil {
 				h.Message.Meta.CuePoint(*h.pos, msg.Text())
+			}
+
+		case meta.ProgramName:
+			if h.Message.Meta.ProgramName != nil {
+				h.Message.Meta.ProgramName(*h.pos, msg.Text())
+			}
+
+		case meta.SequencerSpecific:
+			if h.Message.Meta.SequencerSpecific != nil {
+				h.Message.Meta.SequencerSpecific(*h.pos, msg.Data())
 			}
 
 		case sysex.SysEx:

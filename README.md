@@ -12,6 +12,7 @@ Reading and writing of MIDI messages with Go.
 
 ## Non-Goals
 
+- constructing of MIDI time code messages
 - dealing with the inner structure of sysex messages
 - connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi )
 - CLI tools
@@ -54,11 +55,11 @@ usable (beta)
     smf/smfmodify     --nothing done yet , only draft---
     messages/channel      almost              yes
     messages/cc           yes                 yes
-    messages/meta         almost              almost
+    messages/meta         almost              yes
     messages/realtime     yes                 yes
     messages/syscommon    yes                 yes
     messages/sysex        no                  yes
-    handler               no                  almost
+    handler               no                  yes
 
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)

@@ -5,6 +5,18 @@ import (
 )
 
 /*
+
+A notation such as dd or se, which consists of two lower-case letters,
+mnemonically represents an 8-bit value. Four identical lower-case letters such as wwww refer
+to a 16-bit value, stored most-significant-byte first. Six identical lower-case letters such as
+tttttt refer to a 24-bit value, stored most-significant-byte first. The notation len refers to
+the length portion of the meta-event syntax, that is, a number, stored as a variable-length
+quantity, which specifies how many data bytes follow it in the meta-event. The notations text
+and data refer to however many bytes of (possibly text) data were just specified by the length.
+
+*/
+
+/*
 from: http://www.somascape.org/midi/tech/mfile.html
 
 Meta events
@@ -45,10 +57,12 @@ var (
 	_ Message = DevicePort("")
 	_ Message = MIDIPort(0)
 	_ Message = Tempo(0)
+	_ Message = SMPTEOffset{}
 	_ Message = TimeSignature{}
 	_ Message = KeySignature{}
 	_ Message = EndOfTrack
 	_ Message = Undefined{}
+	_ Message = SequencerSpecific(nil)
 )
 
 /*

@@ -8,41 +8,45 @@ const (
 	// End of track
 	// the handler is supposed to keep track of the current track
 
-	byteEndOfTrack            = byte(0x2F)
-	byteSequenceNumber        = byte(0x00)
-	byteText                  = byte(0x01)
-	byteCopyright             = byte(0x02)
-	byteSequence              = byte(0x03)
-	byteTrackInstrument       = byte(0x04)
-	byteLyric                 = byte(0x05)
-	byteMarker                = byte(0x06)
-	byteCuePoint              = byte(0x07)
-	byteMIDIChannel           = byte(0x20)
-	byteDevicePort            = byte(0x9)
-	byteMIDIPort              = byte(0x21)
-	byteTempo                 = byte(0x51)
-	byteTimeSignature         = byte(0x58)
-	byteKeySignature          = byte(0x59)
-	byteSequencerSpecificInfo = byte(0x7F)
+	byteEndOfTrack        = byte(0x2F)
+	byteSequenceNumber    = byte(0x00)
+	byteText              = byte(0x01)
+	byteCopyright         = byte(0x02)
+	byteSequence          = byte(0x03)
+	byteTrackInstrument   = byte(0x04)
+	byteLyric             = byte(0x05)
+	byteMarker            = byte(0x06)
+	byteCuePoint          = byte(0x07)
+	byteMIDIChannel       = byte(0x20)
+	byteDevicePort        = byte(0x9)
+	byteMIDIPort          = byte(0x21)
+	byteTempo             = byte(0x51)
+	byteTimeSignature     = byte(0x58)
+	byteKeySignature      = byte(0x59)
+	byteSequencerSpecific = byte(0x7F)
+	byteSMPTEOffset       = byte(0x54)
+	byteProgramName       = byte(0x8)
 )
 
 var metaMessages = map[byte]Message{
-	byteEndOfTrack:            EndOfTrack,
-	byteSequenceNumber:        SequenceNumber(0),
-	byteText:                  Text(""),
-	byteCopyright:             Copyright(""),
-	byteSequence:              Sequence(""),
-	byteTrackInstrument:       TrackInstrument(""),
-	byteLyric:                 Lyric(""),
-	byteMarker:                Marker(""),
-	byteCuePoint:              CuePoint(""),
-	byteMIDIChannel:           MIDIChannel(0),
-	byteDevicePort:            DevicePort(""),
-	byteMIDIPort:              MIDIPort(0),
-	byteTempo:                 Tempo(0),
-	byteTimeSignature:         TimeSignature{},
-	byteKeySignature:          KeySignature{},
-	byteSequencerSpecificInfo: nil, // SequencerSpecificInfo
+	byteEndOfTrack:        EndOfTrack,
+	byteSequenceNumber:    SequenceNumber(0),
+	byteText:              Text(""),
+	byteCopyright:         Copyright(""),
+	byteSequence:          Sequence(""),
+	byteTrackInstrument:   TrackInstrument(""),
+	byteLyric:             Lyric(""),
+	byteMarker:            Marker(""),
+	byteCuePoint:          CuePoint(""),
+	byteMIDIChannel:       MIDIChannel(0),
+	byteDevicePort:        DevicePort(""),
+	byteMIDIPort:          MIDIPort(0),
+	byteTempo:             Tempo(0),
+	byteTimeSignature:     TimeSignature{},
+	byteKeySignature:      KeySignature{},
+	byteSMPTEOffset:       SMPTEOffset{},
+	byteSequencerSpecific: SequencerSpecific(nil),
+	byteProgramName:       ProgramName(""),
 }
 
 // Reader reads a Meta Message
