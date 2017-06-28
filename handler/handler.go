@@ -2,13 +2,13 @@ package handler
 
 import (
 	"fmt"
+	"github.com/gomidi/midi/smf"
 
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/messages/syscommon"
 	"github.com/gomidi/midi/messages/sysex"
-	"github.com/gomidi/midi/smf"
 )
 
 // Pos is the position of the event inside a standard midi file (SMF).
@@ -49,10 +49,9 @@ type Handler struct {
 	logger Logger
 
 	// SMF header informations
-	Format           func(smf.Format) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
-	NumTracks        func(n uint16)   // number of tracks
-	TimeCode         func(uint16)
-	QuarterNoteTicks func(uint16)
+	Format     func(smf.Format) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
+	NumTracks  func(n uint16)   // number of tracks
+	TimeFormat func(smf.TimeFormat)
 
 	// SMF general settings
 	Copyright     func(p *Pos, text string)
@@ -345,6 +344,10 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 					h.TuneRequest()
 				}
 			case meta.EndOfTrack:
+				if _, ok := rd.(smf.Reader); ok && h.pos != nil {
+					h.pos.Delta = 0
+					h.pos.AbsTime = 0
+				}
 				if h.EndOfTrack != nil {
 					h.EndOfTrack(h.pos)
 				}

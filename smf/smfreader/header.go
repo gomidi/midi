@@ -18,12 +18,12 @@ type mThdData struct {
 	// Used if TimeCodeTimeFormat
 	// the raw timeformat data
 	// unpack it with UnpackTimeCode
-	timeFormatData uint16
+	// timeFormatData uint16
 
-	timeCodeSubFrames uint8
+	// timeCodeSubFrames uint8
 
 	// Used if MetricalTimeFormat
-	quarterNoteTicks uint16
+	// quarterNoteTicks uint16
 }
 
 func (p mThdData) Format() smf.Format {
@@ -34,12 +34,8 @@ func (p mThdData) NumTracks() uint16 {
 	return p.numTracks
 }
 
-func (p mThdData) TimeFormat() (smf.TimeFormat, uint16) {
-	if p.timeFormat == smf.QuarterNoteTicks {
-		return p.timeFormat, p.quarterNoteTicks
-	}
-
-	return smf.TimeCode, p.timeFormatData
+func (p mThdData) TimeFormat() smf.TimeFormat {
+	return p.timeFormat
 }
 
 // parseHeaderData parses SMF-header chunk header data.
@@ -54,11 +50,11 @@ func (h *mThdData) readFrom(reader io.Reader) error {
 
 	switch _format {
 	case 0:
-		h.format = smf.SingleTrack
+		h.format = smf.SMF0
 	case 1:
-		h.format = smf.MultiTrack
+		h.format = smf.SMF1
 	case 2:
-		h.format = smf.SequentialTracks
+		h.format = smf.SMF2
 	default:
 		return ErrUnsupportedSMFFormat
 	}
@@ -76,20 +72,20 @@ func (h *mThdData) readFrom(reader io.Reader) error {
 	// "If bit 15 of <division> is zero, the bits 14 thru 0 represent the number
 	// of delta time "ticks" which make up a quarter-note."
 	if division&0x8000 == 0x0000 {
-		h.quarterNoteTicks = division & 0x7FFF
+		// h.quarterNoteTicks = division & 0x7FFF
 		//h.timeFormat = metricalTimeFormat
-		h.timeFormat = smf.QuarterNoteTicks
+		h.timeFormat = smf.QuarterNoteTicks(division & 0x7FFF)
 	} else {
 		// TODO: Can't be bothered to implement this bit just now.
 		// If you want it, write it!
 		// h.timeFormatData = division & 0x7FFF
-		h.timeFormatData = division
+		// h.timeFormatData = division
 		// h.smpteFPS = uint8(int8(byte(division>>8)) * (-1)) // bit shifting first byte to second inverting sign
 		// h.timeCodeSubFrames = byte(division & uint16(255)) // taking the second byte
 
 		//h.timeFormatData = division
 		//h.timeFormat = timeCodeTimeFormat
-		h.timeFormat = smf.TimeCode
+		h.timeFormat = parseTimeCode(division)
 	}
 
 	/*
@@ -146,4 +142,15 @@ func (h *mThdData) readFrom(reader io.Reader) error {
 	*/
 
 	return err
+}
+
+// Parse parses the timecode from the raw value returned from Header.TimeFormat if the format is TimeCode
+// It returns SMPTE frames per second (29 corresponds to 30 drop frame) and the subframes.
+func parseTimeCode(raw uint16) (t smf.TimeCode) {
+	// bit shifting first byte to second inverting sign
+	t.FramesPerSecond = uint8(int8(byte(raw>>8)) * (-1))
+
+	// taking the second byte
+	t.SubFrames = byte(raw & uint16(255))
+	return
 }

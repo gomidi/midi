@@ -8,23 +8,50 @@ import (
 	"testing"
 )
 
+func TestParseTimeCode(t *testing.T) {
+
+	tests := []struct {
+		input     uint16
+		fps       uint8
+		subframes uint8
+	}{
+		{0xE808, 24, 8},
+		{0xE728, 25, 40},
+		{0xE264, 30, 100},
+		{0xE350, 29, 80},
+	}
+
+	for _, test := range tests {
+		timecode := parseTimeCode(test.input)
+
+		if got, want := timecode.FramesPerSecond, test.fps; got != want {
+			t.Errorf("parseTimeCode(% X) [fps] = %v; want %v", test.input, got, want)
+		}
+
+		if got, want := timecode.SubFrames, test.subframes; got != want {
+			t.Errorf("parseTimeCode(% X) [subframes] = %v; want %v", test.input, got, want)
+		}
+	}
+
+}
+
 func TestTimeCode(t *testing.T) {
 
 	tests := []struct {
 		fps       uint8
 		subframes uint8
-		option    smfwriter.Option
+		format    smf.TimeFormat
 	}{
-		{24, 8, smfwriter.SMPTE24(8)},
-		{25, 40, smfwriter.SMPTE25(40)},
-		{30, 100, smfwriter.SMPTE30(100)},
-		{29, 80, smfwriter.SMPTE30DropFrame(80)},
+		{24, 8, smf.SMPTE24(8)},
+		{25, 40, smf.SMPTE25(40)},
+		{30, 100, smf.SMPTE30(100)},
+		{29, 80, smf.SMPTE30DropFrame(80)},
 	}
 
 	for _, test := range tests {
 
 		var bf bytes.Buffer
-		_, err := smfwriter.New(&bf, test.option).Write(meta.Tempo(100))
+		_, err := smfwriter.New(&bf, smfwriter.TimeFormat(test.format)).Write(meta.Tempo(100))
 
 		if err != nil {
 			t.Fatalf("can't write smf: %v", err)
@@ -40,20 +67,20 @@ func TestTimeCode(t *testing.T) {
 			t.Fatalf("can't write read header: %v", err)
 		}
 
-		fm, val := header.TimeFormat()
+		format := header.TimeFormat()
 
-		if fm != smf.TimeCode {
-			t.Fatalf("wrong time format: %s; expected: %s", fm.String(), smf.TimeCode.String())
+		tc, isTC := format.(smf.TimeCode)
+
+		if !isTC {
+			t.Fatalf("wrong time format: %#v; expected TimeCode", format)
 		}
 
-		fps, subframes := smf.UnpackTimeCode(val)
-
-		if fps != test.fps {
-			t.Fatalf("wrong fps: %v; expected: %v", fps, test.fps)
+		if tc.FramesPerSecond != test.fps {
+			t.Fatalf("wrong fps: %v; expected: %v", tc.FramesPerSecond, test.fps)
 		}
 
-		if subframes != test.subframes {
-			t.Fatalf("wrong subframes: %v; expected: %v", subframes, test.subframes)
+		if tc.SubFrames != test.subframes {
+			t.Fatalf("wrong subframes: %v; expected: %v", tc.SubFrames, test.subframes)
 		}
 
 	}

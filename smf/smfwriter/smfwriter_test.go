@@ -5,6 +5,7 @@ import (
 	"github.com/gomidi/midi/internal/examples"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/smf"
 	"reflect"
 	"testing"
 )
@@ -32,7 +33,7 @@ Track 0@0 meta.endOfTrack
 func TestWriteSMF0(t *testing.T) {
 	var bf bytes.Buffer
 
-	wr := New(&bf, QuarterNoteTicks(96))
+	wr := New(&bf, TimeFormat(smf.QuarterNoteTicks(96)))
 	wr.Write(meta.TimeSignatureDetailed{
 		Numerator:                4,
 		Denominator:              4,
@@ -96,7 +97,7 @@ Track 3@0 meta.endOfTrack
 func TestWriteSMF1(t *testing.T) {
 	var bf bytes.Buffer
 
-	wr := New(&bf, NumTracks(4), QuarterNoteTicks(96))
+	wr := New(&bf, NumTracks(4), TimeFormat(smf.QuarterNoteTicks(96)))
 	wr.Write(meta.TimeSignatureDetailed{
 		Numerator:                4,
 		Denominator:              4,

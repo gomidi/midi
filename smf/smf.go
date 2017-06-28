@@ -1,6 +1,10 @@
 package smf
 
-import "github.com/gomidi/midi"
+import (
+	"fmt"
+
+	"github.com/gomidi/midi"
+)
 
 // Writer writes midi messages to a standard midi file (SMF)
 type Writer interface {
@@ -36,44 +40,121 @@ type Header interface {
 	// Format returns the SMF format (0 = SingleTrack, 1 = MultiTrack, 2 = SequentialTracks)
 	Format() Format
 
-	// TimeFormat returns the time format (QuarterNoteTicks or TimeCode) and the value of that format
-	// If TimeFormat is QuarterNoteTicks, the value is the ticks per quarter note.
-	// If TimeFormat is TimeCode, the value is a raw value that must be unpacked with the help of
-	// UnpackTimeCode.
-	TimeFormat() (format TimeFormat, value uint16)
+	// TimeFormat returns the time format (QuarterNoteTicks or TimeCode)
+	// To get the value, type cast to QuarterNoteTicks or TimeCode
+	TimeFormat() TimeFormat
 
 	// NumTracks returns the number of tracks as defined inside the SMF header. It should be the same
 	// as the real number of tracks in the file, although there is no guaranty.
 	NumTracks() uint16
 }
 
-// UnpackTimeCode unpacks the raw value returned from Header.TimeFormat if the format is TimeCode
-// It returns SMPTE frames per second (29 corresponds to 30 drop frame) and the subframes.
-func UnpackTimeCode(raw uint16) (fps, subframes uint8) {
-	// bit shifting first byte to second inverting sign
-	fps = uint8(int8(byte(raw>>8)) * (-1))
+const (
+	// SMF0 represents the singletrack SMF format (0)
+	SMF0 = format(0)
 
-	// taking the second byte
-	subframes = byte(raw & uint16(255))
-	return
+	// SMF1 represents the multitrack SMF format (1)
+	SMF1 = format(1)
+
+	// SMF2 represents the sequential track SMF format (2)
+	SMF2 = format(2)
+)
+
+var (
+	_ TimeFormat = QuarterNoteTicks(0)
+	_ TimeFormat = TimeCode{}
+)
+
+type TimeCode struct {
+	FramesPerSecond uint8
+	SubFrames       uint8
 }
 
-const (
-	// SingleTrack represents the singletrack SMF format (0)
-	SingleTrack = format(0)
+func (t TimeCode) String() string {
 
-	// MultiTrack represents the multitrack SMF format (1)
-	MultiTrack = format(1)
+	switch t.FramesPerSecond {
+	case 29:
+		return fmt.Sprintf("SMPTE30DropFrame %v subframes", t.SubFrames)
+	default:
+		return fmt.Sprintf("SMPTE%v %v subframes", t.FramesPerSecond, t.SubFrames)
+	}
 
-	// SequentialTracks represents the sequential track SMF format (2)
-	SequentialTracks = format(2)
+}
 
-	// QuarterNoteTicks represents the "ticks per quarter note" (metric) time format
-	QuarterNoteTicks = timeformat("QuarterNoteTicks")
+func (t TimeCode) timeformat() {}
 
-	// TimeCode represents the SMPTE/Timecode time formats
-	TimeCode = timeformat("TimeCode")
-)
+func SMPTE24(subframes uint8) TimeCode {
+	return TimeCode{24, subframes}
+}
+
+func SMPTE25(subframes uint8) TimeCode {
+	return TimeCode{25, subframes}
+}
+
+func SMPTE30DropFrame(subframes uint8) TimeCode {
+	return TimeCode{29, subframes}
+}
+
+func SMPTE30(subframes uint8) TimeCode {
+	return TimeCode{30, subframes}
+}
+
+// QuarterNoteTicks represents the "ticks per quarter note" (metric) time format
+type QuarterNoteTicks uint16
+
+func (q QuarterNoteTicks) Ticks() uint16 {
+	return uint16(q)
+}
+
+func (q QuarterNoteTicks) div(d float64) uint16 {
+	return uint16(roundFloat(float64(uint16(q))/d, 0))
+}
+
+func (q QuarterNoteTicks) N4th() uint16 {
+	return uint16(q)
+}
+
+func (q QuarterNoteTicks) N8th() uint16 {
+	return q.div(2)
+}
+
+func (q QuarterNoteTicks) N16th() uint16 {
+	return q.div(4)
+}
+
+func (q QuarterNoteTicks) N32th() uint16 {
+	return q.div(8)
+}
+
+func (q QuarterNoteTicks) N64th() uint16 {
+	return q.div(16)
+}
+
+func (q QuarterNoteTicks) N128th() uint16 {
+	return q.div(32)
+}
+
+func (q QuarterNoteTicks) N256th() uint16 {
+	return q.div(64)
+}
+
+func (q QuarterNoteTicks) N512th() uint16 {
+	return q.div(128)
+}
+
+func (q QuarterNoteTicks) N1024th() uint16 {
+	return q.div(256)
+}
+
+func (q QuarterNoteTicks) N2th() uint16 {
+	return uint16(q) * 2
+}
+
+func (q QuarterNoteTicks) String() string {
+	return fmt.Sprintf("%v QuarterNoteTicks", uint16(q))
+}
+
+func (q QuarterNoteTicks) timeformat() {}
 
 // Format is the common interface of all SMF file formats
 type Format interface {
@@ -99,12 +180,12 @@ func (f format) smfformat() {}
 
 func (f format) String() string {
 	switch f {
-	case SingleTrack:
-		return "SMF0 (SingleTrack)"
-	case MultiTrack:
-		return "SMF1 (MultiTrack)"
-	case SequentialTracks:
-		return "SMF2 (SequentialTracks)"
+	case SMF0:
+		return "SMF0 (singletrack)"
+	case SMF1:
+		return "SMF1 (multitrack)"
+	case SMF2:
+		return "SMF2 (sequential tracks)"
 	}
 	panic("unreachable")
 }

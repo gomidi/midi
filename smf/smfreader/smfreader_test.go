@@ -20,8 +20,7 @@ func testRead(t *testing.T, input []byte, options ...Option) string {
 
 	out.WriteString(fmt.Sprintf("SMF%v\n", hd.Format().Number()))
 	out.WriteString(fmt.Sprintf("%v Track(s)\n", hd.NumTracks()))
-	tfmt, ticks := hd.TimeFormat()
-	out.WriteString(fmt.Sprintf("TimeFormat: %v %s\n", ticks, tfmt))
+	out.WriteString(fmt.Sprintf("TimeFormat: %s\n", hd.TimeFormat()))
 
 	var _ = hd
 	var msg midi.Message

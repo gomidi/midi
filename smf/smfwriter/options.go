@@ -27,37 +27,10 @@ func NoRunningStatus() Option {
 	}
 }
 
-func QuarterNoteTicks(ticks uint16) Option {
+// TimeFormat sets the timeformat to either smf.QuarterNoteTicks or smf.TimeCode
+func TimeFormat(timeformat smf.TimeFormat) Option {
 	return func(e *writer) {
-		e.header.TickHeader = resQuarterNote(ticks)
-	}
-}
-
-func SMPTE24(ticksPerFrame int8) Option {
-	return func(e *writer) {
-		e.header.TickHeader = resSmpteFrames{24, ticksPerFrame}
-	}
-}
-
-func SMPTE25(ticksPerFrame int8) Option {
-	return func(e *writer) {
-		e.header.TickHeader = resSmpteFrames{25, ticksPerFrame}
-	}
-}
-
-func SMPTE30DropFrame(ticksPerFrame int8) Option {
-	return sMPTE29(ticksPerFrame)
-}
-
-func sMPTE29(ticksPerFrame int8) Option {
-	return func(e *writer) {
-		e.header.TickHeader = resSmpteFrames{29, ticksPerFrame}
-	}
-}
-
-func SMPTE30(ticksPerFrame int8) Option {
-	return func(e *writer) {
-		e.header.TickHeader = resSmpteFrames{30, ticksPerFrame}
+		e.header.TimeFormat = timeformat
 	}
 }
 
@@ -67,20 +40,8 @@ func NumTracks(ntracks uint16) Option {
 	}
 }
 
-func SMF2() Option {
+func Format(f smf.Format) Option {
 	return func(e *writer) {
-		e.header.MidiFormat = smf.SequentialTracks.Number()
-	}
-}
-
-func SMF1() Option {
-	return func(e *writer) {
-		e.header.MidiFormat = smf.MultiTrack.Number()
-	}
-}
-
-func SMF0() Option {
-	return func(e *writer) {
-		e.header.MidiFormat = smf.SingleTrack.Number()
+		e.header.MidiFormat = f
 	}
 }

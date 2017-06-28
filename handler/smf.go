@@ -18,6 +18,7 @@ import (
 // The *Pos parameter that is passed to the functions is always, because we are reading a file.
 func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
 	h.errSMF = nil
+	h.pos = &Pos{}
 	err := smfreader.ReadFile(file, h.readSMF, options...)
 	if err != nil {
 		return err
@@ -62,14 +63,8 @@ func (h *Handler) readSMF(rd smf.Reader) {
 		h.NumTracks(hd.NumTracks())
 	}
 
-	tf, tval := hd.TimeFormat()
-
-	if tf == smf.TimeCode && h.TimeCode != nil {
-		h.TimeCode(tval)
-	}
-
-	if tf == smf.QuarterNoteTicks && h.QuarterNoteTicks != nil {
-		h.QuarterNoteTicks(tval)
+	if h.TimeFormat != nil {
+		h.TimeFormat(hd.TimeFormat())
 	}
 
 	// use err here

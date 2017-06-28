@@ -85,16 +85,16 @@ func newWriter(output io.Writer, opts ...Option) *writer {
 	// if midiformat is undefined (see above), i.e. not set via options
 	// set the default, which is format 0 for one track and format 1 for multitracks
 	// if enc.header.MidiFormat == format(10) {
-	if enc.header.NumTracks > 1 {
-		enc.header.MidiFormat = smf.MultiTrack.Number()
+	if enc.header.MidiFormat != smf.SMF2 && enc.header.NumTracks > 1 {
+		enc.header.MidiFormat = smf.SMF1
 	}
 	// }
 
-	if enc.header.TickHeader == nil {
-		enc.header.TickHeader = resQuarterNote(960)
+	if enc.header.TimeFormat == nil {
+		enc.header.TimeFormat = smf.QuarterNoteTicks(960)
 	}
 
-	if qn, is := enc.header.TickHeader.(resQuarterNote); is {
+	if qn, is := enc.header.TimeFormat.(smf.QuarterNoteTicks); is {
 		enc.qticks = qn.Ticks()
 	}
 
