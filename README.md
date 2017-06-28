@@ -64,8 +64,8 @@ usable (alpha/beta)
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
 
-Supported Go versions: 1.2-1.8.
-Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
+- Supported Go versions: 1.2-1.8.
+- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
 
 ## License
 
