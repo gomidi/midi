@@ -42,11 +42,7 @@ func New(opts ...Option) *Handler {
 type Handler struct {
 
 	// callback functions for SMF (Standard MIDI File) header data
-	SMFHeader struct {
-		Format     func(smf.Format) // the midi file format (0=single track,1=multitrack,2=sequential tracks)
-		NumTracks  func(n uint16)   // number of tracks
-		TimeFormat func(smf.TimeFormat)
-	}
+	SMFHeader func(smf.Header)
 
 	// callback functions for MIDI messages
 	Message struct {

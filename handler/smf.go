@@ -55,16 +55,8 @@ func (h *Handler) readSMF(rd smf.Reader) {
 		return
 	}
 
-	if h.SMFHeader.Format != nil {
-		h.SMFHeader.Format(hd.Format())
-	}
-
-	if h.SMFHeader.NumTracks != nil {
-		h.SMFHeader.NumTracks(hd.NumTracks())
-	}
-
-	if h.SMFHeader.TimeFormat != nil {
-		h.SMFHeader.TimeFormat(hd.TimeFormat())
+	if h.SMFHeader != nil {
+		h.SMFHeader(hd)
 	}
 
 	// use err here

@@ -72,7 +72,7 @@ func newWriter(output io.Writer, opts ...Option) *writer {
 	wr.track.typ = [4]byte{byte('M'), byte('T'), byte('r'), byte('k')}
 
 	// defaults
-	wr.TimeFormat = smf.MetricResolution(0) // take the default, based on smf package (should be 960)
+	wr.TimeFormat = smf.MetricTicks(0) // take the default, based on smf package (should be 960)
 	wr.NumTracks = 1
 	wr.Format = smf.SMF0
 
@@ -169,7 +169,7 @@ func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 */
 func (w *writer) writeTimeFormat(wr io.Writer) error {
 	switch tf := w.TimeFormat.(type) {
-	case smf.MetricResolution:
+	case smf.MetricTicks:
 		ticks := tf.Ticks()
 		if ticks > 32767 {
 			ticks = 32767 // 32767 is the largest possible value, since bit 15 must always be 0

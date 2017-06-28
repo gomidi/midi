@@ -330,7 +330,7 @@ func (r *reader) parseHeaderData(reader io.Reader) error {
 	// "If bit 15 of <division> is zero, the bits 14 thru 0 represent the number
 	// of delta time "ticks" which make up a quarter-note."
 	if division&0x8000 == 0x0000 {
-		r.TimeFormat = smf.MetricResolution(division & 0x7FFF)
+		r.TimeFormat = smf.MetricTicks(division & 0x7FFF)
 	} else {
 		r.TimeFormat = parseTimeCode(division)
 	}
