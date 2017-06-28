@@ -43,7 +43,7 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-usable (alpha/beta)
+usable (beta)
 
     package               API stable          implementation complete
     live/midiwriter       yes                 yes
