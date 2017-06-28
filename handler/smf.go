@@ -18,7 +18,7 @@ import (
 // The *Pos parameter that is passed to the functions is always, because we are reading a file.
 func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
 	h.errSMF = nil
-	h.pos = &Pos{}
+	h.pos = &SMFPosition{}
 	err := smfreader.ReadFile(file, h.readSMF, options...)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
 // The *Pos parameter that is passed to the functions is always, because we are reading a file.
 func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
 	h.errSMF = nil
-	h.pos = &Pos{}
+	h.pos = &SMFPosition{}
 	rd := smfreader.New(src, options...)
 	h.readSMF(rd)
 	return h.errSMF

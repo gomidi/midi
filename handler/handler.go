@@ -10,8 +10,8 @@ import (
 	"github.com/gomidi/midi/messages/sysex"
 )
 
-// Pos is the position of the event inside a standard midi file (SMF).
-type Pos struct {
+// SMFPosition is the position of the event inside a standard midi file (SMF).
+type SMFPosition struct {
 	// the Track number
 	Track int16
 
@@ -39,9 +39,6 @@ func New(opts ...Option) *Handler {
 //
 // The desired functions must be attached before Handler.ReadLive or Handler.ReadSMF is called
 // and they must not be changed while these methods are running.
-//
-// When reading an SMF file (via Handler.ReadSMF), the passed *Pos is set,
-// when reading live data (via Handler.ReadLive) it is nil.
 type Handler struct {
 
 	// callback functions for SMF (Standard MIDI File) header data
@@ -54,56 +51,56 @@ type Handler struct {
 	// callback functions for MIDI messages
 	Message struct {
 		// is called in addition to other functions, if set.
-		Each func(*Pos, midi.Message)
+		Each func(*SMFPosition, midi.Message)
 
 		// undefined or unknown messages
-		Unknown func(p *Pos, msg midi.Message)
+		Unknown func(p *SMFPosition, msg midi.Message)
 
 		// meta messages (only in SMF files)
 		Meta struct {
 			// SMF general settings
-			Copyright     func(p Pos, text string)
-			Tempo         func(p Pos, bpm uint32)
-			TimeSignature func(p Pos, num, denom uint8)
-			KeySignature  func(p Pos, key uint8, ismajor bool, num_accidentals uint8, accidentals_are_flat bool)
+			Copyright     func(p SMFPosition, text string)
+			Tempo         func(p SMFPosition, bpm uint32)
+			TimeSignature func(p SMFPosition, num, denom uint8)
+			KeySignature  func(p SMFPosition, key uint8, ismajor bool, num_accidentals uint8, accidentals_are_flat bool)
 
 			// SMF tracks and sequence definitions
-			TrackInstrument func(p Pos, name string)
-			Sequence        func(p Pos, name string)
-			SequenceNumber  func(p Pos, number uint16)
+			TrackInstrument func(p SMFPosition, name string)
+			Sequence        func(p SMFPosition, name string)
+			SequenceNumber  func(p SMFPosition, number uint16)
 
 			// SMF port description
-			DevicePort func(p Pos, name string)
+			DevicePort func(p SMFPosition, name string)
 
 			// SMF text entries
-			Marker   func(p Pos, text string)
-			CuePoint func(p Pos, text string)
-			Text     func(p Pos, text string)
-			Lyric    func(p Pos, text string)
+			Marker   func(p SMFPosition, text string)
+			CuePoint func(p SMFPosition, text string)
+			Text     func(p SMFPosition, text string)
+			Lyric    func(p SMFPosition, text string)
 
 			// SMF end of track
-			EndOfTrack func(p Pos)
+			EndOfTrack func(p SMFPosition)
 
 			// deprecated
-			MIDIChannel func(p Pos, channel uint8)
-			MIDIPort    func(p Pos, port uint8)
+			MIDIChannel func(p SMFPosition, channel uint8)
+			MIDIPort    func(p SMFPosition, port uint8)
 		}
 
 		// channel messages, may be in SMF files and in live data
-		// for live data *Pos is nil
+		// for live data *SMFPosition is nil
 		Channel struct {
 			// NoteOn is just called for noteon messages with a velocity > 0
 			// noteon messages with velocity == 0 will trigger NoteOff with a velocity of 0
-			NoteOn func(p *Pos, channel, pitch, velocity uint8)
+			NoteOn func(p *SMFPosition, channel, pitch, velocity uint8)
 
 			// NoteOff is triggered by noteoff messages (then the given velocity is passed)
 			// and by noteon messages of velocity 0 (then velocity is 0)
-			NoteOff              func(p *Pos, channel, pitch uint8, velocity uint8)
-			PolyphonicAfterTouch func(p *Pos, channel, pitch, pressure uint8)
-			ControlChange        func(p *Pos, channel, controller, value uint8)
-			ProgramChange        func(p *Pos, channel, program uint8)
-			AfterTouch           func(p *Pos, channel, pressure uint8)
-			PitchWheel           func(p *Pos, channel uint8, value int16)
+			NoteOff              func(p *SMFPosition, channel, pitch uint8, velocity uint8)
+			PolyphonicAfterTouch func(p *SMFPosition, channel, pitch, pressure uint8)
+			ControlChange        func(p *SMFPosition, channel, controller, value uint8)
+			ProgramChange        func(p *SMFPosition, channel, program uint8)
+			AfterTouch           func(p *SMFPosition, channel, pressure uint8)
+			PitchWheel           func(p *SMFPosition, channel uint8, value int16)
 		}
 
 		// realtime messages: just in live data
@@ -128,21 +125,21 @@ type Handler struct {
 		}
 
 		// system exclusive, may be in SMF files and in live data
-		// for live data *Pos is nil
+		// for live data *SMFPosition is nil
 		SysEx struct {
 			// system exclusive
-			Complete func(p *Pos, data []byte)
-			Start    func(p *Pos, data []byte)
-			Continue func(p *Pos, data []byte)
-			End      func(p *Pos, data []byte)
-			Escape   func(p *Pos, data []byte)
+			Complete func(p *SMFPosition, data []byte)
+			Start    func(p *SMFPosition, data []byte)
+			Continue func(p *SMFPosition, data []byte)
+			End      func(p *SMFPosition, data []byte)
+			Escape   func(p *SMFPosition, data []byte)
 		}
 	}
 
 	// optional logger
 	logger Logger
 
-	pos    *Pos
+	pos    *SMFPosition
 	errSMF error
 }
 
@@ -156,7 +153,7 @@ func (h *Handler) log(m midi.Message) {
 }
 
 // read reads the messages from the midi.Reader (which might be an smf reader
-// for realtime reading, the passed *Pos is nil
+// for realtime reading, the passed *SMFPosition is nil
 func (h *Handler) read(rd midi.Reader) (err error) {
 	var m midi.Message
 

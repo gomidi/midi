@@ -27,11 +27,11 @@ func Example() {
 	hd := handler.New(handler.NoLogger())
 
 	// set the functions for the messages you are interested in
-	hd.Message.Channel.NoteOn = func(p *handler.Pos, channel, pitch, vel uint8) {
+	hd.Message.Channel.NoteOn = func(p *handler.SMFPosition, channel, pitch, vel uint8) {
 		fmt.Printf("[%v] NoteOn at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
 	}
 
-	hd.Message.Channel.NoteOff = func(p *handler.Pos, channel, pitch, vel uint8) {
+	hd.Message.Channel.NoteOff = func(p *handler.SMFPosition, channel, pitch, vel uint8) {
 		fmt.Printf("[%v] NoteOff at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
 	}
 
