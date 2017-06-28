@@ -20,11 +20,12 @@
 
 		var err1, err2 error
 
+		tpq := smf.MetricTicks(0) // set the time resolution in ticks per quarter note; 0 uses the defaults (i.e. 960)
+
 		writeMIDI := func (wr smf.Writer) {
 
 			// always set the delta before writing
-			// delta defaults to 960 ticks per quarter note
-			wr.SetDelta(480)
+			wr.SetDelta(tpq.TicksQuaver())
 
 			// starts MIDI note 65 on MIDI channel 3 with velocity 90 with delta of 480 to
 			// the beginning of the track (note starts after a quaver pause)
@@ -35,7 +36,7 @@
 				return
 			}
 
-			wr.SetDelta(960)
+			wr.SetDelta(tpq.TicksQuarter())
 
 			// stops MIDI note 65 on MIDI channel 3 with delta of 960 to previous message
 			// this results in a duration of 1 quarter note for midi note 65
@@ -67,7 +68,8 @@
 		// the number passed to the NumTracks option must match the tracks written
 		// if NumTracks is not passed, it defaults to single track (SMF0)
 		// if numtracks > 1, SMF1 format is chosen.
-		err2 = smfwriter.WriteFile("file.mid", writeMIDI, smfwriter.NumTracks(2))
+		// if TimeFormat is not passed, smf.MetricTicks(960) will be chosen
+		err2 = smfwriter.WriteFile("file.mid", writeMIDI, smfwriter.NumTracks(2), smfwriter.TimeFormat(tpq))
 
 		// deal with err1 and err2
 

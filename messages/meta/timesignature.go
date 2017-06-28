@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/smf"
+	// "github.com/gomidi/midi/smf"
 )
 
 /*
@@ -139,7 +139,7 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	if length != 4 {
-		err = smf.UnexpectedMessageLengthError("TimeSignature expected length 4")
+		err = unexpectedMessageLengthError("TimeSignature expected length 4")
 		return nil, err
 	}
 

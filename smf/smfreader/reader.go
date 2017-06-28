@@ -8,6 +8,7 @@ import (
 
 	"github.com/gomidi/midi/internal/runningstatus"
 
+	"errors"
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/messages/channel"
@@ -91,6 +92,7 @@ func (p *reader) ReadHeader() (smf.Header, error) {
 	return p.Header, err
 }
 
+// Read reads the next midi message
 func (p *reader) Read() (m midi.Message, err error) {
 
 	for {
@@ -165,7 +167,7 @@ func (p *reader) readChunk() (err error) {
 	if err != nil {
 		// If we expect a chunk and we hit the end of the file, that's not so unexpected after all.
 		// The file has to end some time, and this is the correct boundary upon which to end it.
-		if err == smf.ErrUnexpectedEOF {
+		if err == errUnexpectedEOF {
 			p.state = stateDone
 			return io.EOF
 		}
@@ -401,3 +403,5 @@ func parseTimeCode(raw uint16) (t smf.TimeCode) {
 	t.SubFrames = byte(raw & uint16(255))
 	return
 }
+
+var errUnexpectedEOF = errors.New("Unexpected End of File found.")

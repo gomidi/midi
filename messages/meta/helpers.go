@@ -1,10 +1,15 @@
 package meta
 
 import (
+	"errors"
 	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/internal/vlq"
 	"io"
 )
+
+func unexpectedMessageLengthError(s string) error {
+	return errors.New(s)
+}
 
 type metaMessage struct {
 	Typ  byte

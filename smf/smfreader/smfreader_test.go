@@ -18,7 +18,7 @@ func testRead(t *testing.T, input []byte, options ...Option) string {
 		t.Fatalf("can't read header: %v", err)
 	}
 
-	out.WriteString(fmt.Sprintf("SMF%v\n", hd.Format.Number()))
+	out.WriteString(fmt.Sprintf("SMF%v\n", hd.Format.Type()))
 	out.WriteString(fmt.Sprintf("%v Track(s)\n", hd.NumTracks))
 	out.WriteString(fmt.Sprintf("TimeFormat: %s\n", hd.TimeFormat))
 
@@ -42,7 +42,7 @@ func TestReadSMF0(t *testing.T) {
 	var expected = `
 SMF0
 1 Track(s)
-TimeFormat: 96 MetricResolution
+TimeFormat: 96 MetricTicks
 Track 0@0 meta.TimeSignature 4/4
 Track 0@0 meta.Tempo BPM: 120
 Track 0@0 channel.ProgramChange channel 0 program 5
@@ -69,7 +69,7 @@ func TestReadSMF1(t *testing.T) {
 	var expected = `
 SMF1
 4 Track(s)
-TimeFormat: 96 MetricResolution
+TimeFormat: 96 MetricTicks
 Track 0@0 meta.TimeSignature 4/4
 Track 0@0 meta.Tempo BPM: 120
 Track 0@384 meta.endOfTrack
@@ -99,7 +99,7 @@ func TestReadSMF1NoteOffPedantic(t *testing.T) {
 	var expected = `
 SMF1
 4 Track(s)
-TimeFormat: 96 MetricResolution
+TimeFormat: 96 MetricTicks
 Track 0@0 meta.TimeSignature 4/4
 Track 0@0 meta.Tempo BPM: 120
 Track 0@384 meta.endOfTrack
@@ -129,7 +129,7 @@ func TestReadSMF0NoteOffPedantic(t *testing.T) {
 	var expected = `
 SMF0
 1 Track(s)
-TimeFormat: 96 MetricResolution
+TimeFormat: 96 MetricTicks
 Track 0@0 meta.TimeSignature 4/4
 Track 0@0 meta.Tempo BPM: 120
 Track 0@0 channel.ProgramChange channel 0 program 5

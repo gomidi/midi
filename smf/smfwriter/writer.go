@@ -18,11 +18,17 @@ import (
 )
 
 // WriteFile creates file, calls callback with a writer and closes file
+//
 // WriteFile makes sure that the data of the last track is written by sending
 // an meta.EndOfTrack message after callback has been run.
-// So callback may skip the sending of the last meta.EndOfTrack message although
-// it does no harm if send twice. Especially for single track (SMF0) files this
-// is interesting, since no meta.EndOfTrack message must then be send from callback.
+//
+// For single track (SMF0) files this makes sence since no meta.EndOfTrack message
+// must then be send from callback (although it does not harm).
+//
+// For multitrack files however there must be sending of meta.EndOfTrack anyway,
+// so it is better practise to send it after each track (including the last one).
+// The options and their defaults are the same as for New and they are documented
+// at the corresponding option.
 func WriteFile(file string, callback func(smf.Writer), options ...Option) error {
 	f, err := os.Create(file)
 
@@ -44,8 +50,12 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 }
 
 // New returns a Writer
-// If no options are passed, a single track midi file is written (SMF0).
-// Each track must be finished with a meta.EndOfTrack message.
+//
+// The writer just uses an io.Writer..It is the responsability of the caller to open and close any file where appropriate.
+//
+// For the documentation of the Write and the SetDelta method, consult the documentation for smf.Writer.
+//
+// The options and their defaults are documented at the corresponding option.
 func New(dest io.Writer, opts ...Option) smf.Writer {
 	return newWriter(dest, opts...)
 }
@@ -61,9 +71,6 @@ type writer struct {
 	runningWriter   runningstatus.SMFWriter
 }
 
-// WriteTo writes a midi file to writer
-// Pass NumTracks to write multiple tracks (SMF1), otherwise everything will be written
-// into a single track (SMF0). However SMF1 can also be enforced with a single track by passing SMF1 as an option
 func newWriter(output io.Writer, opts ...Option) *writer {
 
 	// setup
@@ -99,19 +106,6 @@ func (wr *writer) SetDelta(deltatime uint32) {
 	wr.deltatime = deltatime
 }
 
-// Write writes a midi message to the SMF file.
-// Due to the nature of SMF files there is some maybe surprising behavior.
-// - If the header has not been written yet, it will be written before writing the first message.
-// - The first message will be written to track 0 which will be implicetly created.
-// - All messages of a track will be buffered inside the track and only be written if an EndOfTrack
-//   message is written.
-// - The number of tracks that are written will never execeed the NumTracks that have been defined as
-//   an option. If the last track has been written, io.EOF will be returned. (Also for any further attempt to write).
-// - It is the responsability of the caller to make sure the provided NumTracks (which defaults to 1) is not
-//   larger as the number of tracks in the file. smfreader is tolerant when reading such a file; so may be other
-//   SMF readers.
-// - It is the responsability of the caller to open and close any file where appropriate. The writer just uses an io.Writer.
-// Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
 // that have been physically written.
 func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 	defer func() {
@@ -193,7 +187,7 @@ func (w *writer) writeHeader(wr io.Writer) (int, error) {
 	ch.typ = [4]byte{byte('M'), byte('T'), byte('h'), byte('d')}
 	var bf bytes.Buffer
 
-	binary.Write(&bf, binary.BigEndian, w.Format.Number())
+	binary.Write(&bf, binary.BigEndian, w.Format.Type())
 	binary.Write(&bf, binary.BigEndian, w.NumTracks)
 
 	err := w.writeTimeFormat(&bf)

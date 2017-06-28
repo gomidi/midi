@@ -6,20 +6,41 @@ import (
 	"github.com/gomidi/midi"
 )
 
-// Writer writes midi messages to a standard midi file (SMF)
-type Writer interface {
-	// Writer is also a midi.Writer that writes midi messages
-	midi.Writer
+var (
+	_ midi.Writer = Writer(nil)
+	_ midi.Reader = Reader(nil)
+)
 
-	// SetDelta sets a time distance between the last written and the next midi message in ticks.
+// Writer writes midi messages to a standard midi file (SMF)
+// Writer is also a midi.Writer
+type Writer interface {
+
+	// Write writes a midi message to the SMF file.
+	//
+	// Due to the nature of SMF files there is some maybe surprising behavior.
+	// - If the header has not been written yet, it will be written before writing the first message.
+	// - The first message will be written to track 0 which will be implicetly created.
+	// - All messages of a track will be buffered inside the track and only be written if an EndOfTrack
+	//   message is written.
+	// - The number of tracks that are written will never execeed the NumTracks that have been defined when creating the writer.
+	//   If the last track has been written, io.EOF will be returned. (Also for any further attempt to write).
+	// - It is the responsability of the caller to make sure the provided NumTracks (which defaults to 1) is not
+	//   larger as the number of tracks in the file.
+	// Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
+	// that have been physically written at that point in time.
+	Write(midi.Message) (nBytes int, err error)
+
+	// SetDelta sets a time distance between the last written and the following message in ticks.
 	// The meaning of a tick depends on the time format that is set in the header of the SMF file.
 	SetDelta(ticks uint32)
 }
 
 // Reader reads midi messages from a standard midi file (SMF)
+// Reader is also a midi.Reader
 type Reader interface {
-	// Reader is also a midi.Reader that reads midi messages
-	midi.Reader
+
+	// Read reads a MIDI message from a SMF file.
+	Read() (midi.Message, error)
 
 	// ReadHeader reads the header of SMF file
 	// If it is not called, the first call to Read will implicitely read the header.
@@ -35,9 +56,16 @@ type Reader interface {
 	Track() int16
 }
 
+// Header represents the header of a SMF file.
 type Header struct {
+
+	// Format is the SMF file format: SMF0, SMF1 or SMF2
 	Format
+
+	// NumTracks is the number of tracks (always > 0)
 	NumTracks uint16
+
+	// TimeFormat is the time format (either MetricTicks or TimeCode)
 	TimeFormat
 }
 
@@ -55,13 +83,17 @@ const (
 var (
 	_ TimeFormat = MetricTicks(0)
 	_ TimeFormat = TimeCode{}
+	_ Format     = SMF0
 )
 
+// TimeCode is the SMPTE time format.
+// It can be comfortable created with the SMPTE* functions.
 type TimeCode struct {
 	FramesPerSecond uint8
 	SubFrames       uint8
 }
 
+// String represents the TimeCode as a string.
 func (t TimeCode) String() string {
 
 	switch t.FramesPerSecond {
@@ -168,15 +200,20 @@ func (q MetricTicks) TicksWhole() uint32 {
 
 // String returns the string representation of the quarter note resolution
 func (q MetricTicks) String() string {
-	return fmt.Sprintf("%v MetricResolution", q.Ticks())
+	return fmt.Sprintf("%v MetricTicks", q.Ticks())
 }
 
 func (q MetricTicks) timeformat() {}
 
 // Format is the common interface of all SMF file formats
 type Format interface {
+
+	// String returns the string representation of the SMF format.
 	String() string
-	Number() uint16
+
+	// Type returns the type of the SMF file: 0 for SMF0, 1 for SMF1 and 2 for SMF2
+	Type() uint16
+
 	smfformat() // make the implementation exclusive to this package
 }
 
@@ -189,7 +226,7 @@ type TimeFormat interface {
 // format is an implementation of Format
 type format uint16
 
-func (f format) Number() uint16 {
+func (f format) Type() uint16 {
 	return uint16(f)
 }
 
@@ -206,9 +243,3 @@ func (f format) String() string {
 	}
 	panic("unreachable")
 }
-
-// timeformat is an implementation of TimeFormat
-type timeformat string
-
-func (t timeformat) String() string { return string(t) }
-func (t timeformat) timeformat()    {}

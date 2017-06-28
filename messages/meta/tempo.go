@@ -3,7 +3,6 @@ package meta
 import (
 	"fmt"
 	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/smf"
 	"io"
 	"math/big"
 )
@@ -60,7 +59,7 @@ func (m Tempo) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	if length != 3 {
-		err = smf.UnexpectedMessageLengthError("Tempo expected length 3")
+		err = unexpectedMessageLengthError("Tempo expected length 3")
 		return nil, err
 	}
 

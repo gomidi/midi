@@ -5,7 +5,6 @@ import (
 	"io"
 
 	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/smf"
 )
 
 type MIDIPort uint8
@@ -39,7 +38,7 @@ func (m MIDIPort) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	if length != 1 {
-		return nil, smf.UnexpectedMessageLengthError("MIDI Port Message expected length 1")
+		return nil, unexpectedMessageLengthError("MIDI Port Message expected length 1")
 	}
 
 	var port uint8

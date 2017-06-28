@@ -3,7 +3,6 @@ package meta
 import (
 	"fmt"
 	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/smf"
 	"io"
 )
 
@@ -38,7 +37,7 @@ func (m MIDIChannel) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	if length != 1 {
-		return nil, smf.UnexpectedMessageLengthError("Midi Channel Message expected length 1")
+		return nil, unexpectedMessageLengthError("Midi Channel Message expected length 1")
 	}
 
 	var ch uint8

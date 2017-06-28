@@ -48,18 +48,17 @@ usable (alpha/beta)
     package               API stable          implementation complete
     live/midiwriter       yes                 yes
     live/midireader       yes                 yes
-    smf                   no                  yes
+    smf                   yes                 yes
     smf/smfwriter         yes                 yes
-    smf/smfreader         no                  yes
-    messages/channel      no                  yes
+    smf/smfreader         almost              yes
+    smf/smfmodify     --nothing done yet , only draft---
+    messages/channel      almost              yes
     messages/cc           yes                 yes
-    messages/meta         no                  no
+    messages/meta         almost              almost
     messages/realtime     yes                 yes
     messages/syscommon    yes                 yes
     messages/sysex        no                  yes
-    handler               no                  no
-    // nothing done yet on smfmodify, only draft
-    smf/smfmodify         no                  no
+    handler               no                  almost
 
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)

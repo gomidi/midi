@@ -5,7 +5,6 @@ import (
 	"io"
 
 	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/smf"
 )
 
 /* http://www.somascape.org/midi/tech/mfile.html
@@ -173,7 +172,7 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	if length != 2 {
-		err = smf.UnexpectedMessageLengthError("KeySignature expected length 2")
+		err = unexpectedMessageLengthError("KeySignature expected length 2")
 		return nil, err
 	}
 
