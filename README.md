@@ -49,7 +49,7 @@ usable (alpha/beta)
     live/midiwriter       yes                 yes
     live/midireader       yes                 yes
     smf                   no                  yes
-    smf/smfwriter         no                  yes
+    smf/smfwriter         yes                 yes
     smf/smfreader         no                  yes
     messages/channel      no                  yes
     messages/cc           yes                 yes

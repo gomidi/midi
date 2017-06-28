@@ -67,12 +67,10 @@ func TestTimeCode(t *testing.T) {
 			t.Fatalf("can't write read header: %v", err)
 		}
 
-		format := header.TimeFormat()
-
-		tc, isTC := format.(smf.TimeCode)
+		tc, isTC := header.TimeFormat.(smf.TimeCode)
 
 		if !isTC {
-			t.Fatalf("wrong time format: %#v; expected TimeCode", format)
+			t.Fatalf("wrong time format: %#v; expected TimeCode", header.TimeFormat)
 		}
 
 		if tc.FramesPerSecond != test.fps {

@@ -29,19 +29,25 @@ func NoRunningStatus() Option {
 
 // TimeFormat sets the timeformat to either smf.QuarterNoteTicks or smf.TimeCode
 func TimeFormat(timeformat smf.TimeFormat) Option {
-	return func(e *writer) {
-		e.header.TimeFormat = timeformat
+	if timeformat == nil {
+		panic("timeformat must not be nil")
+	}
+	return func(w *writer) {
+		w.TimeFormat = timeformat
 	}
 }
 
 func NumTracks(ntracks uint16) Option {
-	return func(e *writer) {
-		e.header.NumTracks = ntracks
+	if ntracks == 0 {
+		panic("ntracks must not be 0")
+	}
+	return func(w *writer) {
+		w.NumTracks = ntracks
 	}
 }
 
 func Format(f smf.Format) Option {
-	return func(e *writer) {
-		e.header.MidiFormat = f
+	return func(w *writer) {
+		w.Format = f
 	}
 }

@@ -37,7 +37,7 @@ func PostHeader(remainingtracks uint16) Option {
 		panic("remainingtracks must be at least 1")
 	}
 	return func(r *reader) {
-		r.mthd.numTracks = remainingtracks
+		r.NumTracks = remainingtracks
 		r.state = stateExpectChunk
 		r.headerIsRead = true
 	}
@@ -50,7 +50,7 @@ func InsideTrack(remainingtracks uint16) Option {
 		panic("remainingtracks must be at least 1")
 	}
 	return func(r *reader) {
-		r.mthd.numTracks = remainingtracks
+		r.NumTracks = remainingtracks
 		r.state = stateExpectTrackEvent
 		r.headerIsRead = true
 	}

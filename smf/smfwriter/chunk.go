@@ -18,7 +18,6 @@ func (c *chunk) Type() string {
 	bf.WriteByte(c.typ[2])
 	bf.WriteByte(c.typ[3])
 	return bf.String()
-	//return fmt.Sprintf("%s%s%s%s", c.typ[0], c.typ[1], c.typ[2], c.typ[3])
 }
 
 func (c *chunk) writeTo(wr io.Writer) (int, error) {

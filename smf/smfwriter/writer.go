@@ -1,9 +1,15 @@
 package smfwriter
 
 import (
-	"github.com/gomidi/midi/internal/runningstatus"
+	"bytes"
+	"fmt"
 	"io"
 	"os"
+
+	"github.com/gomidi/midi/internal/runningstatus"
+	"github.com/gomidi/midi/internal/vlq"
+
+	"encoding/binary"
 
 	"github.com/gomidi/midi"
 
@@ -38,71 +44,59 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 }
 
 // New returns a Writer
-// If no options are passed, a single track midi file is written (SMT0).
+// If no options are passed, a single track midi file is written (SMF0).
 // Each track must be finished with a meta.EndOfTrack message.
 func New(dest io.Writer, opts ...Option) smf.Writer {
 	return newWriter(dest, opts...)
 }
 
 type writer struct {
-	header *header
-	wr     io.Writer
-	qticks uint16
-	// AutoEndTrack    bool
-	writeHeader     bool
-	currentTrack    *track
+	smf.Header
+	track           chunk
+	output          io.Writer
+	headerWritten   bool
 	tracksProcessed uint16
 	deltatime       uint32
 	noRunningStatus bool
+	runningWriter   runningstatus.SMFWriter
 }
 
 // WriteTo writes a midi file to writer
 // Pass NumTracks to write multiple tracks (SMF1), otherwise everything will be written
 // into a single track (SMF0). However SMF1 can also be enforced with a single track by passing SMF1 as an option
 func newWriter(output io.Writer, opts ...Option) *writer {
-	enc := &writer{
-		header: &header{
-		// MidiFormat: format(10), // not existing, only for checking if it is undefined to be able to set the default
-		},
-		writeHeader:  true,
-		currentTrack: &track{},
-	}
 
+	// setup
+	wr := &writer{}
+	wr.output = output
+	wr.track.typ = [4]byte{byte('M'), byte('T'), byte('r'), byte('k')}
+
+	// defaults
+	wr.TimeFormat = smf.MetricResolution(0) // take the default, based on smf package (should be 960)
+	wr.NumTracks = 1
+	wr.Format = smf.SMF0
+
+	// overrides with options
 	for _, opt := range opts {
-		opt(enc)
+		opt(wr)
 	}
 
-	enc.wr = output
-
-	if !enc.noRunningStatus {
-		enc.currentTrack.runningWriter = runningstatus.NewSMFWriter()
-	}
-
-	if enc.header.NumTracks == 0 {
-		enc.header.NumTracks = 1
+	if !wr.noRunningStatus {
+		wr.runningWriter = runningstatus.NewSMFWriter()
 	}
 
 	// if midiformat is undefined (see above), i.e. not set via options
 	// set the default, which is format 0 for one track and format 1 for multitracks
-	// if enc.header.MidiFormat == format(10) {
-	if enc.header.MidiFormat != smf.SMF2 && enc.header.NumTracks > 1 {
-		enc.header.MidiFormat = smf.SMF1
-	}
-	// }
-
-	if enc.header.TimeFormat == nil {
-		enc.header.TimeFormat = smf.QuarterNoteTicks(960)
+	// if wr.header.MidiFormat == format(10) {
+	if wr.Format != smf.SMF2 && wr.NumTracks > 1 {
+		wr.Format = smf.SMF1
 	}
 
-	if qn, is := enc.header.TimeFormat.(smf.QuarterNoteTicks); is {
-		enc.qticks = qn.Ticks()
-	}
-
-	return enc
+	return wr
 }
 
-func (e *writer) SetDelta(deltatime uint32) {
-	e.deltatime = deltatime
+func (wr *writer) SetDelta(deltatime uint32) {
+	wr.deltatime = deltatime
 }
 
 // Write writes a midi message to the SMF file.
@@ -119,47 +113,150 @@ func (e *writer) SetDelta(deltatime uint32) {
 // - It is the responsability of the caller to open and close any file where appropriate. The writer just uses an io.Writer.
 // Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
 // that have been physically written.
-func (e *writer) Write(m midi.Message) (nbytes int, err error) {
+func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 	defer func() {
-		e.deltatime = 0
+		wr.deltatime = 0
 	}()
 
-	if e.header.NumTracks == e.tracksProcessed {
+	if wr.NumTracks == wr.tracksProcessed {
 		err = io.EOF
 		return
 	}
 
-	if e.writeHeader {
-		nbytes, err = e.WriteHeader()
+	if !wr.headerWritten {
+		nbytes, err = wr.writeHeader(wr.output)
 		if err != nil {
 			return
 		}
-		e.writeHeader = false
+		wr.headerWritten = true
 	}
-	// fmt.Printf("%T\n", ev)
-	if m == meta.EndOfTrack {
-		e.currentTrack.Add(e.deltatime, m)
-		var tnum int
-		tnum, err = e.currentTrack.WriteTo(e.wr)
-		nbytes += tnum
-		e.tracksProcessed++
-		if e.header.NumTracks == e.tracksProcessed {
-			err = io.EOF
-			return
-		}
-		e.currentTrack = &track{}
 
-		if !e.noRunningStatus {
-			e.currentTrack.runningWriter = runningstatus.NewSMFWriter()
-		}
+	if m == meta.EndOfTrack {
+		wr.addMessage(wr.deltatime, m)
+		var tnum int
+		tnum, err = wr.writeTrackTo(wr.output)
+		nbytes += tnum
 		return
 	}
-	e.currentTrack.Add(e.deltatime, m)
+	wr.addMessage(wr.deltatime, m)
 	return
 }
 
-func (e *writer) WriteHeader() (nbytes int, err error) {
-	return e.header.WriteTo(e.wr)
+/*
+
+					| time type            | bit 15 | bits 14 thru 8        | bits 7 thru 0   |
+					-----------------------------------------------------------------------------
+				  | metrical time        |      0 |         ticks per quarter-note          |
+				  | time-code-based time |      1 | negative SMPTE format | ticks per frame |
+
+		If bit 15 of <division> is zero, the bits 14 thru 0 represent the number of delta time "ticks" which make up a
+		quarter-note. For instance, if division is 96, then a time interval of an eighth-note between two events in the
+		file would be 48.
+
+		If bit 15 of <division> is a one, delta times in a file correspond to subdivisions of a second, in a way
+		consistent with SMPTE and MIDI Time Code. Bits 14 thru 8 contain one of the four values -24, -25, -29, or
+		-30, corresponding to the four standard SMPTE and MIDI Time Code formats (-29 corresponds to 30 drop
+		frame), and represents the number of frames per second. These negative numbers are stored in two's
+		compliment form. The second byte (stored positive) is the resolution within a frame: typical values may be 4
+		(MIDI Time Code resolution), 8, 10, 80 (bit resolution), or 100. This stream allows exact specifications of
+		time-code-based tracks, but also allows millisecond-based tracks by specifying 25 frames/sec and a resolution
+		of 40 units per frame. If the events in a file are stored with a bit resolution of thirty-frame time code, the
+		division word would be E250 hex. (=> 1110001001010000 or 57936)
+
+
+	/* unit of time for delta timing. If the value is positive, then it represents the units per beat.
+	For example, +96 would mean 96 ticks per beat. If the value is negative, delta times are in SMPTE compatible units.
+*/
+func (w *writer) writeTimeFormat(wr io.Writer) error {
+	switch tf := w.TimeFormat.(type) {
+	case smf.MetricResolution:
+		ticks := tf.Ticks()
+		if ticks > 32767 {
+			ticks = 32767 // 32767 is the largest possible value, since bit 15 must always be 0
+		}
+		return binary.Write(wr, binary.BigEndian, uint16(ticks))
+	case smf.TimeCode:
+		// multiplication with -1 makes sure that bit 15 is set
+		err := binary.Write(wr, binary.BigEndian, int8(tf.FramesPerSecond)*-1)
+		if err != nil {
+			return err
+		}
+		return binary.Write(wr, binary.BigEndian, tf.SubFrames)
+	default:
+		panic(fmt.Sprintf("unsupported TimeFormat: %#v", w.TimeFormat))
+	}
+}
+
+// <Header Chunk> = <chunk type><length><format><ntrks><division>
+func (w *writer) writeHeader(wr io.Writer) (int, error) {
+	var ch chunk
+	ch.typ = [4]byte{byte('M'), byte('T'), byte('h'), byte('d')}
+	var bf bytes.Buffer
+
+	binary.Write(&bf, binary.BigEndian, w.Format.Number())
+	binary.Write(&bf, binary.BigEndian, w.NumTracks)
+
+	err := w.writeTimeFormat(&bf)
+	if err != nil {
+		return bf.Len(), err
+	}
+
+	ch.data = bf.Bytes()
+
+	return ch.writeTo(wr)
+}
+
+// <Track Chunk> = <chunk type><length><MTrk event>+
+func (t *writer) writeTrackTo(wr io.Writer) (n int, err error) {
+	n, err = t.track.writeTo(wr)
+
+	if err != nil {
+		return
+	}
+
+	if !t.noRunningStatus {
+		t.runningWriter = runningstatus.NewSMFWriter()
+	}
+
+	t.track.data = nil
+	t.deltatime = 0
+
+	t.tracksProcessed++
+	if t.NumTracks == t.tracksProcessed {
+		err = io.EOF
+	}
+
+	return
+}
+
+func (t *writer) appendToChunk(deltaTime uint32, b []byte) {
+	t.track.data = append(t.track.data, append(vlq.Encode(deltaTime), b...)...)
+}
+
+// delta is distance in time to last event in this track (independant of channel)
+func (t *writer) addMessage(deltaTime uint32, msg midi.Message) {
+	// we have some sort of sysex, so we need to
+	// calculate the length of msg[1:]
+	// set msg to msg[0] + length of msg[1:] + msg[1:]
+	raw := msg.Raw()
+	if raw[0] == 0xF0 || raw[0] == 0xF7 {
+		//if sys, ok := msg.(sysex.Message); ok {
+		b := []byte{raw[0]}
+		b = append(b, vlq.Encode(uint32(len(raw)))...)
+		if len(raw[1:]) != 0 {
+			b = append(b, raw[1:]...)
+		}
+
+		t.appendToChunk(deltaTime, b)
+		return
+	}
+
+	if t.runningWriter != nil {
+		t.appendToChunk(deltaTime, t.runningWriter.Write(msg))
+		return
+	}
+
+	t.appendToChunk(deltaTime, msg.Raw())
 }
 
 /*
