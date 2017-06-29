@@ -22,14 +22,12 @@ func ReadNBytes(n int, rd io.Reader) ([]byte, error) {
 	var b []byte = make([]byte, n)
 	num, err := rd.Read(b)
 
-	if err != nil {
-		return nil, err
-	}
-	if num != n {
-		return nil, midi.ErrUnexpectedEOF
+	// if num is correct, we are not interested in io.EOF errors
+	if num == n {
+		err = nil
 	}
 
-	return b, nil
+	return b, err
 }
 
 func ReadByte(rd io.Reader) (byte, error) {
