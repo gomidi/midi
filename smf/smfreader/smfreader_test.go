@@ -124,7 +124,7 @@ Track 3@0 channel.NoteOff channel 2 pitch 60
 Track 3@0 meta.endOfTrack
 `
 
-	if got, want := testRead(t, examples.SpecSMF1, ReadNoteOffPedantic()), expected; got != want {
+	if got, want := testRead(t, examples.SpecSMF1, NoteOffPedantic()), expected; got != want {
 		t.Errorf("got:\n%v\n\nwanted\n%v\n\n", got, want)
 	}
 
@@ -151,7 +151,7 @@ Track 0@0 channel.NoteOffPedantic channel 0 pitch 76 velocity: 64
 Track 0@0 meta.endOfTrack
 `
 
-	if got, want := testRead(t, examples.SpecSMF0, ReadNoteOffPedantic()), expected; got != want {
+	if got, want := testRead(t, examples.SpecSMF0, NoteOffPedantic()), expected; got != want {
 		t.Errorf("got:\n%v\n\nwanted\n%v\n\n", got, want)
 	}
 

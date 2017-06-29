@@ -9,6 +9,7 @@ import (
 	"github.com/gomidi/midi/internal/runningstatus"
 
 	"errors"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/messages/channel"
@@ -58,7 +59,7 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 
 type reader struct {
 	input  io.Reader
-	logger Logger
+	logger logger
 
 	state           state
 	runningStatus   runningstatus.Reader
@@ -144,7 +145,7 @@ func (p *reader) readMThd() error {
 
 	if head.typ != "MThd" {
 		p.log("wrong header type: %v", head.typ)
-		return ErrExpectedMthd
+		return errExpectedMthd
 	}
 
 	p.headerError = p.parseHeaderData(p.input)
@@ -314,7 +315,7 @@ func (r *reader) parseHeaderData(reader io.Reader) error {
 	case 2:
 		r.Format = smf.SMF2
 	default:
-		return ErrUnsupportedSMFFormat
+		return errUnsupportedSMFFormat
 	}
 
 	r.NumTracks, err = midilib.ReadUint16(reader)
