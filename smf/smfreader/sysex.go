@@ -1,6 +1,7 @@
 package smfreader
 
 import (
+	// "fmt"
 	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/messages/sysex"
 	"io"
@@ -25,6 +26,7 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 
 	switch startcode {
 	case 0xF0:
+		// fmt.Println("read sysex with startcode 0xF0")
 		var data []byte
 		data, err = midilib.ReadVarLengthData(rd)
 
@@ -35,7 +37,7 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 		// complete sysex
 		if data[len(data)-1] == 0xF7 {
 			s.inSequence = false
-			return sysex.SysEx(data), nil
+			return sysex.SysEx(data[0 : len(data)-1]), nil
 		} else {
 			// casio style
 			s.inSequence = true
@@ -55,7 +57,7 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 			// casio style
 			if s.inSequence {
 				s.inSequence = false
-				return sysex.End(data), nil
+				return sysex.End(data[0 : len(data)-1]), nil
 			} else {
 				return sysex.Escape(data), nil
 			}

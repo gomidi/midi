@@ -28,7 +28,13 @@ func (r *reader) Read() (msg Message, err error) {
 	if r.done {
 		return nil, io.EOF
 	}
-	return dispatch(r.typ).readFrom(r.input)
+	msg = dispatch(r.typ)
+
+	// unknown or undefined message
+	if msg == nil {
+		return
+	}
+	return msg.readFrom(r.input)
 }
 
 func dispatch(b byte) Message {
@@ -40,8 +46,8 @@ var systemMessages = map[byte]Message{
 	byteSysSongPositionPointer: SongPositionPointer(0),
 	byteSysSongSelect:          SongSelect(0),
 	byteSysTuneRequest:         TuneRequest,
-	0xF4:                       Undefined4(0), // unused (ignore them)
-	0xF5:                       Undefined5(0), // unused (ignore them)
+	//	0xF4:                       Undefined4(0), // unused (ignore them)
+	//	0xF5:                       Undefined5(0), // unused (ignore them)
 }
 
 const (

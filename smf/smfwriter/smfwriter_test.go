@@ -2,13 +2,19 @@ package smfwriter
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/examples"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/messages/sysex"
 	"github.com/gomidi/midi/smf"
+	"github.com/gomidi/midi/smf/smfreader"
+	"log"
+	"os"
 )
 
 /*
@@ -151,4 +157,99 @@ func TestWriteSMF1(t *testing.T) {
 		t.Errorf("got:\n% X\n\nwanted:\n% X\n\n", got, want)
 	}
 
+}
+
+var (
+	_ = fmt.Sprintf
+	_ = midi.Message(nil)
+	_ = sysex.Start(nil)
+	_ = smfreader.New
+	_ = log.New
+	_ = os.DevNull
+)
+
+func TestWriteSysEx(t *testing.T) {
+	var bf bytes.Buffer
+
+	wr := New(&bf)
+	wr.SetDelta(0)
+	wr.Write(channel.Ch2.NoteOn(65, 90))
+	wr.SetDelta(10)
+	wr.Write(sysex.SysEx([]byte{0x90, 0x51}))
+	wr.SetDelta(1)
+	wr.Write(channel.Ch2.NoteOff(65))
+	wr.Write(meta.EndOfTrack)
+
+	rd := smfreader.New(bytes.NewReader(bf.Bytes()))
+
+	var m midi.Message
+	var err error
+
+	var res bytes.Buffer
+	res.WriteString("\n")
+	for {
+		m, err = rd.Read()
+
+		// breaking at least with io.EOF
+		if err != nil {
+			break
+		}
+
+		switch v := m.(type) {
+		case sysex.SysEx:
+			fmt.Fprintf(&res, "[%v] Sysex: % X\n", rd.Delta(), v.Data())
+		case channel.NoteOn:
+			fmt.Fprintf(&res, "[%v] NoteOn at channel %v: pitch %v velocity: %v\n", rd.Delta(), v.Channel(), v.Pitch(), v.Velocity())
+		case channel.NoteOff:
+			fmt.Fprintf(&res, "[%v] NoteOff at channel %v: pitch %v\n", rd.Delta(), v.Channel(), v.Pitch())
+		}
+
+	}
+
+	expected := `
+[0] NoteOn at channel 2: pitch 65 velocity: 90
+[10] Sysex: 90 51
+[1] NoteOff at channel 2: pitch 65
+`
+
+	if got, want := res.String(), expected; got != want {
+		t.Errorf("got\n%v\n\nwant\n%v\n\n", got, want)
+	}
+
+}
+
+func TestRunningStatus(t *testing.T) {
+
+	var bf bytes.Buffer
+
+	wr := New(&bf)
+
+	wr.Write(channel.Ch0.NoteOn(50, 33))
+	wr.SetDelta(2)
+	wr.Write(channel.Ch0.NoteOff(50))
+	wr.Write(meta.EndOfTrack)
+
+	expected := "4D 54 68 64 00 00 00 06 00 00 00 01 03 C0 4D 54 72 6B 00 00 00 0B 00 90 32 21 02 32 00 00 FF 2F 00"
+
+	if got, want := fmt.Sprintf("% X", bf.Bytes()), expected; got != want {
+		t.Errorf("got:\n%#v\nwanted:\n%#v\n\n", got, want)
+	}
+}
+
+func TestNoRunningStatus(t *testing.T) {
+
+	var bf bytes.Buffer
+
+	wr := New(&bf, NoRunningStatus())
+
+	wr.Write(channel.Ch0.NoteOn(50, 33))
+	wr.SetDelta(2)
+	wr.Write(channel.Ch0.NoteOff(50))
+	wr.Write(meta.EndOfTrack)
+
+	expected := "4D 54 68 64 00 00 00 06 00 00 00 01 03 C0 4D 54 72 6B 00 00 00 0C 00 90 32 21 02 90 32 00 00 FF 2F 00"
+
+	if got, want := fmt.Sprintf("% X", bf.Bytes()), expected; got != want {
+		t.Errorf("got:\n%#v\nwanted:\n%#v\n\n", got, want)
+	}
 }

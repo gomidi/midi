@@ -212,6 +212,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 		// both 0xF0 and 0xF7 may start a sysex in SMF files
 		case 0xF0, 0xF7:
+			p.log("found sysex")
 			return p.sysexreader.Read(canary, p.input)
 
 		// meta event
@@ -229,7 +230,7 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			m, err = meta.NewReader(p.input, typ).Read()
 			p.log("got meta: %T", m)
 		default:
-			panic(fmt.Sprintf("must not happen: invalid status % X", canary))
+			panic(fmt.Sprintf("must not happen: invalid canary % X", canary))
 		}
 
 		// on a voice/channel category message with status either given or cached (running status)

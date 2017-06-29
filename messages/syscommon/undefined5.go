@@ -1,5 +1,6 @@
 package syscommon
 
+/*
 import (
 	"fmt"
 	"io"
@@ -26,3 +27,4 @@ func (m Undefined5) sysCommon() {}
 func (m Undefined5) Raw() []byte {
 	return nil
 }
+*/

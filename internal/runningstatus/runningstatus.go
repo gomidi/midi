@@ -1,9 +1,8 @@
 package runningstatus
 
 import (
-	"github.com/gomidi/midi/internal/midilib"
-	// "fmt"
 	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/internal/midilib"
 
 	"io"
 )
@@ -59,7 +58,7 @@ type smfreader struct {
 func (r *smfreader) Read(canary byte) (status byte, changed bool) {
 
 	// here we clear for meta messages
-	if canary == 0xFF {
+	if canary == 0xFF || canary == 0xF0 || canary == 0xF7 {
 		r.status = 0
 		return r.status, true
 	}
@@ -86,6 +85,7 @@ func NewSMFWriter() SMFWriter {
 
 type SMFWriter interface {
 	Write(midi.Message) []byte
+	ResetStatus()
 }
 
 func NewLiveWriter(output io.Writer) Writer {
@@ -96,6 +96,10 @@ type smfwriter struct {
 	status byte
 }
 
+func (w *smfwriter) ResetStatus() {
+	w.status = 0
+}
+
 func (w *smfwriter) Write(msg midi.Message) []byte {
 	raw := msg.Raw()
 	// fmt.Printf("should write %s (% X)\n", msg, raw)
@@ -103,7 +107,7 @@ func (w *smfwriter) Write(msg midi.Message) []byte {
 
 	// for non channel messages, reset status and write whole message
 	if !midilib.IsChannelMessage(firstByte) {
-		// fmt.Printf("is no channel message, resetting status\n")
+		//fmt.Printf("is no channel message, resetting status\n")
 		w.status = 0
 		return raw
 	}

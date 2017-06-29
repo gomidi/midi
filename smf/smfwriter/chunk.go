@@ -11,6 +11,7 @@ type chunk struct {
 	data []byte
 }
 
+/*
 func (c *chunk) Type() string {
 	var bf bytes.Buffer
 	bf.WriteByte(c.typ[0])
@@ -19,6 +20,7 @@ func (c *chunk) Type() string {
 	bf.WriteByte(c.typ[3])
 	return bf.String()
 }
+*/
 
 func (c *chunk) writeTo(wr io.Writer) (int, error) {
 	length := int32(len(c.data))

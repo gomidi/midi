@@ -348,7 +348,8 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Message.Meta.DevicePort(*h.pos, msg.Text())
 			}
 
-		case meta.Undefined, syscommon.Undefined4, syscommon.Undefined5:
+		//case meta.Undefined, syscommon.Undefined4, syscommon.Undefined5:
+		case meta.Undefined:
 			if h.Message.Unknown != nil {
 				h.Message.Unknown(h.pos, m)
 			}

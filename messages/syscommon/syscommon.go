@@ -26,7 +26,7 @@ var (
 	_ Message = SongPositionPointer(0)
 	_ Message = SongSelect(0)
 	_ Message = TuneRequest
-	_ Message = Undefined4(0)
-	_ Message = Undefined5(0)
+	//	_ Message = Undefined4(0)
+	//	_ Message = Undefined5(0)
 	_ Message = MIDITimingCode(0)
 )

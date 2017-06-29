@@ -1,7 +1,6 @@
 package realtime
 
 import (
-	"fmt"
 	"io"
 )
 
@@ -78,7 +77,6 @@ func (r *discardReader) realtime() {}
 
 func (r *discardReader) Read(target []byte) (n int, err error) {
 	var bf []byte
-	var one int
 
 	for {
 		if n == len(target) {
@@ -87,14 +85,9 @@ func (r *discardReader) Read(target []byte) (n int, err error) {
 		}
 		bf = make([]byte, 1)
 
-		one, err = r.input.Read(bf)
+		_, err = r.input.Read(bf)
 
 		if err != nil {
-			return
-		}
-
-		if one != 1 {
-			err = fmt.Errorf("could not read %v byte(s)", len(target))
 			return
 		}
 

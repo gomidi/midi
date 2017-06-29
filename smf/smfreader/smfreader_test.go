@@ -5,6 +5,11 @@ import (
 	"fmt"
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/examples"
+	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/messages/sysex"
+	"github.com/gomidi/midi/smf/smfwriter"
 	"testing"
 )
 
@@ -148,6 +153,74 @@ Track 0@0 meta.endOfTrack
 
 	if got, want := testRead(t, examples.SpecSMF0, ReadNoteOffPedantic()), expected; got != want {
 		t.Errorf("got:\n%v\n\nwanted\n%v\n\n", got, want)
+	}
+
+}
+
+func TestReadSysEx(t *testing.T) {
+	var bf bytes.Buffer
+
+	wr := smfwriter.New(&bf)
+	wr.Write(sysex.Escape(realtime.Start.Raw()))
+	wr.SetDelta(0)
+	wr.Write(channel.Ch2.NoteOn(65, 90))
+	wr.SetDelta(10)
+	wr.Write(sysex.SysEx([]byte{0x90, 0x51}))
+	wr.SetDelta(1)
+	wr.Write(channel.Ch2.NoteOff(65))
+	wr.Write(sysex.Start([]byte{0x90, 0x51}))
+	wr.SetDelta(5)
+	wr.Write(sysex.Continue([]byte{0x90, 0x51}))
+	wr.SetDelta(5)
+	wr.Write(sysex.End([]byte{0x90, 0x51}))
+	wr.Write(meta.EndOfTrack)
+
+	rd := New(bytes.NewReader(bf.Bytes()))
+
+	var m midi.Message
+	var err error
+
+	var res bytes.Buffer
+	res.WriteString("\n")
+	for {
+		m, err = rd.Read()
+
+		// breaking at least with io.EOF
+		if err != nil {
+			break
+		}
+
+		switch v := m.(type) {
+		case sysex.Escape:
+			fmt.Fprintf(&res, "[%v] Sysex Escape: % X\n", rd.Delta(), v.Data())
+		case sysex.Start:
+			fmt.Fprintf(&res, "[%v] Sysex Start: % X\n", rd.Delta(), v.Data())
+		case sysex.Continue:
+			fmt.Fprintf(&res, "[%v] Sysex Continue: % X\n", rd.Delta(), v.Data())
+		case sysex.End:
+			fmt.Fprintf(&res, "[%v] Sysex End: % X\n", rd.Delta(), v.Data())
+		case sysex.SysEx:
+			fmt.Fprintf(&res, "[%v] Sysex: % X\n", rd.Delta(), v.Data())
+		case channel.NoteOn:
+			fmt.Fprintf(&res, "[%v] NoteOn at channel %v: pitch %v velocity: %v\n", rd.Delta(), v.Channel(), v.Pitch(), v.Velocity())
+		case channel.NoteOff:
+			fmt.Fprintf(&res, "[%v] NoteOff at channel %v: pitch %v\n", rd.Delta(), v.Channel(), v.Pitch())
+		}
+
+	}
+
+	expected := `
+[0] Sysex Escape: FA
+[0] NoteOn at channel 2: pitch 65 velocity: 90
+[10] Sysex: 90 51
+[1] NoteOff at channel 2: pitch 65
+[0] Sysex Start: 90 51
+[5] Sysex Continue: 90 51
+[5] Sysex End: 90 51
+`
+
+	if got, want := res.String(), expected; got != want {
+		t.Errorf("got\n%v\n\nwant\n%v\n\n", got, want)
 	}
 
 }

@@ -59,15 +59,14 @@ func (p *reader) Read() (ev midi.Message, err error) {
 }
 
 func (p *reader) discardUntilNextStatus() (canary byte, err error) {
-	/*
-		A device should be able to "ignore" all MIDI messages that it doesn't use, including currently undefined MIDI messages
-		(ie Status is 0xF4, 0xF5, or 0xFD). In other words, a device is expected to be able to deal with all MIDI messages that it
-		could possibly be sent, even if it simply ignores those messages that aren't applicable to the device's functions.
 
-		If a MIDI message is not a RealTime Category message, then the way to ignore the message is to throw away its Status and
-		all data bytes (ie, bit #7 clear) up to the next received, non-RealTime Status byte.
-	*/
-
+	//	A device should be able to "ignore" all MIDI messages that it doesn't use, including currently undefined MIDI messages
+	//	(ie Status is 0xF4, 0xF5, or 0xFD). In other words, a device is expected to be able to deal with all MIDI messages that it
+	//	could possibly be sent, even if it simply ignores those messages that aren't applicable to the device's functions.
+	//
+	//	If a MIDI message is not a RealTime Category message, then the way to ignore the message is to throw away its Status and
+	//	all data bytes (ie, bit #7 clear) up to the next received, non-RealTime Status byte.
+	//
 	for {
 		canary, err = midilib.ReadByte(p.input)
 
@@ -160,8 +159,8 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 			}
 
 		case 0xF7:
-			// we should never have a 0xF7 since sysex must already have consumed it, but ignore it gracefully and go to the next message
-			return p.Read()
+			// we should never have a 0xF7 since sysex must already have consumed it
+			panic("unreachable")
 
 		default:
 			// must be a system common message, but no sysex (0xF0 < canary < 0xF7)
@@ -189,8 +188,10 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 		return
 	}
 
-	// unknown event: ignore all until next status byte
+	// unknown event: read until next status byte
 	if m == nil {
+		// panic("unreachable")
+
 		canary, err = p.discardUntilNextStatus()
 		if err != nil {
 			return
@@ -198,6 +199,7 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 		// handle events for the next status
 		// what I don't understand: what happens to deltatimes (as they come before an status byte)
 		return p.readMsg(canary)
+
 	}
 
 	return

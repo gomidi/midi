@@ -53,6 +53,7 @@ func TestRead(t *testing.T) {
 	tests := []*readTest{
 		mkTest(channel.Ch1.NoteOn(65, 100), "channel.NoteOn channel 1 pitch 65 vel 100"),
 		mkTest(channel.Ch9.NoteOff(100), "channel.NoteOff channel 9 pitch 100"),
+		mkTest(channel.Ch9.NoteOffPedantic(120, 64), "channel.NoteOffPedantic channel 9 pitch 120 velocity: 64"),
 		mkTest(channel.Ch8.ProgramChange(3), "channel.ProgramChange channel 8 program 3"),
 		mkTest(channel.Ch8.AfterTouch(30), "channel.AfterTouch channel 8 pressure 30"),
 		mkTest(channel.Ch3.ControlChange(23, 25), "channel.ControlChange channel 3 controller 23 value 25"),
@@ -72,7 +73,7 @@ func TestRead(t *testing.T) {
 
 		var m midi.Message
 
-		m, err = channel.NewReader(test.input).Read(test.status, arg1)
+		m, err = channel.NewReader(test.input, channel.ReadNoteOffPedantic()).Read(test.status, arg1)
 
 		if err != nil {
 			t.Errorf("[%v] Read(% X) returned error: %v", n, test.rawinput, err)

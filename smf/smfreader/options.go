@@ -24,6 +24,7 @@ type Logger interface {
 	Printf(format string, vals ...interface{})
 }
 
+/*
 func FailOnUnknownChunks() Option {
 	return func(r *reader) {
 		r.failOnUnknownChunks = true
@@ -55,3 +56,4 @@ func InsideTrack(remainingtracks uint16) Option {
 		r.headerIsRead = true
 	}
 }
+*/
