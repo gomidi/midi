@@ -46,10 +46,11 @@ see http://godoc.org/github.com/gomidi/midi
 
 usable (beta)
 
-    package               API stable          implementation complete
+    package               API stable          complete
+    ----------------------------------------------------
     live/midiwriter       yes                 yes
     live/midireader       yes                 yes
-    smf                   yes                 yes
+    smf                   almost              almost
     smf/smfwriter         yes                 yes
     smf/smfreader         almost              yes
     smf/smftrack          no                  no

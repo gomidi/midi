@@ -311,10 +311,23 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		// p.absTrackTime = 0
 		//p.deltatime = 0
 		// Expect the next chunk midi.
+		/*
+			if p.processedTracks > -1 && uint16(p.processedTracks) == p.header.NumTracks {
+				p.log("last track has been read")
+				p.isDone = true
+				return nil, ErrFinished
+			}
+		*/
 
 		// TODO check the read length of the track against the length thas has been read
 		// return ErrTruncatedTrack if meta.EndOfTrack comes to early or ErrOverflowingTrack it it comes too late
-		p.expectChunk = true
+		if uint16(p.processedTracks+1) == p.header.NumTracks {
+			p.log("last track has been read")
+			p.isDone = true
+		} else {
+			p.expectChunk = true
+		}
+
 		// p.state = stateExpectChunk
 	}
 
@@ -324,12 +337,6 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 func (p *reader) readEvent() (m midi.Message, err error) {
 	if p.error != nil {
 		return nil, p.error
-	}
-
-	if p.processedTracks > -1 && uint16(p.processedTracks) == p.header.NumTracks {
-		p.log("last track has been read")
-		p.isDone = true
-		return nil, io.EOF
 	}
 
 	var deltatime uint32

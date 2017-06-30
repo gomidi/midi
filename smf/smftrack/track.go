@@ -1,6 +1,7 @@
 package smftrack
 
 import (
+	"github.com/gomidi/midi/smf/smfwriter"
 	"sort"
 
 	"github.com/gomidi/midi"
@@ -141,6 +142,9 @@ func (tr *Track) WriteTo(wr smf.Writer) (nbytes int, err error) {
 	}
 
 	n, err = wr.Write(meta.EndOfTrack)
+	if err == smfwriter.ErrFinished {
+		err = nil
+	}
 	nbytes += n
 
 	return

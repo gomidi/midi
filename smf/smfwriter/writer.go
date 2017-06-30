@@ -247,7 +247,7 @@ func (t *writer) writeTrackTo(wr io.Writer) (n int, err error) {
 
 	t.tracksProcessed++
 	if t.header.NumTracks == t.tracksProcessed {
-		err = io.EOF
+		err = ErrFinished
 	}
 
 	return

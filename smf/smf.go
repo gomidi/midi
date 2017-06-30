@@ -90,6 +90,10 @@ type Header struct {
 	TimeFormat
 }
 
+func (h Header) String() string {
+	return fmt.Sprintf("<Format: %v, NumTracks: %v, TimeFormat: %v>", h.Format, h.NumTracks, h.TimeFormat)
+}
+
 const (
 	// SMF0 represents the singletrack SMF format (0)
 	SMF0 = format(0)

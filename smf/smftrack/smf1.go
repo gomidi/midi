@@ -12,19 +12,49 @@ import (
 )
 
 // SMF1 is a namespace for methods reading from and writing to SMF1 (multitrack) files.
-// However they should also work with the sparingly used SMF2 (sequential tracks) files.
+// However they should mostly also work with the sparingly used SMF2 (sequential tracks) files.
 type SMF1 struct{}
+
+// ToSMF0 converts a given SMF1 file to SMF0 and writes it to wr
+// If src is no SMF1 file, an error is returned
+func (smf1 SMF1) ToSMF0(src smf.Reader, wr io.Writer) (err error) {
+	src.ReadHeader()
+
+	if src.Header().Format == smf.SMF0 {
+		return fmt.Errorf("src is already an SMF0 file")
+	}
+
+	if src.Header().Format == smf.SMF2 {
+		return fmt.Errorf("can't write SMF2 file to SMF0")
+	}
+
+	resolution, isMetric := src.Header().TimeFormat.(smf.MetricTicks)
+
+	if !isMetric {
+		return fmt.Errorf("need metric time format in source for conversion, got: %s", src.Header().TimeFormat.String())
+	}
+
+	var smf0 SMF0
+	var tracks []*Track
+	tracks, err = smf1.ReadFrom(src)
+
+	if err != nil {
+		//fmt.Println("reading error")
+		return
+	}
+
+	// fmt.Printf("number of tracks: %v\n", len(tracks))
+
+	_, err = smf0.WriteTo(wr, resolution, tracks...)
+	return
+}
 
 // ReadFrom reads the tracks with the given tracknos from rd.
 // It returns an error for a SMF0 file.
 // if no tracknos are given, all tracks are returned
 func (SMF1) ReadFrom(rd smf.Reader, tracknos ...uint16) (tracks []*Track, err error) {
 
-	err = rd.ReadHeader()
-
-	if err != nil {
-		return
-	}
+	rd.ReadHeader()
 
 	if rd.Header().Format == smf.SMF0 {
 		return nil, fmt.Errorf("can't get tracks from SMF0 file")
@@ -51,6 +81,11 @@ func (SMF1) ReadFrom(rd smf.Reader, tracknos ...uint16) (tracks []*Track, err er
 	for {
 		msg, err = rd.Read()
 		if err != nil {
+			//if err == smfreader.ErrFinished || err == io.EOF {
+			if err == smfreader.ErrFinished {
+				err = nil
+				break
+			}
 			return nil, err
 		}
 

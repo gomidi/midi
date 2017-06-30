@@ -53,7 +53,7 @@ func NewPlayer(src smf.Reader) (io.Reader, error) {
 	}
 
 	if src.Header().Format != smf.SMF0 {
-		return nil, fmt.Errorf("only SMF0 files supported, sorry, please convert your file")
+		return nil, fmt.Errorf("only SMF0 files supported, sorry, please convert your file first")
 	}
 
 	ti, isMetric := src.Header().TimeFormat.(smf.MetricTicks)

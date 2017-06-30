@@ -6,6 +6,7 @@ import (
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/smf"
+	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smfwriter"
 	"io"
 )
@@ -36,6 +37,10 @@ func (SMF0) ReadFrom(rd smf.Reader) (tr *Track, err error) {
 	for {
 		msg, err = rd.Read()
 		if err != nil {
+			if err == smfreader.ErrFinished {
+				err = nil
+				break
+			}
 			return nil, err
 		}
 
