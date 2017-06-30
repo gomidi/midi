@@ -13,12 +13,12 @@ type Event struct {
 }
 
 // Only events that are inside a track have a number
-func (e *Event) Number() uint64 {
+func (e Event) Number() uint64 {
 	return e.no
 }
 
 // Events helps sorting events
-type Events []*Event
+type Events []Event
 
 func (e Events) Len() int {
 	return len(e)

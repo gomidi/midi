@@ -35,8 +35,8 @@ func New(number uint16) *Track {
 	return &Track{Number: number}
 }
 
-// AddEvent adds an Event to the track
-func (t *Track) AddEvent(ev *Event) {
+// addEvent add events to the track
+func (t *Track) addEvent(ev Event) {
 	// don't add endoftrack messages
 	if ev.Message != meta.EndOfTrack {
 		ev.no = uint64(t.Number+1)*10000000 + t.lastEvendNo
@@ -45,12 +45,56 @@ func (t *Track) AddEvent(ev *Event) {
 	}
 }
 
-// Remove removes Event from the track by the number
-func (t *Track) RemoveEvents(numbers ...uint64) {
+// AddEvents add events to the track
+func (t *Track) AddEvents(events ...Event) {
+	for _, ev := range events {
+		t.addEvent(ev)
+	}
+}
+
+// Next returns the next position after absPos where an event happens
+// absPos is returned if there is no next event
+func (t *Track) Next(absPos uint64) uint64 {
+
+	sort.Sort(t.events)
+
+	for _, e := range t.events {
+		if e.AbsTicks > absPos {
+			return e.AbsTicks
+		}
+
+	}
+
+	return absPos
+}
+
+// UpdateEvents update the events with the same Number
+func (t *Track) UpdateEvents(events ...Event) {
+	updaters := map[uint64]*Event{}
+
+	for _, ev := range events {
+		updaters[ev.Number()] = &ev
+	}
+
+	var evts Events
+
+	for _, e := range t.events {
+		if up := updaters[e.Number()]; up != nil {
+			evts = append(evts, *up)
+		} else {
+			evts = append(evts, e)
+		}
+	}
+
+	t.events = evts
+}
+
+// Remove removes Event from the track by matching the number
+func (t *Track) RemoveEvents(events ...Event) {
 	skip := map[uint64]bool{}
 
-	for _, no := range numbers {
-		skip[no] = true
+	for _, ev := range events {
+		skip[ev.Number()] = true
 	}
 
 	var evts Events
@@ -64,12 +108,12 @@ func (t *Track) RemoveEvents(numbers ...uint64) {
 	t.events = evts
 }
 
-func NewEvent(absTicks uint64, msg midi.Message) *Event {
-	return &Event{AbsTicks: absTicks, Message: msg}
+func NewEvent(absTicks uint64, msg midi.Message) Event {
+	return Event{AbsTicks: absTicks, Message: msg}
 }
 
 func (t *Track) addMessage(absTicks uint64, msg midi.Message) {
-	t.AddEvent(NewEvent(absTicks, msg))
+	t.addEvent(NewEvent(absTicks, msg))
 }
 
 // WriteTo writes the track to the given SMF writer
