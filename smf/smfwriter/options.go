@@ -36,7 +36,7 @@ func TimeFormat(timeformat smf.TimeFormat) Option {
 		timeformat = smf.MetricTicks(0)
 	}
 	return func(w *writer) {
-		w.TimeFormat = timeformat
+		w.header.TimeFormat = timeformat
 	}
 }
 
@@ -50,7 +50,7 @@ func NumTracks(ntracks uint16) Option {
 		ntracks = 1
 	}
 	return func(w *writer) {
-		w.NumTracks = ntracks
+		w.header.NumTracks = ntracks
 	}
 }
 
@@ -59,6 +59,6 @@ func NumTracks(ntracks uint16) Option {
 // If this option is not given, SMF0 will be used as default if the number of tracks is 1, otherwise SMF1.
 func Format(f smf.Format) Option {
 	return func(w *writer) {
-		w.Format = f
+		w.header.Format = f
 	}
 }

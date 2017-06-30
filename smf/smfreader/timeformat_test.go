@@ -51,21 +51,20 @@ func TestTimeCode(t *testing.T) {
 	for _, test := range tests {
 
 		var bf bytes.Buffer
-		_, err := smfwriter.New(&bf, smfwriter.TimeFormat(test.format)).Write(meta.Tempo(100))
+		wr := smfwriter.New(&bf, smfwriter.TimeFormat(test.format))
+		_, err := wr.Write(meta.Tempo(100))
 
 		if err != nil {
 			t.Fatalf("can't write smf: %v", err)
 		}
 
 		rd := New(bytes.NewReader(bf.Bytes()))
-
-		var header smf.Header
-
-		header, err = rd.ReadHeader()
-
+		err = rd.ReadHeader()
 		if err != nil {
-			t.Fatalf("can't write read header: %v", err)
+			t.Fatalf("can't read header: %v", err)
 		}
+
+		header := rd.Header()
 
 		tc, isTC := header.TimeFormat.(smf.TimeCode)
 

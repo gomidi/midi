@@ -43,24 +43,23 @@ func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
 	h.errSMF = nil
 	h.pos = &SMFPosition{}
 	rd := smfreader.New(src, options...)
+
+	err := rd.ReadHeader()
+	if err != nil {
+		return err
+	}
 	h.readSMF(rd)
 	return h.errSMF
 }
 
 func (h *Handler) readSMF(rd smf.Reader) {
-	hd, err := rd.ReadHeader()
-
-	if err != nil {
-		h.errSMF = err
-		return
-	}
 
 	if h.SMFHeader != nil {
-		h.SMFHeader(hd)
+		h.SMFHeader(rd.Header())
 	}
 
 	// use err here
-	err = h.read(rd)
+	err := h.read(rd)
 	if err != io.EOF {
 		h.errSMF = err
 	}

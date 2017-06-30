@@ -10,6 +10,8 @@ import (
 	"github.com/gomidi/midi/messages/realtime"
 	"github.com/gomidi/midi/messages/sysex"
 	"github.com/gomidi/midi/smf/smfwriter"
+	// "log"
+	// "os"
 	"testing"
 )
 
@@ -17,11 +19,13 @@ func testRead(t *testing.T, input []byte, options ...Option) string {
 	var out bytes.Buffer
 	out.WriteString("\n")
 	rd := New(bytes.NewReader(input), options...)
-	hd, err := rd.ReadHeader()
 
+	err := rd.ReadHeader()
 	if err != nil {
 		t.Fatalf("can't read header: %v", err)
 	}
+
+	hd := rd.Header()
 
 	out.WriteString(fmt.Sprintf("SMF%v\n", hd.Format.Type()))
 	out.WriteString(fmt.Sprintf("%v Track(s)\n", hd.NumTracks))
@@ -29,6 +33,7 @@ func testRead(t *testing.T, input []byte, options ...Option) string {
 
 	var _ = hd
 	var msg midi.Message
+
 	for {
 		msg, err = rd.Read()
 
@@ -223,4 +228,30 @@ func TestReadSysEx(t *testing.T) {
 		t.Errorf("got\n%v\n\nwant\n%v\n\n", got, want)
 	}
 
+}
+
+func TestX(t *testing.T) {
+	src := []byte{0x4D, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x03, 0xC0, 0x4D, 0x54, 0x72, 0x6B, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x90, 0x32, 0x21, 0x02, 0x32, 0x00, 0x00, 0xFF, 0x2F, 0x00}
+	_ = src
+
+	rd := New(bytes.NewReader(src))
+
+	err := rd.ReadHeader()
+
+	if err != nil {
+		t.Fatalf("Error: %s", err.Error())
+	}
+	_ = rd
+
+	// fmt.Printf("%v\n", rd.Header())
+
+	var msg midi.Message
+	msg, err = rd.Read()
+
+	if err != nil {
+		t.Fatalf("Error: %s", err.Error())
+	}
+
+	_ = msg
+	// fmt.Printf("%s\n", msg)
 }

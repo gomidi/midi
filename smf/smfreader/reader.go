@@ -29,16 +29,24 @@ func ReadFile(file string, callback func(smf.Reader), options ...Option) error {
 		f.Close()
 	}()
 
-	callback(New(f, options...))
+	rd := New(f, options...)
+
+	err = rd.ReadHeader()
+
+	if err != nil {
+		return err
+	}
+
+	callback(rd)
 
 	return nil
 }
 
-// NewReader returns a smf.Reader
+// New returns a smf.Reader
 func New(src io.Reader, opts ...Option) smf.Reader {
 	rd := &reader{
-		input:           src,
-		state:           stateExpectHeader,
+		input: src,
+		// state:           stateExpectHeader,
 		processedTracks: -1,
 		runningStatus:   runningstatus.NewSMFReader(),
 		sysexreader:     newSysexReader(),
@@ -57,15 +65,27 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 	return rd
 }
 
+func (r *reader) ReadHeader() error {
+	if r.headerIsRead {
+		return r.error
+	}
+	r.error = r.readMThd()
+	r.headerIsRead = true
+	return r.error
+}
+
 type reader struct {
 	input  io.Reader
 	logger logger
 
-	state           state
-	runningStatus   runningstatus.Reader
-	processedTracks int16
-	deltatime       uint32
-	smf.Header
+	// state           state
+	isDone              bool
+	expectChunk         bool
+	expectedChunkLength uint32
+	runningStatus       runningstatus.Reader
+	processedTracks     int16
+	deltatime           uint32
+	header              smf.Header
 
 	sysexreader   *sysexReader
 	channelReader channel.Reader
@@ -73,8 +93,10 @@ type reader struct {
 	// options
 	failOnUnknownChunks bool
 	headerIsRead        bool
-	headerError         error
+	// headerError         error
 	readNoteOffPedantic bool
+
+	error error
 }
 
 func (p *reader) Delta() uint32 {
@@ -85,38 +107,41 @@ func (p *reader) Track() int16 {
 	return p.processedTracks
 }
 
-// ReadHeader reads the header of SMF file
-// If it is not called, the first call to Read will implicitely read the header.
-// However to get the header information, ReadHeader must be called (which may also happen after the first message read)
-func (p *reader) ReadHeader() (smf.Header, error) {
-	err := p.readMThd()
-	return p.Header, err
+// Header returns the header of SMF file
+func (p *reader) Header() smf.Header {
+	if !p.headerIsRead {
+		panic("header not read yet. call ReadHead or Read before calling Header()")
+	}
+	return p.header
 }
 
 // Read reads the next midi message
+// If the file has been read completely, ErrFinished is returned as error.
 func (p *reader) Read() (m midi.Message, err error) {
-
-	for {
-		switch p.state {
-		case stateExpectHeader:
-			err = p.readMThd()
-		case stateExpectChunk:
-			err = p.readChunk()
-		case stateExpectTrackEvent:
-			p.deltatime = 0
-			return p.readEvent()
-		case stateDone:
-			return nil, io.EOF
-		default:
-			panic("unreachable")
-		}
-
-		if err != nil {
-			return nil, err
-		}
+	if p.isDone {
+		return nil, ErrFinished
 	}
 
-	return nil, io.EOF
+	if !p.headerIsRead {
+		p.error = p.ReadHeader()
+	}
+
+	if p.error != nil {
+		return nil, p.error
+	}
+
+	if p.expectChunk {
+		p.readChunk()
+	}
+
+	if p.error != nil {
+		return nil, p.error
+	}
+
+	// now we are inside a track
+	p.deltatime = 0
+	m, p.error = p.readEvent()
+	return m, p.error
 }
 
 func (p *reader) log(format string, vals ...interface{}) {
@@ -125,78 +150,100 @@ func (p *reader) log(format string, vals ...interface{}) {
 	}
 }
 
-func (p *reader) readMThd() error {
-	if p.headerIsRead {
-		p.log("header already read, error: %v", p.headerError)
-		return p.headerError
+func (p *reader) readMThd() (err error) {
+
+	// after the header a chunk should come
+	p.expectChunk = true
+
+	var chunk smf.Chunk
+
+	for {
+		_, err = chunk.ReadHeader(p.input)
+		p.log("reading header of chunk, error: %v", err)
+
+		if err != nil {
+			break
+		}
+
+		if chunk.Type() != "MThd" {
+			p.log("wrong chunker type: %v", chunk.Type())
+			err = errExpectedMthd
+			break
+		}
+
+		err = p.parseHeaderData(p.input)
+		p.log("reading body of header type: %v", err)
+
+		if err != nil {
+			break
+		}
+
+		break // leave at the end
 	}
 
-	defer func() {
-		p.headerIsRead = true
-	}()
-
-	var head chunkHeader
-	p.headerError = head.readFrom(p.input)
-	p.log("reading chunkHeader of header, error: %v", p.headerError)
-
-	if p.headerError != nil {
-		return p.headerError
-	}
-
-	if head.typ != "MThd" {
-		p.log("wrong header type: %v", head.typ)
-		return errExpectedMthd
-	}
-
-	p.headerError = p.parseHeaderData(p.input)
-	p.log("reading body of header type: %v", p.headerError)
-
-	if p.headerError != nil {
-		return p.headerError
-	}
-
-	p.state = stateExpectChunk
-
-	return nil
+	return
 }
 
-func (p *reader) readChunk() (err error) {
-	var head chunkHeader
-	err = head.readFrom(p.input)
-	p.log("reading header of chunk: %v", err)
+func (p *reader) readChunk() {
 
-	if err != nil {
-		// If we expect a chunk and we hit the end of the file, that's not so unexpected after all.
-		// The file has to end some time, and this is the correct boundary upon which to end it.
-		if err == errUnexpectedEOF {
-			p.state = stateDone
-			return io.EOF
+	if p.error != nil {
+		return
+	}
+
+	var (
+		// define the variables here that are shared along the for loop
+		err error
+		//head chunkHeader
+		chunk smf.Chunk
+	)
+
+	for {
+		p.expectedChunkLength, err = chunk.ReadHeader(p.input)
+		p.log("reading header of chunk: %v", err)
+
+		if err != nil {
+			// if we are here, not all tracks have been read, so io.EOF would be an error,
+			// so return errors here in each case
+			break
 		}
-		return
+
+		p.log("got chunk type: %v", chunk.Type())
+		// We have a MTrk
+		if chunk.Type() == "MTrk" {
+			p.log("is track chunk")
+			p.processedTracks++
+			p.expectChunk = false
+			//p.state = stateExpectTrackEvent
+			// we are done, lets go to the track events
+			break
+		}
+
+		/*
+			if p.failOnUnknownChunks {
+				err = fmt.Errorf("unknown chunk of type %#v", chunk.Type())
+				break
+			}
+		*/
+
+		// The header is of an unknown type, skip over it.
+		_, err = io.CopyN(ioutil.Discard, p.input, int64(p.expectedChunkLength))
+		p.log("skipping chunk: %v", err)
+		if err != nil {
+			break
+		}
+
+		p.expectChunk = true
+
+		break // leave at the end
 	}
 
-	p.log("got chunk type: %v", head.typ)
-	// We have a MTrk
-	if head.typ == "MTrk" {
-		p.processedTracks++
-		p.state = stateExpectTrackEvent
-		// we are done, lets go to the track events
-		return
-	}
+	// use err here
 
-	if p.failOnUnknownChunks {
-		return fmt.Errorf("unknown chunk of type %#v", head.typ)
-	}
-
-	// The header is of an unknown type, skip over it.
-	_, err = io.CopyN(ioutil.Discard, p.input, int64(head.length))
-	p.log("skipping chunk: %v", err)
 	if err != nil {
+		p.error = err
 		return
 	}
 
-	// Then we expect another chunk.
-	p.state = stateExpectChunk
 	return
 }
 
@@ -264,16 +311,24 @@ func (p *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		// p.absTrackTime = 0
 		//p.deltatime = 0
 		// Expect the next chunk midi.
-		p.state = stateExpectChunk
+
+		// TODO check the read length of the track against the length thas has been read
+		// return ErrTruncatedTrack if meta.EndOfTrack comes to early or ErrOverflowingTrack it it comes too late
+		p.expectChunk = true
+		// p.state = stateExpectChunk
 	}
 
 	return m, nil
 }
 
 func (p *reader) readEvent() (m midi.Message, err error) {
-	if p.processedTracks > -1 && uint16(p.processedTracks) == p.NumTracks {
+	if p.error != nil {
+		return nil, p.error
+	}
+
+	if p.processedTracks > -1 && uint16(p.processedTracks) == p.header.NumTracks {
 		p.log("last track has been read")
-		p.state = stateDone
+		p.isDone = true
 		return nil, io.EOF
 	}
 
@@ -301,6 +356,7 @@ func (p *reader) readEvent() (m midi.Message, err error) {
 
 // parseHeaderData parses SMF-header chunk header data.
 func (r *reader) parseHeaderData(reader io.Reader) error {
+
 	format, err := midilib.ReadUint16(reader)
 
 	if err != nil {
@@ -309,16 +365,16 @@ func (r *reader) parseHeaderData(reader io.Reader) error {
 
 	switch format {
 	case 0:
-		r.Format = smf.SMF0
+		r.header.Format = smf.SMF0
 	case 1:
-		r.Format = smf.SMF1
+		r.header.Format = smf.SMF1
 	case 2:
-		r.Format = smf.SMF2
+		r.header.Format = smf.SMF2
 	default:
 		return errUnsupportedSMFFormat
 	}
 
-	r.NumTracks, err = midilib.ReadUint16(reader)
+	r.header.NumTracks, err = midilib.ReadUint16(reader)
 
 	if err != nil {
 		return err
@@ -334,9 +390,9 @@ func (r *reader) parseHeaderData(reader io.Reader) error {
 	// "If bit 15 of <division> is zero, the bits 14 thru 0 represent the number
 	// of delta time "ticks" which make up a quarter-note."
 	if division&0x8000 == 0x0000 {
-		r.TimeFormat = smf.MetricTicks(division & 0x7FFF)
+		r.header.TimeFormat = smf.MetricTicks(division & 0x7FFF)
 	} else {
-		r.TimeFormat = parseTimeCode(division)
+		r.header.TimeFormat = parseTimeCode(division)
 	}
 
 	/*

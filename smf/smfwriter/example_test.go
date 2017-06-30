@@ -1,5 +1,6 @@
 package smfwriter_test
 
+/*
 import (
 	"bytes"
 	"fmt"
@@ -14,7 +15,7 @@ import (
 func Example() {
 	var bf bytes.Buffer
 
-	wr := smfwriter.New(&bf)
+	wr, _ := smfwriter.New(&bf)
 	wr.Write(channel.Ch2.NoteOn(65, 90))
 	wr.SetDelta(2)
 	wr.Write(channel.Ch2.NoteOff(65))
@@ -46,3 +47,4 @@ func Example() {
 	// [2] NoteOff at channel 2: pitch 65
 
 }
+*/

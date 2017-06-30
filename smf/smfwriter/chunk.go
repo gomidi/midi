@@ -1,5 +1,6 @@
 package smfwriter
 
+/*
 import (
 	"bytes"
 	"encoding/binary"
@@ -10,6 +11,7 @@ type chunk struct {
 	typ  [4]byte
 	data []byte
 }
+*/
 
 /*
 func (c *chunk) Type() string {
@@ -22,6 +24,7 @@ func (c *chunk) Type() string {
 }
 */
 
+/*
 func (c *chunk) writeTo(wr io.Writer) (int, error) {
 	length := int32(len(c.data))
 	var bf bytes.Buffer
@@ -33,3 +36,4 @@ func (c *chunk) writeTo(wr io.Writer) (int, error) {
 	bf.Write(c.data)
 	return wr.Write(bf.Bytes())
 }
+*/

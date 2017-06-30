@@ -41,6 +41,10 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 	}()
 
 	wr := New(f, options...)
+	_, err = wr.WriteHeader()
+	if err != nil {
+		return err
+	}
 	callback(wr)
 
 	// make sure the data of the last track is written
@@ -56,32 +60,50 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 // For the documentation of the Write and the SetDelta method, consult the documentation for smf.Writer.
 //
 // The options and their defaults are documented at the corresponding option.
+// When New returns, the header has already been written to dest.
+// Any error that happended during the header writing is returned. In this case writer is nil.
 func New(dest io.Writer, opts ...Option) smf.Writer {
 	return newWriter(dest, opts...)
 }
 
 type writer struct {
-	smf.Header
-	track           chunk
+	header          smf.Header
+	track           smf.Chunk
 	output          io.Writer
 	headerWritten   bool
 	tracksProcessed uint16
 	deltatime       uint32
 	noRunningStatus bool
+	error           error
 	runningWriter   runningstatus.SMFWriter
 }
 
+func (w *writer) WriteHeader() (int, error) {
+	if w.headerWritten {
+		return 0, w.error
+	}
+	n, err := w.writeHeader(w.output)
+	w.headerWritten = true
+
+	if err != nil {
+		w.error = err
+	}
+
+	return n, err
+}
+
+//
 func newWriter(output io.Writer, opts ...Option) *writer {
 
 	// setup
 	wr := &writer{}
 	wr.output = output
-	wr.track.typ = [4]byte{byte('M'), byte('T'), byte('r'), byte('k')}
+	wr.track.SetType([4]byte{byte('M'), byte('T'), byte('r'), byte('k')})
 
 	// defaults
-	wr.TimeFormat = smf.MetricTicks(0) // take the default, based on smf package (should be 960)
-	wr.NumTracks = 1
-	wr.Format = smf.SMF0
+	wr.header.TimeFormat = smf.MetricTicks(0) // take the default, based on smf package (should be 960)
+	wr.header.NumTracks = 1
+	wr.header.Format = smf.SMF0
 
 	// overrides with options
 	for _, opt := range opts {
@@ -95,8 +117,8 @@ func newWriter(output io.Writer, opts ...Option) *writer {
 	// if midiformat is undefined (see above), i.e. not set via options
 	// set the default, which is format 0 for one track and format 1 for multitracks
 	// if wr.header.MidiFormat == format(10) {
-	if wr.Format != smf.SMF2 && wr.NumTracks > 1 {
-		wr.Format = smf.SMF1
+	if wr.header.Format != smf.SMF2 && wr.header.NumTracks > 1 {
+		wr.header.Format = smf.SMF1
 	}
 
 	return wr
@@ -106,23 +128,27 @@ func (wr *writer) SetDelta(deltatime uint32) {
 	wr.deltatime = deltatime
 }
 
+func (wr *writer) Header() smf.Header {
+	return wr.header
+}
+
+var errFinished = fmt.Errorf("all tracks written (finished)")
+
 // that have been physically written.
 func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
+	if !wr.headerWritten {
+		nbytes, wr.error = wr.WriteHeader()
+	}
+	if wr.error != nil {
+		return nbytes, wr.error
+	}
 	defer func() {
 		wr.deltatime = 0
 	}()
 
-	if wr.NumTracks == wr.tracksProcessed {
-		err = io.EOF
-		return
-	}
-
-	if !wr.headerWritten {
-		nbytes, err = wr.writeHeader(wr.output)
-		if err != nil {
-			return
-		}
-		wr.headerWritten = true
+	if wr.header.NumTracks == wr.tracksProcessed {
+		wr.error = errFinished
+		return 0, wr.error
 	}
 
 	if m == meta.EndOfTrack {
@@ -130,6 +156,9 @@ func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 		var tnum int
 		tnum, err = wr.writeTrackTo(wr.output)
 		nbytes += tnum
+		if err != nil {
+			wr.error = err
+		}
 		return
 	}
 	wr.addMessage(wr.deltatime, m)
@@ -162,7 +191,7 @@ func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 	For example, +96 would mean 96 ticks per beat. If the value is negative, delta times are in SMPTE compatible units.
 */
 func (w *writer) writeTimeFormat(wr io.Writer) error {
-	switch tf := w.TimeFormat.(type) {
+	switch tf := w.header.TimeFormat.(type) {
 	case smf.MetricTicks:
 		ticks := tf.Ticks()
 		if ticks > 32767 {
@@ -177,32 +206,32 @@ func (w *writer) writeTimeFormat(wr io.Writer) error {
 		}
 		return binary.Write(wr, binary.BigEndian, tf.SubFrames)
 	default:
-		panic(fmt.Sprintf("unsupported TimeFormat: %#v", w.TimeFormat))
+		panic(fmt.Sprintf("unsupported TimeFormat: %#v", w.header.TimeFormat))
 	}
 }
 
 // <Header Chunk> = <chunk type><length><format><ntrks><division>
 func (w *writer) writeHeader(wr io.Writer) (int, error) {
-	var ch chunk
-	ch.typ = [4]byte{byte('M'), byte('T'), byte('h'), byte('d')}
+	var ch smf.Chunk
+	ch.SetType([4]byte{byte('M'), byte('T'), byte('h'), byte('d')})
 	var bf bytes.Buffer
 
-	binary.Write(&bf, binary.BigEndian, w.Format.Type())
-	binary.Write(&bf, binary.BigEndian, w.NumTracks)
+	binary.Write(&bf, binary.BigEndian, w.header.Format.Type())
+	binary.Write(&bf, binary.BigEndian, w.header.NumTracks)
 
 	err := w.writeTimeFormat(&bf)
 	if err != nil {
 		return bf.Len(), err
 	}
 
-	ch.data = bf.Bytes()
+	ch.Write(bf.Bytes())
 
-	return ch.writeTo(wr)
+	return ch.WriteTo(wr)
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
 func (t *writer) writeTrackTo(wr io.Writer) (n int, err error) {
-	n, err = t.track.writeTo(wr)
+	n, err = t.track.WriteTo(wr)
 
 	if err != nil {
 		return
@@ -212,11 +241,12 @@ func (t *writer) writeTrackTo(wr io.Writer) (n int, err error) {
 		t.runningWriter = runningstatus.NewSMFWriter()
 	}
 
-	t.track.data = nil
+	// remove the data for the next track
+	t.track.Clear()
 	t.deltatime = 0
 
 	t.tracksProcessed++
-	if t.NumTracks == t.tracksProcessed {
+	if t.header.NumTracks == t.tracksProcessed {
 		err = io.EOF
 	}
 
@@ -224,7 +254,8 @@ func (t *writer) writeTrackTo(wr io.Writer) (n int, err error) {
 }
 
 func (t *writer) appendToChunk(deltaTime uint32, b []byte) {
-	t.track.data = append(t.track.data, append(vlq.Encode(deltaTime), b...)...)
+	t.track.Write(append(vlq.Encode(deltaTime), b...))
+	//t.track.data = append(t.track.data, append(vlq.Encode(deltaTime), b...)...)
 }
 
 // delta is distance in time to last event in this track (independant of channel)

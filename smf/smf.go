@@ -1,7 +1,12 @@
 package smf
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+	"io"
+	"time"
 
 	"github.com/gomidi/midi"
 )
@@ -14,6 +19,14 @@ var (
 // Writer writes midi messages to a standard midi file (SMF)
 // Writer is also a midi.Writer
 type Writer interface {
+
+	// Header returns the header
+	Header() Header
+
+	// WriteHeader writes the midi header
+	// If WriteHeader was not called before the first run of Write,
+	// it will implicitely be called when calling Write.
+	WriteHeader() (int, error)
 
 	// Write writes a midi message to the SMF file.
 	//
@@ -28,6 +41,8 @@ type Writer interface {
 	//   larger as the number of tracks in the file.
 	// Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
 	// that have been physically written at that point in time.
+	// any error stops the writing, is tracked and prohibits further writing.
+	// this last error is returned from Error()
 	Write(midi.Message) (nBytes int, err error)
 
 	// SetDelta sets a time distance between the last written and the following message in ticks.
@@ -39,13 +54,19 @@ type Writer interface {
 // Reader is also a midi.Reader
 type Reader interface {
 
+	// ReadHeader reads the header of the SMF file. If Header is called before ReadHeader, it will panic.
+	// ReadHeader is also implicitely called with the first call of Read() (if it has not been run before)
+	ReadHeader() error
+
 	// Read reads a MIDI message from a SMF file.
+	// any error will be tracked and stops reading and prevents any other attempt to read.
+	// this first and last error is returned from Error()
 	Read() (midi.Message, error)
 
-	// ReadHeader reads the header of SMF file
-	// If it is not called, the first call to Read will implicitely read the header.
-	// However to get the header information, ReadHeader must be called (which may also happen after the first message read)
-	ReadHeader() (Header, error)
+	// Header returns the header of SMF file
+	// if the header is not yet read, it will be read before
+	// if any error occured during reading of header, it can be found with Error()
+	Header() Header
 
 	// Delta returns the time distance between the last read midi message and the message before in ticks.
 	// The meaning of a tick depends on the time format that is set in the header of the SMF file.
@@ -79,6 +100,69 @@ const (
 	// SMF2 represents the sequential track SMF format (2)
 	SMF2 = format(2)
 )
+
+type Chunk struct {
+	typ  []byte // must always be 4 bytes long, to avoid conversions everytime, we take []byte here instead of [4]byte
+	data []byte
+}
+
+// Chunk returns the length of the chunk body
+func (c *Chunk) Len() int {
+	return len(c.data)
+}
+
+// SetType sets the type of the chunk
+func (c *Chunk) SetType(typ [4]byte) {
+	c.typ = make([]byte, 4)
+	c.typ[0] = typ[0]
+	c.typ[1] = typ[1]
+	c.typ[2] = typ[2]
+	c.typ[3] = typ[3]
+}
+
+func (c *Chunk) Type() string {
+	var bf bytes.Buffer
+	bf.Write(c.typ)
+	return bf.String()
+}
+
+// Clear removes all data but keeps the typ
+func (c *Chunk) Clear() {
+	c.data = nil
+}
+
+// WriteTo writes the content of the chunk to the given writer
+func (c *Chunk) WriteTo(wr io.Writer) (int, error) {
+	if len(c.typ) != 4 {
+		return 0, fmt.Errorf("chunk header not set properly")
+	}
+
+	var bf bytes.Buffer
+	bf.Write(c.typ)
+	binary.Write(&bf, binary.BigEndian, int32(c.Len()))
+	bf.Write(c.data)
+	return wr.Write(bf.Bytes())
+}
+
+// ReadHeader reads the header from the given reader
+// returns the length of the following body
+// for errors, length of 0 is returned
+func (c *Chunk) ReadHeader(rd io.Reader) (length uint32, err error) {
+	c.typ, err = midilib.ReadNBytes(4, rd)
+
+	if err != nil {
+		c.typ = nil
+		return
+	}
+
+	return midilib.ReadUint32(rd)
+}
+
+// Write writes the given bytes to the body of the chunk
+func (c *Chunk) Write(b []byte) (int, error) {
+	c.data = append(c.data, b...)
+	return len(b), nil
+}
 
 var (
 	_ TimeFormat = MetricTicks(0)
@@ -130,6 +214,21 @@ func SMPTE30(subframes uint8) TimeCode {
 // MetricTicks represents the "ticks per quarter note" (metric) time format
 // It defaults to 960 (i.e. 0 is treated as if it where 960 ticks per quarter note)
 type MetricTicks uint16
+
+// TempoDuration returns the time.Duration for a number of ticks at a certain tempo (in BPM)
+func (q MetricTicks) TempoDuration(tempoBPM uint32, deltaTicks uint32) time.Duration {
+	// (60000 / T) * (d / R) = D[ms]
+	durQnMilli := 60000 / float64(tempoBPM)
+	_4thticks := float64(deltaTicks) / float64(uint16(q))
+	return time.Duration(roundFloat(durQnMilli*_4thticks, 0)) * time.Millisecond
+}
+
+// TempoTicks returns the ticks for a given time.Duration at a certain tempo (in BPM)
+func (q MetricTicks) TempoTicks(tempoBPM uint32, d time.Duration) (ticks uint32) {
+	// d = (D[ms] * R * T) / 60000
+	ticks = uint32(roundFloat((float64(d.Nanoseconds())/1000000*float64(uint16(q))*float64(tempoBPM))/60000, 0))
+	return ticks
+}
 
 // Ticks returns the ticks for a quarter note (defaults to 960)
 func (q MetricTicks) Ticks() uint16 {
