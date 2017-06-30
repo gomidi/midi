@@ -70,6 +70,7 @@ func (t *Track) Next(absPos uint64) uint64 {
 
 // UpdateEvents update the events with the same Number
 func (t *Track) UpdateEvents(events ...Event) {
+	// TODO check if the tracknumber matches based on track event number calculation
 	updaters := map[uint64]*Event{}
 
 	for _, ev := range events {
@@ -91,6 +92,7 @@ func (t *Track) UpdateEvents(events ...Event) {
 
 // Remove removes Event from the track by matching the number
 func (t *Track) RemoveEvents(events ...Event) {
+	// TODO check if the tracknumber matches based on track event number calculation
 	skip := map[uint64]bool{}
 
 	for _, ev := range events {

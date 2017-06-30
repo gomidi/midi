@@ -4,15 +4,28 @@ import (
 	"fmt"
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/smf"
+	"time"
 )
 
+// Event is a MIDI message at absolute ticks in a track.
 type Event struct {
 	AbsTicks uint64
 	midi.Message
 	no uint64
 }
 
-// Only events that are inside a track have a number
+// DurationTo returns the duration to a given target Event based on the tick resolution and the given tempo
+func (e Event) DurationTo(resolution smf.MetricTicks, tempoBPM uint32, target Event) time.Duration {
+	return resolution.TempoDuration(tempoBPM, uint32(target.AbsTicks-e.AbsTicks))
+}
+
+// TicksTo returns the absticks to the given target duration, based on the given tempo and the resolution
+func (e Event) TicksTo(resolution smf.MetricTicks, tempoBPM uint32, timeDistance time.Duration) uint64 {
+	return e.AbsTicks + uint64(resolution.TempoTicks(tempoBPM, timeDistance))
+}
+
+// Number returns the number of the event as part of a track. (If it is 0, the event has not been part of a track).
 func (e Event) Number() uint64 {
 	return e.no
 }
