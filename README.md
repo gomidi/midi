@@ -52,7 +52,8 @@ usable (beta)
     smf                   yes                 yes
     smf/smfwriter         yes                 yes
     smf/smfreader         almost              yes
-    smf/smfmodify     --nothing done yet , only draft---
+    smf/smftrack          no                  no
+    midiio                no                  no
     messages/channel      almost              yes
     messages/cc           yes                 yes
     messages/meta         almost              yes
