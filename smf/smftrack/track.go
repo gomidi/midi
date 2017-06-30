@@ -28,12 +28,16 @@ type Track struct {
 	Number uint16
 	// map absolute ticks to messages
 	events Events
-	smf.Chunk
+	// chunk       smf.Chunk
 	lastEvendNo uint64
 }
 
 func New(number uint16) *Track {
 	return &Track{Number: number}
+}
+
+func (t *Track) Len() int {
+	return len(t.events)
 }
 
 // addEvent add events to the track
@@ -53,10 +57,42 @@ func (t *Track) AddEvents(events ...Event) {
 	}
 }
 
-// Next returns the next position after absPos where an event happens
-// absPos is returned if there is no next event
-func (t *Track) Next(absPos uint64) uint64 {
+func (t *Track) GetEventsAt(absPos uint64) (evts []Event) {
+	if t.events == nil {
+		return
+	}
+	sort.Sort(t.events)
 
+	for _, e := range t.events {
+		if e.AbsTicks == absPos {
+			evts = append(evts, e)
+		}
+
+		if e.AbsTicks > absPos {
+			return
+		}
+
+	}
+	return
+}
+
+func (t *Track) EachEvent(callback func(Event)) {
+	if t.events == nil {
+		return
+	}
+	sort.Sort(t.events)
+
+	for _, e := range t.events {
+		callback(e)
+	}
+}
+
+// NextPosition returns the next position after absPos where an event happens
+// absPos is returned if there is no next event
+func (t *Track) NextPosition(absPos uint64) uint64 {
+	if t.events == nil {
+		return 0
+	}
 	sort.Sort(t.events)
 
 	for _, e := range t.events {
@@ -71,6 +107,9 @@ func (t *Track) Next(absPos uint64) uint64 {
 
 // UpdateEvents update the events with the same Number
 func (t *Track) UpdateEvents(events ...Event) {
+	if t.events == nil {
+		return
+	}
 	// TODO check if the tracknumber matches based on track event number calculation
 	updaters := map[uint64]*Event{}
 
@@ -93,6 +132,9 @@ func (t *Track) UpdateEvents(events ...Event) {
 
 // Remove removes Event from the track by matching the number
 func (t *Track) RemoveEvents(events ...Event) {
+	if t.events == nil {
+		return
+	}
 	// TODO check if the tracknumber matches based on track event number calculation
 	skip := map[uint64]bool{}
 

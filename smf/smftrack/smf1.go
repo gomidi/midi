@@ -17,6 +17,8 @@ type SMF1 struct{}
 
 // ToSMF0 converts a given SMF1 file to SMF0 and writes it to wr
 // If src is no SMF1 file, an error is returned
+// sysex data and meta messages other than copyright, cuepoint, marker, tempo, timesignature and keysignature
+// get lost, since they can be bound to a certain track.
 func (smf1 SMF1) ToSMF0(src smf.Reader, wr io.Writer) (err error) {
 	src.ReadHeader()
 
@@ -28,25 +30,37 @@ func (smf1 SMF1) ToSMF0(src smf.Reader, wr io.Writer) (err error) {
 		return fmt.Errorf("can't write SMF2 file to SMF0")
 	}
 
-	resolution, isMetric := src.Header().TimeFormat.(smf.MetricTicks)
-
-	if !isMetric {
-		return fmt.Errorf("need metric time format in source for conversion, got: %s", src.Header().TimeFormat.String())
-	}
-
 	var smf0 SMF0
 	var tracks []*Track
 	tracks, err = smf1.ReadFrom(src)
 
 	if err != nil {
-		//fmt.Println("reading error")
 		return
 	}
 
-	// fmt.Printf("number of tracks: %v\n", len(tracks))
-
-	_, err = smf0.WriteTo(wr, resolution, tracks...)
+	_, err = smf0.WriteTo(wr, src.Header().TimeFormat, tracks...)
 	return
+}
+
+// AddTracks adds the given tracks to the tracks in src and writes the resulting SMF1 to wr.
+func (smf1 SMF1) AddTracks(src smf.Reader, wr io.Writer, tracks ...*Track) error {
+	src.ReadHeader()
+
+	if src.Header().Format != smf.SMF1 {
+		return fmt.Errorf("can only add tracks to SMF1 file, got %s", src.Header().Format)
+	}
+
+	oldTracks, err := smf1.ReadFrom(src)
+
+	if err != nil {
+		return err
+	}
+
+	newTracksSorted := Tracks(tracks)
+	sort.Sort(newTracksSorted)
+
+	_, err = smf1.WriteTo(wr, src.Header().TimeFormat, append(Tracks(oldTracks), newTracksSorted...)...)
+	return err
 }
 
 // ReadFrom reads the tracks with the given tracknos from rd.
@@ -80,14 +94,6 @@ func (SMF1) ReadFrom(rd smf.Reader, tracknos ...uint16) (tracks []*Track, err er
 
 	for {
 		msg, err = rd.Read()
-		if err != nil {
-			//if err == smfreader.ErrFinished || err == io.EOF {
-			if err == smfreader.ErrFinished {
-				err = nil
-				break
-			}
-			return nil, err
-		}
 
 		if matchAll || match[uint16(rd.Track())] {
 
@@ -101,9 +107,20 @@ func (SMF1) ReadFrom(rd smf.Reader, tracknos ...uint16) (tracks []*Track, err er
 				absPos = 0
 				currentTr = &Track{}
 			} else {
-				absPos += uint64(rd.Delta())
-				currentTr.addMessage(absPos, msg)
+				if err == nil {
+					absPos += uint64(rd.Delta())
+					currentTr.addMessage(absPos, msg)
+				}
 			}
+		}
+
+		if err != nil {
+			//if err == smfreader.ErrFinished || err == io.EOF {
+			if err == smfreader.ErrFinished {
+				err = nil
+				break
+			}
+			return nil, err
 		}
 
 	}
@@ -127,10 +144,10 @@ func (SMF1) ReadFrom(rd smf.Reader, tracknos ...uint16) (tracks []*Track, err er
 
 // WriteTo writes a SMF1 file of the given tracks to the given io.Writer
 // Tracks are ordered by Track.Number
-func (SMF1) WriteTo(wr io.Writer, ticks smf.MetricTicks, tracks ...*Track) (nbytes int, err error) {
+func (SMF1) WriteTo(wr io.Writer, timeFormat smf.TimeFormat, tracks ...*Track) (nbytes int, err error) {
 	w := smfwriter.New(wr,
 		smfwriter.NumTracks(uint16(len(tracks))),
-		smfwriter.TimeFormat(ticks),
+		smfwriter.TimeFormat(timeFormat),
 		smfwriter.Format(smf.SMF1),
 	)
 
