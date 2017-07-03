@@ -129,21 +129,19 @@ func (smf0 SMF0) ToSMF1(src smf.Reader, wr io.Writer) (err error) {
 
 	tr.RemoveEvents(removedFromTrack0...)
 
-	var num = uint16(0)
+	// var num = uint16(0)
 
-	tr.Number = num
+	tr.Number = 0
 
-	num++
 	tracks := []*Track{tr}
 
-	for _, chtr := range channelTracks {
+	for chNum, chtr := range channelTracks {
 		if chtr == nil {
 			continue
 		}
 		// fmt.Printf("got track: %v\n", chtr)
 		if chtr.Len() > 0 {
-			chtr.Number = num
-			num++
+			chtr.Number = uint16(chNum) + 1
 			tracks = append(tracks, chtr)
 		}
 	}

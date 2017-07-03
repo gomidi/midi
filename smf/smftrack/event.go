@@ -3,6 +3,7 @@ package smftrack
 import (
 	"fmt"
 	"github.com/gomidi/midi"
+	// "github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/smf"
 	"time"
@@ -69,6 +70,14 @@ func (e Events) Less(i, j int) bool {
 	if t2 == "meta.Tempo" {
 		return false
 	}
+
+	/*
+		if t1 == "channel.NoteOn" && t2 == "channel.NoteOn" {
+			n1 := e[i].Message.(channel.NoteOn)
+			n2 := e[j].Message.(channel.NoteOn)
+			return (n1.Pitch() / 12) < (n2.Pitch() / 12)
+		}
+	*/
 
 	// rest doesn't matter
 	return false

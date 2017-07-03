@@ -3,6 +3,7 @@ package smftrack
 import (
 	"fmt"
 	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfreader"
@@ -19,15 +20,15 @@ type SMF1 struct{}
 // If src is no SMF1 file, an error is returned
 // sysex data and meta messages other than copyright, cuepoint, marker, tempo, timesignature and keysignature
 // get lost, since they can be bound to a certain track.
-func (smf1 SMF1) ToSMF0(src smf.Reader, wr io.Writer) (err error) {
+func (smf1 SMF1) ToSMF0(src smf.Reader, wr io.Writer) (trackNames []string, err error) {
 	src.ReadHeader()
 
 	if src.Header().Format == smf.SMF0 {
-		return fmt.Errorf("src is already an SMF0 file")
+		return nil, fmt.Errorf("src is already an SMF0 file")
 	}
 
 	if src.Header().Format == smf.SMF2 {
-		return fmt.Errorf("can't write SMF2 file to SMF0")
+		return nil, fmt.Errorf("can't write SMF2 file to SMF0")
 	}
 
 	var smf0 SMF0
@@ -38,7 +39,62 @@ func (smf1 SMF1) ToSMF0(src smf.Reader, wr io.Writer) (err error) {
 		return
 	}
 
+	for _, tr := range tracks {
+		trackNames = append(trackNames, tr.Name())
+	}
+
 	_, err = smf0.WriteTo(wr, src.Header().TimeFormat, tracks...)
+	return
+}
+
+// TracksOnDifferentChannels sets the track data on a different MIDI channel for each track
+func (smf1 SMF1) TracksOnDifferentChannels(src smf.Reader, wr io.Writer) (err error) {
+	src.ReadHeader()
+
+	if src.Header().Format == smf.SMF0 {
+		return fmt.Errorf("SMF0 file not supported")
+	}
+
+	if src.Header().Format == smf.SMF2 {
+		return fmt.Errorf("SMF2 file not supported")
+	}
+
+	var tracks []*Track
+	tracks, err = smf1.ReadFrom(src)
+
+	if err != nil {
+		return
+	}
+
+	for i, tr := range tracks {
+		callback := func(ev Event) {
+			if _, is := ev.Message.(channel.Message); is {
+				ch := uint8(i % 12)
+
+				switch v := ev.Message.(type) {
+				case channel.NoteOn:
+					ev.Message = channel.New(ch).NoteOn(v.Pitch(), v.Velocity())
+				case channel.NoteOff:
+					ev.Message = channel.New(ch).NoteOff(v.Pitch())
+				case channel.AfterTouch:
+					ev.Message = channel.New(ch).AfterTouch(v.Pressure())
+				case channel.PolyphonicAfterTouch:
+					ev.Message = channel.New(ch).PolyphonicAfterTouch(v.Pitch(), v.Pressure())
+				case channel.ProgramChange:
+					ev.Message = channel.New(ch).ProgramChange(v.Program())
+				case channel.ControlChange:
+					ev.Message = channel.New(ch).ControlChange(v.Controller(), v.Value())
+				case channel.PitchWheel:
+					ev.Message = channel.New(ch).PitchWheel(v.Value())
+				}
+				tr.UpdateEvents(ev)
+			}
+		}
+		tr.EachEvent(callback)
+	}
+
+	_, err = smf1.WriteTo(wr, src.Header().TimeFormat, tracks...)
+
 	return
 }
 

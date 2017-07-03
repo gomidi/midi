@@ -1,4 +1,4 @@
-package midiio
+package smftrack
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/smf/smfreader"
 	// "github.com/gomidi/midi/messages/sysex"
 	"io"
 	"time"
@@ -21,7 +22,7 @@ import (
 	// "time"
 )
 
-// NewPlayer plays from a single track to reader
+// NewPlayer plays from a smf.Reader (ignoring sysex messages)
 func NewPlayer(src smf.Reader) (io.Reader, error) {
 	err := src.ReadHeader()
 
@@ -29,13 +30,20 @@ func NewPlayer(src smf.Reader) (io.Reader, error) {
 		return nil, err
 	}
 
-	if src.Header().Format != smf.SMF0 {
-		return nil, fmt.Errorf("only SMF0 files supported, sorry, please convert your file first")
-	}
-
 	ti, isMetric := src.Header().TimeFormat.(smf.MetricTicks)
 	if !isMetric {
 		return nil, fmt.Errorf("only metric timeformat supported, sorry")
+	}
+
+	if src.Header().Format == smf.SMF2 {
+		return nil, fmt.Errorf("SMF2 files not supported")
+	}
+
+	if src.Header().Format == smf.SMF1 {
+		// convert to SMF0 first
+		var bf bytes.Buffer
+		(SMF1{}).ToSMF0(src, &bf)
+		src = smfreader.New(bytes.NewReader(bf.Bytes()))
 	}
 
 	p := &smfPlayer{}
@@ -44,6 +52,22 @@ func NewPlayer(src smf.Reader) (io.Reader, error) {
 	p.tempo = 120 // default
 	p.to = midiwriter.New(&p.bf)
 	return p, nil
+}
+
+func (p *smfPlayer) Play(data chan<- []byte, finished chan<- bool) {
+
+	go func() {
+		var err error
+		for {
+			data := make([]byte, 3)
+			_, err = p.Read(data)
+			if err != nil {
+				finished <- true
+				break
+			}
+		}
+	}()
+
 }
 
 // it is suggested to make the data buffer at least 3 bytes long

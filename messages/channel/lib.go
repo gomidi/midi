@@ -13,12 +13,14 @@ func parseStatus(b byte) (messageType uint8, messageChannel uint8) {
 }
 
 func msbLsbSigned(n int16) uint16 {
-	if n > 8191 {
-		panic("n must not overflow 14bits (max 8191)")
-	}
-	if n < -8191 {
-		panic("n must not overflow 14bits (min -8191)")
-	}
+	/*
+		if n > 8191 {
+			panic("n must not overflow 14bits (max 8191)")
+		}
+		if n < -8191 {
+			panic("n must not overflow 14bits (min -8191)")
+		}
+	*/
 	return msbLsbUnsigned(uint16(n + 8192))
 }
 
