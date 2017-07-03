@@ -4,19 +4,15 @@ import (
 	"bytes"
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/live/midireader"
-	// "github.com/gomidi/midi/live/midiwriter"
-	// "github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/realtime"
-	// "github.com/gomidi/midi/smf"
 	"io"
-	// "time"
 )
 
 /*
 use case:
 we want to write bytes that are MIDI data and want to translate them to
 midi.Messages that are passed to a custom midi.Writer
-NewIOWriter allows us to pass our custom midi.Writer and returns an io.Writer
+NewWriter allows us to pass our custom midi.Writer and returns an io.Writer
 that we can write the bytes to.
 */
 func NewWriter(to midi.Writer) io.Writer {

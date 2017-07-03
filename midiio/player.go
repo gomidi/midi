@@ -7,21 +7,13 @@ import (
 	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
-	// "github.com/gomidi/midi/messages/sysex"
+	"github.com/gomidi/midi/smf"
 	"io"
 	"time"
-	// "bytes"
-	// "github.com/gomidi/midi"
-	// "github.com/gomidi/midi/live/midireader"
-	// "github.com/gomidi/midi/live/midiwriter"
-	// "github.com/gomidi/midi/live/midiwriter"
-	// "github.com/gomidi/midi/messages/realtime"
-	"github.com/gomidi/midi/smf"
-	// "io"
-	// "time"
 )
 
 // NewPlayer plays from a single track to reader
+// src is expected to be of format SMF0. Use smftrack to convert from SMF1 to SMF0.
 func NewPlayer(src smf.Reader) (io.Reader, error) {
 	err := src.ReadHeader()
 

@@ -13,6 +13,9 @@ import (
 )
 
 // NewRecorder records into a single track on target, it needs the tempo to calculate the ticks from seconds
+// src is expected to be of format SMF0. Use smftrack to convert it to SMF1 (one track per MIDI channel) after the recording.
+// it makes sense to have a metronome playing alongside with the same tempo.
+// Also tempo should not change while recording.
 func NewRecorder(target smf.Writer, tempo uint) (io.Writer, error) {
 	_, err := target.WriteHeader()
 

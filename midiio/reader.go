@@ -3,19 +3,14 @@ package midiio
 import (
 	"bytes"
 	"github.com/gomidi/midi"
-	// "github.com/gomidi/midi/live/midireader"
 	"github.com/gomidi/midi/live/midiwriter"
-	// "github.com/gomidi/midi/live/midiwriter"
-	// "github.com/gomidi/midi/messages/realtime"
-	// "github.com/gomidi/midi/smf"
 	"io"
-	// "time"
 )
 
 /*
 use case:
 we want to read bytes that are MIDI data and come from a custom midi.Reader
-with each read there should come
+with each read there should come the data of a single MIDI message.
 */
 func NewReader(from midi.Reader) io.Reader {
 	p := &ioreader{}
