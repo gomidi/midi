@@ -3,13 +3,15 @@ package midiwriter_test
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/gomidi/midi/live/midireader"
 	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"
 
-	"github.com/gomidi/midi"
 	"time"
+
+	"github.com/gomidi/midi"
 )
 
 func Example() {
@@ -40,14 +42,14 @@ func Example() {
 
 		switch v := m.(type) {
 		case channel.NoteOn:
-			fmt.Printf("NoteOn at channel %v: pitch %v velocity: %v\n", v.Channel(), v.Pitch(), v.Velocity())
+			fmt.Printf("NoteOn at channel %v: key %v velocity %v\n", v.Channel(), v.Key(), v.Velocity())
 		case channel.NoteOff:
-			fmt.Printf("NoteOff at channel %v: pitch %v\n", v.Channel(), v.Pitch())
+			fmt.Printf("NoteOff at channel %v: key %v\n", v.Channel(), v.Key())
 		}
 
 	}
 
-	// Output: NoteOn at channel 2: pitch 65 velocity: 90
+	// Output: NoteOn at channel 2: key 65 velocity 90
 	// Realtime: Reset
-	// NoteOff at channel 2: pitch 65
+	// NoteOff at channel 2: key 65
 }

@@ -2,13 +2,14 @@ package midireader
 
 import (
 	"bytes"
+	"io"
+	"testing"
+
 	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"
 	"github.com/gomidi/midi/messages/syscommon"
 	"github.com/gomidi/midi/messages/sysex"
-	"io"
-	"testing"
 )
 
 func mkMIDI() io.Reader {
@@ -49,14 +50,14 @@ func TestRead(t *testing.T) {
 	}
 
 	expected := `
-channel.NoteOn channel 1 pitch 65 vel 100
+channel.NoteOn channel 1 key 65 vel 100
 Realtime: Start
 sysex.SysEx len: 1
-channel.NoteOff channel 1 pitch 65
+channel.NoteOff channel 1 key 65
 syscommon.tuneRequest
-channel.NoteOn channel 2 pitch 62 vel 30
+channel.NoteOn channel 2 key 62 vel 30
 sysex.SysEx len: 2
-channel.NoteOff channel 2 pitch 62
+channel.NoteOff channel 2 key 62
 `
 	if got, wanted := bf.String(), expected; got != wanted {
 		t.Errorf("got:\n%s\n\nwanted:\n%s\n\n", got, wanted)
@@ -84,14 +85,14 @@ func TestReadNoteOffPedantic(t *testing.T) {
 	}
 
 	expected := `
-channel.NoteOn channel 1 pitch 65 vel 100
+channel.NoteOn channel 1 key 65 vel 100
 Realtime: Start
 sysex.SysEx len: 1
-channel.NoteOffPedantic channel 1 pitch 65 velocity: 64
+channel.NoteOffPedantic channel 1 key 65 vel 64
 syscommon.tuneRequest
-channel.NoteOn channel 2 pitch 62 vel 30
+channel.NoteOn channel 2 key 62 vel 30
 sysex.SysEx len: 2
-channel.NoteOff channel 2 pitch 62
+channel.NoteOff channel 2 key 62
 `
 	if got, wanted := bf.String(), expected; got != wanted {
 		t.Errorf("got:\n%s\n\nwanted:\n%s\n\n", got, wanted)

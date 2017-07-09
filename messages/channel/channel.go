@@ -36,20 +36,20 @@ func (c Channel) Number() uint8 {
 	return c.number
 }
 
-func (c Channel) NoteOff(pitch uint8) NoteOff {
-	return NoteOff{channel: c.Number(), pitch: pitch}
+func (c Channel) NoteOff(key uint8) NoteOff {
+	return NoteOff{channel: c.Number(), key: key}
 }
 
-func (c Channel) NoteOffPedantic(pitch uint8, velocity uint8) NoteOffPedantic {
-	return NoteOffPedantic{NoteOff{channel: c.Number(), pitch: pitch}, velocity}
+func (c Channel) NoteOffPedantic(key uint8, velocity uint8) NoteOffPedantic {
+	return NoteOffPedantic{NoteOff{channel: c.Number(), key: key}, velocity}
 }
 
-func (c Channel) NoteOn(pitch uint8, veloctiy uint8) NoteOn {
-	return NoteOn{channel: c.Number(), pitch: pitch, velocity: veloctiy}
+func (c Channel) NoteOn(key uint8, veloctiy uint8) NoteOn {
+	return NoteOn{channel: c.Number(), key: key, velocity: veloctiy}
 }
 
-func (c Channel) PolyphonicAfterTouch(pitch uint8, pressure uint8) PolyphonicAfterTouch {
-	return PolyphonicAfterTouch{channel: c.Number(), pitch: pitch, pressure: pressure}
+func (c Channel) PolyphonicAfterTouch(key uint8, pressure uint8) PolyphonicAfterTouch {
+	return PolyphonicAfterTouch{channel: c.Number(), key: key, pressure: pressure}
 }
 
 func (c Channel) ControlChange(controller uint8, value uint8) ControlChange {

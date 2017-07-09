@@ -2,6 +2,7 @@ package channel_test
 
 import (
 	"bytes"
+
 	"github.com/gomidi/midi/internal/midilib"
 	// "fmt"
 	"io"
@@ -51,14 +52,14 @@ func mkTest(event midi.Message, expected string) *readTest {
 func TestRead(t *testing.T) {
 
 	tests := []*readTest{
-		mkTest(channel.Ch1.NoteOn(65, 100), "channel.NoteOn channel 1 pitch 65 vel 100"),
-		mkTest(channel.Ch9.NoteOff(100), "channel.NoteOff channel 9 pitch 100"),
-		mkTest(channel.Ch9.NoteOffPedantic(120, 64), "channel.NoteOffPedantic channel 9 pitch 120 velocity: 64"),
+		mkTest(channel.Ch1.NoteOn(65, 100), "channel.NoteOn channel 1 key 65 vel 100"),
+		mkTest(channel.Ch9.NoteOff(100), "channel.NoteOff channel 9 key 100"),
+		mkTest(channel.Ch9.NoteOffPedantic(120, 64), "channel.NoteOffPedantic channel 9 key 120 vel 64"),
 		mkTest(channel.Ch8.ProgramChange(3), "channel.ProgramChange channel 8 program 3"),
 		mkTest(channel.Ch8.AfterTouch(30), "channel.AfterTouch channel 8 pressure 30"),
 		mkTest(channel.Ch3.ControlChange(23, 25), "channel.ControlChange channel 3 controller 23 value 25"),
 		mkTest(channel.Ch0.PitchWheel(123), "channel.PitchWheel channel 0 value 123 absValue 8315"),
-		mkTest(channel.Ch15.PolyphonicAfterTouch(120, 106), "channel.PolyphonicAfterTouch channel 15 pitch 120 pressure 106"),
+		mkTest(channel.Ch15.PolyphonicAfterTouch(120, 106), "channel.PolyphonicAfterTouch channel 15 key 120 pressure 106"),
 	}
 
 	for n, test := range tests {

@@ -3,6 +3,7 @@ package smfreader
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/examples"
 	"github.com/gomidi/midi/messages/channel"
@@ -58,14 +59,14 @@ Track 0@0 meta.Tempo BPM: 120
 Track 0@0 channel.ProgramChange channel 0 program 5
 Track 0@0 channel.ProgramChange channel 1 program 46
 Track 0@0 channel.ProgramChange channel 2 program 70
-Track 0@0 channel.NoteOn channel 2 pitch 48 vel 96
-Track 0@0 channel.NoteOn channel 2 pitch 60 vel 96
-Track 0@96 channel.NoteOn channel 1 pitch 67 vel 64
-Track 0@96 channel.NoteOn channel 0 pitch 76 vel 32
-Track 0@192 channel.NoteOff channel 2 pitch 48
-Track 0@0 channel.NoteOff channel 2 pitch 60
-Track 0@0 channel.NoteOff channel 1 pitch 67
-Track 0@0 channel.NoteOff channel 0 pitch 76
+Track 0@0 channel.NoteOn channel 2 key 48 vel 96
+Track 0@0 channel.NoteOn channel 2 key 60 vel 96
+Track 0@96 channel.NoteOn channel 1 key 67 vel 64
+Track 0@96 channel.NoteOn channel 0 key 76 vel 32
+Track 0@192 channel.NoteOff channel 2 key 48
+Track 0@0 channel.NoteOff channel 2 key 60
+Track 0@0 channel.NoteOff channel 1 key 67
+Track 0@0 channel.NoteOff channel 0 key 76
 Track 0@0 meta.endOfTrack
 `
 
@@ -84,18 +85,18 @@ Track 0@0 meta.TimeSignature 4/4
 Track 0@0 meta.Tempo BPM: 120
 Track 0@384 meta.endOfTrack
 Track 1@0 channel.ProgramChange channel 0 program 5
-Track 1@192 channel.NoteOn channel 0 pitch 76 vel 32
-Track 1@192 channel.NoteOff channel 0 pitch 76
+Track 1@192 channel.NoteOn channel 0 key 76 vel 32
+Track 1@192 channel.NoteOff channel 0 key 76
 Track 1@0 meta.endOfTrack
 Track 2@0 channel.ProgramChange channel 1 program 46
-Track 2@96 channel.NoteOn channel 1 pitch 67 vel 64
-Track 2@288 channel.NoteOff channel 1 pitch 67
+Track 2@96 channel.NoteOn channel 1 key 67 vel 64
+Track 2@288 channel.NoteOff channel 1 key 67
 Track 2@0 meta.endOfTrack
 Track 3@0 channel.ProgramChange channel 2 program 70
-Track 3@0 channel.NoteOn channel 2 pitch 48 vel 96
-Track 3@0 channel.NoteOn channel 2 pitch 60 vel 96
-Track 3@384 channel.NoteOff channel 2 pitch 48
-Track 3@0 channel.NoteOff channel 2 pitch 60
+Track 3@0 channel.NoteOn channel 2 key 48 vel 96
+Track 3@0 channel.NoteOn channel 2 key 60 vel 96
+Track 3@384 channel.NoteOff channel 2 key 48
+Track 3@0 channel.NoteOff channel 2 key 60
 Track 3@0 meta.endOfTrack
 `
 
@@ -114,18 +115,18 @@ Track 0@0 meta.TimeSignature 4/4
 Track 0@0 meta.Tempo BPM: 120
 Track 0@384 meta.endOfTrack
 Track 1@0 channel.ProgramChange channel 0 program 5
-Track 1@192 channel.NoteOn channel 0 pitch 76 vel 32
-Track 1@192 channel.NoteOff channel 0 pitch 76
+Track 1@192 channel.NoteOn channel 0 key 76 vel 32
+Track 1@192 channel.NoteOff channel 0 key 76
 Track 1@0 meta.endOfTrack
 Track 2@0 channel.ProgramChange channel 1 program 46
-Track 2@96 channel.NoteOn channel 1 pitch 67 vel 64
-Track 2@288 channel.NoteOff channel 1 pitch 67
+Track 2@96 channel.NoteOn channel 1 key 67 vel 64
+Track 2@288 channel.NoteOff channel 1 key 67
 Track 2@0 meta.endOfTrack
 Track 3@0 channel.ProgramChange channel 2 program 70
-Track 3@0 channel.NoteOn channel 2 pitch 48 vel 96
-Track 3@0 channel.NoteOn channel 2 pitch 60 vel 96
-Track 3@384 channel.NoteOff channel 2 pitch 48
-Track 3@0 channel.NoteOff channel 2 pitch 60
+Track 3@0 channel.NoteOn channel 2 key 48 vel 96
+Track 3@0 channel.NoteOn channel 2 key 60 vel 96
+Track 3@384 channel.NoteOff channel 2 key 48
+Track 3@0 channel.NoteOff channel 2 key 60
 Track 3@0 meta.endOfTrack
 `
 
@@ -145,14 +146,14 @@ Track 0@0 meta.Tempo BPM: 120
 Track 0@0 channel.ProgramChange channel 0 program 5
 Track 0@0 channel.ProgramChange channel 1 program 46
 Track 0@0 channel.ProgramChange channel 2 program 70
-Track 0@0 channel.NoteOn channel 2 pitch 48 vel 96
-Track 0@0 channel.NoteOn channel 2 pitch 60 vel 96
-Track 0@96 channel.NoteOn channel 1 pitch 67 vel 64
-Track 0@96 channel.NoteOn channel 0 pitch 76 vel 32
-Track 0@192 channel.NoteOffPedantic channel 2 pitch 48 velocity: 64
-Track 0@0 channel.NoteOffPedantic channel 2 pitch 60 velocity: 64
-Track 0@0 channel.NoteOffPedantic channel 1 pitch 67 velocity: 64
-Track 0@0 channel.NoteOffPedantic channel 0 pitch 76 velocity: 64
+Track 0@0 channel.NoteOn channel 2 key 48 vel 96
+Track 0@0 channel.NoteOn channel 2 key 60 vel 96
+Track 0@96 channel.NoteOn channel 1 key 67 vel 64
+Track 0@96 channel.NoteOn channel 0 key 76 vel 32
+Track 0@192 channel.NoteOffPedantic channel 2 key 48 vel 64
+Track 0@0 channel.NoteOffPedantic channel 2 key 60 vel 64
+Track 0@0 channel.NoteOffPedantic channel 1 key 67 vel 64
+Track 0@0 channel.NoteOffPedantic channel 0 key 76 vel 64
 Track 0@0 meta.endOfTrack
 `
 
@@ -207,18 +208,18 @@ func TestReadSysEx(t *testing.T) {
 		case sysex.SysEx:
 			fmt.Fprintf(&res, "[%v] Sysex: % X\n", rd.Delta(), v.Data())
 		case channel.NoteOn:
-			fmt.Fprintf(&res, "[%v] NoteOn at channel %v: pitch %v velocity: %v\n", rd.Delta(), v.Channel(), v.Pitch(), v.Velocity())
+			fmt.Fprintf(&res, "[%v] NoteOn at channel %v: key %v velocity %v\n", rd.Delta(), v.Channel(), v.Key(), v.Velocity())
 		case channel.NoteOff:
-			fmt.Fprintf(&res, "[%v] NoteOff at channel %v: pitch %v\n", rd.Delta(), v.Channel(), v.Pitch())
+			fmt.Fprintf(&res, "[%v] NoteOff at channel %v: key %v\n", rd.Delta(), v.Channel(), v.Key())
 		}
 
 	}
 
 	expected := `
 [0] Sysex Escape: FA
-[0] NoteOn at channel 2: pitch 65 velocity: 90
+[0] NoteOn at channel 2: key 65 velocity 90
 [10] Sysex: 90 51
-[1] NoteOff at channel 2: pitch 65
+[1] NoteOff at channel 2: key 65
 [0] Sysex Start: 90 51
 [5] Sysex Continue: 90 51
 [5] Sysex End: 90 51

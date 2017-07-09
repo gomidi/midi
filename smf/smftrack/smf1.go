@@ -2,14 +2,15 @@ package smftrack
 
 import (
 	"fmt"
+	"io"
+	"sort"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smfwriter"
-	"io"
-	"sort"
 )
 
 // SMF1 is a namespace for methods reading from and writing to SMF1 (multitrack) files.
@@ -73,13 +74,13 @@ func (smf1 SMF1) TracksOnDifferentChannels(src smf.Reader, wr io.Writer) (err er
 
 				switch v := ev.Message.(type) {
 				case channel.NoteOn:
-					ev.Message = channel.New(ch).NoteOn(v.Pitch(), v.Velocity())
+					ev.Message = channel.New(ch).NoteOn(v.Key(), v.Velocity())
 				case channel.NoteOff:
-					ev.Message = channel.New(ch).NoteOff(v.Pitch())
+					ev.Message = channel.New(ch).NoteOff(v.Key())
 				case channel.AfterTouch:
 					ev.Message = channel.New(ch).AfterTouch(v.Pressure())
 				case channel.PolyphonicAfterTouch:
-					ev.Message = channel.New(ch).PolyphonicAfterTouch(v.Pitch(), v.Pressure())
+					ev.Message = channel.New(ch).PolyphonicAfterTouch(v.Key(), v.Pressure())
 				case channel.ProgramChange:
 					ev.Message = channel.New(ch).ProgramChange(v.Program())
 				case channel.ControlChange:

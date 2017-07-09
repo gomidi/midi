@@ -88,12 +88,12 @@ type Handler struct {
 		Channel struct {
 			// NoteOn is just called for noteon messages with a velocity > 0
 			// noteon messages with velocity == 0 will trigger NoteOff with a velocity of 0
-			NoteOn func(p *SMFPosition, channel, pitch, velocity uint8)
+			NoteOn func(p *SMFPosition, channel, key, velocity uint8)
 
 			// NoteOff is triggered by noteoff messages (then the given velocity is passed)
 			// and by noteon messages of velocity 0 (then velocity is 0)
-			NoteOff              func(p *SMFPosition, channel, pitch uint8, velocity uint8)
-			PolyphonicAfterTouch func(p *SMFPosition, channel, pitch, pressure uint8)
+			NoteOff              func(p *SMFPosition, channel, key, velocity uint8)
+			PolyphonicAfterTouch func(p *SMFPosition, channel, key, pressure uint8)
 			ControlChange        func(p *SMFPosition, channel, controller, value uint8)
 			ProgramChange        func(p *SMFPosition, channel, program uint8)
 			AfterTouch           func(p *SMFPosition, channel, pressure uint8)
@@ -179,18 +179,18 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 		// most common event, should be exact
 		case channel.NoteOn:
 			if h.Message.Channel.NoteOn != nil {
-				h.Message.Channel.NoteOn(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
+				h.Message.Channel.NoteOn(h.pos, msg.Channel(), msg.Key(), msg.Velocity())
 			}
 
 		// proably second most common
 		case channel.NoteOff:
 			if h.Message.Channel.NoteOff != nil {
-				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Pitch(), 0)
+				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Key(), 0)
 			}
 
 		case channel.NoteOffPedantic:
 			if h.Message.Channel.NoteOff != nil {
-				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Pitch(), msg.Velocity())
+				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Key(), msg.Velocity())
 			}
 
 		// if send there often are a lot of them
@@ -201,7 +201,7 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 
 		case channel.PolyphonicAfterTouch:
 			if h.Message.Channel.PolyphonicAfterTouch != nil {
-				h.Message.Channel.PolyphonicAfterTouch(h.pos, msg.Channel(), msg.Pitch(), msg.Pressure())
+				h.Message.Channel.PolyphonicAfterTouch(h.pos, msg.Channel(), msg.Key(), msg.Pressure())
 			}
 
 		case channel.AfterTouch:

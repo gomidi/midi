@@ -3,12 +3,13 @@ package smfreader_test
 import (
 	"bytes"
 	"fmt"
+	"io"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
 	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smfwriter"
-	"io"
 )
 
 func mkMIDI() io.Reader {
@@ -39,14 +40,14 @@ func Example() {
 
 		switch v := m.(type) {
 		case channel.NoteOn:
-			fmt.Printf("[%v] NoteOn at channel %v: pitch %v velocity: %v\n", rd.Delta(), v.Channel(), v.Pitch(), v.Velocity())
+			fmt.Printf("[%v] NoteOn at channel %v: key %v velocity %v\n", rd.Delta(), v.Channel(), v.Key(), v.Velocity())
 		case channel.NoteOff:
-			fmt.Printf("[%v] NoteOff at channel %v: pitch %v\n", rd.Delta(), v.Channel(), v.Pitch())
+			fmt.Printf("[%v] NoteOff at channel %v: key %v\n", rd.Delta(), v.Channel(), v.Key())
 		}
 
 	}
 
-	// Output: [0] NoteOn at channel 2: pitch 65 velocity: 90
-	// [2] NoteOff at channel 2: pitch 65
+	// Output: [0] NoteOn at channel 2: key 65 velocity 90
+	// [2] NoteOff at channel 2: key 65
 
 }

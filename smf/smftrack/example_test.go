@@ -3,6 +3,7 @@ package smftrack_test
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
@@ -85,9 +86,9 @@ func Example() {
 
 		switch v := m.(type) {
 		case channel.NoteOn:
-			fmt.Printf("[%v] NoteOn at channel %v: pitch %v velocity: %v\n", rd.Delta(), v.Channel(), v.Pitch(), v.Velocity())
+			fmt.Printf("[%v] NoteOn at channel %v: key %v velocity %v\n", rd.Delta(), v.Channel(), v.Key(), v.Velocity())
 		case channel.NoteOff:
-			fmt.Printf("[%v] NoteOff at channel %v: pitch %v\n", rd.Delta(), v.Channel(), v.Pitch())
+			fmt.Printf("[%v] NoteOff at channel %v: key %v\n", rd.Delta(), v.Channel(), v.Key())
 		}
 
 	}
@@ -95,11 +96,11 @@ func Example() {
 	// Output: source:  <Format: SMF1 (multitrack), NumTracks: 2, TimeFormat: 960 MetricTicks>
 	// with added track:  <Format: SMF1 (multitrack), NumTracks: 3, TimeFormat: 960 MetricTicks>
 	// result:  <Format: SMF0 (singletrack), NumTracks: 1, TimeFormat: 960 MetricTicks>
-	// [0] NoteOn at channel 2: pitch 65 velocity: 90
-	// [0] NoteOn at channel 1: pitch 24 velocity: 100
-	// [2] NoteOff at channel 1: pitch 24
-	// [8] NoteOn at channel 3: pitch 80 velocity: 109
-	// [10] NoteOff at channel 2: pitch 65
-	// [10] NoteOff at channel 3: pitch 80
+	// [0] NoteOn at channel 2: key 65 velocity 90
+	// [0] NoteOn at channel 1: key 24 velocity 100
+	// [2] NoteOff at channel 1: key 24
+	// [8] NoteOn at channel 3: key 80 velocity 109
+	// [10] NoteOff at channel 2: key 65
+	// [10] NoteOff at channel 3: key 80
 
 }

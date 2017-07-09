@@ -4,12 +4,12 @@ import "fmt"
 
 type NoteOn struct {
 	channel  uint8
-	pitch    uint8
+	key      uint8
 	velocity uint8
 }
 
-func (n NoteOn) Pitch() uint8 {
-	return n.pitch
+func (n NoteOn) Key() uint8 {
+	return n.key
 }
 
 func (n NoteOn) IsLiveMessage() {
@@ -25,16 +25,16 @@ func (n NoteOn) Channel() uint8 {
 }
 
 func (n NoteOn) Raw() []byte {
-	return channelMessage2(n.channel, 9, n.pitch, n.velocity)
+	return channelMessage2(n.channel, 9, n.key, n.velocity)
 }
 
 func (n NoteOn) String() string {
-	return fmt.Sprintf("%T channel %v pitch %v vel %v", n, n.channel, n.pitch, n.velocity)
+	return fmt.Sprintf("%T channel %v key %v vel %v", n, n.channel, n.key, n.velocity)
 }
 
 func (NoteOn) set(channel, arg1, arg2 uint8) setter2 {
 	var m NoteOn
 	m.channel = channel
-	m.pitch, m.velocity = parseTwoUint7(arg1, arg2)
+	m.key, m.velocity = parseTwoUint7(arg1, arg2)
 	return m
 }
