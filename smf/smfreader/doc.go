@@ -17,9 +17,9 @@
 
 			// you may also want to use these
 			// github.com/gomidi/midi/messages/meta       (Meta Messages)
-			// github.com/gomidi/midi/messages/cc         (ControlChange Messages)
+			// github.com/gomidi/midi/messages/cc         (Control Change Messages)
 			// github.com/gomidi/midi/messages/syscommon  (System Common Messages)
-			// github.com/gomidi/midi/messages/sysex      (system exclusive messages)
+			// github.com/gomidi/midi/messages/sysex      (System Exclusive Messages)
 		)
 
 		var err1, err2 error
@@ -40,9 +40,9 @@
 				switch msg := m.(type) {
 				case channel.NoteOn:
 					fmt.Printf(
-					  "NoteOn at channel %v: pitch %v velocity: %v\n",
+					  "NoteOn at channel %v: key %v velocity: %v\n",
 					  msg.Channel(), // MIDI channels 1-16 correspond to msg.Channel 0-15
-					  msg.Pitch(),
+					  msg.Key(),
 					  msg.Velocity(),
 					)
 				case channel.NoteOff:

@@ -1,5 +1,6 @@
 package midiio
 
+/*
 import (
 	"bytes"
 	"fmt"
@@ -78,3 +79,4 @@ type recorder struct {
 	to          smf.Writer
 	start       time.Time
 }
+*/

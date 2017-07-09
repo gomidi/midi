@@ -1,5 +1,6 @@
 package midiio
 
+/*
 import (
 	"bytes"
 	"fmt"
@@ -81,6 +82,7 @@ func (p *smfPlayer) Read(data []byte) (n int, err error) {
 
 	return p.bf.Read(data)
 }
+*/
 
 /*
 // roundFloat rounds the given float by the given decimals after the dot
@@ -94,6 +96,7 @@ func roundFloat(x float64, decimals int) float64 {
 
 /*
  */
+/*
 type smfPlayer struct {
 	metricTicks smf.MetricTicks
 	tempo       uint32
@@ -101,3 +104,4 @@ type smfPlayer struct {
 	to          midi.Writer
 	rd          smf.Reader
 }
+*/
