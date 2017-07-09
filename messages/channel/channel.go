@@ -48,6 +48,11 @@ func (c Channel) NoteOn(key uint8, veloctiy uint8) NoteOn {
 	return NoteOn{channel: c.Number(), key: key, velocity: veloctiy}
 }
 
+// KeyPressure creates a polyphonic aftertouch MIDI message
+func (c Channel) KeyPressure(key uint8, pressure uint8) PolyphonicAfterTouch {
+	return c.PolyphonicAfterTouch(key, pressure)
+}
+
 func (c Channel) PolyphonicAfterTouch(key uint8, pressure uint8) PolyphonicAfterTouch {
 	return PolyphonicAfterTouch{channel: c.Number(), key: key, pressure: pressure}
 }
@@ -60,8 +65,13 @@ func (c Channel) ProgramChange(program uint8) ProgramChange {
 	return ProgramChange{channel: c.Number(), program: program}
 }
 
-func (c Channel) AfterTouch(value uint8) AfterTouch {
-	return AfterTouch{channel: c.Number(), pressure: value}
+// ChannelPressure creates an aftertouch MIDI message
+func (c Channel) ChannelPressure(pressure uint8) AfterTouch {
+	return c.AfterTouch(pressure)
+}
+
+func (c Channel) AfterTouch(pressure uint8) AfterTouch {
+	return AfterTouch{channel: c.Number(), pressure: pressure}
 }
 
 func (c Channel) PitchWheel(value int16) PitchWheel {

@@ -2,6 +2,7 @@ package channel
 
 import "fmt"
 
+// PolyphonicAfterTouch represents a MIDI polyphonic aftertouch message (aka "key pressure")
 type PolyphonicAfterTouch struct {
 	channel  uint8
 	key      uint8
@@ -25,7 +26,7 @@ func (p PolyphonicAfterTouch) Channel() uint8 {
 }
 
 func (p PolyphonicAfterTouch) String() string {
-	return fmt.Sprintf("%T channel %v key %v pressure %v", p, p.channel, p.key, p.pressure)
+	return fmt.Sprintf("%T (\"KeyPressure\") channel %v key %v pressure %v", p, p.channel, p.key, p.pressure)
 }
 
 func (p PolyphonicAfterTouch) Raw() []byte {

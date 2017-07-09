@@ -2,6 +2,7 @@ package channel
 
 import "fmt"
 
+// AfterTouch represents a MIDI aftertouch message (aka "channel pressure")
 type AfterTouch struct {
 	channel  uint8
 	pressure uint8
@@ -24,7 +25,7 @@ func (a AfterTouch) Raw() []byte {
 }
 
 func (a AfterTouch) String() string {
-	return fmt.Sprintf("%T channel %v pressure %v", a, a.channel, a.pressure)
+	return fmt.Sprintf("%T (\"ChannelPressure\") channel %v pressure %v", a, a.channel, a.pressure)
 }
 
 func (AfterTouch) set(channel uint8, firstArg uint8) setter1 {
