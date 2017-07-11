@@ -57,7 +57,7 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 	}
 
 	if rd.readNoteOffPedantic {
-		rd.channelReader = channel.NewReader(rd.input, channel.ReadNoteOffPedantic())
+		rd.channelReader = channel.NewReader(rd.input, channel.ReadNoteOffVelocity())
 	} else {
 		rd.channelReader = channel.NewReader(rd.input)
 	}

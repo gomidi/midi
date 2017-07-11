@@ -74,7 +74,7 @@ func TestRead(t *testing.T) {
 
 		var m midi.Message
 
-		m, err = channel.NewReader(test.input, channel.ReadNoteOffPedantic()).Read(test.status, arg1)
+		m, err = channel.NewReader(test.input, channel.ReadNoteOffVelocity()).Read(test.status, arg1)
 
 		if err != nil {
 			t.Errorf("[%v] Read(% X) returned error: %v", n, test.rawinput, err)

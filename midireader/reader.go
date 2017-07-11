@@ -29,7 +29,7 @@ func New(src io.Reader, rthandler func(realtime.Message), options ...Option) mid
 	}
 
 	if rd.readNoteOffPedantic {
-		rd.channelReader = channel.NewReader(rd.input, channel.ReadNoteOffPedantic())
+		rd.channelReader = channel.NewReader(rd.input, channel.ReadNoteOffVelocity())
 	} else {
 		rd.channelReader = channel.NewReader(rd.input)
 	}
