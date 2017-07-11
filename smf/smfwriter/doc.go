@@ -10,12 +10,12 @@
 		import (
 			"github.com/gomidi/midi/smf"
 			"github.com/gomidi/midi/smf/smfwriter"
-			"github.com/gomidi/midi/messages/meta"    // (Meta Messages)
-			"github.com/gomidi/midi/messages/channel" // (Channel Messages)
+			"github.com/gomidi/midi/midimessage/meta"    // (Meta Messages)
+			"github.com/gomidi/midi/midimessage/channel" // (Channel Messages)
 
 			// you may also want to use these
-			// github.com/gomidi/midi/messages/cc         (ControlChange Messages)
-			// github.com/gomidi/midi/messages/sysex      (System Exclusive Messages)
+			// github.com/gomidi/midi/midimessage/cc         (ControlChange Messages)
+			// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 		)
 
 		var err1, err2 error

@@ -21,20 +21,20 @@
 
   The core implementations can be found here:
 
-    github.com/gomidi/midi/live/midireader (live reading)
-    github.com/gomidi/midi/live/midiwriter (live writing)
+    github.com/gomidi/midi/midireader (live reading)
+    github.com/gomidi/midi/midiwriter (live writing)
     github.com/gomidi/midi/smf/smfreader   (SMF reading)
     github.com/gomidi/midi/smf/smfwriter   (SMF writing)
     github.com/gomidi/midi/smf/smfmodify   (SMF modification)
 
   The MIDI messages themselves that can be written or analyzed can be found here:
 
-    github.com/gomidi/midi/messages/channel    (Channel Messages)
-    github.com/gomidi/midi/messages/cc         (Control Change Messages)
-    github.com/gomidi/midi/messages/meta       (Meta Messages)
-    github.com/gomidi/midi/messages/realtime   (System Realtime Messages)
-    github.com/gomidi/midi/messages/syscommon  (System Common messages)
-    github.com/gomidi/midi/messages/sysex      (System Exclusive messages)
+    github.com/gomidi/midi/midimessage/channel    (Channel Messages)
+    github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
+    github.com/gomidi/midi/midimessage/meta       (Meta Messages)
+    github.com/gomidi/midi/midimessage/realtime   (System Realtime Messages)
+    github.com/gomidi/midi/midimessage/syscommon  (System Common messages)
+    github.com/gomidi/midi/midimessage/sysex      (System Exclusive messages)
 
   Please keep in mind that that not all kinds of MIDI messages can be used in both scenarios.
 

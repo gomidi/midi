@@ -46,22 +46,22 @@ see http://godoc.org/github.com/gomidi/midi
 
 usable (beta)
 
-    package               API stable          complete
+    package                   API stable          complete
     ----------------------------------------------------
-    live/midiwriter       yes                 yes
-    live/midireader       yes                 yes
-    smf                   almost              almost
-    smf/smfwriter         yes                 yes
-    smf/smfreader         almost              yes
-    smf/smftrack          no                  no
-    midiio                no                  no
-    messages/channel      almost              yes
-    messages/cc           yes                 yes
-    messages/meta         almost              yes
-    messages/realtime     yes                 yes
-    messages/syscommon    yes                 yes
-    messages/sysex        no                  yes
-    handler               no                  yes
+    midiwriter                yes                 yes
+    midireader                yes                 yes
+    smf                       almost              almost
+    smf/smfwriter             yes                 yes
+    smf/smfreader             almost              yes
+    smf/smftrack              no                  no
+    midiio                    no                  no
+    midimessage/channel       almost              yes
+    midimessage/cc            yes                 yes
+    midimessage/meta          almost              yes
+    midimessage/realtime      yes                 yes
+    midimessage/syscommon     yes                 yes
+    midimessage/sysex         no                  yes
+    midihandler               no                  yes
 
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)

@@ -7,19 +7,19 @@
 
 	There is also a more comfortable handler package:
 
-	  github.com/gomidi/midi/handler    (reading MIDI messages live or from SMF files)
+	  github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
 
 	Usage
 
 		import (
-			"github.com/gomidi/midi/live/midireader"
-			"github.com/gomidi/midi/messages/channel"    // (Channel Messages)
-			"github.com/gomidi/midi/messages/realtime"   // (System Realtime Messages)
+			"github.com/gomidi/midi/midireader"
+			"github.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
+			"github.com/gomidi/midi/midimessage/realtime"   // (System Realtime Messages)
 
 			// you may also want to use these
-			// github.com/gomidi/midi/messages/cc         (Control Change Messages)
-			// github.com/gomidi/midi/messages/syscommon  (System Common Messages)
-			// github.com/gomidi/midi/messages/sysex      (System Exclusive Messages)
+			// github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
+			// github.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
+			// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 		)
 
 		// given some MIDI input

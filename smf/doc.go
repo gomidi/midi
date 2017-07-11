@@ -12,14 +12,14 @@
 
 	The MIDI messages that can be read/written from/to a SMF file can be found here:
 
-	  github.com/gomidi/midi/messages/channel    (Channel Messages)
-	  github.com/gomidi/midi/messages/cc         (Control Change Messages)
-	  github.com/gomidi/midi/messages/meta       (Meta Messages)
-	  github.com/gomidi/midi/messages/sysex      (System Exclusive Messages)
+	  github.com/gomidi/midi/midimessage/channel    (Channel Messages)
+	  github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
+	  github.com/gomidi/midi/midimessage/meta       (Meta Messages)
+	  github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 
 	For reading there is also a comfortable handler package:
 
-	  github.com/gomidi/midi/handler    (reading MIDI messages live or from SMF files)
+	  github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
 
 */
 package smf
