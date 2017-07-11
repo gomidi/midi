@@ -235,14 +235,6 @@ func (q MetricTicks) Ticks(tempoBPM uint32, d time.Duration) (ticks uint32) {
 	return ticks
 }
 
-// Ticks returns the ticks for a quarter note (defaults to 960)
-func (q MetricTicks) _Ticks() uint16 {
-	if uint16(q) == 0 {
-		return 960 // default
-	}
-	return uint16(q)
-}
-
 func (q MetricTicks) div(d float64) uint32 {
 	return uint32(roundFloat(float64(q.Ticks4th())/d, 0))
 }
@@ -253,7 +245,6 @@ func (q MetricTicks) Ticks4th() uint16 {
 		return 960 // default
 	}
 	return uint16(q)
-	//return uint32(q.Ticks())
 }
 
 // Ticks8th returns the ticks for a quaver note
@@ -295,18 +286,6 @@ func (q MetricTicks) Ticks512th() uint32 {
 func (q MetricTicks) Ticks1024th() uint32 {
 	return q.div(256)
 }
-
-/*
-// TicksHalf returns the ticks for a half note
-func (q MetricTicks) TicksHalf() uint32 {
-	return q.Ticks4th() * 2
-}
-
-// TicksWhole returns the ticks for a whole note
-func (q MetricTicks) TicksWhole() uint32 {
-	return q.TicksQuarter() * 4
-}
-*/
 
 // String returns the string representation of the quarter note resolution
 func (q MetricTicks) String() string {

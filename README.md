@@ -50,17 +50,19 @@ usable (beta)
     ----------------------------------------------------
     midiwriter                yes                 yes
     midireader                yes                 yes
-    smf                       almost              almost
+    smf                       yes                 yes
     smf/smfwriter             yes                 yes
     smf/smfreader             yes                 yes
-    smf/smftrack              no                  no
-    midiio                    no                  no
     midimessage/channel       almost              yes
     midimessage/cc            yes                 yes
     midimessage/meta          almost              yes
     midimessage/realtime      yes                 yes
     midimessage/syscommon     yes                 yes
     midimessage/sysex         no                  yes
+    midiio                    yes                 yes
+    
+	------- porcelain packages -------
+    smf/smftrack              no                  no
     midihandler               no                  yes
 
 
