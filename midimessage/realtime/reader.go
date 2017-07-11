@@ -50,7 +50,6 @@ func (r *reader) Read(target []byte) (n int, err error) {
 			r.handler(m)
 		}
 	}
-	return
 }
 
 /*
@@ -101,7 +100,7 @@ func (r *discardReader) Read(target []byte) (n int, err error) {
 		// don't handle realtime messages, so do nothing here
 
 	}
-	return
+
 }
 
 func dispatch(b byte) Message {

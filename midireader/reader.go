@@ -80,7 +80,6 @@ func (r *reader) discardUntilNextStatus() (canary byte, err error) {
 		}
 	}
 
-	return
 }
 
 /*

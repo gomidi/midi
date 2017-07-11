@@ -75,8 +75,6 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 		panic("sysex in SMF must start with F0 or F7")
 	}
 
-	return
-
 }
 
 /*
