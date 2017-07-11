@@ -124,44 +124,46 @@ func newWriter(output io.Writer, opts ...Option) *writer {
 	return wr
 }
 
-func (wr *writer) SetDelta(deltatime uint32) {
-	wr.deltatime = deltatime
+// SetDelta sets the delta time in ticks for the next message(s)
+func (w *writer) SetDelta(deltatime uint32) {
+	w.deltatime = deltatime
 }
 
-func (wr *writer) Header() smf.Header {
-	return wr.header
+// Header returns the smf.Header of the file
+func (w *writer) Header() smf.Header {
+	return w.header
 }
 
 var errFinished = fmt.Errorf("all tracks written (finished)")
 
-// that have been physically written.
-func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
-	if !wr.headerWritten {
-		nbytes, wr.error = wr.WriteHeader()
+// Write writes the message and returns the bytes that have been physically written.
+func (w *writer) Write(m midi.Message) (nbytes int, err error) {
+	if !w.headerWritten {
+		nbytes, w.error = w.WriteHeader()
 	}
-	if wr.error != nil {
-		return nbytes, wr.error
+	if w.error != nil {
+		return nbytes, w.error
 	}
 	defer func() {
-		wr.deltatime = 0
+		w.deltatime = 0
 	}()
 
-	if wr.header.NumTracks == wr.tracksProcessed {
-		wr.error = errFinished
-		return 0, wr.error
+	if w.header.NumTracks == w.tracksProcessed {
+		w.error = errFinished
+		return 0, w.error
 	}
 
 	if m == meta.EndOfTrack {
-		wr.addMessage(wr.deltatime, m)
+		w.addMessage(w.deltatime, m)
 		var tnum int64
-		tnum, err = wr.writeTrackTo(wr.output)
+		tnum, err = w.writeTrackTo(w.output)
 		nbytes += int(tnum)
 		if err != nil {
-			wr.error = err
+			w.error = err
 		}
 		return
 	}
-	wr.addMessage(wr.deltatime, m)
+	w.addMessage(w.deltatime, m)
 	return
 }
 
@@ -232,43 +234,43 @@ func (w *writer) writeHeader(wr io.Writer) (int, error) {
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
-func (t *writer) writeTrackTo(wr io.Writer) (n int64, err error) {
-	n, err = t.track.WriteTo(wr)
+func (w *writer) writeTrackTo(wr io.Writer) (n int64, err error) {
+	n, err = w.track.WriteTo(wr)
 
 	if err != nil {
 		return
 	}
 
-	if !t.noRunningStatus {
-		t.runningWriter = runningstatus.NewSMFWriter()
+	if !w.noRunningStatus {
+		w.runningWriter = runningstatus.NewSMFWriter()
 	}
 
 	// remove the data for the next track
-	t.track.Clear()
-	t.deltatime = 0
+	w.track.Clear()
+	w.deltatime = 0
 
-	t.tracksProcessed++
-	if t.header.NumTracks == t.tracksProcessed {
+	w.tracksProcessed++
+	if w.header.NumTracks == w.tracksProcessed {
 		err = ErrFinished
 	}
 
 	return
 }
 
-func (t *writer) appendToChunk(deltaTime uint32, b []byte) {
-	t.track.Write(append(vlq.Encode(deltaTime), b...))
+func (w *writer) appendToChunk(deltaTime uint32, b []byte) {
+	w.track.Write(append(vlq.Encode(deltaTime), b...))
 	//t.track.data = append(t.track.data, append(vlq.Encode(deltaTime), b...)...)
 }
 
 // delta is distance in time to last event in this track (independent of the channel)
-func (t *writer) addMessage(deltaTime uint32, msg midi.Message) {
+func (w *writer) addMessage(deltaTime uint32, msg midi.Message) {
 	// we have some sort of sysex, so we need to
 	// calculate the length of msg[1:]
 	// set msg to msg[0] + length of msg[1:] + msg[1:]
 	raw := msg.Raw()
 	if raw[0] == 0xF0 || raw[0] == 0xF7 {
-		if t.runningWriter != nil {
-			t.runningWriter.ResetStatus()
+		if w.runningWriter != nil {
+			w.runningWriter.ResetStatus()
 		}
 
 		//if sys, ok := msg.(sysex.Message); ok {
@@ -278,16 +280,16 @@ func (t *writer) addMessage(deltaTime uint32, msg midi.Message) {
 			b = append(b, raw[1:]...)
 		}
 
-		t.appendToChunk(deltaTime, b)
+		w.appendToChunk(deltaTime, b)
 		return
 	}
 
-	if t.runningWriter != nil {
-		t.appendToChunk(deltaTime, t.runningWriter.Write(msg))
+	if w.runningWriter != nil {
+		w.appendToChunk(deltaTime, w.runningWriter.Write(msg))
 		return
 	}
 
-	t.appendToChunk(deltaTime, msg.Raw())
+	w.appendToChunk(deltaTime, msg.Raw())
 }
 
 /*

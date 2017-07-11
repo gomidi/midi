@@ -15,20 +15,20 @@ func (s SequenceNumber) Number() uint16 {
 	return uint16(s)
 }
 
-func (m SequenceNumber) String() string {
-	return fmt.Sprintf("SequenceNumber: %v", m.Number())
+func (s SequenceNumber) String() string {
+	return fmt.Sprintf("SequenceNumber: %v", s.Number())
 }
 
-func (m SequenceNumber) Raw() []byte {
+func (s SequenceNumber) Raw() []byte {
 	var bf bytes.Buffer
-	binary.Write(&bf, binary.BigEndian, m.Number())
+	binary.Write(&bf, binary.BigEndian, s.Number())
 	return (&metaMessage{
 		Typ:  byteSequenceNumber,
 		Data: bf.Bytes(),
 	}).Bytes()
 }
 
-func (m SequenceNumber) readFrom(rd io.Reader) (Message, error) {
+func (s SequenceNumber) readFrom(rd io.Reader) (Message, error) {
 	length, err := midilib.ReadByte(rd)
 
 	if err != nil {
@@ -51,4 +51,4 @@ func (m SequenceNumber) readFrom(rd io.Reader) (Message, error) {
 	return SequenceNumber(sequenceNumber), nil
 }
 
-func (m SequenceNumber) meta() {}
+func (s SequenceNumber) meta() {}
