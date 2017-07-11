@@ -17,7 +17,7 @@
 
   One package providing a unified access in both cases is the handler package for reading MIDI data.
 
-    github.com/gomidi/midi/handler    (reading MIDI messages live or from SMF files)
+    github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
 
   The core implementations can be found here:
 
