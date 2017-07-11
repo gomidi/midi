@@ -74,3 +74,11 @@ usable (beta)
 ## License
 
 MIT (see LICENSE file) 
+
+## Credits
+
+Inspiration and low level code for MIDI reading (see internal midilib package) came from the http://github.com/afandian/go-midi package of Joe Wass which also helped as a starting point for the reading of SMF files.
+
+## Alternatives
+
+Matt Aimonetti is also working on MIDI inside https://github.com/mattetti/audio but I didn't try it.

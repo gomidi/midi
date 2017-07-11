@@ -1,6 +1,9 @@
 package channel
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+)
 
 // ControlChange represents a MIDI control change message
 type ControlChange struct {
@@ -33,7 +36,7 @@ func (c ControlChange) Raw() []byte {
 func (ControlChange) set(channel uint8, firstArg, secondArg uint8) setter2 {
 	var m ControlChange
 	m.channel = channel
-	m.controller, m.value = parseTwoUint7(firstArg, secondArg)
+	m.controller, m.value = midilib.ParseTwoUint7(firstArg, secondArg)
 	return m
 
 }

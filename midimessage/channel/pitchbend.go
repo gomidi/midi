@@ -3,6 +3,7 @@ package channel
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 /* http://www.somascape.org/midi/tech/mfile.html#sysex
@@ -38,7 +39,7 @@ func (p PitchBend) Channel() uint8 {
 }
 
 func (p PitchBend) Raw() []byte {
-	r := msbLsbSigned(p.value)
+	r := midilib.MsbLsbSigned(p.value)
 
 	var b = make([]byte, 2)
 
@@ -54,18 +55,6 @@ func (PitchBend) set(channel uint8, firstArg, secondArg uint8) setter2 {
 	var m PitchBend
 	m.channel = channel
 	// The value is a signed int (relative to centre), and absoluteValue is the actual value in the file.
-	m.value, m.absValue = parsePitchWheelVals(firstArg, secondArg)
+	m.value, m.absValue = midilib.ParsePitchWheelVals(firstArg, secondArg)
 	return m
-}
-
-func parsePitchWheelVals(b1 byte, b2 byte) (relative int16, absolute uint16) {
-	var val uint16 = 0
-
-	val = uint16((b2)&0x7f) << 7
-	val |= uint16(b1) & 0x7f
-
-	// Turn into a signed value relative to the centre.
-	relative = int16(val) - 0x2000
-
-	return relative, val
 }

@@ -1,6 +1,9 @@
 package channel
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+)
 
 // AfterTouch represents a MIDI aftertouch message (aka "channel pressure")
 type AfterTouch struct {
@@ -32,6 +35,6 @@ func (a AfterTouch) String() string {
 func (AfterTouch) set(channel uint8, firstArg uint8) setter1 {
 	var m AfterTouch
 	m.channel = channel
-	m.pressure = parseUint7(firstArg)
+	m.pressure = midilib.ParseUint7(firstArg)
 	return m
 }

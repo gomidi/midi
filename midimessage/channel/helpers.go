@@ -1,5 +1,9 @@
 package channel
 
+import (
+	"github.com/gomidi/midi/internal/midilib"
+)
+
 type setter1 interface {
 	Message
 	set(channel uint8, firstArg uint8) setter1
@@ -33,10 +37,10 @@ type channelMessage struct {
 
 func (m *channelMessage) getCompleteStatus() uint8 {
 	s := m.status << 4
-	clearBitU8(s, 0)
-	clearBitU8(s, 1)
-	clearBitU8(s, 2)
-	clearBitU8(s, 3)
+	midilib.ClearBitU8(s, 0)
+	midilib.ClearBitU8(s, 1)
+	midilib.ClearBitU8(s, 2)
+	midilib.ClearBitU8(s, 3)
 	s = s | m.channel
 	return s
 }

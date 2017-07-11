@@ -1,6 +1,9 @@
 package channel
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+)
 
 // NoteOffVelocity is offered as an alternative to NoteOff for
 // a "real" noteoff message (type 8) that has velocity.
@@ -18,7 +21,7 @@ func (n NoteOffVelocity) Velocity() uint8 {
 func (NoteOffVelocity) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m NoteOffVelocity
 	m.channel = channel
-	m.key, m.velocity = parseTwoUint7(arg1, arg2)
+	m.key, m.velocity = midilib.ParseTwoUint7(arg1, arg2)
 	return m
 }
 
@@ -66,6 +69,6 @@ func (m NoteOff) String() string {
 func (NoteOff) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m NoteOff
 	m.channel = channel
-	m.key, _ = parseTwoUint7(arg1, arg2)
+	m.key, _ = midilib.ParseTwoUint7(arg1, arg2)
 	return m
 }

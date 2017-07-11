@@ -57,7 +57,7 @@ type reader struct {
 
 // Read reads a channel message
 func (r *reader) Read(status byte, arg1 byte) (msg Message, err error) {
-	typ, channel := parseStatus(status)
+	typ, channel := midilib.ParseStatus(status)
 
 	// fmt.Printf("typ: %v channel: %v\n", typ, channel)
 

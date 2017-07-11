@@ -1,6 +1,9 @@
 package channel
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+)
 
 // NoteOn represents a note-on message
 type NoteOn struct {
@@ -38,6 +41,6 @@ func (n NoteOn) String() string {
 func (NoteOn) set(channel, arg1, arg2 uint8) setter2 {
 	var m NoteOn
 	m.channel = channel
-	m.key, m.velocity = parseTwoUint7(arg1, arg2)
+	m.key, m.velocity = midilib.ParseTwoUint7(arg1, arg2)
 	return m
 }

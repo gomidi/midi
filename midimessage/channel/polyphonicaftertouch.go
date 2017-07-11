@@ -1,6 +1,9 @@
 package channel
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+)
 
 // PolyphonicAfterTouch represents a MIDI polyphonic aftertouch message (aka "key pressure")
 type PolyphonicAfterTouch struct {
@@ -38,6 +41,6 @@ func (p PolyphonicAfterTouch) Raw() []byte {
 func (PolyphonicAfterTouch) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m PolyphonicAfterTouch
 	m.channel = channel
-	m.key, m.pressure = parseTwoUint7(arg1, arg2)
+	m.key, m.pressure = midilib.ParseTwoUint7(arg1, arg2)
 	return m
 }

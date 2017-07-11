@@ -140,24 +140,6 @@ func (m KeySignature) Text() string {
 	return m.Note() + " min."
 }
 
-// Taking a signed number of sharps or flats (positive for sharps, negative for flats) and a mode (0 for major, 1 for minor)
-// decide the key signature.
-func keyFromSharpsOrFlats(sharpsOrFlats int8, mode uint8) uint8 {
-	tmp := int(sharpsOrFlats * 7)
-
-	// Relative Minor.
-	if mode == minorMode {
-		tmp -= 3
-	}
-
-	// Clamp to Octave 0-11.
-	for tmp < 0 {
-		tmp += 12
-	}
-
-	return uint8(tmp % 12)
-}
-
 func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 
 	// fmt.Println("Key signature")
@@ -198,7 +180,7 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 		num = num * (-1)
 	}
 
-	key := keyFromSharpsOrFlats(sharpsOrFlats, mode)
+	key := midilib.KeyFromSharpsOrFlats(sharpsOrFlats, mode)
 
 	return KeySignature{
 		Key:     key,

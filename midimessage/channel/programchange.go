@@ -1,6 +1,9 @@
 package channel
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gomidi/midi/internal/midilib"
+)
 
 // ProgramChange represents a MIDI program change message
 type ProgramChange struct {
@@ -32,6 +35,6 @@ func (c ProgramChange) String() string {
 func (ProgramChange) set(channel uint8, firstArg uint8) setter1 {
 	var m ProgramChange
 	m.channel = channel
-	m.program = parseUint7(firstArg)
+	m.program = midilib.ParseUint7(firstArg)
 	return m
 }
