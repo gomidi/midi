@@ -3,11 +3,12 @@ package midiio
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi/live/midiwriter"
-	"github.com/gomidi/midi/messages/channel"
 	"testing"
+
+	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/midiwriter"
 	// "github.com/gomidi/midi"
-	"github.com/gomidi/midi/live/midireader"
+	"github.com/gomidi/midi/midireader"
 )
 
 func mkMIDI() []byte {

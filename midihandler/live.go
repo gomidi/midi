@@ -3,8 +3,8 @@ package midihandler
 import (
 	"io"
 
-	"github.com/gomidi/midi/live/midireader"
 	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/midireader"
 )
 
 // ReadLive reads midi messages from src until an error or io.EOF happens.

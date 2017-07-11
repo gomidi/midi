@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/midiwriter"
 )
 
 type readTest struct {

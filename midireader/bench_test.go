@@ -2,10 +2,11 @@ package midireader
 
 import (
 	"bytes"
-	"github.com/gomidi/midi/live/midiwriter"
-	"github.com/gomidi/midi/messages/channel"
 	"io"
 	"testing"
+
+	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/midiwriter"
 )
 
 type testreader struct {

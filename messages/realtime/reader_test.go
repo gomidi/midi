@@ -3,11 +3,12 @@ package realtime_test
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/live/midiwriter"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/realtime"
-	"testing"
+	"github.com/gomidi/midi/midiwriter"
 )
 
 func mkInput(events ...midi.Message) []byte {

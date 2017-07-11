@@ -3,8 +3,9 @@ package midiio
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi/live/midiwriter"
 	"testing"
+
+	"github.com/gomidi/midi/midiwriter"
 )
 
 func TestWriter(t *testing.T) {

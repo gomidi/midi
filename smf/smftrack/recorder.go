@@ -3,11 +3,12 @@ package smftrack
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/live/midireader"
-	"github.com/gomidi/midi/messages/meta"
 	"io"
 	"time"
+
+	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midireader"
 
 	"github.com/gomidi/midi/smf"
 )

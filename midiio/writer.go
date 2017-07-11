@@ -2,10 +2,11 @@ package midiio
 
 import (
 	"bytes"
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/live/midireader"
-	"github.com/gomidi/midi/messages/realtime"
 	"io"
+
+	"github.com/gomidi/midi"
+	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/midireader"
 )
 
 /*
