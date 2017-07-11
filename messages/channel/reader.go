@@ -2,8 +2,9 @@ package channel
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 const (
@@ -103,7 +104,7 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 	switch typ {
 	case byteNoteOff:
 		if r.readNoteOffPedantic {
-			msg = NoteOffPedantic{}
+			msg = NoteOffVelocity{}
 		} else {
 			msg = NoteOff{}
 		}
@@ -114,7 +115,7 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 	case byteControlChange:
 		msg = ControlChange{}
 	case bytePitchWheel:
-		msg = PitchWheel{}
+		msg = PitchBend{}
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
 	}

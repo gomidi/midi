@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package midiwriter provides a writer for live MIDI data.
+	Package midiwriter provides a writer for live/streaming/"over the wire" MIDI data.
 
 	Usage
 

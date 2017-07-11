@@ -46,13 +46,4 @@ func (m *channelMessage) bytes() []byte {
 		return []byte{m.getCompleteStatus(), m.data[0], m.data[1]}
 	}
 	return []byte{m.getCompleteStatus(), m.data[0]}
-	/*
-		var bf bytes.Buffer
-		binary.Write(&bf, binary.BigEndian, m.getCompleteStatus())
-		bf.WriteByte(m.data[0])
-		if m.twoBytes {
-			bf.WriteByte(m.data[1])
-		}
-		return bf.Bytes()
-	*/
 }

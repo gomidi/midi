@@ -17,10 +17,6 @@ func (m tuneRequest) String() string {
 	return fmt.Sprintf("%T", m)
 }
 
-func (m tuneRequest) IsLiveMessage() {
-
-}
-
 func (m tuneRequest) readFrom(rd io.Reader) (Message, error) {
 	return m, nil
 }

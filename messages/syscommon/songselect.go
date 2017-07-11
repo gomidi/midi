@@ -2,16 +2,13 @@ package syscommon
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 func (m SongSelect) Pos() uint16 {
 	return uint16(m)
-}
-
-func (m SongSelect) IsLiveMessage() {
-
 }
 
 // TODO Test

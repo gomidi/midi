@@ -97,7 +97,7 @@ type Handler struct {
 			ControlChange        func(p *SMFPosition, channel, controller, value uint8)
 			ProgramChange        func(p *SMFPosition, channel, program uint8)
 			AfterTouch           func(p *SMFPosition, channel, pressure uint8)
-			PitchWheel           func(p *SMFPosition, channel uint8, value int16)
+			PitchBend            func(p *SMFPosition, channel uint8, value int16)
 		}
 
 		// realtime messages: just in live data
@@ -188,15 +188,15 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Key(), 0)
 			}
 
-		case channel.NoteOffPedantic:
+		case channel.NoteOffVelocity:
 			if h.Message.Channel.NoteOff != nil {
 				h.Message.Channel.NoteOff(h.pos, msg.Channel(), msg.Key(), msg.Velocity())
 			}
 
 		// if send there often are a lot of them
-		case channel.PitchWheel:
-			if h.Message.Channel.PitchWheel != nil {
-				h.Message.Channel.PitchWheel(h.pos, msg.Channel(), msg.Value())
+		case channel.PitchBend:
+			if h.Message.Channel.PitchBend != nil {
+				h.Message.Channel.PitchBend(h.pos, msg.Channel(), msg.Value())
 			}
 
 		case channel.PolyphonicAfterTouch:

@@ -2,8 +2,9 @@ package syscommon
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 func clearBitU16(n uint16, pos uint16) uint16 {
@@ -25,10 +26,6 @@ func msbLsbUnsigned(n uint16) uint16 {
 	// 0x7f = 127 = 0000000001111111
 	msb := 0x7f & (n >> 7)
 	return lsb | msb
-}
-
-func (m SongPositionPointer) IsLiveMessage() {
-
 }
 
 func (m SongPositionPointer) readFrom(rd io.Reader) (Message, error) {

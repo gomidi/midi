@@ -2,8 +2,9 @@ package syscommon
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 /*
@@ -26,10 +27,6 @@ type MIDITimingCode uint8
 
 func (m MIDITimingCode) String() string {
 	return fmt.Sprintf("%T: %v", m, uint8(m))
-}
-
-func (m MIDITimingCode) IsLiveMessage() {
-
 }
 
 func (m MIDITimingCode) Raw() []byte {

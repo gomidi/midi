@@ -2,57 +2,54 @@ package channel
 
 import "fmt"
 
+// ControlChange represents a MIDI control change message
 type ControlChange struct {
 	channel    uint8
 	controller uint8
 	value      uint8
 }
 
+// Controller returns the controller of the control change message
 func (c ControlChange) Controller() uint8 {
 	return c.controller
 }
 
-func (c ControlChange) IsLiveMessage() {
-}
-
+// Value returns the value of the control change message
 func (c ControlChange) Value() uint8 {
 	return c.value
 }
 
+// Channel returns the MIDI channel of the control change message
 func (c ControlChange) Channel() uint8 {
 	return c.channel
 }
 
+// Raw returns the raw bytes of the control change message.
 func (c ControlChange) Raw() []byte {
 	return channelMessage2(c.channel, 11, c.controller, c.value)
 }
 
+// set returns a new control change message that is set to the parsed arguments
 func (ControlChange) set(channel uint8, firstArg, secondArg uint8) setter2 {
 	var m ControlChange
 	m.channel = channel
 	m.controller, m.value = parseTwoUint7(firstArg, secondArg)
-	// TODO split this into ChannelMode for values [120, 127]?
-	// TODO implement separate callbacks for each type of:
-	// - All sound off
-	// - Reset all controllers
-	// - Local control
-	// - All notes off
-	// Only if required. http://www.midi.org/techspecs/midimessages.php
 	return m
 
 }
 
+// String returns human readable information about the control change message.
 func (c ControlChange) String() string {
-	name, has := cCControllers[c.controller]
-	if has {
+
+	if name, has := ccControllers[c.controller]; has {
 		return fmt.Sprintf("%T channel %v controller %v (%#v) value %v", c, c.channel, c.controller, name, c.value)
-	} else {
-		return fmt.Sprintf("%T channel %v controller %v value %v", c, c.channel, c.controller, c.value)
 	}
+	return fmt.Sprintf("%T channel %v controller %v value %v", c, c.channel, c.controller, c.value)
+
 }
 
 // stolen from http://midi.teragonaudio.com/tech/midispec.htm
-var cCControllers = map[uint8]string{
+var ccControllers = map[uint8]string{
 	0:   "Bank Select (MSB)",
 	1:   "Modulation Wheel (MSB)",
 	2:   "Breath controller (MSB)",

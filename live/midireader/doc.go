@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package midireader provides a reader for live MIDI data.
+	Package midireader provides a reader for live/streaming/"over the wire" MIDI data.
 
 	There is also a more comfortable handler package:
 

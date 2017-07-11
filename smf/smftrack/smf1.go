@@ -85,8 +85,8 @@ func (smf1 SMF1) TracksOnDifferentChannels(src smf.Reader, wr io.Writer) (err er
 					ev.Message = channel.New(ch).ProgramChange(v.Program())
 				case channel.ControlChange:
 					ev.Message = channel.New(ch).ControlChange(v.Controller(), v.Value())
-				case channel.PitchWheel:
-					ev.Message = channel.New(ch).PitchWheel(v.Value())
+				case channel.PitchBend:
+					ev.Message = channel.New(ch).PitchBend(v.Value())
 				}
 				tr.UpdateEvents(ev)
 			}

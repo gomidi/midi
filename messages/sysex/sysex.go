@@ -130,7 +130,6 @@ type Message interface {
 	Len() int
 	Data() []byte
 	sysex()
-	// readFrom(io.Reader) (Message, error)
 }
 
 var _ Message = SysEx([]byte{})
@@ -148,11 +147,6 @@ type SysEx []byte
 // Data returns the inner sysex data
 func (m SysEx) Data() []byte {
 	return []byte(m)
-}
-
-// only complete sysex are ok for sending live
-func (m SysEx) IsLiveMessage() {
-
 }
 
 func (m SysEx) sysex() {}

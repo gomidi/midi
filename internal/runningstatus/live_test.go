@@ -3,9 +3,10 @@ package runningstatus
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/messages/channel"
-	"testing"
 )
 
 func msgs(m ...midi.Message) []midi.Message {
@@ -88,7 +89,7 @@ func TestLiveWriter(t *testing.T) {
 				channel.Ch2.NoteOn(48, 96),
 				// NoteOffPedantic creates a "real" noteoff message with the given velocity,
 				// that is a different message type than noteon, so running status is not active
-				channel.Ch2.NoteOffPedantic(48, 96),
+				channel.Ch2.NoteOffVelocity(48, 96),
 			),
 			"92 30 60" +
 				" 82 30 60", // no running status

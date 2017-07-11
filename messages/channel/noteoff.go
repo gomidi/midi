@@ -2,23 +2,21 @@ package channel
 
 import "fmt"
 
-// NoteOffPedantic is offered as an alternative to NoteOff for getting
-// the "real" noteoff message (type 8) and preserving velocity.
-type NoteOffPedantic struct {
+// NoteOffVelocity is offered as an alternative to NoteOff for
+// a "real" noteoff message (type 8) that has velocity.
+type NoteOffVelocity struct {
 	NoteOff
 	velocity uint8
 }
 
-func (n NoteOffPedantic) IsLiveMessage() {
-
-}
-
-func (n NoteOffPedantic) Velocity() uint8 {
+// Velocity returns the velocity of the note-off message
+func (n NoteOffVelocity) Velocity() uint8 {
 	return n.velocity
 }
 
-func (NoteOffPedantic) set(channel uint8, arg1, arg2 uint8) setter2 {
-	var m NoteOffPedantic
+// set returns a new note-off message with velocity that is set to the parsed arguments
+func (NoteOffVelocity) set(channel uint8, arg1, arg2 uint8) setter2 {
+	var m NoteOffVelocity
 	m.channel = channel
 	m.key, m.velocity = parseTwoUint7(arg1, arg2)
 	return m
@@ -27,22 +25,20 @@ func (NoteOffPedantic) set(channel uint8, arg1, arg2 uint8) setter2 {
 // Raw returns the bytes for the noteoff message.
 // Since NoteOff.Raw() returns in fact a noteon message (type 9) with velocity of 0 to allow running status,
 // NoteOffPedantic.Raw() is offered as an alternative to make sure a "real" noteoff message (type 8) is returned.
-func (n NoteOffPedantic) Raw() []byte {
+func (n NoteOffVelocity) Raw() []byte {
 	return channelMessage2(n.channel, 8, n.key, n.velocity)
 }
 
-func (m NoteOffPedantic) String() string {
-	return fmt.Sprintf("%T channel %v key %v vel %v", m, m.channel, m.key, m.velocity)
+// String returns human readable information about the note-off message that includes velocity.
+func (m NoteOffVelocity) String() string {
+	return fmt.Sprintf("%T channel %v key %v velocity %v", m, m.channel, m.key, m.velocity)
 }
 
-// NoteOff creates a "fake" noteoff message by creating a NoteOn with velocity of 0 (helps for running status).
+// NoteOff represents a note-off message by a note-on message with velocity of 0 (helps for running status).
+// This is the normal way to go. If you need the velocity of a note-off message, use NoteOffVelocity.
 type NoteOff struct {
 	channel uint8
 	key     uint8
-}
-
-func (n NoteOff) IsLiveMessage() {
-
 }
 
 func (n NoteOff) Key() uint8 {
@@ -56,14 +52,17 @@ func (n NoteOff) Raw() []byte {
 	return channelMessage2(n.channel, 9, n.key, 0)
 }
 
+// Channel returns the channel of the note-off message
 func (n NoteOff) Channel() uint8 {
 	return n.channel
 }
 
+// String returns human readable information about the note-off message.
 func (m NoteOff) String() string {
 	return fmt.Sprintf("%T channel %v key %v", m, m.channel, m.key)
 }
 
+// set returns a new note-off message that is set to the parsed arguments
 func (NoteOff) set(channel uint8, arg1, arg2 uint8) setter2 {
 	var m NoteOff
 	m.channel = channel

@@ -19,7 +19,6 @@ type Message interface {
 	Raw() []byte
 	readFrom(io.Reader) (Message, error)
 	sysCommon()
-	IsLiveMessage()
 }
 
 var (

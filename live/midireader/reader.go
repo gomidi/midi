@@ -12,12 +12,12 @@ import (
 	"github.com/gomidi/midi/messages/realtime"
 )
 
-// New returns a new reader for reading "live", "streaming", "over the wire", "realtime" midi messages (you name it).
-// When calling Read, any intermediate System Realtime Message will be ignored (if rthandler is nil) or passed to rthandler (if not)
-// and other midi message will be returned normally.
+// New returns a new reader for reading MIDI messages.
+// When calling Read, any intermediate System Realtime Message will be either ignored (if rthandler is nil)
+// or passed to rthandler (if not) while other MIDI messages will be returned.
 //
 // The Reader does no buffering and makes no attempt to close src.
-// If src.Read returns an io.EOF, the reader stops reading.
+// If src.Read returns an io.EOF, the reader stops reading and returns the error.
 func New(src io.Reader, rthandler func(realtime.Message), options ...Option) midi.Reader {
 	rd := &reader{
 		input:         realtime.NewReader(src, rthandler),
@@ -45,20 +45,21 @@ type reader struct {
 	readNoteOffPedantic bool
 }
 
-// read starts the reading.
-func (p *reader) Read() (ev midi.Message, err error) {
+// Read reads the next MIDI mesage.
+func (r *reader) Read() (msg midi.Message, err error) {
 	// read the canary in the coal mine to see, if we have a running status byte or a given one
 	var canary byte
-	canary, err = midilib.ReadByte(p.input)
+	canary, err = midilib.ReadByte(r.input)
 
 	if err != nil {
 		return
 	}
 
-	return p.readMsg(canary)
+	return r.readMsg(canary)
 }
 
-func (p *reader) discardUntilNextStatus() (canary byte, err error) {
+// discardUntilNextStatus discards every byte until the next status byte
+func (r *reader) discardUntilNextStatus() (canary byte, err error) {
 
 	//	A device should be able to "ignore" all MIDI messages that it doesn't use, including currently undefined MIDI messages
 	//	(ie Status is 0xF4, 0xF5, or 0xFD). In other words, a device is expected to be able to deal with all MIDI messages that it
@@ -68,7 +69,7 @@ func (p *reader) discardUntilNextStatus() (canary byte, err error) {
 	//	all data bytes (ie, bit #7 clear) up to the next received, non-RealTime Status byte.
 	//
 	for {
-		canary, err = midilib.ReadByte(p.input)
+		canary, err = midilib.ReadByte(r.input)
 
 		if err != nil {
 			return
@@ -93,17 +94,15 @@ func (p *reader) discardUntilNextStatus() (canary byte, err error) {
    message (after the SysEx message) must begin with a Status.
 */
 
-// readSysEx reads a sysex "over the wire", "in live mode", "as a stream" - you name it -
-// opposed to reading a sysex from a SMF standard midi file
-// the sysex has already been started (0xF0 has been read)
-// we need a realtime.Reader here, since realtime messages must be handled (or ignored from the viewpoit of sysex)
+// readSysEx reads a sysex
 // here we can ignore incomplete casio style messages (since they are only interrupted in time)
-func (p *reader) readSysEx() (sys sysex.SysEx, status byte, err error) {
+func (r *reader) readSysEx() (sys sysex.SysEx, status byte, err error) {
 	var b byte
 	var bf []byte
+
 	// read byte by byte
 	for {
-		b, err = midilib.ReadByte(p.input)
+		b, err = midilib.ReadByte(r.input)
 		if err != nil {
 			break
 		}
@@ -131,8 +130,9 @@ func (p *reader) readSysEx() (sys sysex.SysEx, status byte, err error) {
 	return
 }
 
-func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
-	status, changed := p.runningStatus.Read(canary)
+// readMsg reads the next MIDI message that started with canary
+func (r *reader) readMsg(canary byte) (m midi.Message, err error) {
+	status, changed := r.runningStatus.Read(canary)
 
 	//	fmt.Printf("canary: % X, status: % X\n", canary, status)
 
@@ -145,7 +145,7 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 
 		/* start sysex */
 		case 0xF0:
-			m, status, err = p.readSysEx()
+			m, status, err = r.readSysEx()
 
 			// TODO check if that works
 			/*
@@ -155,7 +155,7 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 				3. on the next read, the status is missing in the source (since it already has been read). but since it is inside the running status buffer, the correct status should be found
 			*/
 			if status != 0 {
-				p.runningStatus.Read(status)
+				r.runningStatus.Read(status)
 			}
 
 		case 0xF7:
@@ -164,7 +164,7 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 
 		default:
 			// must be a system common message, but no sysex (0xF0 < canary < 0xF7)
-			m, err = syscommon.NewReader(p.input, canary).Read()
+			m, err = syscommon.NewReader(r.input, canary).Read()
 		}
 
 	} else {
@@ -174,14 +174,14 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 
 		// was no running status, we have to read arg1
 		if changed {
-			arg1, err = midilib.ReadByte(p.input)
+			arg1, err = midilib.ReadByte(r.input)
 			if err != nil {
 				return
 			}
 		}
 
-		// fmt.Printf("read channel message\n")
-		m, err = p.channelReader.Read(status, arg1)
+		// read the channel message
+		m, err = r.channelReader.Read(status, arg1)
 	}
 
 	if err != nil {
@@ -190,16 +190,13 @@ func (p *reader) readMsg(canary byte) (m midi.Message, err error) {
 
 	// unknown event: read until next status byte
 	if m == nil {
-		// panic("unreachable")
 
-		canary, err = p.discardUntilNextStatus()
+		canary, err = r.discardUntilNextStatus()
 		if err != nil {
 			return
 		}
-		// handle events for the next status
-		// what I don't understand: what happens to deltatimes (as they come before an status byte)
-		return p.readMsg(canary)
-
+		// return the next message
+		return r.readMsg(canary)
 	}
 
 	return
