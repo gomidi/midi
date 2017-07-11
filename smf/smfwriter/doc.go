@@ -25,9 +25,9 @@
 		writeMIDI := func (wr smf.Writer) {
 
 			// always set the delta before writing
-			wr.SetDelta(tpq.TicksQuaver())
+			wr.SetDelta(tpq.Ticks8th())
 
-			// starts MIDI note 65 on MIDI channel 3 with velocity 90 with delta of 480 to
+			// starts MIDI key 65 on MIDI channel 3 with velocity 90 with delta of 480 to
 			// the beginning of the track (note starts after a quaver pause)
 			// MIDI channels 1-16 correspond to channel.Ch0 - channel.Ch15.
 			_, err1 = wr.Write(channel.Ch2.NoteOn(65, 90))
@@ -36,7 +36,7 @@
 				return
 			}
 
-			wr.SetDelta(tpq.TicksQuarter())
+			wr.SetDelta(tpq.Ticks4th())
 
 			// stops MIDI note 65 on MIDI channel 3 with delta of 960 to previous message
 			// this results in a duration of 1 quarter note for midi note 65
