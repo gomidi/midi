@@ -13,7 +13,7 @@ import (
 
 	"github.com/gomidi/midi"
 
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf"
 )
 

@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/realtime"
 	"github.com/gomidi/midi/midiwriter"
 )
 

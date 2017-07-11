@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package messages provides helper functions for MIDI messages.
+	Package midimessage provides helper functions for MIDI messages.
 
 */
-package messages
+package midimessage

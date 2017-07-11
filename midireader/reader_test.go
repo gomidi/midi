@@ -5,10 +5,10 @@ import (
 	"io"
 	"testing"
 
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/realtime"
-	"github.com/gomidi/midi/messages/syscommon"
-	"github.com/gomidi/midi/messages/sysex"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/realtime"
+	"github.com/gomidi/midi/midimessage/syscommon"
+	"github.com/gomidi/midi/midimessage/sysex"
 	"github.com/gomidi/midi/midiwriter"
 )
 

@@ -1,8 +1,9 @@
 package midiwriter
 
 import (
-	"github.com/gomidi/midi/messages/channel"
 	"testing"
+
+	"github.com/gomidi/midi/midimessage/channel"
 )
 
 type writeNothing struct{}

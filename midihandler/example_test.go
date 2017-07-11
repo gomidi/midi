@@ -3,11 +3,12 @@ package midihandler_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/meta"
-	"github.com/gomidi/midi/midihandler"
-	"github.com/gomidi/midi/smf/smfwriter"
 	"io"
+
+	"github.com/gomidi/midi/midihandler"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/meta"
+	"github.com/gomidi/midi/smf/smfwriter"
 )
 
 func mkMIDI() io.Reader {

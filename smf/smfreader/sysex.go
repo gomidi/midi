@@ -2,9 +2,10 @@ package smfreader
 
 import (
 	// "fmt"
-	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/messages/sysex"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
+	"github.com/gomidi/midi/midimessage/sysex"
 )
 
 func newSysexReader() *sysexReader {

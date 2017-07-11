@@ -1,7 +1,7 @@
 package cc
 
 import (
-	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/midimessage/channel"
 )
 
 func newControlCaseSwitch(ch channel.Channel, controller uint8, on bool) channel.ControlChange {

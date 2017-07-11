@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/realtime"
 	"github.com/gomidi/midi/midireader"
 	"github.com/gomidi/midi/midiwriter"
 

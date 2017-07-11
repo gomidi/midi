@@ -12,8 +12,8 @@ import (
 
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf"
 )
 

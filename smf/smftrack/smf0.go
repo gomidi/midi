@@ -2,13 +2,14 @@ package smftrack
 
 import (
 	"fmt"
+	"io"
+
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smfwriter"
-	"io"
 )
 
 // SMF0 is a namespace for methods reading from and writing to SMF0 (singletrack) files.

@@ -2,11 +2,13 @@ package smftrack
 
 import (
 	"fmt"
+
 	"github.com/gomidi/midi"
 	// "github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/meta"
-	"github.com/gomidi/midi/smf"
 	"time"
+
+	"github.com/gomidi/midi/midimessage/meta"
+	"github.com/gomidi/midi/smf"
 )
 
 // Event is a MIDI message at absolute ticks in a track.

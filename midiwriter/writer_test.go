@@ -3,8 +3,9 @@ package midiwriter
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi/messages/channel"
 	"testing"
+
+	"github.com/gomidi/midi/midimessage/channel"
 )
 
 func TestRunningStatus(t *testing.T) {

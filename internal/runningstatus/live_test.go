@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/midimessage/channel"
 )
 
 func msgs(m ...midi.Message) []midi.Message {

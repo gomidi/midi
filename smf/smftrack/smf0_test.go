@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smftrack"
 	"github.com/gomidi/midi/smf/smfwriter"

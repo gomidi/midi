@@ -8,8 +8,8 @@ import (
 
 	// "github.com/gomidi/midi"
 	// "github.com/gomidi/midi/internal/examples"
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/meta"
 	// "github.com/gomidi/midi/messages/sysex"
 	// "github.com/gomidi/midi/smf"
 	// "github.com/gomidi/midi/smf/smfreader"

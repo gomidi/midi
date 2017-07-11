@@ -2,10 +2,11 @@ package smfreader
 
 import (
 	"bytes"
-	"github.com/gomidi/midi/messages/meta"
+	"testing"
+
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfwriter"
-	"testing"
 )
 
 func TestParseTimeCode(t *testing.T) {

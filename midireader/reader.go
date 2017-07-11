@@ -1,15 +1,15 @@
 package midireader
 
 import (
+	"io"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/internal/runningstatus"
-	"github.com/gomidi/midi/messages/syscommon"
-	"github.com/gomidi/midi/messages/sysex"
-	"io"
-
-	"github.com/gomidi/midi/messages/channel"
-	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/midimessage/channel"
+	"github.com/gomidi/midi/midimessage/realtime"
+	"github.com/gomidi/midi/midimessage/syscommon"
+	"github.com/gomidi/midi/midimessage/sysex"
 )
 
 // New returns a new reader for reading MIDI messages.

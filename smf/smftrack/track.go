@@ -1,11 +1,12 @@
 package smftrack
 
 import (
-	"github.com/gomidi/midi/smf/smfwriter"
 	"sort"
 
+	"github.com/gomidi/midi/smf/smfwriter"
+
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf"
 )
 

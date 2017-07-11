@@ -3,7 +3,7 @@ package midihandler
 import (
 	"io"
 
-	"github.com/gomidi/midi/messages/realtime"
+	"github.com/gomidi/midi/midimessage/realtime"
 	"github.com/gomidi/midi/midireader"
 )
 

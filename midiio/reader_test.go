@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gomidi/midi/messages/channel"
+	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midiwriter"
 	// "github.com/gomidi/midi"
 	"github.com/gomidi/midi/midireader"

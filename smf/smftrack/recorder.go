@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/midireader"
 
 	"github.com/gomidi/midi/smf"
