@@ -1,4 +1,4 @@
-package handler
+package midihandler
 
 import (
 	"github.com/gomidi/midi/smf"

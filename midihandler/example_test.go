@@ -1,11 +1,11 @@
-package handler_test
+package midihandler_test
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi/handler"
 	"github.com/gomidi/midi/messages/channel"
 	"github.com/gomidi/midi/messages/meta"
+	"github.com/gomidi/midi/midihandler"
 	"github.com/gomidi/midi/smf/smfwriter"
 	"io"
 )
@@ -24,14 +24,14 @@ func mkMIDI() io.Reader {
 
 func Example() {
 
-	hd := handler.New(handler.NoLogger())
+	hd := midihandler.New(midihandler.NoLogger())
 
 	// set the functions for the messages you are interested in
-	hd.Message.Channel.NoteOn = func(p *handler.SMFPosition, channel, pitch, vel uint8) {
+	hd.Message.Channel.NoteOn = func(p *midihandler.SMFPosition, channel, pitch, vel uint8) {
 		fmt.Printf("[%v] NoteOn at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
 	}
 
-	hd.Message.Channel.NoteOff = func(p *handler.SMFPosition, channel, pitch, vel uint8) {
+	hd.Message.Channel.NoteOff = func(p *midihandler.SMFPosition, channel, pitch, vel uint8) {
 		fmt.Printf("[%v] NoteOff at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
 	}
 

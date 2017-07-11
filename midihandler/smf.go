@@ -1,7 +1,7 @@
 // ReadSMFFile open, reads and closes a complete SMF file.
 // If the read content was a valid midi file, nil is returned.
 //
-package handler
+package midihandler
 
 import (
 	"io"
