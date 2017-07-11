@@ -74,7 +74,7 @@ func TestReadNoteOffVelocity(t *testing.T) {
 	rtCallBack := func(m realtime.Message) {
 		bf.WriteString("Realtime: " + m.String() + "\n")
 	}
-	rd := New(mkMIDI(), rtCallBack, NoteOffPedantic())
+	rd := New(mkMIDI(), rtCallBack, NoteOffVelocity())
 
 	for {
 		ev, err := rd.Read()
