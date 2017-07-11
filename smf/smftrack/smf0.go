@@ -57,14 +57,17 @@ func (SMF0) ReadFrom(rd smf.Reader) (tr *Track, err error) {
 // WriteTo merges the given tracks to an SMF0 file and writes it to writer
 // sysex data and meta messages other than copyright, cuepoint, marker, tempo, timesignature and keysignature
 // get lost
-func (SMF0) WriteTo(wr io.Writer, timeformat smf.TimeFormat, tracks ...*Track) (nbytes int, err error) {
+func (SMF0) WriteTo(wr io.Writer, timeformat smf.TimeFormat, tracks ...*Track) (nbytes int64, err error) {
 	w := smfwriter.New(wr,
 		smfwriter.NumTracks(1),
 		smfwriter.TimeFormat(timeformat),
 		smfwriter.Format(smf.SMF0),
 	)
 
-	nbytes, err = w.WriteHeader()
+	var n int
+	n, err = w.WriteHeader()
+
+	nbytes += int64(n)
 
 	if err != nil {
 		return

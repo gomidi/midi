@@ -202,8 +202,10 @@ func (t *Track) addMessage(absTicks uint64, msg midi.Message) {
 }
 
 // WriteTo writes the track to the given SMF writer
-func (tr *Track) WriteTo(wr smf.Writer) (nbytes int, err error) {
-	nbytes, err = wr.WriteHeader()
+func (tr *Track) WriteTo(wr smf.Writer) (nbytes int64, err error) {
+	var n int
+	n, err = wr.WriteHeader()
+	nbytes += int64(n)
 	if err != nil {
 		return
 	}
@@ -211,13 +213,12 @@ func (tr *Track) WriteTo(wr smf.Writer) (nbytes int, err error) {
 
 	var lastAbs uint64 = 0
 
-	var n int
 	for _, ev := range tr.events {
 		delta := ev.AbsTicks - lastAbs
 		wr.SetDelta(uint32(delta))
 		lastAbs = ev.AbsTicks
 		n, err = wr.Write(ev.Message)
-		nbytes += n
+		nbytes += int64(n)
 		if err != nil {
 			return
 		}
@@ -227,7 +228,7 @@ func (tr *Track) WriteTo(wr smf.Writer) (nbytes int, err error) {
 	if err == smfwriter.ErrFinished {
 		err = nil
 	}
-	nbytes += n
+	nbytes += int64(n)
 
 	return
 }

@@ -201,14 +201,17 @@ func (SMF1) ReadFrom(rd smf.Reader, tracknos ...uint16) (tracks []*Track, err er
 
 // WriteTo writes a SMF1 file of the given tracks to the given io.Writer
 // Tracks are ordered by Track.Number
-func (SMF1) WriteTo(wr io.Writer, timeFormat smf.TimeFormat, tracks ...*Track) (nbytes int, err error) {
+func (SMF1) WriteTo(wr io.Writer, timeFormat smf.TimeFormat, tracks ...*Track) (nbytes int64, err error) {
 	w := smfwriter.New(wr,
 		smfwriter.NumTracks(uint16(len(tracks))),
 		smfwriter.TimeFormat(timeFormat),
 		smfwriter.Format(smf.SMF1),
 	)
 
-	nbytes, err = w.WriteHeader()
+	var n int
+	n, err = w.WriteHeader()
+
+	nbytes += int64(n)
 
 	if err != nil {
 		return
@@ -218,10 +221,11 @@ func (SMF1) WriteTo(wr io.Writer, timeFormat smf.TimeFormat, tracks ...*Track) (
 
 	sort.Sort(sortedTracks)
 
-	var n int
+	var nn int64
+
 	for _, tr := range sortedTracks {
-		n, err = tr.WriteTo(w)
-		nbytes += n
+		nn, err = tr.WriteTo(w)
+		nbytes += nn
 		if err != nil {
 			return
 		}

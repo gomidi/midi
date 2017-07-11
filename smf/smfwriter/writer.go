@@ -153,9 +153,9 @@ func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 
 	if m == meta.EndOfTrack {
 		wr.addMessage(wr.deltatime, m)
-		var tnum int
+		var tnum int64
 		tnum, err = wr.writeTrackTo(wr.output)
-		nbytes += tnum
+		nbytes += int(tnum)
 		if err != nil {
 			wr.error = err
 		}
@@ -226,11 +226,13 @@ func (w *writer) writeHeader(wr io.Writer) (int, error) {
 
 	ch.Write(bf.Bytes())
 
-	return ch.WriteTo(wr)
+	var n int64
+	n, err = ch.WriteTo(wr)
+	return int(n), err
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
-func (t *writer) writeTrackTo(wr io.Writer) (n int, err error) {
+func (t *writer) writeTrackTo(wr io.Writer) (n int64, err error) {
 	n, err = t.track.WriteTo(wr)
 
 	if err != nil {

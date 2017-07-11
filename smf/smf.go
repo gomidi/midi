@@ -137,7 +137,7 @@ func (c *Chunk) Clear() {
 }
 
 // WriteTo writes the content of the chunk to the given writer
-func (c *Chunk) WriteTo(wr io.Writer) (int, error) {
+func (c *Chunk) WriteTo(wr io.Writer) (int64, error) {
 	if len(c.typ) != 4 {
 		return 0, fmt.Errorf("chunk header not set properly")
 	}
@@ -146,7 +146,8 @@ func (c *Chunk) WriteTo(wr io.Writer) (int, error) {
 	bf.Write(c.typ)
 	binary.Write(&bf, binary.BigEndian, int32(c.Len()))
 	bf.Write(c.data)
-	return wr.Write(bf.Bytes())
+	i, err := wr.Write(bf.Bytes())
+	return int64(i), err
 }
 
 // ReadHeader reads the header from the given reader
