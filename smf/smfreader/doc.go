@@ -7,7 +7,7 @@
 
 	There is also a more comfortable handler package:
 
-	  github.com/gomidi/midi/handler    (reading MIDI messages live or from SMF files)
+	  github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
 
 	Usage
 
