@@ -52,7 +52,7 @@ usable (beta)
     midireader                yes                 yes
     smf                       almost              almost
     smf/smfwriter             yes                 yes
-    smf/smfreader             almost              yes
+    smf/smfreader             yes                 yes
     smf/smftrack              no                  no
     midiio                    no                  no
     midimessage/channel       almost              yes

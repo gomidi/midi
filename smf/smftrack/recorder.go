@@ -63,7 +63,7 @@ func (p *recorder) Write(data []byte) (n int, err error) {
 	now := time.Now()
 	d := now.Sub(p.start)
 	p.start = now
-	p.to.SetDelta(p.metricTicks.TempoTicks(p.tempo, d))
+	p.to.SetDelta(p.metricTicks.Ticks(p.tempo, d))
 
 	return p.to.Write(msg)
 }

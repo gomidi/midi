@@ -193,7 +193,7 @@ func (wr *writer) Write(m midi.Message) (nbytes int, err error) {
 func (w *writer) writeTimeFormat(wr io.Writer) error {
 	switch tf := w.header.TimeFormat.(type) {
 	case smf.MetricTicks:
-		ticks := tf.Ticks()
+		ticks := tf.Ticks4th()
 		if ticks > 32767 {
 			ticks = 32767 // 32767 is the largest possible value, since bit 15 must always be 0
 		}

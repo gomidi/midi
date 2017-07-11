@@ -86,7 +86,7 @@ func (p *smfPlayer) Read(data []byte) (n int, err error) {
 
 	delta := p.rd.Delta()
 
-	time.Sleep(p.metricTicks.TempoDuration(p.tempo, delta))
+	time.Sleep(p.metricTicks.Duration(p.tempo, delta))
 
 	// track ended
 	if msg == meta.EndOfTrack {

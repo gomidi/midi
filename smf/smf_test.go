@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestTempoTicksDuration(t *testing.T) {
+func TestTicksDuration(t *testing.T) {
 	tests := []struct {
 		resolution MetricTicks
 		tempo      uint32
@@ -20,9 +20,9 @@ func TestTempoTicksDuration(t *testing.T) {
 
 	for _, test := range tests {
 
-		if got, want := test.resolution.TempoDuration(test.tempo, test.deltaTicks), test.duration; got != want {
+		if got, want := test.resolution.Duration(test.tempo, test.deltaTicks), test.duration; got != want {
 			t.Errorf(
-				"MetricTicks(%v).TempoDuration(%v, %v) = %s; want %s",
+				"MetricTicks(%v).Duration(%v, %v) = %s; want %s",
 				uint16(test.resolution),
 				test.tempo,
 				test.deltaTicks,
@@ -31,9 +31,9 @@ func TestTempoTicksDuration(t *testing.T) {
 			)
 		}
 
-		if got, want := test.resolution.TempoTicks(test.tempo, test.duration), test.deltaTicks; got != want {
+		if got, want := test.resolution.Ticks(test.tempo, test.duration), test.deltaTicks; got != want {
 			t.Errorf(
-				"MetricTicks(%v).TempoTicks(%v, %v) = %v; want %v",
+				"MetricTicks(%v).Ticks(%v, %v) = %v; want %v",
 				uint16(test.resolution),
 				test.tempo,
 				test.duration,
