@@ -96,7 +96,7 @@ func (m Continue) Len() int {
 // End is an incomplete sysex that is continuing Start or Continue and ending it.
 // It starts with an 0xF7 and ends with a 0xF7
 // when used within a SMF file, the first byte (0xF7) must be followed by a length (including the last F7 but excluding the first)
-// when used live, no messages apart from realtime messages may be send in between the preceeding Start or Continue and
+// when used live, no messages apart from realtime messages may be send in between the preceding Start or Continue and
 // this one
 type End []byte
 

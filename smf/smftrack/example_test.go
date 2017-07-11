@@ -18,7 +18,7 @@ func mkSMF1() []byte {
 
 	wr := smfwriter.New(&bf,
 		smfwriter.NumTracks(2),
-		smfwriter.Format(smf.SMF1), // not neccessary, since it is automatically set for numtracks > 1
+		smfwriter.Format(smf.SMF1), // not necessary, since it is automatically set for numtracks > 1
 	)
 
 	wr.Write(channel.Ch2.NoteOn(65, 90))

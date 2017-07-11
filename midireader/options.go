@@ -3,7 +3,7 @@ package midireader
 // Option is a configuration option for a reader
 type Option func(rd *reader)
 
-// NoteOffVelocity is an option for the reader that lets it differenciate between "fake" noteoff messages
+// NoteOffVelocity is an option for the reader that lets it differentiate between "fake" noteoff messages
 // (which are in fact noteon messages (typ 9) with velocity of 0) and "real" noteoff messages (typ 8)
 // having their own velocity.
 // The former are returned as NoteOffVelocity messages and keep the given velocity, the later

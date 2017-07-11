@@ -53,7 +53,14 @@ func (r *reader) Read(target []byte) (n int, err error) {
 }
 
 /*
-    Each RealTime Category message (ie, Status of 0xF8 to 0xFF) consists of only 1 byte, the Status. These messages are primarily concerned with timing/syncing functions which means that they must be sent and received at specific times without any delays. Because of this, MIDI allows a RealTime message to be sent at any time, even interspersed within some other MIDI message. For example, a RealTime message could be sent inbetween the two data bytes of a Note On message. A device should always be prepared to handle such a situation; processing the 1 byte RealTime message, and then subsequently resume processing the previously interrupted message as if the RealTime message had never occurred.
+    Each RealTime Category message (ie, Status of 0xF8 to 0xFF) consists of only 1 byte, the Status.
+    These messages are primarily concerned with timing/syncing functions which means that they
+    must be sent and received at specific times without any delays. Because of this, MIDI allows a
+    RealTime message to be sent at any time, even interspersed within some other MIDI message.
+    For example, a RealTime message could be sent in between the two data bytes of a Note On message.
+    A device should always be prepared to handle such a situation; processing the 1 byte RealTime
+    message, and then subsequently resume processing the previously interrupted message as if the
+     RealTime message had never occurred.
 
 For more information about RealTime, read the sections Running Status, Ignoring MIDI Messages, and Syncing Sequence Playback.
 */

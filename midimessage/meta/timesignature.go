@@ -151,8 +151,8 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	var denomenator uint8
-	denomenator, err = midilib.ReadByte(rd)
+	var denominator uint8
+	denominator, err = midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 
 	return TimeSignature{
 		Numerator:   numerator,
-		Denominator: 2 << (denomenator - 1),
+		Denominator: 2 << (denominator - 1),
 		// ClocksPerClick:           clocksPerClick,
 		// DemiSemiQuaverPerQuarter: demiSemiQuaverPerQuarter,
 	}, nil

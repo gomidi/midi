@@ -26,7 +26,7 @@ type Reader interface {
 
 type ReaderOption func(*reader)
 
-// ReadNoteOffVelocity lets the reader differenciate between "fake" noteoff messages
+// ReadNoteOffVelocity lets the reader differentiate between "fake" noteoff messages
 // (which are in fact noteon messages (typ 9) with velocity of 0) and "real" noteoff messages (typ 8)
 // with own velocity.
 // The former are returned as NoteOffVelocity messages and keep the given velocity, the later

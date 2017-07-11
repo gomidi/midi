@@ -26,19 +26,19 @@ type Writer interface {
 
 	// WriteHeader writes the midi header
 	// If WriteHeader was not called before the first run of Write,
-	// it will implicitely be called when calling Write.
+	// it will implicitly be called when calling Write.
 	WriteHeader() (int, error)
 
 	// Write writes a midi message to the SMF file.
 	//
 	// Due to the nature of SMF files there is some maybe surprising behavior.
 	// - If the header has not been written yet, it will be written before writing the first message.
-	// - The first message will be written to track 0 which will be implicetly created.
+	// - The first message will be written to track 0 which will be implicitly created.
 	// - All messages of a track will be buffered inside the track and only be written if an EndOfTrack
 	//   message is written.
 	// - The number of tracks that are written will never execeed the NumTracks that have been defined when creating the writer.
 	//   If the last track has been written, io.EOF will be returned. (Also for any further attempt to write).
-	// - It is the responsability of the caller to make sure the provided NumTracks (which defaults to 1) is not
+	// - It is the responsibility of the caller to make sure the provided NumTracks (which defaults to 1) is not
 	//   larger as the number of tracks in the file.
 	// Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
 	// that have been physically written at that point in time.
@@ -56,7 +56,7 @@ type Writer interface {
 type Reader interface {
 
 	// ReadHeader reads the header of the SMF file. If Header is called before ReadHeader, it will panic.
-	// ReadHeader is also implicitely called with the first call of Read() (if it has not been run before)
+	// ReadHeader is also implicitly called with the first call of Read() (if it has not been run before)
 	ReadHeader() error
 
 	// Read reads a MIDI message from a SMF file.
@@ -66,7 +66,7 @@ type Reader interface {
 
 	// Header returns the header of SMF file
 	// if the header is not yet read, it will be read before
-	// if any error occured during reading of header, it can be found with Error()
+	// if any error occurred during reading of header, it can be found with Error()
 	Header() Header
 
 	// Delta returns the time distance between the last read midi message and the message before in ticks.

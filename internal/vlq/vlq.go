@@ -19,7 +19,7 @@ bits in a routine to write variable-length numbers. Theoretically, larger number
 96ths of a beat at a fast tempo of 500 beats per minute is four days, long enough for any delta-time!
 */
 
-// Variable-Length Quantity (VLQ) is an way of representing arbitrarly
+// Variable-Length Quantity (VLQ) is an way of representing arbitrary
 // see https://blogs.infosupport.com/a-primer-on-vlq/
 // we use the variant of the midi-spec
 // stolen and converted to go from https://github.com/dvberkel/VLQKata/blob/master/src/main/java/nl/dvberkel/kata/Kata.java#L12
@@ -33,7 +33,7 @@ func Encode(n uint32) (out []byte) {
 	for quo > 0 {
 		out = append(out, byte(quo)|vlqContinue)
 		quo = quo / vlqContinue
-		rem = quo % vlqContinue
+		// rem = quo % vlqContinue
 	}
 
 	reverse(out)

@@ -9,7 +9,7 @@ import (
 
 // ReadLive reads midi messages from src until an error or io.EOF happens.
 //
-// If io.EOF happend the returned error is nil.
+// If io.EOF happened the returned error is nil.
 //
 // ReadLive does not close the src.
 //

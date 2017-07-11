@@ -81,7 +81,7 @@ Bn 64 04	RPN LSB = 04 	Select RPN : Select Tuning Bank
 64 7F	RPN LSB = 7F (running status in effect) 	Null Function (Cancel RPN)
 65 7F	RPN MSB = 7F (running status in effect)
 
-When sending successive RPN (or NRPN) messages, the standard allows the ommision of CC100 & CC101 (or CC98 & CC99) if their value is unchanged.
+When sending successive RPN (or NRPN) messages, the standard allows the omission of CC100 & CC101 (or CC98 & CC99) if their value is unchanged.
 
 For example, to send a pair of Channel Coarse Tuning and Channel Fine Tuning RPN messages (with a low-res and high-res data value, respectively) :
 17 bytes 	Bn 64 02 65 00 06 TM 64 01 06 tM 26 tL 64 7F 65 7F
@@ -167,7 +167,7 @@ Low resolution continuous controllers
 84	Portamento Control (PTC)   (0vvvvvvv is the source Note number)   (Detail)
 88	High Resolution Velocity Prefix
 91	Effects 1 Depth (Reverb Send Level)
-92	Effects 2 Depth (Tremelo Depth)
+92	Effects 2 Depth (Tremolo Depth)
 93	Effects 3 Depth (Chorus Send Level)
 94	Effects 4 Depth (Celeste Depth)
 95	Effects 5 Depth (Phaser Depth)

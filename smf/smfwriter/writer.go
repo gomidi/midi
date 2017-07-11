@@ -22,7 +22,7 @@ import (
 // WriteFile makes sure that the data of the last track is written by sending
 // an meta.EndOfTrack message after callback has been run.
 //
-// For single track (SMF0) files this makes sence since no meta.EndOfTrack message
+// For single track (SMF0) files this makes sense since no meta.EndOfTrack message
 // must then be send from callback (although it does not harm).
 //
 // For multitrack files however there must be sending of meta.EndOfTrack anyway,
@@ -55,13 +55,13 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 
 // New returns a Writer
 //
-// The writer just uses an io.Writer..It is the responsability of the caller to open and close any file where appropriate.
+// The writer just uses an io.Writer..It is the responsibility of the caller to open and close any file where appropriate.
 //
 // For the documentation of the Write and the SetDelta method, consult the documentation for smf.Writer.
 //
 // The options and their defaults are documented at the corresponding option.
 // When New returns, the header has already been written to dest.
-// Any error that happended during the header writing is returned. In this case writer is nil.
+// Any error that happened during the header writing is returned. In this case writer is nil.
 func New(dest io.Writer, opts ...Option) smf.Writer {
 	return newWriter(dest, opts...)
 }
@@ -260,7 +260,7 @@ func (t *writer) appendToChunk(deltaTime uint32, b []byte) {
 	//t.track.data = append(t.track.data, append(vlq.Encode(deltaTime), b...)...)
 }
 
-// delta is distance in time to last event in this track (independant of channel)
+// delta is distance in time to last event in this track (independent of the channel)
 func (t *writer) addMessage(deltaTime uint32, msg midi.Message) {
 	// we have some sort of sysex, so we need to
 	// calculate the length of msg[1:]
