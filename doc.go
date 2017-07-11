@@ -25,7 +25,7 @@
     github.com/gomidi/midi/midiwriter (live writing)
     github.com/gomidi/midi/smf/smfreader   (SMF reading)
     github.com/gomidi/midi/smf/smfwriter   (SMF writing)
-    github.com/gomidi/midi/smf/smfmodify   (SMF modification)
+    github.com/gomidi/midi/smf/smftrack    (SMF modification)
 
   The MIDI messages themselves that can be written or analyzed can be found here:
 
