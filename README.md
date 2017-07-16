@@ -46,6 +46,23 @@ see http://godoc.org/github.com/gomidi/midi
 
 usable (beta)
 
+The package and the subpackages are not officially stable yet.
+
+However there are some ideas about how stable the subpackages are.
+These ideas are reflected in the following table as a basis for communication
+about how firm the current API is supposed to be. 
+
+In other words: 
+
+- Anybody having issues with an API that is declared as "stable"
+in this table should have strong opinion and speak up soon, because there will probably be some important discussions that also effects other packages.  
+
+- Anybody having issues with an API that is not declared as "stable" should have a look at open issues that explain, why the API is not stable yet and contribute to make it stable.
+
+**Users of this package should ignore the following table, because as long as the whole package is in beta status, anything may change any time**.
+
+However we want this package to come out of beta soon and the open issues are mainly about comfort and naming.
+
     package                   API stable          complete
     ----------------------------------------------------
     midiwriter                yes                 yes
