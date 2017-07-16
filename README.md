@@ -55,7 +55,7 @@ about how firm the current API is supposed to be.
 In other words: 
 
 - Anybody having issues with an API that is declared as "stable"
-in this table should have strong opinion and speak up soon, because there will probably be some important discussions that also effects other packages.  
+in this table should have a strong reason and speak up soon, because there will probably be some important discussions that also effects other packages.  
 
 - Anybody having issues with an API that is not declared as "stable" should have a look at open issues that explain, why the API is not stable yet and contribute to make it stable.
 
