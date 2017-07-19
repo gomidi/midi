@@ -7,6 +7,8 @@ go:
   - 1.8
   - tip
 
+sudo: false
+before_install:
+  - go get github.com/mattn/goveralls
 script:
-  - go get -t github.com/gomidi/midi/...
-  - go test ./...
+  - $HOME/gopath/bin/goveralls -service=travis-ci
