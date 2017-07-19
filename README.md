@@ -52,7 +52,7 @@ beta - API may change
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
 
-[![Coverage Status](https://img.shields.io/coveralls/gomidi/midi.svg)](https://coveralls.io/r/gomidi/midi?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi)
 
 [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
