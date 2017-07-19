@@ -50,14 +50,16 @@ If you have questions that won't fit into tickets, larger ideas etc. please join
 
 beta - API may change
 
-[![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
+[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
+
+[![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi)
 
 [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi)
 
 [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
 - Supported Go versions: >= 1.2
-- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
+- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
 
 The package and the subpackages are not officially stable yet.
 
