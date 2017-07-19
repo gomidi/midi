@@ -52,6 +52,8 @@ beta - API may change
 
 [![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
 
+[![Coverage Status](https://img.shields.io/coveralls/gomidi/midi.svg)](https://coveralls.io/r/gomidi/midi?branch=master)
+
 [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
 - Supported Go versions: 1.4-1.8.
