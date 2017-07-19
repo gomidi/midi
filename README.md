@@ -42,6 +42,10 @@ On my laptop, reading noteon and noteoff ("live")
 
 see http://godoc.org/github.com/gomidi/midi
 
+## Discussion
+
+If you have questions that won't fit into tickets, larger ideas etc. please participate in the Google group at https://groups.google.com/forum/#!forum/gomidi
+
 ## Status
 
 beta - API may change
