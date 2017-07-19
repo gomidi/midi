@@ -59,20 +59,17 @@ beta - API may change
 
 The package and the subpackages are not officially stable yet.
 
-However there are some ideas about how stable the subpackages are.
-These ideas are reflected in the following table as a basis for communication
-about how firm the current API is supposed to be. 
+However - there are some ideas about how stable the subpackages probably are.
+These ideas are shown in the following table. 
 
-In other words: 
+So for developers: 
 
 - If you have issues with an API that is declared as "stable"
 in this table, please speak up soon, because there will probably be some important discussions that also effects other packages.  
 
 - If you have issues with an API that is not declared as "stable" please have a look at the open issues that explain the current status and help to get it stable.
 
-**Users of this package should ignore the following table, because as long as the whole package is in beta status, anything may change any time**.
-
-However we want this package to come out of beta soon and the open issues are mainly about comfort and naming.
+**Users of this package should ignore the table, because as long as the whole package is in beta status, anything may change any time**.
 
     package                   API stable          complete
     ----------------------------------------------------
