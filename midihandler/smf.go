@@ -1,6 +1,3 @@
-// ReadSMFFile open, reads and closes a complete SMF file.
-// If the read content was a valid midi file, nil is returned.
-//
 package midihandler
 
 import (
@@ -10,6 +7,9 @@ import (
 	"github.com/gomidi/midi/smf/smfreader"
 )
 
+// ReadSMFFile open, reads and closes a complete SMF file.
+// If the read content was a valid midi file, nil is returned.
+//
 // The messages are dispatched to the corresponding attached functions of the handler.
 //
 // They must be attached before Handler.ReadSMF is called

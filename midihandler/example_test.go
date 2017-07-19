@@ -18,8 +18,9 @@ func mkSMF() io.Reader {
 	var bf bytes.Buffer
 
 	wr := smfwriter.New(&bf)
+	wr.Write(meta.Tempo(160))
 	wr.Write(channel.Ch2.NoteOn(65, 90))
-	wr.SetDelta(2)
+	wr.SetDelta(40)
 	wr.Write(channel.Ch2.NoteOff(65))
 	wr.Write(meta.EndOfTrack)
 
@@ -27,8 +28,7 @@ func mkSMF() io.Reader {
 }
 
 func Example() {
-	// this is an example that illustrates the usage of the same handler for
-	// live and SMF MIDI messages
+	// This example illustrates how the same handler can be used for live and SMF MIDI messages
 
 	hd := midihandler.New(midihandler.NoLogger())
 
@@ -59,10 +59,11 @@ func Example() {
 	}
 
 	hd.SMFHeader = func(head smf.Header) {
-		// we ignore SMPTE in this example
+		// here we ignore that the timeformat could also be SMPTE
 		ticks = head.TimeFormat.(smf.MetricTicks)
 	}
 
+	// we will override the tempo by the one given in the SMF
 	hd.Message.Meta.Tempo = func(p midihandler.SMFPosition, valBPM uint32) {
 		bpm = valBPM
 	}
@@ -94,13 +95,13 @@ func Example() {
 
 	// now write some live data
 	mwr.Write(channel.Ch11.NoteOn(120, 50))
-	time.Sleep(time.Millisecond * 5)
+	time.Sleep(time.Millisecond * 20)
 	mwr.Write(channel.Ch11.NoteOff(120))
 
 	// Output: -- SMF data --
 	// [0s] NoteOn at channel 2: key 65 velocity: 90
-	// [1ms] NoteOff at channel 2: key 65 velocity: 0
+	// [16ms] NoteOff at channel 2: key 65 velocity: 0
 	// -- live data --
 	// [0s] NoteOn at channel 11: key 120 velocity: 50
-	// [5ms] NoteOff at channel 11: key 120 velocity: 0
+	// [20ms] NoteOff at channel 11: key 120 velocity: 0
 }

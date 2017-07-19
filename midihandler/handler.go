@@ -92,17 +92,21 @@ type Handler struct {
 
 			// NoteOff is triggered by noteoff messages (then the given velocity is passed)
 			// and by noteon messages of velocity 0 (then velocity is 0)
-			NoteOff              func(p *SMFPosition, channel, key, velocity uint8)
+			NoteOff func(p *SMFPosition, channel, key, velocity uint8)
+
+			// PolyphonicAfterTouch aka key pressure
 			PolyphonicAfterTouch func(p *SMFPosition, channel, key, pressure uint8)
-			ControlChange        func(p *SMFPosition, channel, controller, value uint8)
-			ProgramChange        func(p *SMFPosition, channel, program uint8)
-			AfterTouch           func(p *SMFPosition, channel, pressure uint8)
-			PitchBend            func(p *SMFPosition, channel uint8, value int16)
+
+			ControlChange func(p *SMFPosition, channel, controller, value uint8)
+			ProgramChange func(p *SMFPosition, channel, program uint8)
+
+			// AfterTouch aka channel pressure
+			AfterTouch func(p *SMFPosition, channel, pressure uint8)
+			PitchBend  func(p *SMFPosition, channel uint8, value int16)
 		}
 
 		// realtime messages: just in live data
 		Realtime struct {
-			// realtime messages
 			Reset       func()
 			Clock       func()
 			Tick        func()
@@ -114,7 +118,6 @@ type Handler struct {
 
 		// system common messages: just in live data
 		SysCommon struct {
-			// system common
 			TuneRequest         func()
 			SongSelect          func(num uint8)
 			SongPositionPointer func(pos uint16)
@@ -124,7 +127,6 @@ type Handler struct {
 		// system exclusive, may be in SMF files and in live data
 		// for live data *SMFPosition is nil
 		SysEx struct {
-			// system exclusive
 			Complete func(p *SMFPosition, data []byte)
 			Start    func(p *SMFPosition, data []byte)
 			Continue func(p *SMFPosition, data []byte)
