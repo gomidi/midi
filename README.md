@@ -50,6 +50,13 @@ If you have questions that won't fit into tickets, larger ideas etc. please join
 
 beta - API may change
 
+[![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
+
+[![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
+
+- Supported Go versions: 1.4-1.8.
+- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
+
 The package and the subpackages are not officially stable yet.
 
 However there are some ideas about how stable the subpackages are.
@@ -86,13 +93,6 @@ However we want this package to come out of beta soon and the open issues are ma
     smf/smftrack              no                  no
     midihandler               no                  yes
 
-
-[![Build Status](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
-
-[![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
-
-- Supported Go versions: 1.4-1.8.
-- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
 
 ## License
 
