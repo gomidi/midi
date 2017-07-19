@@ -70,11 +70,11 @@ func Example() {
 
 	// set the functions for the messages you are interested in
 	hd.Message.Channel.NoteOn = func(p *midihandler.SMFPosition, channel, key, vel uint8) {
-		fmt.Printf("[%v] NoteOn at channel %v: key %v velocity: %v\n", calcDuration(p), channel, key, vel)
+		fmt.Printf("[%vs] NoteOn at channel %v: key %v velocity: %v\n", calcDuration(p).Seconds(), channel, key, vel)
 	}
 
 	hd.Message.Channel.NoteOff = func(p *midihandler.SMFPosition, channel, key, vel uint8) {
-		fmt.Printf("[%v] NoteOff at channel %v: key %v velocity: %v\n", calcDuration(p), channel, key, vel)
+		fmt.Printf("[%vs] NoteOff at channel %v: key %v velocity: %v\n", calcDuration(p).Seconds(), channel, key, vel)
 	}
 
 	// handle the smf
@@ -99,9 +99,9 @@ func Example() {
 	mwr.Write(channel.Ch11.NoteOff(120))
 
 	// Output: -- SMF data --
-	// [0] NoteOn at channel 2: key 65 velocity: 90
+	// [0s] NoteOn at channel 2: key 65 velocity: 90
 	// [1s] NoteOff at channel 2: key 65 velocity: 0
 	// -- live data --
-	// [0] NoteOn at channel 11: key 120 velocity: 50
+	// [0s] NoteOn at channel 11: key 120 velocity: 50
 	// [2s] NoteOff at channel 11: key 120 velocity: 0
 }
