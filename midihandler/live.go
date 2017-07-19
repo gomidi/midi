@@ -17,9 +17,8 @@ import (
 //
 // They must be attached before Handler.ReadLive is called
 // and they must not be unset or replaced until ReadLive returns.
-//
-// The *Pos parameter that is passed to the functions is nil, because we are in a live setting.
 func (h *Handler) ReadLive(src io.Reader, options ...midireader.Option) (err error) {
+	h.pos = nil
 	rthandler := func(m realtime.Message) {
 		switch m {
 		// ticks (most important, must be sent every 10 milliseconds) comes first

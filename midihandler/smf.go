@@ -14,8 +14,6 @@ import (
 //
 // They must be attached before Handler.ReadSMF is called
 // and they must not be unset or replaced until ReadSMF returns.
-//
-// The *Pos parameter that is passed to the functions is always, because we are reading a file.
 func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
 	h.errSMF = nil
 	h.pos = &SMFPosition{}
@@ -37,8 +35,6 @@ func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
 //
 // They must be attached before Handler.ReadSMF is called
 // and they must not be unset or replaced until ReadSMF returns.
-//
-// The *Pos parameter that is passed to the functions is always, because we are reading a file.
 func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
 	h.errSMF = nil
 	h.pos = &SMFPosition{}

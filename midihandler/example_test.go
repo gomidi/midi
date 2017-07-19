@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/gomidi/midi/midihandler"
 	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
+	"github.com/gomidi/midi/midiwriter"
+	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfwriter"
 )
 
-func mkMIDI() io.Reader {
+func mkSMF() io.Reader {
 	var bf bytes.Buffer
 
 	wr := smfwriter.New(&bf)
@@ -24,21 +27,80 @@ func mkMIDI() io.Reader {
 }
 
 func Example() {
+	// this is an example that illustrates the usage of the same handler for
+	// live and SMF MIDI messages
 
 	hd := midihandler.New(midihandler.NoLogger())
 
+	// needed for the SMF timing
+	var ticks smf.MetricTicks
+	var bpm uint32 = 120 // default according to SMF spec
+
+	// needed for the live timing
+	var start = time.Now()
+
+	// a helper to round the duration to milliseconds
+	var roundMS = func(d time.Duration) time.Duration {
+		return time.Millisecond * time.Duration((d.Nanoseconds() / 1000000))
+	}
+
+	// a helper to calculate the duration for both live and SMF messages
+	var calcDuration = func(p *midihandler.SMFPosition) (dur time.Duration) {
+		if p == nil {
+			// we are in a live setting
+			dur = roundMS(time.Now().Sub(start))
+			return
+		}
+
+		// SMF data, calculate the time from the timeformat of the SMF file
+		// we ignore the possibility that tempo information may come in a track following the one of
+		// the current message as the spec does not recommend this
+		return roundMS(ticks.Duration(bpm, uint32(p.AbsTime)))
+	}
+
+	hd.SMFHeader = func(head smf.Header) {
+		// we ignore SMPTE in this example
+		ticks = head.TimeFormat.(smf.MetricTicks)
+	}
+
+	hd.Message.Meta.Tempo = func(p midihandler.SMFPosition, valBPM uint32) {
+		bpm = valBPM
+	}
+
 	// set the functions for the messages you are interested in
-	hd.Message.Channel.NoteOn = func(p *midihandler.SMFPosition, channel, pitch, vel uint8) {
-		fmt.Printf("[%v] NoteOn at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
+	hd.Message.Channel.NoteOn = func(p *midihandler.SMFPosition, channel, key, vel uint8) {
+		fmt.Printf("[%v] NoteOn at channel %v: key %v velocity: %v\n", calcDuration(p), channel, key, vel)
 	}
 
-	hd.Message.Channel.NoteOff = func(p *midihandler.SMFPosition, channel, pitch, vel uint8) {
-		fmt.Printf("[%v] NoteOff at channel %v: pitch %v velocity: %v\n", p.Delta, channel, pitch, vel)
+	hd.Message.Channel.NoteOff = func(p *midihandler.SMFPosition, channel, key, vel uint8) {
+		fmt.Printf("[%v] NoteOff at channel %v: key %v velocity: %v\n", calcDuration(p), channel, key, vel)
 	}
 
-	hd.ReadSMF(mkMIDI())
+	// handle the smf
+	fmt.Println("-- SMF data --")
+	hd.ReadSMF(mkSMF())
 
-	// Output: [0] NoteOn at channel 2: pitch 65 velocity: 90
-	// [2] NoteOff at channel 2: pitch 65 velocity: 0
+	// handle the live data
+	fmt.Println("-- live data --")
+	lrd, lwr := io.Pipe()
 
+	// WARNING this example does not deal with races and synchronization, it is just for illustration
+	go func() {
+		hd.ReadLive(lrd)
+	}()
+
+	mwr := midiwriter.New(lwr)
+	start = time.Now()
+
+	// now write some live data
+	mwr.Write(channel.Ch11.NoteOn(120, 50))
+	time.Sleep(time.Millisecond * 5)
+	mwr.Write(channel.Ch11.NoteOff(120))
+
+	// Output: -- SMF data --
+	// [0s] NoteOn at channel 2: key 65 velocity: 90
+	// [1ms] NoteOff at channel 2: key 65 velocity: 0
+	// -- live data --
+	// [0s] NoteOn at channel 11: key 120 velocity: 50
+	// [5ms] NoteOff at channel 11: key 120 velocity: 0
 }
