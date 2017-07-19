@@ -44,7 +44,7 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-usable (beta)
+beta - API may change
 
 The package and the subpackages are not officially stable yet.
 
