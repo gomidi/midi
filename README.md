@@ -56,7 +56,7 @@ beta - API may change
 
 [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
-- Supported Go versions: 1.4-1.8.
+- Supported Go versions: >= 1.2
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
 
 The package and the subpackages are not officially stable yet.
