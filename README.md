@@ -91,7 +91,7 @@ However we want this package to come out of beta soon and the open issues are ma
 
 [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
-- Supported Go versions: 1.2-1.8.
+- Supported Go versions: 1.4-1.8.
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux, but no OS specific code).
 
 ## License
