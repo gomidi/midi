@@ -20,7 +20,7 @@ func mkSMF() io.Reader {
 	wr := smfwriter.New(&bf)
 	wr.Write(meta.Tempo(160))
 	wr.Write(channel.Ch2.NoteOn(65, 90))
-	wr.SetDelta(40)
+	wr.SetDelta(4000)
 	wr.Write(channel.Ch2.NoteOff(65))
 	wr.Write(meta.EndOfTrack)
 
@@ -39,23 +39,23 @@ func Example() {
 	// needed for the live timing
 	var start = time.Now()
 
-	// a helper to round the duration to milliseconds
-	var roundMS = func(d time.Duration) time.Duration {
-		return time.Millisecond * time.Duration((d.Nanoseconds() / 1000000))
+	// a helper to round the duration to seconds
+	var roundSec = func(d time.Duration) time.Duration {
+		return time.Second * time.Duration((d.Nanoseconds() / 1000000000))
 	}
 
 	// a helper to calculate the duration for both live and SMF messages
 	var calcDuration = func(p *midihandler.SMFPosition) (dur time.Duration) {
 		if p == nil {
 			// we are in a live setting
-			dur = roundMS(time.Now().Sub(start))
+			dur = roundSec(time.Now().Sub(start))
 			return
 		}
 
 		// SMF data, calculate the time from the timeformat of the SMF file
 		// we ignore the possibility that tempo information may come in a track following the one of
 		// the current message as the spec does not recommend this
-		return roundMS(ticks.Duration(bpm, uint32(p.AbsTime)))
+		return roundSec(ticks.Duration(bpm, uint32(p.AbsTime)))
 	}
 
 	hd.SMFHeader = func(head smf.Header) {
@@ -95,13 +95,13 @@ func Example() {
 
 	// now write some live data
 	mwr.Write(channel.Ch11.NoteOn(120, 50))
-	time.Sleep(time.Millisecond * 20)
+	time.Sleep(time.Second * 2)
 	mwr.Write(channel.Ch11.NoteOff(120))
 
 	// Output: -- SMF data --
 	// [0s] NoteOn at channel 2: key 65 velocity: 90
-	// [16ms] NoteOff at channel 2: key 65 velocity: 0
+	// [1s] NoteOff at channel 2: key 65 velocity: 0
 	// -- live data --
 	// [0s] NoteOn at channel 11: key 120 velocity: 50
-	// [20ms] NoteOff at channel 11: key 120 velocity: 0
+	// [2s] NoteOff at channel 11: key 120 velocity: 0
 }
