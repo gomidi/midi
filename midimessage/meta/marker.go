@@ -18,7 +18,7 @@ For a format 1 MIDI file, Marker Meta events should only occur within the first 
 type Marker string
 
 func (m Marker) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
 func (m Marker) Text() string {

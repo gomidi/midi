@@ -48,7 +48,7 @@ func (p PitchBend) Raw() []byte {
 }
 
 func (p PitchBend) String() string {
-	return fmt.Sprintf("%T (\"Portamento\") channel %v value %v absValue %v", p, p.channel, p.value, p.absValue)
+	return fmt.Sprintf("%T (\"Portamento\") channel %v value %v absValue %v", p, p.Channel(), p.Value(), p.AbsValue())
 }
 
 func (PitchBend) set(channel uint8, firstArg, secondArg uint8) setter2 {

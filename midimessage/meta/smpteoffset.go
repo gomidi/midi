@@ -61,10 +61,10 @@ func (s SMPTEOffset) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	s.Hour = bt[0]
-	s.Minute = bt[0]
-	s.Second = bt[0]
-	s.Frame = bt[0]
-	s.FractionalFrame = bt[0]
+	s.Minute = bt[1]
+	s.Second = bt[2]
+	s.Frame = bt[3]
+	s.FractionalFrame = bt[4]
 
 	return s, nil
 }

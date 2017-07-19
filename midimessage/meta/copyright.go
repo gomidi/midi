@@ -8,7 +8,7 @@ import (
 type Copyright string
 
 func (m Copyright) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 func (m Copyright) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)

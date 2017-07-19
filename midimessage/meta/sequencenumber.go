@@ -16,7 +16,7 @@ func (s SequenceNumber) Number() uint16 {
 }
 
 func (s SequenceNumber) String() string {
-	return fmt.Sprintf("SequenceNumber: %v", s.Number())
+	return fmt.Sprintf("%T: %v", s, s.Number())
 }
 
 func (s SequenceNumber) Raw() []byte {

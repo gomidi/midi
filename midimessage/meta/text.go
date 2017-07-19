@@ -8,7 +8,7 @@ import (
 type Text string
 
 func (m Text) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
 func (m Text) meta() {}

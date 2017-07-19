@@ -50,7 +50,7 @@ func (m SongPositionPointer) Number() uint16 {
 }
 
 func (m SongPositionPointer) String() string {
-	return fmt.Sprintf("%T: %v", m, uint16(m))
+	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
 // TODO test

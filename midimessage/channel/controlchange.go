@@ -45,9 +45,9 @@ func (ControlChange) set(channel uint8, firstArg, secondArg uint8) setter2 {
 func (c ControlChange) String() string {
 
 	if name, has := ccControllers[c.controller]; has {
-		return fmt.Sprintf("%T channel %v controller %v (%#v) value %v", c, c.channel, c.controller, name, c.value)
+		return fmt.Sprintf("%T channel %v controller %v (%#v) value %v", c, c.Channel(), c.Controller(), name, c.Value())
 	}
-	return fmt.Sprintf("%T channel %v controller %v value %v", c, c.channel, c.controller, c.value)
+	return fmt.Sprintf("%T channel %v controller %v value %v", c, c.Channel(), c.Controller(), c.Value())
 
 }
 

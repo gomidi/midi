@@ -34,7 +34,7 @@ func (n NoteOffVelocity) Raw() []byte {
 
 // String returns human readable information about the note-off message that includes velocity.
 func (m NoteOffVelocity) String() string {
-	return fmt.Sprintf("%T channel %v key %v velocity %v", m, m.channel, m.key, m.velocity)
+	return fmt.Sprintf("%T channel %v key %v velocity %v", m, m.Channel(), m.Key(), m.Velocity())
 }
 
 // NoteOff represents a note-off message by a note-on message with velocity of 0 (helps for running status).
@@ -62,7 +62,7 @@ func (n NoteOff) Channel() uint8 {
 
 // String returns human readable information about the note-off message.
 func (m NoteOff) String() string {
-	return fmt.Sprintf("%T channel %v key %v", m, m.channel, m.key)
+	return fmt.Sprintf("%T channel %v key %v", m, m.Channel(), m.Key())
 }
 
 // set returns a new note-off message that is set to the parsed arguments

@@ -19,7 +19,7 @@ func (m Escape) Data() []byte {
 }
 
 func (m Escape) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
 // Raw() returns the data with the escape prefix 0xF7
@@ -61,7 +61,7 @@ func (m Start) Len() int {
 func (c Start) sysex() {}
 
 func (m Start) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
 // Continue is an incomplete sysex that is following Start or SysExContinue but not ending it.
@@ -79,7 +79,7 @@ func (m Continue) Data() []byte {
 func (c Continue) sysex() {}
 
 func (m Continue) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
 // Raw() returns the data with the prefix 0xF7
@@ -106,7 +106,7 @@ func (m End) Data() []byte {
 }
 
 func (m End) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
 func (m End) Len() int {
@@ -152,7 +152,7 @@ func (m SysEx) Data() []byte {
 func (m SysEx) sysex() {}
 
 func (m SysEx) String() string {
-	return fmt.Sprintf("%T len: %v", m, len(m))
+	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
 func (m SysEx) Len() int {

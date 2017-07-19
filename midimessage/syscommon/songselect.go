@@ -24,7 +24,7 @@ func (m SongSelect) Number() uint8 {
 }
 
 func (m SongSelect) String() string {
-	return fmt.Sprintf("%T: %v", m, uint8(m))
+	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
 func (m SongSelect) sysCommon() {}

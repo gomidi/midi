@@ -8,7 +8,7 @@ import (
 type TrackInstrument string
 
 func (m TrackInstrument) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
 func (m TrackInstrument) Raw() []byte {

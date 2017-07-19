@@ -37,7 +37,7 @@ import (
 type DevicePort string
 
 func (m DevicePort) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
 func (m DevicePort) meta() {}
@@ -51,9 +51,11 @@ func (m DevicePort) readFrom(rd io.Reader) (Message, error) {
 	return DevicePort(text), nil
 }
 
-// TODO implement
 func (m DevicePort) Raw() []byte {
-	panic("not implemented")
+	return (&metaMessage{
+		Typ:  byte(byteDevicePort),
+		Data: []byte(m),
+	}).Bytes()
 }
 
 func (m DevicePort) Text() string {

@@ -8,7 +8,7 @@ import (
 type Sequence string
 
 func (m Sequence) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 func (m Sequence) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)

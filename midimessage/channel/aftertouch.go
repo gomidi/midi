@@ -28,7 +28,7 @@ func (a AfterTouch) Raw() []byte {
 
 // String returns human readable information about the aftertouch message.
 func (a AfterTouch) String() string {
-	return fmt.Sprintf("%T (\"ChannelPressure\") channel %v pressure %v", a, a.channel, a.pressure)
+	return fmt.Sprintf("%T (\"ChannelPressure\") channel %v pressure %v", a, a.Channel(), a.Pressure())
 }
 
 // set returns a new aftertouch message that is set to the parsed arguments

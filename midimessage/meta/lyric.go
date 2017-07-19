@@ -8,7 +8,7 @@ import (
 type Lyric string
 
 func (m Lyric) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
 func (m Lyric) readFrom(rd io.Reader) (Message, error) {

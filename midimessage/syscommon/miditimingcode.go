@@ -26,7 +26,7 @@ cdefg = Hours (0-23)
 type MIDITimingCode uint8
 
 func (m MIDITimingCode) String() string {
-	return fmt.Sprintf("%T: %v", m, uint8(m))
+	return fmt.Sprintf("%T: %v", m, m.QuarterFrame())
 }
 
 func (m MIDITimingCode) Raw() []byte {

@@ -17,7 +17,7 @@ This optional event is used to embed the patch/program name that is called up by
 This event may appear anywhere in a track, and there may be multiple occurrences within a track.
 */
 func (m ProgramName) String() string {
-	return fmt.Sprintf("%T: %#v", m, string(m))
+	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
 func (m ProgramName) Text() string {

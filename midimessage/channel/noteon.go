@@ -34,7 +34,7 @@ func (n NoteOn) Raw() []byte {
 
 // String returns human readable information about the note-on message.
 func (n NoteOn) String() string {
-	return fmt.Sprintf("%T channel %v key %v velocity %v", n, n.channel, n.key, n.velocity)
+	return fmt.Sprintf("%T channel %v key %v velocity %v", n, n.Channel(), n.Key(), n.Velocity())
 }
 
 // set returns a new note-on message that is set to the parsed arguments

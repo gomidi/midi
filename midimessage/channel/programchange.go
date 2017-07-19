@@ -28,7 +28,7 @@ func (c ProgramChange) Raw() []byte {
 
 // String returns human readable information about the program change message.
 func (c ProgramChange) String() string {
-	return fmt.Sprintf("%T channel %v program %v", c, c.channel, c.program)
+	return fmt.Sprintf("%T channel %v program %v", c, c.Channel(), c.Program())
 }
 
 // set returns a new program change message that is set to the parsed arguments

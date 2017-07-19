@@ -29,7 +29,7 @@ func (p PolyphonicAfterTouch) Channel() uint8 {
 
 // String returns human readable information about the polyphonic aftertouch message.
 func (p PolyphonicAfterTouch) String() string {
-	return fmt.Sprintf("%T (\"KeyPressure\") channel %v key %v pressure %v", p, p.channel, p.key, p.pressure)
+	return fmt.Sprintf("%T (\"KeyPressure\") channel %v key %v pressure %v", p, p.Channel(), p.Key(), p.Pressure())
 }
 
 // Raw returns the raw bytes of the polyphonic aftertouch message.
