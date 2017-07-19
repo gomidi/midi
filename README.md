@@ -44,7 +44,7 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Discussion
 
-If you have questions that won't fit into tickets, larger ideas etc. please participate in the Google group at https://groups.google.com/forum/#!forum/gomidi
+If you have questions that won't fit into tickets, larger ideas etc. please join the Google group at https://groups.google.com/forum/#!forum/gomidi
 
 ## Status
 
