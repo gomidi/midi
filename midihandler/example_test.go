@@ -99,9 +99,9 @@ func Example() {
 	mwr.Write(channel.Ch11.NoteOff(120))
 
 	// Output: -- SMF data --
-	// [0s] NoteOn at channel 2: key 65 velocity: 90
+	// [0] NoteOn at channel 2: key 65 velocity: 90
 	// [1s] NoteOff at channel 2: key 65 velocity: 0
 	// -- live data --
-	// [0s] NoteOn at channel 11: key 120 velocity: 50
+	// [0] NoteOn at channel 11: key 120 velocity: 50
 	// [2s] NoteOff at channel 11: key 120 velocity: 0
 }
