@@ -6,10 +6,10 @@ import (
 
 // Message is a MIDI message
 type Message interface {
-	// String() inspects the MIDI message in an informative way
+	// String inspects the MIDI message in an informative way
 	String() string
 
-	// Raw() returns the raw bytes of the MIDI message
+	// Raw returns the raw bytes of the MIDI message
 	Raw() []byte
 }
 
@@ -23,6 +23,18 @@ type Writer interface {
 type Reader interface {
 	// Read reads a MIDI message
 	Read() (Message, error)
+}
+
+// WriteCloser is a Writer that must be closed at the end of writing.
+type WriteCloser interface {
+	Writer
+	Close() error
+}
+
+// ReadCloser is a Reader that must be closed at the end of reading.
+type ReadCloser interface {
+	Reader
+	Close() error
 }
 
 var ErrUnexpectedEOF = errors.New("Unexpected End of File found.")
