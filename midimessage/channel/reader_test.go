@@ -59,7 +59,7 @@ func TestReadNormalNoteOff(t *testing.T) {
 		// ignore running status (see above) and always read the first argument
 		arg1, err := midilib.ReadByte(test.input)
 		if err != nil {
-			t.Errorf("[%v] ReadByte() returned error: %v", n, test.rawinput, err)
+			t.Errorf("[%v] ReadByte(% X) returned error: %v", n, test.rawinput, err)
 			continue
 		}
 
@@ -103,7 +103,7 @@ func TestRead(t *testing.T) {
 		// ignore running status (see above) and always read the first argument
 		arg1, err := midilib.ReadByte(test.input)
 		if err != nil {
-			t.Errorf("[%v] ReadByte() returned error: %v", n, test.rawinput, err)
+			t.Errorf("[%v] ReadByte(% X) returned error: %v", n, test.rawinput, err)
 			continue
 		}
 
