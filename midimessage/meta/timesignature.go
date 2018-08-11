@@ -129,7 +129,7 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 	m.DemiSemiQuaverPerQuarter = demiSemiQuaverPerQuarter
 	m.ClocksPerClick = clocksPerClick
 	m.Numerator = numerator
-	m.Denominator = 2 << (denominator - 1)
+	m.Denominator = bin2decDenom(denominator)
 	return m, nil
 	/*
 		// TODO: do something with clocksPerClick and demiSemiQuaverPerQuarter
@@ -146,3 +146,11 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 }
 
 func (m TimeSignature) meta() {}
+
+// bin2decDenom converts the binary denominator to the decimal
+func bin2decDenom(bin uint8) uint8 {
+	if bin == 0 {
+		return 1
+	}
+	return 2 << (bin - 1)
+}
