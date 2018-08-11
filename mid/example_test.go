@@ -93,17 +93,15 @@ func Example() {
 
 	mwr := mid.NewLiveWriter(lwr)
 
-	// mwr := midiwriter.New(lwr)
+	// reset the time
 	start = time.Now()
 
 	mwr.SetChannel(11)
 
 	// now write some live data
-	// mwr.Write(channel.Ch11.NoteOn(120, 50))
 	mwr.NoteOn(120, 50)
 	time.Sleep(time.Second * 2)
 	mwr.NoteOff(120)
-	// mwr.Write(channel.Ch11.NoteOff(120))
 
 	// Output: -- SMF data --
 	// [0s] NoteOn at channel 2: key 65 velocity: 90
