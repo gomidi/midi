@@ -6,6 +6,12 @@ import (
 	"github.com/gomidi/midi/internal/midilib"
 )
 
+const (
+	PitchReset   = 0
+	PitchLowest  = -8191
+	PitchHighest = 8191
+)
+
 /* http://www.somascape.org/midi/tech/mfile.html#sysex
 Pitch Bend
 
@@ -14,9 +20,11 @@ Pitch Bend
 Apply pitch bend to all notes currently sounding on MIDI channel n.
 
 lsb (0 - 127) and msb (0 - 127) together form a 14-bit number, allowing fine adjustment to pitch.
-Using hex, 00 40 is the central (no bend) setting. 00 00 gives the maximum downwards bend, and 7F 7F the maximum upwards bend.
+Using hex, 00 40 is the central (no bend) setting. 00 00 gives the maximum downwards bend,
+and 7F 7F the maximum upwards bend.
 
-The amount of pitch bend produced by these minimum and maximum settings is determined by the receiving device's Pitch Bend Sensitivity, which can be set using RPN 00 00.
+The amount of pitch bend produced by these minimum and maximum settings is determined by the
+receiving device's Pitch Bend Sensitivity, which can be set using RPN 00 00.
 */
 
 // PitchBend represents a pitch bend message (aka "Portamento").

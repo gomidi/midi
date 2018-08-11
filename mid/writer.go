@@ -127,6 +127,8 @@ func (m *midiWriter) NoteOn(key, veloctiy uint8) error {
 }
 
 // PitchBend writes a pitch bend message for the current channel
+// For reset value, use 0, for lowest -8191 and highest 8191
+// Or use the pitch constants of midimessage/channel
 func (m *midiWriter) PitchBend(value int16) error {
 	_, err := m.wr.Write(m.ch.PitchBend(value))
 	return err
