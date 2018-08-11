@@ -46,6 +46,8 @@ const (
 	minorMode = 1
 )
 
+// KeySignature sets the key/scale of the SMF file.
+// If you want a more comfortable way to set the key, use the key subpackage.
 type KeySignature struct {
 	Key     uint8
 	IsMajor bool

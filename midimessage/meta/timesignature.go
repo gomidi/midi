@@ -36,9 +36,11 @@ For a format 1 MIDI file, Time Signature Meta events should only occur within th
 
 */
 
-// TimeSignature allows to specify
-// ClocksPerClick and DemiSemiQuaverPerQuarter explicit, instead of taking
-// the defaults
+// TimeSignature sets the time signature according to the SMF spec.
+// Denominator isn't a power of 2, but a readable decimal number (uint8).
+// If you want a comfortabel way without
+// having to worry about ClocksPerClick and DemiSemiQuaverPerQuarter, use
+// the meter subpackage.
 type TimeSignature struct {
 	Numerator                uint8
 	Denominator              uint8
@@ -64,6 +66,10 @@ func (m TimeSignature) Raw() []byte {
 		Data: []byte{m.Numerator, denom, cpcl, dsqpq},
 	}).Bytes()
 
+}
+
+func (m TimeSignature) Signature() string {
+	return fmt.Sprintf("%v/%v", m, m.Numerator, m.Denominator)
 }
 
 func (m TimeSignature) String() string {
