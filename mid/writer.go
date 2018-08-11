@@ -286,7 +286,7 @@ func (s *SMFWriter) Text(text string) error {
 	return err
 }
 
-// Meter writes the time signature meta message i a more comfortable way.
+// Meter writes the time signature meta message in a more comfortable way.
 // Numerator and Denominator are decimals.
 func (s *SMFWriter) Meter(numerator, denominator uint8) error {
 	_, err := s.wr.Write(meter.Meter(numerator, denominator))
