@@ -5,9 +5,9 @@
 /*
 	Package midireader provides a reader for live/streaming/"over the wire" MIDI data.
 
-	There is also a more comfortable handler package:
+	There is also a more comfortable package that has it all:
 
-	  github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
+	  github.com/gomidi/midi/mid
 
 	Usage
 

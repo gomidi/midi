@@ -17,9 +17,9 @@
 	  github.com/gomidi/midi/midimessage/meta       (Meta Messages)
 	  github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 
-	For reading there is also a comfortable handler package:
+	There is also a more comfortable package that has it all:
 
-	  github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
+	  github.com/gomidi/midi/mid
 
 */
 package smf

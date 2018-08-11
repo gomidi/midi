@@ -7,28 +7,25 @@ import (
 	"time"
 
 	"github.com/gomidi/midi/mid"
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/midiwriter"
 	"github.com/gomidi/midi/smf"
-	"github.com/gomidi/midi/smf/smfwriter"
 )
-
-func mkSMF() io.Reader {
-	var bf bytes.Buffer
-
-	wr := smfwriter.New(&bf)
-	wr.Write(meta.Tempo(160))
-	wr.Write(channel.Ch2.NoteOn(65, 90))
-	wr.SetDelta(4000)
-	wr.Write(channel.Ch2.NoteOff(65))
-	wr.Write(meta.EndOfTrack)
-
-	return bytes.NewReader(bf.Bytes())
-}
 
 func Example() {
 	// This example illustrates how the same handler can be used for live and SMF MIDI messages
+	// It also illustrates how live and SMF midi can be written
+
+	// make a SMF
+	mkSMF := func() io.Reader {
+		var bf bytes.Buffer
+		wr := mid.NewSMFWriter(&bf, 1)
+		wr.Tempo(160)
+		wr.SetChannel(2)
+		wr.NoteOn(65, 90)
+		wr.SetDelta(4000)
+		wr.NoteOff(65)
+		wr.EndOfTrack()
+		return bytes.NewReader(bf.Bytes())
+	}
 
 	hd := mid.NewHandler(mid.NoLogger())
 
@@ -70,11 +67,15 @@ func Example() {
 
 	// set the functions for the messages you are interested in
 	hd.Message.Channel.NoteOn = func(p *mid.SMFPosition, channel, key, vel uint8) {
-		fmt.Printf("[%vs] NoteOn at channel %v: key %v velocity: %v\n", calcDuration(p).Seconds(), channel, key, vel)
+		fmt.Printf("[%vs] NoteOn at channel %v: key %v velocity: %v\n",
+			calcDuration(p).Seconds(),
+			channel, key, vel)
 	}
 
 	hd.Message.Channel.NoteOff = func(p *mid.SMFPosition, channel, key, vel uint8) {
-		fmt.Printf("[%vs] NoteOff at channel %v: key %v velocity: %v\n", calcDuration(p).Seconds(), channel, key, vel)
+		fmt.Printf("[%vs] NoteOff at channel %v: key %v velocity: %v\n",
+			calcDuration(p).Seconds(),
+			channel, key, vel)
 	}
 
 	// handle the smf
@@ -90,13 +91,19 @@ func Example() {
 		hd.ReadLive(lrd)
 	}()
 
-	mwr := midiwriter.New(lwr)
+	mwr := mid.NewLiveWriter(lwr)
+
+	// mwr := midiwriter.New(lwr)
 	start = time.Now()
 
+	mwr.SetChannel(11)
+
 	// now write some live data
-	mwr.Write(channel.Ch11.NoteOn(120, 50))
+	// mwr.Write(channel.Ch11.NoteOn(120, 50))
+	mwr.NoteOn(120, 50)
 	time.Sleep(time.Second * 2)
-	mwr.Write(channel.Ch11.NoteOff(120))
+	mwr.NoteOff(120)
+	// mwr.Write(channel.Ch11.NoteOff(120))
 
 	// Output: -- SMF data --
 	// [0s] NoteOn at channel 2: key 65 velocity: 90

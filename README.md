@@ -7,7 +7,7 @@ Reading and writing of MIDI messages with Go.
 - provide building blocks for MIDI applications
 - stable API
 - no dependencies outside the standard library
-- small modular packages (see below)
+- small modular core packages and a fat comfortable porcelain package
 - pure Go library (no C, no assembler) 
 
 ## Non-Goals
@@ -16,6 +16,18 @@ Reading and writing of MIDI messages with Go.
 - dealing with the inner structure of sysex messages
 - connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi )
 - CLI tools
+
+## Usage
+
+Most users will want to use the porcelain package
+
+```
+go get -d -t github.com/gomidi/midi/mid
+```
+
+Docs: [![Documentation](http://godoc.org/gomidi/midi/mid?status.png)](http://godoc.org/gomidi/midi/mid)
+
+You don't need to read here further, if you are not interested in the nitty gritty details. 
 
 ## Modularity
 
@@ -80,7 +92,7 @@ These ideas are shown in the following table.
     
 	------- porcelain packages -------
     smf/smftrack              no                  no
-    mid                       no                  no
+    mid                       almost              yes
 
 
 ## License

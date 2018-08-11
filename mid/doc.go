@@ -42,5 +42,7 @@ and order number of the track in which the message appeared.
 This way the user can ignore the messages and tracks he is not interested in.
 
 See the example for a handler that handles both live and SMF messages.
+
+For writing there is a LiveWriter for "over the wire" writing and a SMFWriter to write SMF files.
 */
 package mid

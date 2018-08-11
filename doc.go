@@ -15,11 +15,12 @@
   This should allow to easily develop transformations (e.g. quantization,
   filtering) that may be used in both cases.
 
-  One package providing a unified access in both cases is the handler package for reading MIDI data.
+  If you want a comfortable common package providing everything at a high level, use the
+  procelain package
 
-    github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
+    github.com/gomidi/midi/mid
 
-  The core implementations can be found here:
+  The underlying core implementations can be found here:
 
     github.com/gomidi/midi/midireader (live reading)
     github.com/gomidi/midi/midiwriter (live writing)
@@ -27,7 +28,7 @@
     github.com/gomidi/midi/smf/smfwriter   (SMF writing)
     github.com/gomidi/midi/smf/smftrack    (SMF modification)
 
-  The MIDI messages themselves that can be written or analyzed can be found here:
+  The core of the MIDI messages that can be written or analyzed can be found here:
 
     github.com/gomidi/midi/midimessage/channel    (Channel Messages)
     github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
