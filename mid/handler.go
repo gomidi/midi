@@ -1,13 +1,13 @@
 package mid
 
 import (
-	"github.com/gomidi/midi/smf"
-
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/midimessage/syscommon"
 	"github.com/gomidi/midi/midimessage/sysex"
+	"github.com/gomidi/midi/smf"
+	"time"
 )
 
 // SMFPosition is the position of the event inside a standard midi file (SMF).
@@ -40,6 +40,8 @@ func NewHandler(opts ...Option) *Handler {
 // The desired functions must be attached before Handler.ReadLive or Handler.ReadSMF is called
 // and they must not be changed while these methods are running.
 type Handler struct {
+	tempoChanges []tempoChange
+	header       smf.Header
 
 	// callback functions for SMF (Standard MIDI File) header data
 	SMFHeader func(smf.Header)
@@ -142,6 +144,45 @@ type Handler struct {
 	errSMF error
 }
 
+type tempoChange struct {
+	absTicks uint64
+	bpm      uint32
+}
+
+func calcDeltaTime(mt smf.MetricTicks, deltaTicks uint32, bpm uint32) time.Duration {
+	return mt.Duration(bpm, deltaTicks)
+}
+
+func (h *Handler) registerTempoChange(pos SMFPosition, bpm uint32) {
+	h.tempoChanges = append(h.tempoChanges, tempoChange{pos.AbsTime, bpm})
+}
+
+// TimeAt returns the time.Duration at the given absolute position counted
+// from the beginning of the file, respecting all the tempo changes in between.
+// If the time format is not of type smf.MetricTicks, nil is returned.
+func (h *Handler) TimeAt(absTicks uint64) *time.Duration {
+	mt, isMetric := h.header.TimeFormat.(smf.MetricTicks)
+	if !isMetric {
+		return nil
+	}
+
+	var tc = tempoChange{0, 120}
+	var lastTick uint64
+	var lastDur time.Duration
+	for _, t := range h.tempoChanges {
+		if t.absTicks >= absTicks {
+			// println("stopping")
+			break
+		}
+		// println("pre", "lastDur", lastDur, "lastTick", lastTick, "bpm", tc.bpm)
+		lastDur += calcDeltaTime(mt, uint32(t.absTicks-lastTick), tc.bpm)
+		tc = t
+		lastTick = t.absTicks
+	}
+	result := lastDur + calcDeltaTime(mt, uint32(absTicks-lastTick), tc.bpm)
+	return &result
+}
+
 // log does the logging
 func (h *Handler) log(m midi.Message) {
 	if h.pos != nil {
@@ -222,6 +263,7 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 			}
 
 		case meta.Tempo:
+			h.registerTempoChange(*h.pos, msg.BPM())
 			if h.Message.Meta.Tempo != nil {
 				h.Message.Meta.Tempo(*h.pos, msg.BPM())
 			}

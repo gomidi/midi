@@ -49,9 +49,10 @@ func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
 }
 
 func (h *Handler) readSMF(rd smf.Reader) {
+	h.header = rd.Header()
 
 	if h.SMFHeader != nil {
-		h.SMFHeader(rd.Header())
+		h.SMFHeader(h.header)
 	}
 
 	// use err here
