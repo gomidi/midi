@@ -25,7 +25,7 @@ Most users will want to use the porcelain package
 go get -d -t github.com/gomidi/midi/mid
 ```
 
-Docs: [![Documentation](http://godoc.org/gomidi/midi/mid?status.png)](http://godoc.org/gomidi/midi/mid)
+Docs: [![Documentation](http://godoc.org/github.com/gomidi/midi/mid?status.png)](http://godoc.org/github.com/gomidi/midi/mid)
 
 You don't need to read here further, if you are not interested in the nitty gritty details. 
 
