@@ -19,6 +19,7 @@ import (
 )
 
 // LiveWriter writes live MIDI data. Its methods must not be called concurrently
+// The LiveWrite does not make use of the running status.
 type LiveWriter struct {
 	*midiWriter
 }
@@ -315,11 +316,18 @@ func (s *SMFWriter) Track(track string) error {
 
 // NewSMFWriter returns a new SMFWriter that writes to dest.
 // It panics if numtracks is == 0.
-func NewSMFWriter(dest io.Writer, numtracks uint16) *SMFWriter {
+func NewSMFWriter(dest io.Writer, numtracks uint16, options ...smfwriter.Option) *SMFWriter {
 	if numtracks == 0 {
 		panic("numtracks must be > 0")
 	}
-	wr := smfwriter.New(dest, smfwriter.NumTracks(numtracks), smfwriter.TimeFormat(smf.MetricTicks(0)))
+
+	options = append(
+		[]smfwriter.Option{
+			smfwriter.NumTracks(numtracks),
+			smfwriter.TimeFormat(smf.MetricTicks(0)),
+		}, options...)
+
+	wr := smfwriter.New(dest, options...)
 	return &SMFWriter{
 		dest:       dest,
 		wr:         wr,
@@ -330,7 +338,7 @@ func NewSMFWriter(dest io.Writer, numtracks uint16) *SMFWriter {
 // NewSMFFile creates a new SMF file and allows writer to write to it.
 // The file is guaranteed to be closed when returning.
 // The last track is closed automatically, if needed.
-func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error) error {
+func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error, options ...smfwriter.Option) error {
 	f, err := os.Create(file)
 	if err != nil {
 		return err
@@ -338,7 +346,7 @@ func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error) er
 
 	defer f.Close()
 
-	wr := NewSMFWriter(f, numtracks)
+	wr := NewSMFWriter(f, numtracks, options...)
 	if writer != nil {
 		err = writer(wr)
 		if err != nil {
@@ -356,7 +364,7 @@ func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error) er
 	return err
 }
 
-// NewLiveWriter creates and new LiveWriter
+// NewLiveWriter creates and new LiveWriter.
 func NewLiveWriter(dest io.Writer) *LiveWriter {
 	wr := midiwriter.New(dest, midiwriter.NoRunningStatus())
 	return &LiveWriter{&midiWriter{wr: wr, ch: channel.Ch0}}
