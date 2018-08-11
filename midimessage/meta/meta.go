@@ -48,7 +48,7 @@ var (
 	_ Message = Text("")
 	_ Message = Copyright("")
 	_ Message = Sequence("")
-	_ Message = TrackInstrument("")
+	_ Message = Track("")
 	_ Message = Marker("")
 	_ Message = Lyric("")
 	_ Message = Cuepoint("")

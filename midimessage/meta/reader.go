@@ -13,7 +13,7 @@ const (
 	byteText              = byte(0x01)
 	byteCopyright         = byte(0x02)
 	byteSequence          = byte(0x03)
-	byteTrackInstrument   = byte(0x04)
+	byteTrack             = byte(0x04)
 	byteLyric             = byte(0x05)
 	byteMarker            = byte(0x06)
 	byteCuepoint          = byte(0x07)
@@ -34,7 +34,7 @@ var metaMessages = map[byte]Message{
 	byteText:              Text(""),
 	byteCopyright:         Copyright(""),
 	byteSequence:          Sequence(""),
-	byteTrackInstrument:   TrackInstrument(""),
+	byteTrack:             Track(""),
 	byteLyric:             Lyric(""),
 	byteMarker:            Marker(""),
 	byteCuepoint:          Cuepoint(""),

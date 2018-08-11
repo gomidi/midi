@@ -5,31 +5,31 @@ import (
 	"io"
 )
 
-type TrackInstrument string
+type Track string
 
-func (m TrackInstrument) String() string {
+func (m Track) String() string {
 	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
-func (m TrackInstrument) Raw() []byte {
+func (m Track) Raw() []byte {
 	return (&metaMessage{
-		Typ:  byteTrackInstrument,
+		Typ:  byteTrack,
 		Data: []byte(m),
 	}).Bytes()
 }
 
-func (m TrackInstrument) readFrom(rd io.Reader) (Message, error) {
+func (m Track) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return TrackInstrument(text), nil
+	return Track(text), nil
 }
 
-func (m TrackInstrument) Text() string {
+func (m Track) Text() string {
 	return string(m)
 }
 
-func (m TrackInstrument) meta() {}
+func (m Track) meta() {}
