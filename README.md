@@ -58,7 +58,7 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-beta - API mostly stable
+late beta - API mostly stable
 
 - Supported Go versions: >= 1.2
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
@@ -72,7 +72,7 @@ beta - API mostly stable
     smf                       yes                 yes
     smf/smfwriter             yes                 yes
     smf/smfreader             yes                 yes
-    midimessage/channel       almost              yes
+    midimessage/channel       yes                 yes
     midimessage/cc            yes                 yes
     midimessage/meta          yes                 yes
     midimessage/realtime      yes                 yes
