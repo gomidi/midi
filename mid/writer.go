@@ -226,13 +226,13 @@ func (s *SMFWriter) Marker(text string) error {
 	return err
 }
 
-// MIDIChannel writes the MIDI channel meta message
+// MIDIChannel writes the deprecated MIDI channel meta message
 func (s *SMFWriter) MIDIChannel(ch uint8) error {
 	_, err := s.wr.Write(meta.MIDIChannel(ch))
 	return err
 }
 
-// MIDIPort writes the MIDI port meta message
+// MIDIPort writes the deprecated MIDI port meta message
 func (s *SMFWriter) MIDIPort(port uint8) error {
 	_, err := s.wr.Write(meta.MIDIPort(port))
 	return err
