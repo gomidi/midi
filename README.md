@@ -64,6 +64,7 @@ beta - API mostly stable
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
 
 
+```
     package                   API stable          complete
     ----------------------------------------------------
     midiwriter                yes                 yes
@@ -82,7 +83,7 @@ beta - API mostly stable
 	------- porcelain packages -------
     smf/smftrack              no                  no
     mid                       almost              yes
-
+```
 
 ## License
 
