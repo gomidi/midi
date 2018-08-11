@@ -1,6 +1,8 @@
 # midi
 Reading and writing of MIDI messages with Go.
 
+[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
+
 ## Goals
 
 - implementation of complete MIDI standard (live and SMF data)
@@ -50,7 +52,7 @@ On my laptop, reading noteon and noteoff ("live")
     BenchmarkSameChannel            351 ns/op  12 B/op  7 allocs/op
     BenchmarkAlternatingChannel     425 ns/op  14 B/op  9 allocs/op
 
-## Documentation
+## Full Documentation
 
 see http://godoc.org/github.com/gomidi/midi
 
@@ -58,21 +60,8 @@ see http://godoc.org/github.com/gomidi/midi
 
 beta - API mostly stable
 
-[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
-
-[![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi)
-
-[![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi)
-
-[![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
-
 - Supported Go versions: >= 1.2
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
-
-The package and the subpackages are not officially stable yet.
-
-However - there are some ideas about how stable the subpackages probably are.
-These ideas are shown in the following table. 
 
 
     package                   API stable          complete
