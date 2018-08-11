@@ -16,7 +16,7 @@ const (
 	byteTrackInstrument   = byte(0x04)
 	byteLyric             = byte(0x05)
 	byteMarker            = byte(0x06)
-	byteCuePoint          = byte(0x07)
+	byteCuepoint          = byte(0x07)
 	byteMIDIChannel       = byte(0x20)
 	byteDevicePort        = byte(0x9)
 	byteMIDIPort          = byte(0x21)
@@ -37,7 +37,7 @@ var metaMessages = map[byte]Message{
 	byteTrackInstrument:   TrackInstrument(""),
 	byteLyric:             Lyric(""),
 	byteMarker:            Marker(""),
-	byteCuePoint:          CuePoint(""),
+	byteCuepoint:          Cuepoint(""),
 	byteMIDIChannel:       MIDIChannel(0),
 	byteDevicePort:        DevicePort(""),
 	byteMIDIPort:          MIDIPort(0),

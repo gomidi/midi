@@ -17,8 +17,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.Copyright: \"(c) 2017\"",
 		},
 		{
-			CuePoint("verse"),
-			"meta.CuePoint: \"verse\"",
+			Cuepoint("verse"),
+			"meta.Cuepoint: \"verse\"",
 		},
 		{
 			DevicePort("2"),
@@ -116,7 +116,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 02 08 28 63 29 20 32 30 31 37",
 		},
 		{
-			CuePoint("verse"),
+			Cuepoint("verse"),
 			"FF 07 05 76 65 72 73 65",
 		},
 		{

@@ -51,8 +51,8 @@ func TestRead(t *testing.T) {
 			"meta.Copyright: \"(c) 2017\"",
 		),
 		mkTest(
-			CuePoint("verse"),
-			"meta.CuePoint: \"verse\"",
+			Cuepoint("verse"),
+			"meta.Cuepoint: \"verse\"",
 		),
 		mkTest(
 			DevicePort("2"),

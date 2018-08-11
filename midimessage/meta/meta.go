@@ -51,7 +51,7 @@ var (
 	_ Message = TrackInstrument("")
 	_ Message = Marker("")
 	_ Message = Lyric("")
-	_ Message = CuePoint("")
+	_ Message = Cuepoint("")
 	_ Message = SequenceNumber(0)
 	_ Message = MIDIChannel(0)
 	_ Message = DevicePort("")

@@ -15,31 +15,31 @@ This optional event is used to describe something that happens within a film, vi
 For a format 1 MIDI file, Cue Point Meta events should only occur within the first MTrk chunk.
 */
 
-type CuePoint string
+type Cuepoint string
 
-func (m CuePoint) Text() string {
+func (m Cuepoint) Text() string {
 	return string(m)
 }
 
-func (m CuePoint) Raw() []byte {
+func (m Cuepoint) Raw() []byte {
 	return (&metaMessage{
-		Typ:  byte(byteCuePoint),
+		Typ:  byte(byteCuepoint),
 		Data: []byte(m),
 	}).Bytes()
 }
 
-func (m CuePoint) String() string {
+func (m Cuepoint) String() string {
 	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
-func (m CuePoint) readFrom(rd io.Reader) (Message, error) {
+func (m Cuepoint) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return CuePoint(text), nil
+	return Cuepoint(text), nil
 }
 
-func (m CuePoint) meta() {}
+func (m Cuepoint) meta() {}
