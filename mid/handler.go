@@ -1,4 +1,4 @@
-package midihandler
+package mid
 
 import (
 	"github.com/gomidi/midi/smf"
@@ -22,8 +22,8 @@ type SMFPosition struct {
 	AbsTime uint64
 }
 
-// New returns a new handler
-func New(opts ...Option) *Handler {
+// NewHandler returns a new handler
+func NewHandler(opts ...Option) *Handler {
 	h := &Handler{logger: logfunc(printf)}
 
 	for _, opt := range opts {

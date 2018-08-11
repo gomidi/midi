@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package midihandler provides an easy abstraction for reading of MIDI data live or from SMF files.
+Package mid provides an easy abstraction for reading and writing of MIDI data live or from SMF files.
 
 It provides a common handler for live reading and SMF reading, so that code can be shared in both use cases.
 The user attaches callback functions to the handler and they get invoked as the MIDI data is read.
@@ -43,4 +43,4 @@ This way the user can ignore the messages and tracks he is not interested in.
 
 See the example for a handler that handles both live and SMF messages.
 */
-package midihandler
+package mid

@@ -1,4 +1,4 @@
-package midihandler
+package mid
 
 import (
 	"io"

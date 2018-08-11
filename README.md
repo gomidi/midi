@@ -42,13 +42,9 @@ On my laptop, reading noteon and noteoff ("live")
 
 see http://godoc.org/github.com/gomidi/midi
 
-## Discussion
-
-If you have questions that won't fit into tickets, larger ideas etc. please join the Google group at https://groups.google.com/forum/#!forum/gomidi
-
 ## Status
 
-beta - API may change
+beta - API mostly stable
 
 [![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi)
 
@@ -66,14 +62,6 @@ The package and the subpackages are not officially stable yet.
 However - there are some ideas about how stable the subpackages probably are.
 These ideas are shown in the following table. 
 
-So for developers: 
-
-- If you have issues with an API that is declared as "stable"
-in this table, please speak up soon, because there will probably be some important discussions that also effects other packages.  
-
-- If you have issues with an API that is not declared as "stable" please have a look at the open issues that explain the current status and help to get it stable.
-
-**Users of this package should ignore the table, because as long as the whole package is in beta status, anything may change any time**.
 
     package                   API stable          complete
     ----------------------------------------------------
@@ -84,7 +72,7 @@ in this table, please speak up soon, because there will probably be some importa
     smf/smfreader             yes                 yes
     midimessage/channel       almost              yes
     midimessage/cc            yes                 yes
-    midimessage/meta          almost              yes
+    midimessage/meta          yes                 yes
     midimessage/realtime      yes                 yes
     midimessage/syscommon     yes                 yes
     midimessage/sysex         no                  yes
@@ -92,7 +80,7 @@ in this table, please speak up soon, because there will probably be some importa
     
 	------- porcelain packages -------
     smf/smftrack              no                  no
-    midihandler               no                  yes
+    mid                       no                  no
 
 
 ## License

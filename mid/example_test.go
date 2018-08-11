@@ -1,4 +1,4 @@
-package midihandler_test
+package mid_test
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/gomidi/midi/midihandler"
+	"github.com/gomidi/midi/mid"
 	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/midiwriter"
@@ -30,7 +30,7 @@ func mkSMF() io.Reader {
 func Example() {
 	// This example illustrates how the same handler can be used for live and SMF MIDI messages
 
-	hd := midihandler.New(midihandler.NoLogger())
+	hd := mid.NewHandler(mid.NoLogger())
 
 	// needed for the SMF timing
 	var ticks smf.MetricTicks
@@ -45,7 +45,7 @@ func Example() {
 	}
 
 	// a helper to calculate the duration for both live and SMF messages
-	var calcDuration = func(p *midihandler.SMFPosition) (dur time.Duration) {
+	var calcDuration = func(p *mid.SMFPosition) (dur time.Duration) {
 		if p == nil {
 			// we are in a live setting
 			dur = roundSec(time.Now().Sub(start))
@@ -64,16 +64,16 @@ func Example() {
 	}
 
 	// we will override the tempo by the one given in the SMF
-	hd.Message.Meta.Tempo = func(p midihandler.SMFPosition, valBPM uint32) {
+	hd.Message.Meta.Tempo = func(p mid.SMFPosition, valBPM uint32) {
 		bpm = valBPM
 	}
 
 	// set the functions for the messages you are interested in
-	hd.Message.Channel.NoteOn = func(p *midihandler.SMFPosition, channel, key, vel uint8) {
+	hd.Message.Channel.NoteOn = func(p *mid.SMFPosition, channel, key, vel uint8) {
 		fmt.Printf("[%vs] NoteOn at channel %v: key %v velocity: %v\n", calcDuration(p).Seconds(), channel, key, vel)
 	}
 
-	hd.Message.Channel.NoteOff = func(p *midihandler.SMFPosition, channel, key, vel uint8) {
+	hd.Message.Channel.NoteOff = func(p *mid.SMFPosition, channel, key, vel uint8) {
 		fmt.Printf("[%vs] NoteOff at channel %v: key %v velocity: %v\n", calcDuration(p).Seconds(), channel, key, vel)
 	}
 
