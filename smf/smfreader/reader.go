@@ -39,6 +39,12 @@ func ReadFile(file string, callback func(smf.Reader), options ...Option) error {
 
 	callback(rd)
 
+	rrd := rd.(*reader)
+
+	if rrd.tracksMissing() {
+		return ErrMissing
+	}
+
 	return nil
 }
 
@@ -117,9 +123,21 @@ func (r *reader) Header() smf.Header {
 	return r.header
 }
 
+func (r *reader) tracksMissing() bool {
+	return r.processedTracks < int16(r.header.NumTracks)
+}
+
 // Read reads the next midi message
 // If the file has been read completely, ErrFinished is returned as error.
 func (r *reader) Read() (m midi.Message, err error) {
+	msg, err := r.read()
+	if err == io.EOF && r.tracksMissing() {
+		return nil, ErrMissing
+	}
+	return msg, err
+}
+
+func (r *reader) read() (m midi.Message, err error) {
 	if r.isDone {
 		return nil, ErrFinished
 	}

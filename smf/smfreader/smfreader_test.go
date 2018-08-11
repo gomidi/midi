@@ -76,6 +76,21 @@ Track 0@0 meta.endOfTrack
 
 }
 
+func TestReadSMF1Missing(t *testing.T) {
+
+	rd := New(bytes.NewReader(examples.SpecSMF1Missing))
+	err := rd.ReadHeader()
+
+	for err == nil {
+		_, err = rd.Read()
+	}
+
+	if err != ErrMissing {
+		t.Errorf("expected ErrMissing, got: %#v", err)
+	}
+
+}
+
 func TestReadSMF1(t *testing.T) {
 	var expected = `
 SMF1
