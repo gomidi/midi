@@ -43,6 +43,32 @@ func TestMessagesString(t *testing.T) {
 
 }
 
+func TestMessagesSongPositionPointer(t *testing.T) {
+
+	tests := []struct {
+		expected uint16
+	}{
+		{8},
+		{4},
+		{32},
+		{320},
+		{13320},
+	}
+
+	for _, test := range tests {
+		bt := SongPositionPointer(test.expected).Raw()
+		rd := bytes.NewReader(bt)
+		typ, _ := rd.ReadByte()
+		r := NewReader(rd, typ)
+		msg, _ := r.Read()
+
+		if got, want := msg.(SongPositionPointer).Number(), test.expected; got != want {
+			t.Errorf("SongPositionPointer(%v) = %v; want %v", test.expected, got, want)
+		}
+	}
+
+}
+
 func TestMessagesRaw(t *testing.T) {
 
 	tests := []struct {
@@ -54,8 +80,8 @@ func TestMessagesRaw(t *testing.T) {
 			"F1 03",
 		},
 		{
-			SongPositionPointer(4),
-			"F2 00",
+			SongPositionPointer(8),
+			"F2 00 08",
 		},
 		{
 			SongSelect(2),
