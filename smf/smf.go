@@ -237,20 +237,20 @@ func (q MetricTicks) Ticks(tempoBPM uint32, d time.Duration) (ticks uint32) {
 }
 
 func (q MetricTicks) div(d float64) uint32 {
-	return uint32(roundFloat(float64(q.Ticks4th())/d, 0))
+	return uint32(roundFloat(float64(q.Number())/d, 0))
 }
 
 // Number returns the number of the metric ticks (ticks for a quarter note, defaults to 960)
 func (q MetricTicks) Number() uint16 {
-	return q.Ticks4th()
-}
-
-// Ticks4th returns the ticks for a quarter note
-func (q MetricTicks) Ticks4th() uint16 {
-	if uint16(q) == 0 {
+	if q == 0 {
 		return 960 // default
 	}
 	return uint16(q)
+}
+
+// Ticks4th returns the ticks for a quarter note
+func (q MetricTicks) Ticks4th() uint32 {
+	return uint32(q.Number())
 }
 
 // Ticks8th returns the ticks for a quaver note
