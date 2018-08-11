@@ -32,14 +32,14 @@ type Track struct {
 	// chunk       smf.Chunk
 	lastEvendNo uint64
 
-	trackinstrument string
-	program         string
-	sequence        string
+	trackName string
+	program   string
+	sequence  string
 }
 
 func (t Track) Name() string {
-	if t.trackinstrument != "" {
-		return t.trackinstrument
+	if t.trackName != "" {
+		return t.trackName
 	}
 
 	if t.sequence != "" {
@@ -190,8 +190,8 @@ func NewEvent(absTicks uint64, msg midi.Message) Event {
 func (t *Track) addMessage(absTicks uint64, msg midi.Message) {
 
 	switch v := msg.(type) {
-	case meta.TrackInstrument:
-		t.trackinstrument = v.Text()
+	case meta.Track:
+		t.trackName = v.Text()
 	case meta.ProgramName:
 		t.program = v.Text()
 	case meta.Sequence:

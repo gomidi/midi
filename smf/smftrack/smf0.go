@@ -84,7 +84,7 @@ func (SMF0) WriteTo(wr io.Writer, timeformat smf.TimeFormat, tracks ...*Track) (
 			switch ev.Message.(type) {
 
 			// allow meta messages that are inpedendant of a track
-			case meta.Copyright, meta.CuePoint, meta.Marker, meta.Tempo, meta.TimeSignature, meta.KeySignature:
+			case meta.Copyright, meta.Cuepoint, meta.Marker, meta.Tempo, meta.TimeSignature, meta.KeySignature:
 				shouldAdd = true
 			default:
 				_, shouldAdd = ev.Message.(channel.Message)

@@ -61,13 +61,13 @@ type Handler struct {
 			KeySignature  func(p SMFPosition, key uint8, ismajor bool, num_accidentals uint8, accidentals_are_flat bool)
 
 			// SMF tracks and sequence definitions
-			TrackInstrument func(p SMFPosition, name string)
-			Sequence        func(p SMFPosition, name string)
-			SequenceNumber  func(p SMFPosition, number uint16)
+			Track          func(p SMFPosition, name string)
+			Sequence       func(p SMFPosition, name string)
+			SequenceNumber func(p SMFPosition, number uint16)
 
 			// SMF text entries
 			Marker   func(p SMFPosition, text string)
-			CuePoint func(p SMFPosition, text string)
+			Cuepoint func(p SMFPosition, text string)
 			Text     func(p SMFPosition, text string)
 			Lyric    func(p SMFPosition, text string)
 
@@ -248,9 +248,9 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Message.Meta.Marker(*h.pos, msg.Text())
 			}
 
-		case meta.CuePoint:
-			if h.Message.Meta.CuePoint != nil {
-				h.Message.Meta.CuePoint(*h.pos, msg.Text())
+		case meta.Cuepoint:
+			if h.Message.Meta.Cuepoint != nil {
+				h.Message.Meta.Cuepoint(*h.pos, msg.Text())
 			}
 
 		case meta.ProgramName:
@@ -305,9 +305,9 @@ func (h *Handler) read(rd midi.Reader) (err error) {
 				h.Message.Meta.Sequence(*h.pos, msg.Text())
 			}
 
-		case meta.TrackInstrument:
-			if h.Message.Meta.TrackInstrument != nil {
-				h.Message.Meta.TrackInstrument(*h.pos, msg.Text())
+		case meta.Track:
+			if h.Message.Meta.Track != nil {
+				h.Message.Meta.Track(*h.pos, msg.Text())
 			}
 
 		case meta.MIDIChannel:

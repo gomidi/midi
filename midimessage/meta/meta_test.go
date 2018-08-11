@@ -87,8 +87,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.TimeSignature 3/4",
 		},
 		{
-			TrackInstrument("1st violins"),
-			"meta.TrackInstrument: \"1st violins\"",
+			Track("1st violins"),
+			"meta.Track: \"1st violins\"",
 		},
 	}
 
@@ -186,7 +186,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 58 04 03 02 08 08",
 		},
 		{
-			TrackInstrument("1st violins"),
+			Track("1st violins"),
 			"FF 04 0B 31 73 74 20 76 69 6F 6C 69 6E 73",
 		},
 	}
