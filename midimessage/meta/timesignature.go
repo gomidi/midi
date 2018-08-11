@@ -69,7 +69,7 @@ func (m TimeSignature) Raw() []byte {
 }
 
 func (m TimeSignature) Signature() string {
-	return fmt.Sprintf("%v/%v", m, m.Numerator, m.Denominator)
+	return fmt.Sprintf("%v/%v", m.Numerator, m.Denominator)
 }
 
 func (m TimeSignature) String() string {
