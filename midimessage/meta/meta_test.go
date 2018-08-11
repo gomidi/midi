@@ -83,8 +83,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.Text: \"hi\"",
 		},
 		{
-			TimeSignature{3, 4},
-			"meta.TimeSignature 3/4",
+			TimeSignature{3, 4, 8, 8},
+			"meta.TimeSignature 3/4 clocksperclick 8 dsqpq 8",
 		},
 		{
 			Track("1st violins"),
@@ -182,7 +182,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 01 02 68 69",
 		},
 		{
-			TimeSignature{3, 4},
+			TimeSignature{3, 4, 8, 8},
 			"FF 58 04 03 02 08 08",
 		},
 		{

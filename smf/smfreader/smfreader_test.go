@@ -54,7 +54,7 @@ func TestReadSMF0(t *testing.T) {
 SMF0
 1 Track(s)
 TimeFormat: 96 MetricTicks
-Track 0@0 meta.TimeSignature 4/4
+Track 0@0 meta.TimeSignature 4/4 clocksperclick 24 dsqpq 8
 Track 0@0 meta.Tempo BPM: 120
 Track 0@0 channel.ProgramChange channel 0 program 5
 Track 0@0 channel.ProgramChange channel 1 program 46
@@ -81,7 +81,7 @@ func TestReadSMF1(t *testing.T) {
 SMF1
 4 Track(s)
 TimeFormat: 96 MetricTicks
-Track 0@0 meta.TimeSignature 4/4
+Track 0@0 meta.TimeSignature 4/4 clocksperclick 24 dsqpq 8
 Track 0@0 meta.Tempo BPM: 120
 Track 0@384 meta.endOfTrack
 Track 1@0 channel.ProgramChange channel 0 program 5
@@ -111,7 +111,7 @@ func TestReadSMF1NoteOffPedantic(t *testing.T) {
 SMF1
 4 Track(s)
 TimeFormat: 96 MetricTicks
-Track 0@0 meta.TimeSignature 4/4
+Track 0@0 meta.TimeSignature 4/4 clocksperclick 24 dsqpq 8
 Track 0@0 meta.Tempo BPM: 120
 Track 0@384 meta.endOfTrack
 Track 1@0 channel.ProgramChange channel 0 program 5
@@ -141,7 +141,7 @@ func TestReadSMF0NoteOffPedantic(t *testing.T) {
 SMF0
 1 Track(s)
 TimeFormat: 96 MetricTicks
-Track 0@0 meta.TimeSignature 4/4
+Track 0@0 meta.TimeSignature 4/4 clocksperclick 24 dsqpq 8
 Track 0@0 meta.Tempo BPM: 120
 Track 0@0 channel.ProgramChange channel 0 program 5
 Track 0@0 channel.ProgramChange channel 1 program 46

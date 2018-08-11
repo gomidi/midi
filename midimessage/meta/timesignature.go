@@ -36,17 +36,17 @@ For a format 1 MIDI file, Time Signature Meta events should only occur within th
 
 */
 
-// TimeSignatureDetailed allows to specify
+// TimeSignature allows to specify
 // ClocksPerClick and DemiSemiQuaverPerQuarter explicit, instead of taking
 // the defaults
-type TimeSignatureDetailed struct {
+type TimeSignature struct {
 	Numerator                uint8
 	Denominator              uint8
 	ClocksPerClick           uint8
 	DemiSemiQuaverPerQuarter uint8
 }
 
-func (m TimeSignatureDetailed) Raw() []byte {
+func (m TimeSignature) Raw() []byte {
 	cpcl := m.ClocksPerClick
 	if cpcl == 0 {
 		cpcl = byte(8)
@@ -66,30 +66,9 @@ func (m TimeSignatureDetailed) Raw() []byte {
 
 }
 
-func (m TimeSignatureDetailed) String() string {
+func (m TimeSignature) String() string {
 	return fmt.Sprintf("%T %v/%v clocksperclick %v dsqpq %v", m, m.Numerator, m.Denominator, m.ClocksPerClick, m.DemiSemiQuaverPerQuarter)
 	//return fmt.Sprintf("%T %v/%v", m, m.Numerator, m.Denominator)
-}
-
-type TimeSignature struct {
-	Numerator   uint8
-	Denominator uint8
-	// ClocksPerClick           uint8
-	// DemiSemiQuaverPerQuarter uint8
-}
-
-/*
-func NewTimeSignature(num uint8, denom uint8) TimeSignature {
-	return TimeSignature{Numerator: num, Denominator: denom}
-}
-*/
-
-// bin2decDenom converts the binary denominator to the decimal
-func bin2decDenom(bin uint8) uint8 {
-	if bin == 0 {
-		return 1
-	}
-	return 2 << (bin - 1)
 }
 
 // dec2binDenom converts the decimal denominator to the binary one
@@ -104,31 +83,6 @@ func dec2binDenom(dec uint8) (bin uint8) {
 
 	}
 	return bin + 1
-}
-
-func (m TimeSignature) Raw() []byte {
-	// cpcl := m.ClocksPerClick
-	// if cpcl == 0 {
-	cpcl := byte(8)
-	// }
-
-	// dsqpq := m.DemiSemiQuaverPerQuarter
-	// if dsqpq == 0 {
-	dsqpq := byte(8)
-	// }
-
-	var denom = dec2binDenom(m.Denominator)
-
-	return (&metaMessage{
-		Typ:  byteTimeSignature,
-		Data: []byte{m.Numerator, denom, cpcl, dsqpq},
-	}).Bytes()
-
-}
-
-func (m TimeSignature) String() string {
-	//return fmt.Sprintf("%T %v/%v clocksperclick %v dsqpq %v", m, m.Numerator, m.Denominator, m.ClocksPerClick, m.DemiSemiQuaverPerQuarter)
-	return fmt.Sprintf("%T %v/%v", m, m.Numerator, m.Denominator)
 }
 
 func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
@@ -172,17 +126,23 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	// TODO: do something with clocksPerClick and demiSemiQuaverPerQuarter
-	var _ = clocksPerClick
-	var _ = demiSemiQuaverPerQuarter
+	m.DemiSemiQuaverPerQuarter = demiSemiQuaverPerQuarter
+	m.ClocksPerClick = clocksPerClick
+	m.Numerator = numerator
+	m.Denominator = 2 << (denominator - 1)
+	return m, nil
+	/*
+		// TODO: do something with clocksPerClick and demiSemiQuaverPerQuarter
+		var _ = clocksPerClick
+		var _ = demiSemiQuaverPerQuarter
 
-	return TimeSignature{
-		Numerator:   numerator,
-		Denominator: 2 << (denominator - 1),
-		// ClocksPerClick:           clocksPerClick,
-		// DemiSemiQuaverPerQuarter: demiSemiQuaverPerQuarter,
-	}, nil
-
+		return TimeSignature{
+			Numerator:   numerator,
+			Denominator: 2 << (denominator - 1),
+			// ClocksPerClick:           clocksPerClick,
+			// DemiSemiQuaverPerQuarter: demiSemiQuaverPerQuarter,
+		}, nil
+	*/
 }
 
 func (m TimeSignature) meta() {}

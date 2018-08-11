@@ -117,8 +117,8 @@ func TestRead(t *testing.T) {
 			"meta.Text: \"hi\"",
 		),
 		mkTest(
-			TimeSignature{3, 4},
-			"meta.TimeSignature 3/4",
+			TimeSignature{3, 4, 8, 8},
+			"meta.TimeSignature 3/4 clocksperclick 8 dsqpq 8",
 		),
 		mkTest(
 			Track("1st violins"),
