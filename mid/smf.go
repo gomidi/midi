@@ -61,5 +61,4 @@ func (h *Handler) readSMF(rd smf.Reader) {
 		h.errSMF = err
 	}
 
-	return
 }

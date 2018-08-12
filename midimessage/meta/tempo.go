@@ -71,8 +71,7 @@ func (m Tempo) readFrom(rd io.Reader) (Message, error) {
 	}
 
 	// Also beats per minute
-	var bpm uint32
-	bpm = 60000000 / microsecondsPerCrotchet
+	var bpm uint32 = 60000000 / microsecondsPerCrotchet
 
 	return Tempo(bpm), nil
 }

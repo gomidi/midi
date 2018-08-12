@@ -244,9 +244,6 @@ func (r *reader) readChunk() {
 	}
 
 	r.expectChunk = true
-
-	return // leave at the end
-
 }
 
 func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
