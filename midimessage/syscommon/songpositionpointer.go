@@ -1,7 +1,7 @@
 package syscommon
 
 import (
-	"encoding/binary"
+	// "encoding/binary"
 	"fmt"
 	"github.com/gomidi/midi/internal/midilib"
 	"io"
@@ -36,15 +36,6 @@ func (m SongPositionPointer) readFrom(rd io.Reader) (Message, error) {
 
 	_, abs := midilib.ParsePitchWheelVals(bt[1], bt[0])
 	return SongPositionPointer(abs), nil
-
-	/*
-
-			// TODO: check if it is correct
-			val := uint16((bt[1])&0x7f) << 7
-			val |= uint16(bt[0]) & 0x7f
-
-		return SongPositionPointer(val), nil
-	*/
 }
 
 type SongPositionPointer uint16
@@ -58,10 +49,15 @@ func (m SongPositionPointer) String() string {
 }
 
 func (m SongPositionPointer) Raw() []byte {
-	r := msbLsbUnsigned(uint16(m))
 	var b = make([]byte, 2)
-	binary.BigEndian.PutUint16(b, r)
+	b[1] = byte(uint16(m) & 0x7F)
+	b[0] = byte((uint16(m) >> 7) & 0x7F)
 
-	return []byte{0xF2, b[1], b[0]}
+	// r := msbLsbUnsigned(uint16(m))
+	// binary.BigEndian.PutUint16(b, r)
+
+	//return []byte{0xF2, b[1], b[0]}
+
+	return []byte{0xF2, b[0], b[1]}
 }
 func (m SongPositionPointer) sysCommon() {}
