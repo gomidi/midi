@@ -37,10 +37,10 @@ type channelMessage struct {
 
 func (m *channelMessage) getCompleteStatus() uint8 {
 	s := m.status << 4
-	midilib.ClearBitU8(s, 0)
-	midilib.ClearBitU8(s, 1)
-	midilib.ClearBitU8(s, 2)
-	midilib.ClearBitU8(s, 3)
+	s = midilib.ClearBitU8(s, 0)
+	s = midilib.ClearBitU8(s, 1)
+	s = midilib.ClearBitU8(s, 2)
+	s = midilib.ClearBitU8(s, 3)
 	s = s | m.channel
 	return s
 }

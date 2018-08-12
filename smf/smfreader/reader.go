@@ -177,31 +177,23 @@ func (r *reader) readMThd() (err error) {
 
 	var chunk smf.Chunk
 
-	for {
-		_, err = chunk.ReadHeader(r.input)
-		r.log("reading header of chunk, error: %v", err)
+	_, err = chunk.ReadHeader(r.input)
+	r.log("reading header of chunk, error: %v", err)
 
-		if err != nil {
-			break
-		}
-
-		if chunk.Type() != "MThd" {
-			r.log("wrong chunker type: %v", chunk.Type())
-			err = errExpectedMthd
-			break
-		}
-
-		err = r.parseHeaderData(r.input)
-		r.log("reading body of header type: %v", err)
-
-		if err != nil {
-			break
-		}
-
-		break // leave at the end
+	if err != nil {
+		return
 	}
 
-	return
+	if chunk.Type() != "MThd" {
+		r.log("wrong chunker type: %v", chunk.Type())
+		err = errExpectedMthd
+		return
+	}
+
+	err = r.parseHeaderData(r.input)
+	r.log("reading body of header type: %v", err)
+
+	return // leave at the end
 }
 
 func (r *reader) readChunk() {
@@ -212,59 +204,49 @@ func (r *reader) readChunk() {
 
 	var (
 		// define the variables here that are shared along the for loop
-		err error
+		// err error
 		//head chunkHeader
 		chunk smf.Chunk
 	)
 
-	for {
-		r.expectedChunkLength, err = chunk.ReadHeader(r.input)
-		r.log("reading header of chunk: %v", err)
+	r.expectedChunkLength, r.error = chunk.ReadHeader(r.input)
+	r.log("reading header of chunk: %v", r.error)
 
-		if err != nil {
-			// if we are here, not all tracks have been read, so io.EOF would be an error,
-			// so return errors here in each case
-			break
-		}
-
-		r.log("got chunk type: %v", chunk.Type())
-		// We have a MTrk
-		if chunk.Type() == "MTrk" {
-			r.log("is track chunk")
-			r.processedTracks++
-			r.expectChunk = false
-			//p.state = stateExpectTrackEvent
-			// we are done, lets go to the track events
-			break
-		}
-
-		/*
-			if p.failOnUnknownChunks {
-				err = fmt.Errorf("unknown chunk of type %#v", chunk.Type())
-				break
-			}
-		*/
-
-		// The header is of an unknown type, skip over it.
-		_, err = io.CopyN(ioutil.Discard, r.input, int64(r.expectedChunkLength))
-		r.log("skipping chunk: %v", err)
-		if err != nil {
-			break
-		}
-
-		r.expectChunk = true
-
-		break // leave at the end
-	}
-
-	// use err here
-
-	if err != nil {
-		r.error = err
+	if r.error != nil {
+		// if we are here, not all tracks have been read, so io.EOF would be an error,
+		// so return errors here in each case
 		return
 	}
 
-	return
+	r.log("got chunk type: %v", chunk.Type())
+	// We have a MTrk
+	if chunk.Type() == "MTrk" {
+		r.log("is track chunk")
+		r.processedTracks++
+		r.expectChunk = false
+		//p.state = stateExpectTrackEvent
+		// we are done, lets go to the track events
+		return
+	}
+
+	/*
+		if p.failOnUnknownChunks {
+			err = fmt.Errorf("unknown chunk of type %#v", chunk.Type())
+			break
+		}
+	*/
+
+	// The header is of an unknown type, skip over it.
+	_, r.error = io.CopyN(ioutil.Discard, r.input, int64(r.expectedChunkLength))
+	r.log("skipping chunk: %v", r.error)
+	if r.error != nil {
+		return
+	}
+
+	r.expectChunk = true
+
+	return // leave at the end
+
 }
 
 func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {

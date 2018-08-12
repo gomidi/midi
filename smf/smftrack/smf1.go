@@ -302,5 +302,5 @@ func (SMF1) Remove(rd smf.Reader, wr io.Writer, tracknos ...uint16) (err error) 
 		err = fmt.Errorf("could not find tracks %v (%v tracks in source)", notFound, rd.Header().NumTracks)
 	}
 
-	return nil
+	return
 }
