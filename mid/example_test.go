@@ -102,6 +102,7 @@ func Example() {
 	mwr.NoteOn(120, 50)
 	time.Sleep(time.Second * 2)
 	mwr.NoteOff(120)
+	time.Sleep(time.Second)
 
 	// Output: -- SMF data --
 	// [0s] NoteOn at channel 2: key 65 velocity: 90
