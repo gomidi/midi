@@ -37,8 +37,9 @@ type notRunningWriter struct {
 
 // Write writes a midi.Message to a midi (live) stream.
 // It does no caching and makes no use of running status.
-func (w *notRunningWriter) Write(msg midi.Message) (int, error) {
-	return w.output.Write(msg.Raw())
+func (w *notRunningWriter) Write(msg midi.Message) (err error) {
+	_, err = w.output.Write(msg.Raw())
+	return
 }
 
 type runningWriter struct {
@@ -47,6 +48,7 @@ type runningWriter struct {
 
 // Write writes a midi.Message to a midi (live) stream.
 // It does no caching but makes use of running status.
-func (w *runningWriter) Write(msg midi.Message) (int, error) {
-	return w.runningstatus.Write(msg.Raw())
+func (w *runningWriter) Write(msg midi.Message) (err error) {
+	_, err = w.runningstatus.Write(msg.Raw())
+	return
 }

@@ -27,7 +27,7 @@ type Writer interface {
 	// WriteHeader writes the midi header
 	// If WriteHeader was not called before the first run of Write,
 	// it will implicitly be called when calling Write.
-	WriteHeader() (int, error)
+	WriteHeader() error
 
 	// Write writes a midi message to the SMF file.
 	//
@@ -44,7 +44,7 @@ type Writer interface {
 	// that have been physically written at that point in time.
 	// any error stops the writing, is tracked and prohibits further writing.
 	// this last error is returned from Error()
-	Write(midi.Message) (nBytes int, err error)
+	Write(midi.Message) error
 
 	// SetDelta sets a time distance between the last written and the following message in ticks.
 	// The meaning of a tick depends on the time format that is set in the header of the SMF file.
@@ -137,17 +137,17 @@ func (c *Chunk) Clear() {
 }
 
 // WriteTo writes the content of the chunk to the given writer
-func (c *Chunk) WriteTo(wr io.Writer) (int64, error) {
+func (c *Chunk) WriteTo(wr io.Writer) error {
 	if len(c.typ) != 4 {
-		return 0, fmt.Errorf("chunk header not set properly")
+		return fmt.Errorf("chunk header not set properly")
 	}
 
 	var bf bytes.Buffer
 	bf.Write(c.typ)
 	binary.Write(&bf, binary.BigEndian, int32(c.Len()))
 	bf.Write(c.data)
-	i, err := wr.Write(bf.Bytes())
-	return int64(i), err
+	_, err := wr.Write(bf.Bytes())
+	return err
 }
 
 // ReadHeader reads the header from the given reader

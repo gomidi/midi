@@ -35,7 +35,7 @@ func (p *ioreader) Read(data []byte) (n int, err error) {
 	}
 
 	// midiwriter writes the running status
-	_, err = p.to.Write(msg)
+	err = p.to.Write(msg)
 
 	if err != nil {
 		return

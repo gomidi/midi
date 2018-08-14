@@ -101,7 +101,7 @@ func (p *smfPlayer) Read(data []byte) (n int, err error) {
 
 	default:
 		if cm, ok := msg.(channel.Message); ok {
-			_, err = p.to.Write(cm)
+			err = p.to.Write(cm)
 
 			if err != nil {
 				return

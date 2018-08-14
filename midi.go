@@ -15,8 +15,8 @@ type Message interface {
 
 // Writer writes MIDI messages
 type Writer interface {
-	// Write writes the given MIDI message and returns the number of written bytes and any error
-	Write(Message) (nBytes int, err error)
+	// Write writes the given MIDI message and returns any error
+	Write(Message) error
 }
 
 // Reader reads MIDI messages

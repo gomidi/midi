@@ -202,9 +202,11 @@ func (t *Track) addMessage(absTicks uint64, msg midi.Message) {
 }
 
 // WriteTo writes the track to the given SMF writer
+// TODO: get the correct nbytes by writing to a buffer somehow
+// and getting the length of the buffer
 func (tr *Track) WriteTo(wr smf.Writer) (nbytes int64, err error) {
 	var n int
-	n, err = wr.WriteHeader()
+	err = wr.WriteHeader()
 	nbytes += int64(n)
 	if err != nil {
 		return
@@ -217,18 +219,18 @@ func (tr *Track) WriteTo(wr smf.Writer) (nbytes int64, err error) {
 		delta := ev.AbsTicks - lastAbs
 		wr.SetDelta(uint32(delta))
 		lastAbs = ev.AbsTicks
-		n, err = wr.Write(ev.Message)
-		nbytes += int64(n)
+		err = wr.Write(ev.Message)
+		nbytes += int64(len(ev.Message.Raw()))
 		if err != nil {
 			return
 		}
 	}
 
-	n, err = wr.Write(meta.EndOfTrack)
+	err = wr.Write(meta.EndOfTrack)
 	if err == smfwriter.ErrFinished {
 		err = nil
 	}
-	nbytes += int64(n)
+	nbytes += int64(len(meta.EndOfTrack.Raw()))
 
 	return
 }

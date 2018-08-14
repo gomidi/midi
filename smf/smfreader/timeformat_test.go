@@ -53,7 +53,7 @@ func TestTimeCode(t *testing.T) {
 
 		var bf bytes.Buffer
 		wr := smfwriter.New(&bf, smfwriter.TimeFormat(test.format))
-		_, err := wr.Write(meta.Tempo(100))
+		err := wr.Write(meta.Tempo(100))
 
 		if err != nil {
 			t.Fatalf("can't write smf: %v", err)

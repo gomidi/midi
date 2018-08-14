@@ -54,6 +54,8 @@ func (SMF0) ReadFrom(rd smf.Reader) (tr *Track, err error) {
 	return
 }
 
+const smfHeaderLen int64 = 14
+
 // WriteTo merges the given tracks to an SMF0 file and writes it to writer
 // sysex data and meta messages other than copyright, cuepoint, marker, tempo, timesignature and keysignature
 // get lost
@@ -64,14 +66,12 @@ func (SMF0) WriteTo(wr io.Writer, timeformat smf.TimeFormat, tracks ...*Track) (
 		smfwriter.Format(smf.SMF0),
 	)
 
-	var n int
-	n, err = w.WriteHeader()
-
-	nbytes += int64(n)
-
+	err = w.WriteHeader()
 	if err != nil {
 		return
 	}
+
+	nbytes = smfHeaderLen // SMF file header size
 
 	mergeTrack := &Track{}
 
@@ -99,7 +99,10 @@ func (SMF0) WriteTo(wr io.Writer, timeformat smf.TimeFormat, tracks ...*Track) (
 
 	}
 
-	return mergeTrack.WriteTo(w)
+	var n int64
+	n, err = mergeTrack.WriteTo(w)
+	nbytes += n
+	return
 }
 
 // ToSMF1 converts a given SMF0 file to SMF1 and writes it to wr

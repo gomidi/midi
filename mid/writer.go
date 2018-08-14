@@ -26,68 +26,57 @@ type LiveWriter struct {
 
 // ActiveSensing writes the active sensing realtime message
 func (l *LiveWriter) ActiveSensing() error {
-	_, err := l.midiWriter.wr.Write(realtime.ActiveSensing)
-	return err
+	return l.midiWriter.wr.Write(realtime.ActiveSensing)
 }
 
 // Continue writes the continue realtime message
 func (l *LiveWriter) Continue() error {
-	_, err := l.midiWriter.wr.Write(realtime.Continue)
-	return err
+	return l.midiWriter.wr.Write(realtime.Continue)
 }
 
 // Reset writes the reset realtime message
 func (l *LiveWriter) Reset() error {
-	_, err := l.midiWriter.wr.Write(realtime.Reset)
-	return err
+	return l.midiWriter.wr.Write(realtime.Reset)
 }
 
 // Start writes the start realtime message
 func (l *LiveWriter) Start() error {
-	_, err := l.midiWriter.wr.Write(realtime.Start)
-	return err
+	return l.midiWriter.wr.Write(realtime.Start)
 }
 
 // Stop writes the stop realtime message
 func (l *LiveWriter) Stop() error {
-	_, err := l.midiWriter.wr.Write(realtime.Stop)
-	return err
+	return l.midiWriter.wr.Write(realtime.Stop)
 }
 
 // Tick writes the tick realtime message
 func (l *LiveWriter) Tick() error {
-	_, err := l.midiWriter.wr.Write(realtime.Tick)
-	return err
+	return l.midiWriter.wr.Write(realtime.Tick)
 }
 
 // TimingClock writes the timing clock realtime message
 func (l *LiveWriter) TimingClock() error {
-	_, err := l.midiWriter.wr.Write(realtime.TimingClock)
-	return err
+	return l.midiWriter.wr.Write(realtime.TimingClock)
 }
 
 // MIDITimingCode writes the MIDI Timing Code system message
 func (l *LiveWriter) MIDITimingCode(code uint8) error {
-	_, err := l.midiWriter.wr.Write(syscommon.MIDITimingCode(code))
-	return err
+	return l.midiWriter.wr.Write(syscommon.MIDITimingCode(code))
 }
 
 // SongPositionPointer writes the song position pointer system message
 func (l *LiveWriter) SongPositionPointer(ptr uint16) error {
-	_, err := l.midiWriter.wr.Write(syscommon.SongPositionPointer(ptr))
-	return err
+	return l.midiWriter.wr.Write(syscommon.SongPositionPointer(ptr))
 }
 
 // SongSelect writes the song select system message
 func (l *LiveWriter) SongSelect(song uint8) error {
-	_, err := l.midiWriter.wr.Write(syscommon.SongSelect(song))
-	return err
+	return l.midiWriter.wr.Write(syscommon.SongSelect(song))
 }
 
 // TuneRequest writes the tune request system message
 func (l *LiveWriter) TuneRequest() error {
-	_, err := l.midiWriter.wr.Write(syscommon.TuneRequest)
-	return err
+	return l.midiWriter.wr.Write(syscommon.TuneRequest)
 }
 
 type midiWriter struct {
@@ -104,60 +93,51 @@ func (m *midiWriter) SetChannel(no uint8 /* 0-15 */) {
 
 // ChannelPressure writes a channel pressure message for the current channel
 func (m *midiWriter) ChannelPressure(pressure uint8) error {
-	_, err := m.wr.Write(m.ch.ChannelPressure(pressure))
-	return err
+	return m.wr.Write(m.ch.ChannelPressure(pressure))
 }
 
 // KeyPressure writes a key pressure message for the current channel
 func (m *midiWriter) KeyPressure(key, pressure uint8) error {
-	_, err := m.wr.Write(m.ch.KeyPressure(key, pressure))
-	return err
+	return m.wr.Write(m.ch.KeyPressure(key, pressure))
 }
 
 // NoteOff writes a note off message for the current channel
 func (m *midiWriter) NoteOff(key uint8) error {
-	_, err := m.wr.Write(m.ch.NoteOff(key))
-	return err
+	return m.wr.Write(m.ch.NoteOff(key))
 }
 
 // NoteOn writes a note on message for the current channel
 func (m *midiWriter) NoteOn(key, veloctiy uint8) error {
-	_, err := m.wr.Write(m.ch.NoteOn(key, veloctiy))
-	return err
+	return m.wr.Write(m.ch.NoteOn(key, veloctiy))
 }
 
 // PitchBend writes a pitch bend message for the current channel
 // For reset value, use 0, for lowest -8191 and highest 8191
 // Or use the pitch constants of midimessage/channel
 func (m *midiWriter) PitchBend(value int16) error {
-	_, err := m.wr.Write(m.ch.PitchBend(value))
-	return err
+	return m.wr.Write(m.ch.PitchBend(value))
 }
 
 // ProgramChange writes a program change message for the current channel
 // Program numbers start with 0 for program 1.
 func (m *midiWriter) ProgramChange(program uint8) error {
-	_, err := m.wr.Write(m.ch.ProgramChange(program))
-	return err
+	return m.wr.Write(m.ch.ProgramChange(program))
 }
 
 // CC writes a control change message. It is meant to be used in conjunction
 // with the midimessages/cc package.
 func (m *midiWriter) CC(cch channel.ControlChange) error {
-	_, err := m.wr.Write(cch)
-	return err
+	return m.wr.Write(cch)
 }
 
 // ControlChange writes a control change message for the current channel
 func (m *midiWriter) ControlChange(controller, value uint8) error {
-	_, err := m.wr.Write(m.ch.ControlChange(controller, value))
-	return err
+	return m.wr.Write(m.ch.ControlChange(controller, value))
 }
 
 // SysEx writes sysex data
 func (m *midiWriter) SysEx(data []byte) error {
-	_, err := m.wr.Write(sysex.SysEx(data))
-	return err
+	return m.wr.Write(sysex.SysEx(data))
 }
 
 // SMFWriter writes SMF MIDI data. Its methods must not be called concurrently
@@ -180,120 +160,102 @@ func (s *SMFWriter) EndOfTrack() error {
 		return fmt.Errorf("too many tracks: in header: %v, closed: %v", no, s.finishedTracks+1)
 	}
 	s.finishedTracks++
-	_, err := s.wr.Write(meta.EndOfTrack)
-	return err
+	return s.wr.Write(meta.EndOfTrack)
 }
 
 // Copyright writes the copyright meta message
 func (s *SMFWriter) Copyright(text string) error {
-	_, err := s.wr.Write(meta.Copyright(text))
-	return err
+	return s.wr.Write(meta.Copyright(text))
 }
 
 // Cuepoint writes the cuepoint meta message
 func (s *SMFWriter) Cuepoint(text string) error {
-	_, err := s.wr.Write(meta.Cuepoint(text))
-	return err
+	return s.wr.Write(meta.Cuepoint(text))
 }
 
 // DevicePort writes the device port meta message
 func (s *SMFWriter) DevicePort(port string) error {
-	_, err := s.wr.Write(meta.DevicePort(port))
-	return err
+	return s.wr.Write(meta.DevicePort(port))
 }
 
 // KeySignature writes the key signature meta message.
 // A more comfortable way is to use the Key method in conjunction
 // with the midimessage/meta/key package
 func (s *SMFWriter) KeySignature(key uint8, ismajor bool, num uint8, isflat bool) error {
-	_, err := s.wr.Write(meta.KeySignature{Key: key, IsMajor: ismajor, Num: num, IsFlat: isflat})
-	return err
+	return s.wr.Write(meta.KeySignature{Key: key, IsMajor: ismajor, Num: num, IsFlat: isflat})
 }
 
 // Key writes the given key signature meta message.
 // It is supposed to be used with the midimessage/meta/key package
 func (s *SMFWriter) Key(keysig meta.KeySignature) error {
-	_, err := s.wr.Write(keysig)
-	return err
+	return s.wr.Write(keysig)
 }
 
 // Lyric writes the lyric meta message
 func (s *SMFWriter) Lyric(text string) error {
-	_, err := s.wr.Write(meta.Lyric(text))
-	return err
+	return s.wr.Write(meta.Lyric(text))
 }
 
 // Marker writes the marker meta message
 func (s *SMFWriter) Marker(text string) error {
-	_, err := s.wr.Write(meta.Marker(text))
-	return err
+	return s.wr.Write(meta.Marker(text))
 }
 
 // MIDIChannel writes the deprecated MIDI channel meta message
 func (s *SMFWriter) MIDIChannel(ch uint8) error {
-	_, err := s.wr.Write(meta.MIDIChannel(ch))
-	return err
+	return s.wr.Write(meta.MIDIChannel(ch))
 }
 
 // MIDIPort writes the deprecated MIDI port meta message
 func (s *SMFWriter) MIDIPort(port uint8) error {
-	_, err := s.wr.Write(meta.MIDIPort(port))
-	return err
+	return s.wr.Write(meta.MIDIPort(port))
 }
 
 // ProgramName writes the program name meta message
 func (s *SMFWriter) ProgramName(text string) error {
-	_, err := s.wr.Write(meta.ProgramName(text))
-	return err
+	return s.wr.Write(meta.ProgramName(text))
 }
 
 // Sequence writes the sequence (name) meta message
 func (s *SMFWriter) Sequence(text string) error {
-	_, err := s.wr.Write(meta.Sequence(text))
-	return err
+	return s.wr.Write(meta.Sequence(text))
 }
 
 // SequenceNumber writes the sequence number meta message
 func (s *SMFWriter) SequenceNumber(no uint16) error {
-	_, err := s.wr.Write(meta.SequenceNumber(no))
-	return err
+	return s.wr.Write(meta.SequenceNumber(no))
 }
 
 // SequencerSpecific writes a custom sequences specific meta message
 func (s *SMFWriter) SequencerSpecific(data []byte) error {
-	_, err := s.wr.Write(meta.SequencerSpecific(data))
-	return err
+	return s.wr.Write(meta.SequencerSpecific(data))
 }
 
 // SMPTEOffset writes the SMPTE offset meta message
 func (s *SMFWriter) SMPTEOffset(hour, minute, second, frame, fractionalFrame byte) error {
-	_, err := s.wr.Write(meta.SMPTEOffset{
+	return s.wr.Write(meta.SMPTEOffset{
 		Hour:            hour,
 		Minute:          minute,
 		Second:          second,
 		Frame:           frame,
 		FractionalFrame: fractionalFrame,
 	})
-	return err
 }
 
 // Tempo writes the tempo meta message
 func (s *SMFWriter) Tempo(bpm uint32) error {
-	_, err := s.wr.Write(meta.Tempo(bpm))
-	return err
+	return s.wr.Write(meta.Tempo(bpm))
 }
 
 // Text writes the text meta message
 func (s *SMFWriter) Text(text string) error {
-	_, err := s.wr.Write(meta.Text(text))
-	return err
+	return s.wr.Write(meta.Text(text))
 }
 
 // Meter writes the time signature meta message in a more comfortable way.
 // Numerator and Denominator are decimals.
 func (s *SMFWriter) Meter(numerator, denominator uint8) error {
-	_, err := s.wr.Write(meter.Meter(numerator, denominator))
-	return err
+	return s.wr.Write(meter.Meter(numerator, denominator))
 }
 
 // TimeSignature writes the time signature meta message.
@@ -301,19 +263,17 @@ func (s *SMFWriter) Meter(numerator, denominator uint8) error {
 // If you don't want to deal with clocks per click and demisemiquaverperquarter,
 // user the Meter method instead.
 func (s *SMFWriter) TimeSignature(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) error {
-	_, err := s.wr.Write(meta.TimeSignature{
+	return s.wr.Write(meta.TimeSignature{
 		Numerator:                numerator,
 		Denominator:              denominator,
 		ClocksPerClick:           clocksPerClick,
 		DemiSemiQuaverPerQuarter: demiSemiQuaverPerQuarter,
 	})
-	return err
 }
 
 // Track writes the track name aka instrument name meta message
 func (s *SMFWriter) Track(track string) error {
-	_, err := s.wr.Write(meta.Track(track))
-	return err
+	return s.wr.Write(meta.Track(track))
 }
 
 // NewSMFWriter returns a new SMFWriter that writes to dest.

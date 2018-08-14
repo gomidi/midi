@@ -33,19 +33,19 @@ func BenchmarkNoteOnOffSameChannel1000(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < 250; j++ {
-			_, err = wr.Write(m1)
+			err = wr.Write(m1)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m2)
+			err = wr.Write(m2)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m3)
+			err = wr.Write(m3)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m4)
+			err = wr.Write(m4)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
@@ -75,19 +75,19 @@ func BenchmarkNoteOnOffAlternatingChannel1000(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < 250; j++ {
-			_, err = wr.Write(m1)
+			err = wr.Write(m1)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m2)
+			err = wr.Write(m2)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m3)
+			err = wr.Write(m3)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m4)
+			err = wr.Write(m4)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
@@ -117,19 +117,19 @@ func BenchmarkNoteOnOffRunningStatusDisabled1000(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < 250; j++ {
-			_, err = wr.Write(m1)
+			err = wr.Write(m1)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m2)
+			err = wr.Write(m2)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m3)
+			err = wr.Write(m3)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}
-			_, err = wr.Write(m4)
+			err = wr.Write(m4)
 			if err != nil {
 				b.Fatalf("Error: %v", err)
 			}

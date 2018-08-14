@@ -228,7 +228,7 @@ func TestRunningStatus(t *testing.T) {
 
 	wr := New(&bf)
 
-	_, err := wr.WriteHeader()
+	err := wr.WriteHeader()
 
 	if err != nil {
 		t.Fatalf("Error: %v", err)
@@ -252,7 +252,7 @@ func TestNoRunningStatus(t *testing.T) {
 
 	wr := New(&bf, NoRunningStatus())
 
-	_, err := wr.WriteHeader()
+	err := wr.WriteHeader()
 
 	if err != nil {
 		t.Fatalf("Error: %v", err)

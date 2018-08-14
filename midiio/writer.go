@@ -48,5 +48,5 @@ func (p *iowriter) Write(data []byte) (n int, err error) {
 	}
 
 	p.bf.Reset()
-	return p.to.Write(msg)
+	return len(msg.Raw()), p.to.Write(msg)
 }

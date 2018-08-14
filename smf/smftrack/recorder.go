@@ -15,7 +15,7 @@ import (
 
 // NewRecorder records into a single track on target, it needs the tempo to calculate the ticks from seconds
 func NewRecorder(target smf.Writer, tempo uint) (io.Writer, error) {
-	_, err := target.WriteHeader()
+	err := target.WriteHeader()
 
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func NewRecorder(target smf.Writer, tempo uint) (io.Writer, error) {
 		return nil, fmt.Errorf("only metric timeformat supported, sorry")
 	}
 
-	_, err = target.Write(meta.Tempo(tempo))
+	err = target.Write(meta.Tempo(tempo))
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (p *recorder) Write(data []byte) (n int, err error) {
 	p.start = now
 	p.to.SetDelta(p.metricTicks.Ticks(p.tempo, d))
 
-	return p.to.Write(msg)
+	return len(data), p.to.Write(msg)
 }
 
 type recorder struct {

@@ -41,7 +41,7 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 	}()
 
 	wr := New(f, options...)
-	_, err = wr.WriteHeader()
+	err = wr.WriteHeader()
 	if err != nil {
 		return err
 	}
@@ -78,18 +78,18 @@ type writer struct {
 	runningWriter   runningstatus.SMFWriter
 }
 
-func (w *writer) WriteHeader() (int, error) {
+func (w *writer) WriteHeader() error {
 	if w.headerWritten {
-		return 0, w.error
+		return w.error
 	}
-	n, err := w.writeHeader(w.output)
+	err := w.writeHeader(w.output)
 	w.headerWritten = true
 
 	if err != nil {
 		w.error = err
 	}
 
-	return n, err
+	return err
 }
 
 //
@@ -137,12 +137,12 @@ func (w *writer) Header() smf.Header {
 var errFinished = fmt.Errorf("all tracks written (finished)")
 
 // Write writes the message and returns the bytes that have been physically written.
-func (w *writer) Write(m midi.Message) (nbytes int, err error) {
+func (w *writer) Write(m midi.Message) (err error) {
 	if !w.headerWritten {
-		nbytes, w.error = w.WriteHeader()
+		w.error = w.WriteHeader()
 	}
 	if w.error != nil {
-		return nbytes, w.error
+		return w.error
 	}
 	defer func() {
 		w.deltatime = 0
@@ -150,14 +150,12 @@ func (w *writer) Write(m midi.Message) (nbytes int, err error) {
 
 	if w.header.NumTracks == w.tracksProcessed {
 		w.error = errFinished
-		return 0, w.error
+		return w.error
 	}
 
 	if m == meta.EndOfTrack {
 		w.addMessage(w.deltatime, m)
-		var tnum int64
-		tnum, err = w.writeTrackTo(w.output)
-		nbytes += int(tnum)
+		err = w.writeTrackTo(w.output)
 		if err != nil {
 			w.error = err
 		}
@@ -213,7 +211,7 @@ func (w *writer) writeTimeFormat(wr io.Writer) error {
 }
 
 // <Header Chunk> = <chunk type><length><format><ntrks><division>
-func (w *writer) writeHeader(wr io.Writer) (int, error) {
+func (w *writer) writeHeader(wr io.Writer) error {
 	var ch smf.Chunk
 	ch.SetType([4]byte{byte('M'), byte('T'), byte('h'), byte('d')})
 	var bf bytes.Buffer
@@ -223,19 +221,18 @@ func (w *writer) writeHeader(wr io.Writer) (int, error) {
 
 	err := w.writeTimeFormat(&bf)
 	if err != nil {
-		return bf.Len(), err
+		return err
 	}
 
 	ch.Write(bf.Bytes())
 
-	var n int64
-	n, err = ch.WriteTo(wr)
-	return int(n), err
+	err = ch.WriteTo(wr)
+	return err
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
-func (w *writer) writeTrackTo(wr io.Writer) (n int64, err error) {
-	n, err = w.track.WriteTo(wr)
+func (w *writer) writeTrackTo(wr io.Writer) (err error) {
+	err = w.track.WriteTo(wr)
 
 	if err != nil {
 		return

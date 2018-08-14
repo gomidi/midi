@@ -208,14 +208,14 @@ func (SMF1) WriteTo(wr io.Writer, timeFormat smf.TimeFormat, tracks ...*Track) (
 		smfwriter.Format(smf.SMF1),
 	)
 
-	var n int
-	n, err = w.WriteHeader()
+	err = w.WriteHeader()
 
-	nbytes += int64(n)
+	//nbytes += int64(n)
 
 	if err != nil {
 		return
 	}
+	nbytes = smfHeaderLen
 
 	sortedTracks := Tracks(tracks)
 
@@ -259,7 +259,7 @@ func (SMF1) Remove(rd smf.Reader, wr io.Writer, tracknos ...uint16) (err error) 
 		smfwriter.NumTracks(rd.Header().NumTracks-uint16(len(tracknos))),
 	)
 
-	_, err = w.WriteHeader()
+	err = w.WriteHeader()
 	if err != nil {
 		return err
 	}
@@ -283,7 +283,7 @@ func (SMF1) Remove(rd smf.Reader, wr io.Writer, tracknos ...uint16) (err error) 
 		}
 
 		w.SetDelta(rd.Delta())
-		_, err = w.Write(msg)
+		err = w.Write(msg)
 		if err != nil {
 			return
 		}
