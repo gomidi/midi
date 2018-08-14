@@ -1,13 +1,14 @@
 package mid
 
 import (
+	"time"
+
 	"github.com/gomidi/midi"
 	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/midimessage/syscommon"
 	"github.com/gomidi/midi/midimessage/sysex"
 	"github.com/gomidi/midi/smf"
-	"time"
 )
 
 // SMFPosition is the position of the event inside a standard midi file (SMF).
@@ -22,9 +23,9 @@ type SMFPosition struct {
 	AbsTime uint64
 }
 
-// NewHandler returns a new handler
-func NewHandler(opts ...Option) *Handler {
-	h := &Handler{logger: logfunc(printf)}
+// NewReader returns a new reader
+func NewReader(opts ...ReaderOption) *Reader {
+	h := &Reader{logger: logfunc(printf)}
 
 	for _, opt := range opts {
 		opt(h)
@@ -33,13 +34,13 @@ func NewHandler(opts ...Option) *Handler {
 	return h
 }
 
-// Handler handles the midi messages coming from an SMF file or a live stream.
+// Reader reads the midi messages coming from an SMF file or a live stream.
 //
 // The messages are dispatched to the corresponding functions that are not nil.
 //
 // The desired functions must be attached before Handler.ReadLive or Handler.ReadSMF is called
 // and they must not be changed while these methods are running.
-type Handler struct {
+type Reader struct {
 	tempoChanges []tempoChange
 	header       smf.Header
 
@@ -153,14 +154,14 @@ func calcDeltaTime(mt smf.MetricTicks, deltaTicks uint32, bpm uint32) time.Durat
 	return mt.Duration(bpm, deltaTicks)
 }
 
-func (h *Handler) registerTempoChange(pos SMFPosition, bpm uint32) {
+func (h *Reader) registerTempoChange(pos SMFPosition, bpm uint32) {
 	h.tempoChanges = append(h.tempoChanges, tempoChange{pos.AbsTime, bpm})
 }
 
 // TimeAt returns the time.Duration at the given absolute position counted
 // from the beginning of the file, respecting all the tempo changes in between.
 // If the time format is not of type smf.MetricTicks, nil is returned.
-func (h *Handler) TimeAt(absTicks uint64) *time.Duration {
+func (h *Reader) TimeAt(absTicks uint64) *time.Duration {
 	mt, isMetric := h.header.TimeFormat.(smf.MetricTicks)
 	if !isMetric {
 		return nil
@@ -184,7 +185,7 @@ func (h *Handler) TimeAt(absTicks uint64) *time.Duration {
 }
 
 // log does the logging
-func (h *Handler) log(m midi.Message) {
+func (h *Reader) log(m midi.Message) {
 	if h.pos != nil {
 		h.logger.Printf("#%v [%v d:%v] %#v\n", h.pos.Track, h.pos.AbsTime, h.pos.Delta, m)
 	} else {
@@ -194,7 +195,7 @@ func (h *Handler) log(m midi.Message) {
 
 // read reads the messages from the midi.Reader (which might be an smf reader
 // for realtime reading, the passed *SMFPosition is nil
-func (h *Handler) read(rd midi.Reader) (err error) {
+func (h *Reader) read(rd midi.Reader) (err error) {
 	var m midi.Message
 
 	for {

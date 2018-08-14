@@ -17,7 +17,7 @@ import (
 //
 // They must be attached before Handler.ReadLive is called
 // and they must not be unset or replaced until ReadLive returns.
-func (h *Handler) ReadLive(src io.Reader, options ...midireader.Option) (err error) {
+func (h *Reader) ReadLive(src io.Reader, options ...midireader.Option) (err error) {
 	h.pos = nil
 	rthandler := func(m realtime.Message) {
 		switch m {

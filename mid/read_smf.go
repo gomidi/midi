@@ -14,7 +14,7 @@ import (
 //
 // They must be attached before Handler.ReadSMF is called
 // and they must not be unset or replaced until ReadSMF returns.
-func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
+func (h *Reader) ReadSMFFile(file string, options ...smfreader.Option) error {
 	h.errSMF = nil
 	h.pos = &SMFPosition{}
 	err := smfreader.ReadFile(file, h.readSMF, options...)
@@ -35,7 +35,7 @@ func (h *Handler) ReadSMFFile(file string, options ...smfreader.Option) error {
 //
 // They must be attached before Handler.ReadSMF is called
 // and they must not be unset or replaced until ReadSMF returns.
-func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
+func (h *Reader) ReadSMF(src io.Reader, options ...smfreader.Option) error {
 	h.errSMF = nil
 	h.pos = &SMFPosition{}
 	rd := smfreader.New(src, options...)
@@ -48,7 +48,7 @@ func (h *Handler) ReadSMF(src io.Reader, options ...smfreader.Option) error {
 	return h.errSMF
 }
 
-func (h *Handler) readSMF(rd smf.Reader) {
+func (h *Reader) readSMF(rd smf.Reader) {
 	h.header = rd.Header()
 
 	if h.SMFHeader != nil {

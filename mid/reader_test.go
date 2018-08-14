@@ -48,7 +48,7 @@ func TestTimeAt(t *testing.T) {
 		wr.NoteOff(64)
 		wr.EndOfTrack()
 
-		h := NewHandler(NoLogger())
+		h := NewReader(NoLogger())
 		h.ReadSMF(&bf)
 		d := *h.TimeAt(uint64(test.absPos))
 		// ms := int64(d / time.Millisecond)

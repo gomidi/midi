@@ -2,19 +2,19 @@ package mid
 
 import "fmt"
 
-// Option configures the handler
-type Option func(*Handler)
+// ReaderOption configures the reader
+type ReaderOption func(*Reader)
 
 // SetLogger allows to set a custom logger for the handler
-func SetLogger(l Logger) Option {
-	return func(h *Handler) {
+func SetLogger(l Logger) ReaderOption {
+	return func(h *Reader) {
 		h.logger = l
 	}
 }
 
 // NoLogger is an option to disable the defaut logging of a handler
-func NoLogger() Option {
-	return func(h *Handler) {
+func NoLogger() ReaderOption {
+	return func(h *Reader) {
 		h.logger = nil
 	}
 }

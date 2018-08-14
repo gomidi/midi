@@ -27,7 +27,7 @@ func Example() {
 		return bytes.NewReader(bf.Bytes())
 	}
 
-	hd := mid.NewHandler(mid.NoLogger())
+	hd := mid.NewReader(mid.NoLogger())
 
 	// needed for the SMF timing
 	var ticks smf.MetricTicks
