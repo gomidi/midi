@@ -234,9 +234,9 @@ func TestRunningStatus(t *testing.T) {
 		t.Fatalf("Error: %v", err)
 	}
 
-	wr.Write(channel.Ch0.NoteOn(50, 33))
+	wr.Write(channel.Channel0.NoteOn(50, 33))
 	wr.SetDelta(2)
-	wr.Write(channel.Ch0.NoteOff(50))
+	wr.Write(channel.Channel0.NoteOff(50))
 	wr.Write(meta.EndOfTrack)
 
 	expected := "4D 54 68 64 00 00 00 06 00 00 00 01 03 C0 4D 54 72 6B 00 00 00 0B 00 90 32 21 02 32 00 00 FF 2F 00"
@@ -258,9 +258,9 @@ func TestNoRunningStatus(t *testing.T) {
 		t.Fatalf("Error: %v", err)
 	}
 
-	wr.Write(channel.Ch0.NoteOn(50, 33))
+	wr.Write(channel.Channel0.NoteOn(50, 33))
 	wr.SetDelta(2)
-	wr.Write(channel.Ch0.NoteOff(50))
+	wr.Write(channel.Channel0.NoteOff(50))
 	wr.Write(meta.EndOfTrack)
 
 	expected := "4D 54 68 64 00 00 00 06 00 00 00 01 03 C0 4D 54 72 6B 00 00 00 0C 00 90 32 21 02 90 32 00 00 FF 2F 00"

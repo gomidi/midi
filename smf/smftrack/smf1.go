@@ -74,19 +74,19 @@ func (smf1 SMF1) TracksOnDifferentChannels(src smf.Reader, wr io.Writer) (err er
 
 				switch v := ev.Message.(type) {
 				case channel.NoteOn:
-					ev.Message = channel.New(ch).NoteOn(v.Key(), v.Velocity())
+					ev.Message = channel.Channel(ch).NoteOn(v.Key(), v.Velocity())
 				case channel.NoteOff:
-					ev.Message = channel.New(ch).NoteOff(v.Key())
+					ev.Message = channel.Channel(ch).NoteOff(v.Key())
 				case channel.AfterTouch:
-					ev.Message = channel.New(ch).AfterTouch(v.Pressure())
+					ev.Message = channel.Channel(ch).AfterTouch(v.Pressure())
 				case channel.PolyphonicAfterTouch:
-					ev.Message = channel.New(ch).PolyphonicAfterTouch(v.Key(), v.Pressure())
+					ev.Message = channel.Channel(ch).PolyphonicAfterTouch(v.Key(), v.Pressure())
 				case channel.ProgramChange:
-					ev.Message = channel.New(ch).ProgramChange(v.Program())
+					ev.Message = channel.Channel(ch).ProgramChange(v.Program())
 				case channel.ControlChange:
-					ev.Message = channel.New(ch).ControlChange(v.Controller(), v.Value())
+					ev.Message = channel.Channel(ch).ControlChange(v.Controller(), v.Value())
 				case channel.PitchBend:
-					ev.Message = channel.New(ch).PitchBend(v.Value())
+					ev.Message = channel.Channel(ch).PitchBend(v.Value())
 				}
 				tr.UpdateEvents(ev)
 			}

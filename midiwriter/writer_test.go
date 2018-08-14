@@ -14,8 +14,8 @@ func TestRunningStatus(t *testing.T) {
 
 	wr := New(&bf)
 
-	wr.Write(channel.Ch0.NoteOn(50, 33))
-	wr.Write(channel.Ch0.NoteOff(50))
+	wr.Write(channel.Channel0.NoteOn(50, 33))
+	wr.Write(channel.Channel0.NoteOff(50))
 
 	expected := "90 32 21 32 00"
 
@@ -30,8 +30,8 @@ func TestNoRunningStatus(t *testing.T) {
 
 	wr := New(&bf, NoRunningStatus())
 
-	wr.Write(channel.Ch0.NoteOn(50, 33))
-	wr.Write(channel.Ch0.NoteOff(50))
+	wr.Write(channel.Channel0.NoteOn(50, 33))
+	wr.Write(channel.Channel0.NoteOff(50))
 
 	expected := "90 32 21 90 32 00"
 

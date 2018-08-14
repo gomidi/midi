@@ -99,7 +99,7 @@ type midiWriter struct {
 // Channel numbers are counted from 0 to 15 (MIDI channel 1 to 16).
 // The initial channel number is 0.
 func (m *midiWriter) SetChannel(no uint8 /* 0-15 */) {
-	m.ch = channel.New(no)
+	m.ch = channel.Channel(no)
 }
 
 // ChannelPressure writes a channel pressure message for the current channel
@@ -333,7 +333,7 @@ func NewSMFWriter(dest io.Writer, numtracks uint16, options ...smfwriter.Option)
 	return &SMFWriter{
 		dest:       dest,
 		wr:         wr,
-		midiWriter: &midiWriter{wr: wr, ch: channel.Ch0},
+		midiWriter: &midiWriter{wr: wr, ch: channel.Channel0},
 	}
 }
 
@@ -369,5 +369,5 @@ func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error, op
 // NewLiveWriter creates and new LiveWriter.
 func NewLiveWriter(dest io.Writer) *LiveWriter {
 	wr := midiwriter.New(dest, midiwriter.NoRunningStatus())
-	return &LiveWriter{&midiWriter{wr: wr, ch: channel.Ch0}}
+	return &LiveWriter{&midiWriter{wr: wr, ch: channel.Channel0}}
 }

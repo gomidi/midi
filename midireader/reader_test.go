@@ -17,15 +17,15 @@ func mkMIDI() io.Reader {
 
 	wr := midiwriter.New(&bf)
 
-	wr.Write(channel.New(1).NoteOn(65, 100))
+	wr.Write(channel.Channel(1).NoteOn(65, 100))
 	wr.Write(realtime.Start)
 	wr.Write(sysex.Start([]byte{0x50}))
-	wr.Write(channel.New(1).NoteOffVelocity(65, 64))
+	wr.Write(channel.Channel(1).NoteOffVelocity(65, 64))
 	wr.Write(syscommon.TuneRequest)
-	wr.Write(channel.New(2).NoteOn(62, 30))
+	wr.Write(channel.Channel(2).NoteOn(62, 30))
 	bf.Write([]byte{0xF5, 0x51, 0x52})
 	wr.Write(sysex.SysEx([]byte{0x50, 0x51}))
-	wr.Write(channel.New(2).NoteOn(62, 0))
+	wr.Write(channel.Channel(2).NoteOn(62, 0))
 
 	return bytes.NewReader(bf.Bytes())
 }

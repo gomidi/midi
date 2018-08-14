@@ -17,16 +17,16 @@ func mkSMF0() []byte {
 
 	wr := smfwriter.New(&bf)
 
-	wr.Write(channel.Ch2.NoteOn(65, 90))
-	wr.Write(channel.Ch1.NoteOn(24, 100))
+	wr.Write(channel.Channel2.NoteOn(65, 90))
+	wr.Write(channel.Channel1.NoteOn(24, 100))
 	wr.SetDelta(2)
-	wr.Write(channel.Ch1.NoteOff(24))
+	wr.Write(channel.Channel1.NoteOff(24))
 	wr.SetDelta(8)
-	wr.Write(channel.Ch3.NoteOn(80, 109))
+	wr.Write(channel.Channel3.NoteOn(80, 109))
 	wr.SetDelta(10)
-	wr.Write(channel.Ch2.NoteOff(65))
+	wr.Write(channel.Channel2.NoteOff(65))
 	wr.SetDelta(10)
-	wr.Write(channel.Ch3.NoteOff(80))
+	wr.Write(channel.Channel3.NoteOff(80))
 	wr.Write(meta.EndOfTrack)
 
 	//	return bytes.NewReader(bf.Bytes())

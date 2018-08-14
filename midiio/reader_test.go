@@ -15,8 +15,8 @@ func mkMIDI() []byte {
 	var bf bytes.Buffer
 
 	wr := midiwriter.New(&bf)
-	wr.Write(channel.Ch2.NoteOn(65, 90))
-	wr.Write(channel.Ch2.NoteOff(65))
+	wr.Write(channel.Channel2.NoteOn(65, 90))
+	wr.Write(channel.Channel2.NoteOff(65))
 
 	return bf.Bytes()
 }

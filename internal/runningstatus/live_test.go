@@ -22,28 +22,28 @@ func TestLiveWriter(t *testing.T) {
 		// the following examples are taken from the SMF format spec
 		{
 			// single message - no running status
-			msgs(channel.Ch2.NoteOn(48, 96)),
+			msgs(channel.Channel2.NoteOn(48, 96)),
 			"92 30 60",
 		},
 		{
 			// single message - no running status
-			msgs(channel.Ch2.NoteOn(60, 96)),
+			msgs(channel.Channel2.NoteOn(60, 96)),
 			"92 3C 60",
 		},
 		{
 			// running status (same channel, same message type)
 			msgs(
-				channel.Ch2.NoteOn(48, 96),
-				channel.Ch2.NoteOn(60, 96),
+				channel.Channel2.NoteOn(48, 96),
+				channel.Channel2.NoteOn(60, 96),
 			),
 			"92 30 60" +
 				" 3C 60", // running status
 		},
 		{
 			msgs(
-				channel.Ch2.NoteOn(48, 96),
-				channel.Ch2.NoteOn(60, 96), // running status
-				channel.Ch1.NoteOn(67, 64), // no running status (channel change)
+				channel.Channel2.NoteOn(48, 96),
+				channel.Channel2.NoteOn(60, 96), // running status
+				channel.Channel1.NoteOn(67, 64), // no running status (channel change)
 			),
 			"92 30 60" +
 				" 3C 60" + // running status
@@ -51,10 +51,10 @@ func TestLiveWriter(t *testing.T) {
 		},
 		{
 			msgs(
-				channel.Ch2.NoteOn(48, 96),
-				channel.Ch2.NoteOn(60, 96), // running status
-				channel.Ch1.NoteOn(67, 64), // no running status (channel change)
-				channel.Ch0.NoteOn(76, 32), // no running status (channel change)
+				channel.Channel2.NoteOn(48, 96),
+				channel.Channel2.NoteOn(60, 96), // running status
+				channel.Channel1.NoteOn(67, 64), // no running status (channel change)
+				channel.Channel0.NoteOn(76, 32), // no running status (channel change)
 			),
 			"92 30 60" +
 				" 3C 60" + // running status
@@ -66,8 +66,8 @@ func TestLiveWriter(t *testing.T) {
 		{
 			// running status (same channel, same message type)
 			msgs(
-				channel.Ch2.NoteOn(48, 96),
-				channel.Ch2.NoteOn(48, 0), // noteoff simulation
+				channel.Channel2.NoteOn(48, 96),
+				channel.Channel2.NoteOn(48, 0), // noteoff simulation
 			),
 			"92 30 60" +
 				" 30 00", // running status
@@ -75,10 +75,10 @@ func TestLiveWriter(t *testing.T) {
 		{
 			// running status (same channel, same message type)
 			msgs(
-				channel.Ch2.NoteOn(48, 96),
+				channel.Channel2.NoteOn(48, 96),
 				// noteoff should by default result in noteon message with velocity 0,
 				// so that running status is active
-				channel.Ch2.NoteOff(48),
+				channel.Channel2.NoteOff(48),
 			),
 			"92 30 60" +
 				" 30 00", // running status
@@ -86,10 +86,10 @@ func TestLiveWriter(t *testing.T) {
 		{
 			// no running status (same channel, different message type)
 			msgs(
-				channel.Ch2.NoteOn(48, 96),
+				channel.Channel2.NoteOn(48, 96),
 				// NoteOffPedantic creates a "real" noteoff message with the given velocity,
 				// that is a different message type than noteon, so running status is not active
-				channel.Ch2.NoteOffVelocity(48, 96),
+				channel.Channel2.NoteOffVelocity(48, 96),
 			),
 			"92 30 60" +
 				" 82 30 60", // no running status

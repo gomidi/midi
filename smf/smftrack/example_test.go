@@ -21,14 +21,14 @@ func mkSMF1() []byte {
 		smfwriter.Format(smf.SMF1), // not necessary, since it is automatically set for numtracks > 1
 	)
 
-	wr.Write(channel.Ch2.NoteOn(65, 90))
+	wr.Write(channel.Channel2.NoteOn(65, 90))
 	wr.SetDelta(20)
-	wr.Write(channel.Ch2.NoteOff(65))
+	wr.Write(channel.Channel2.NoteOff(65))
 	wr.Write(meta.EndOfTrack)
 
-	wr.Write(channel.Ch1.NoteOn(24, 100))
+	wr.Write(channel.Channel1.NoteOn(24, 100))
 	wr.SetDelta(2)
-	wr.Write(channel.Ch1.NoteOff(24))
+	wr.Write(channel.Channel1.NoteOff(24))
 	wr.Write(meta.EndOfTrack)
 
 	//	return bytes.NewReader(bf.Bytes())
@@ -49,8 +49,8 @@ func Example() {
 	// create a new track
 	tr := smftrack.New(2)
 	tr.AddEvents(
-		smftrack.NewEvent(10, channel.Ch3.NoteOn(80, 109)),
-		smftrack.NewEvent(30, channel.Ch3.NoteOff(80)),
+		smftrack.NewEvent(10, channel.Channel3.NoteOn(80, 109)),
+		smftrack.NewEvent(30, channel.Channel3.NoteOff(80)),
 	)
 
 	// add the track to the SMF1

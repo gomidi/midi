@@ -18,10 +18,10 @@ func Example() {
 	var bf bytes.Buffer
 
 	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
-	wr.Write(channel.Ch2.NoteOn(65, 90))
+	wr.Write(channel.Channel2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
 	time.Sleep(time.Second)
-	wr.Write(channel.Ch2.NoteOff(65))
+	wr.Write(channel.Channel2.NoteOff(65))
 
 	rthandler := func(m realtime.Message) {
 		fmt.Printf("Realtime: %s\n", m)

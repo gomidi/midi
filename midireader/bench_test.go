@@ -35,10 +35,10 @@ func sameChannel() io.Reader {
 	wr := midiwriter.New(&bf)
 
 	var (
-		m1 = channel.Ch1.NoteOn(20, 100)
-		m2 = channel.Ch1.NoteOff(20)
-		m3 = channel.Ch1.NoteOn(23, 70)
-		m4 = channel.Ch1.NoteOff(23)
+		m1 = channel.Channel1.NoteOn(20, 100)
+		m2 = channel.Channel1.NoteOff(20)
+		m3 = channel.Channel1.NoteOn(23, 70)
+		m4 = channel.Channel1.NoteOff(23)
 	)
 
 	wr.Write(m1)
@@ -55,10 +55,10 @@ func alternatingChannel() io.Reader {
 	wr := midiwriter.New(&bf)
 
 	var (
-		m1 = channel.Ch1.NoteOn(20, 100)
-		m2 = channel.Ch4.NoteOn(23, 70)
-		m3 = channel.Ch1.NoteOff(20)
-		m4 = channel.Ch4.NoteOff(23)
+		m1 = channel.Channel1.NoteOn(20, 100)
+		m2 = channel.Channel4.NoteOn(23, 70)
+		m3 = channel.Channel1.NoteOff(20)
+		m4 = channel.Channel4.NoteOff(23)
 	)
 
 	wr.Write(m1)
