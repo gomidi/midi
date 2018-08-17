@@ -1,12 +1,29 @@
 # midi
 Core library for reading and writing of MIDI messages with Go.
 
-[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
+[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi) Docs: [![Documentation](http://godoc.org/github.com/gomidi/midi/mid?status.png)](http://godoc.org/github.com/gomidi/midi)
 
 ## Please read
 
 This package is for users having intimate knowledge of the MIDI and SMF standard.
 If you are not very experienced with MIDI, try out https://github.com/gomidi/mid which is based on this package and makes it easy to read ad write MIDI / SMF.
+
+## Status
+
+stable
+
+- Supported Go versions: >= 1.2
+- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
+
+## Installation
+
+```
+go get github.com/gomidi/midi
+```
+
+## Documentation
+
+see http://godoc.org/github.com/gomidi/midi
 
 ## Goals
 
@@ -23,17 +40,6 @@ If you are not very experienced with MIDI, try out https://github.com/gomidi/mid
 - dealing with the inner structure of sysex messages
 - connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
 - CLI tools
-
-## Usage
-
-Most users will want to use the porcelain package http://github.com/gomidi/mid
-which provides nice and easy abstractions over this package.
-
-```
-go get github.com/gomidi/midi
-```
-
-Docs: [![Documentation](http://godoc.org/github.com/gomidi/midi/mid?status.png)](http://godoc.org/github.com/gomidi/midi)
 
 ## Modularity
 
@@ -56,16 +62,6 @@ On my laptop, reading noteon and noteoff ("live")
     BenchmarkSameChannel            351 ns/op  12 B/op  7 allocs/op
     BenchmarkAlternatingChannel     425 ns/op  14 B/op  9 allocs/op
 
-## Documentation
-
-see http://godoc.org/github.com/gomidi/midi
-
-## Status
-
-stable
-
-- Supported Go versions: >= 1.2
-- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
 
 ## License
 
