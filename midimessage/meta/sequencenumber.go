@@ -9,16 +9,20 @@ import (
 	"github.com/gomidi/midi/internal/midilib"
 )
 
+// SequenceNumber represents the sequence number MIDI meta message
 type SequenceNumber uint16
 
+// Number returns the number of the sequence
 func (s SequenceNumber) Number() uint16 {
 	return uint16(s)
 }
 
+// String represents the MIDI sequence name message as a string (for debugging)
 func (s SequenceNumber) String() string {
 	return fmt.Sprintf("%T: %v", s, s.Number())
 }
 
+// Raw returns the raw bytes for the message
 func (s SequenceNumber) Raw() []byte {
 	var bf bytes.Buffer
 	binary.Write(&bf, binary.BigEndian, s.Number())

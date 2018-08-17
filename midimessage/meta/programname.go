@@ -12,26 +12,33 @@ ProgramName
 
 FF 08 length text
 
-This optional event is used to embed the patch/program name that is called up by the immediately subsequent Bank Select and Program Change messages. It serves to aid the end user in making an intelligent program choice when using different hardware.
+This optional event is used to embed the patch/program name that is called up by the immediately subsequent
+Bank Select and Program Change messages.
+
+It serves to aid the end user in making an intelligent program choice when using different hardware.
 
 This event may appear anywhere in a track, and there may be multiple occurrences within a track.
 */
-func (m ProgramName) String() string {
-	return fmt.Sprintf("%T: %#v", m, m.Text())
+
+// String represents the MIDI program name message as a string (for debugging)
+func (p ProgramName) String() string {
+	return fmt.Sprintf("%T: %#v", p, p.Text())
 }
 
-func (m ProgramName) Text() string {
-	return string(m)
+// Text returns the program name
+func (p ProgramName) Text() string {
+	return string(p)
 }
 
-func (m ProgramName) Raw() []byte {
+// Raw returns the raw bytes for the message
+func (p ProgramName) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byte(byteProgramName),
-		Data: []byte(m),
+		Data: []byte(p),
 	}).Bytes()
 }
 
-func (m ProgramName) readFrom(rd io.Reader) (Message, error) {
+func (p ProgramName) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)
 
 	if err != nil {
@@ -41,4 +48,4 @@ func (m ProgramName) readFrom(rd io.Reader) (Message, error) {
 	return ProgramName(text), nil
 }
 
-func (m ProgramName) meta() {}
+func (p ProgramName) meta() {}

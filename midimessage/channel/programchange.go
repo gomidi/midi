@@ -17,24 +17,24 @@ func (p ProgramChange) Program() uint8 {
 }
 
 // Channel returns the channel of the program change message.
-func (m ProgramChange) Channel() uint8 {
-	return m.channel
+func (p ProgramChange) Channel() uint8 {
+	return p.channel
 }
 
 // Raw returns the raw bytes of the program change message.
-func (c ProgramChange) Raw() []byte {
-	return channelMessage1(c.channel, 12, c.program)
+func (p ProgramChange) Raw() []byte {
+	return channelMessage1(p.channel, 12, p.program)
 }
 
 // String returns human readable information about the program change message.
-func (c ProgramChange) String() string {
-	return fmt.Sprintf("%T channel %v program %v", c, c.Channel(), c.Program())
+func (p ProgramChange) String() string {
+	return fmt.Sprintf("%T channel %v program %v", p, p.Channel(), p.Program())
 }
 
 // set returns a new program change message that is set to the parsed arguments
 func (ProgramChange) set(channel uint8, firstArg uint8) setter1 {
-	var m ProgramChange
-	m.channel = channel
-	m.program = midilib.ParseUint7(firstArg)
-	return m
+	var p ProgramChange
+	p.channel = channel
+	p.program = midilib.ParseUint7(firstArg)
+	return p
 }

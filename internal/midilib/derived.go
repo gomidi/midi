@@ -163,7 +163,7 @@ func ParseTwoUint7(b1, b2 byte) (uint8, uint8) {
 // This is a slightly modified variant of the parsePitchWheelValue function
 // from Joe Wass. See the file midi_functions.go for the original.
 func ParsePitchWheelVals(b1 byte, b2 byte) (relative int16, absolute uint16) {
-	var val uint16 = 0
+	var val uint16
 
 	val = uint16((b2)&0x7f) << 7
 	val |= uint16(b1) & 0x7f

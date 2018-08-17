@@ -6,16 +6,20 @@ import (
 	"io"
 )
 
+// MIDIChannel represents the deprecated MIDI channel meta message
 type MIDIChannel uint8
 
+// Number returns the number of the MIDI channel (starting with 0)
 func (m MIDIChannel) Number() uint8 {
 	return uint8(m)
 }
 
+// String represents the MIDIChannel message as a string (for debugging)
 func (m MIDIChannel) String() string {
 	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
+// Raw returns the raw bytes for the message
 func (m MIDIChannel) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byte(byteMIDIChannel),

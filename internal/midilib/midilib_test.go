@@ -41,7 +41,7 @@ func TestVLQ(t *testing.T) {
 
 }
 
-func TestLib(t *testing.T) {
+func TestLibBits(t *testing.T) {
 
 	tests := []struct {
 		result   interface{}
