@@ -3,6 +3,11 @@ Core library for reading and writing of MIDI messages with Go.
 
 [![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
+## Please read
+
+This package is for users having intimate knowledge of the MIDI and SMF standard.
+If you are not very experienced with MIDI, try out https://github.com/gomidi/mid which is based on this package and makes it easy to read ad write MIDI / SMF.
+
 ## Goals
 
 - implementation of complete MIDI standard (live and SMF data)
@@ -14,7 +19,6 @@ Core library for reading and writing of MIDI messages with Go.
 
 ## Non-Goals
 
-- one import highlevel comfort package, for that see: http://github.com/gomidi/mid
 - constructing of MIDI time code messages
 - dealing with the inner structure of sysex messages
 - connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
