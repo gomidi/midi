@@ -3,11 +3,11 @@ package midireader_test
 import (
 	"bytes"
 	"fmt"
-
 	. "github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/realtime"
 	"github.com/gomidi/midi/midireader"
 	"github.com/gomidi/midi/midiwriter"
+	"io"
 
 	"github.com/gomidi/midi"
 )
@@ -44,6 +44,10 @@ func Example() {
 			fmt.Printf("NoteOff at channel %v: key: %v\n", v.Channel(), v.Key())
 		}
 
+	}
+
+	if err != io.EOF {
+		panic("error: " + err.Error())
 	}
 
 	// Output: NoteOn at channel 2: key: 65 velocity: 90

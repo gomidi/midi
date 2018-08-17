@@ -139,7 +139,7 @@ func (r *reader) Read() (m midi.Message, err error) {
 
 func (r *reader) read() (m midi.Message, err error) {
 	if r.isDone {
-		return nil, ErrFinished
+		return nil, smf.ErrFinished
 	}
 
 	if !r.headerIsRead {

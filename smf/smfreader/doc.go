@@ -18,17 +18,17 @@ Usage
 		// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 	)
 
-	var err1, err2 error
+	var err error
 
 	readMIDI := func (rd smf.Reader) {
 
 		var m midi.Message
 
 		for {
-			m, err1 = rd.Read()
+			m, err = rd.Read()
 
-			// to interrupt, the input.Read method must return io.EOF or any other error
-			if err1 != nil {
+			// at the end smf.ErrFinished will be returned
+			if err != nil {
 				break
 			}
 
@@ -48,9 +48,11 @@ Usage
 
 	}
 
-	err2 = smfreader.ReadFile("file.mid", readMIDI)
+	smfreader.ReadFile("file.mid", readMIDI)
 
-	// deal with err1 and err2
+  if err != smf.ErrFinished {
+	   // real error happend
+	}
 
 */
 package smfreader

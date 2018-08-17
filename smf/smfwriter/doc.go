@@ -18,7 +18,7 @@ Usage
 		// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 	)
 
-	var err1, err2 error
+	var err error
 
 	tpq := smf.MetricTicks(0) // set the time resolution in ticks per quarter note; 0 uses the defaults (i.e. 960)
 
@@ -30,9 +30,9 @@ Usage
 		// starts MIDI key 65 on MIDI channel 3 with velocity 90 with delta of 480 to
 		// the beginning of the track (note starts after a quaver pause)
 		// MIDI channels 1-16 correspond to channel.Channel0 - channel.Channel15.
-		_, err1 = wr.Write(Channel2.NoteOn(65, 90))
+		err = wr.Write(Channel2.NoteOn(65, 90))
 
-		if err1 != nil {
+		if err != nil {
 			return
 		}
 
@@ -40,38 +40,38 @@ Usage
 
 		// stops MIDI note 65 on MIDI channel 3 with delta of 960 to previous message
 		// this results in a duration of 1 quarter note for midi note 65
-		_, err1 = wr.Write(Channel2.NoteOff(65))
+		err = wr.Write(Channel2.NoteOff(65))
 
-		if err1 != nil {
+		if err != nil {
 			return
 		}
 
 		// finishes the first track and writes it to the file
-		_, err1 = wr.Write(meta.EndOfTrack)
+		err = wr.Write(meta.EndOfTrack)
 
-		if err1 != nil {
+		if err != nil {
 			return
 		}
 
 		// the next write writes to the second track
 		// after writing delta is always 0, so we start here at the beginning of the second track
-		_, err1 = wr.Write(meta.Text("hello second track!"))
+		err = wr.Write(meta.Text("hello second track!"))
 
-		if err1 != nil {
+		if err != nil {
 			return
 		}
 
 		// finishes the second track and writes it to the file
-		_, err1 = wr.Write(meta.EndOfTrack)
+		err = wr.Write(meta.EndOfTrack)
 	}
 
 	// the number passed to the NumTracks option must match the tracks written
 	// if NumTracks is not passed, it defaults to single track (SMF0)
 	// if numtracks > 1, SMF1 format is chosen.
 	// if TimeFormat is not passed, smf.MetricTicks(960) will be chosen
-	err2 = smfwriter.WriteFile("file.mid", writeMIDI, smfwriter.NumTracks(2), smfwriter.TimeFormat(tpq))
+	smfwriter.WriteFile("file.mid", writeMIDI, smfwriter.NumTracks(2), smfwriter.TimeFormat(tpq))
 
-	// deal with err1 and err2
+	// deal with err
 
 */
 package smfwriter

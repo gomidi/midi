@@ -57,7 +57,10 @@ Usage
 		}
 	}
 
-	// deal with err
+	if err != io.EOF {
+	  // real error here
+	}
+
 
 */
 package midireader

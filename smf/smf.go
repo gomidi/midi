@@ -41,6 +41,7 @@ type Writer interface {
 	// - It is the responsibility of the caller to make sure the provided NumTracks (which defaults to 1) is not
 	//   larger as the number of tracks in the file.
 	// Any error stops the writing, is tracked and prohibits further writing.
+	// At the end smf.ErrFinished will be returned
 	Write(midi.Message) error
 
 	// SetDelta sets a time distance between the last written and the following message in ticks.
@@ -59,12 +60,11 @@ type Reader interface {
 
 	// Read reads a MIDI message from a SMF file.
 	// any error will be tracked and stops reading and prevents any other attempt to read.
-	// this first and last error is returned from Error()
+	// At the end, smf.ErrFinished will be returned.
 	Read() (midi.Message, error)
 
 	// Header returns the header of SMF file
 	// if the header is not yet read, it will be read before
-	// if any error occurred during reading of header, it can be found with Error()
 	Header() Header
 
 	// Delta returns the time distance between the last read midi message and the message before in ticks.

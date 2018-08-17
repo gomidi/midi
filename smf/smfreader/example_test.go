@@ -8,6 +8,7 @@ import (
 	"github.com/gomidi/midi"
 	. "github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
+	"github.com/gomidi/midi/smf"
 	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smfwriter"
 )
@@ -33,7 +34,7 @@ func Example() {
 	for {
 		m, err = rd.Read()
 
-		// breaking at least with io.EOF
+		// at the end, smf.ErrFinished will be returned
 		if err != nil {
 			break
 		}
@@ -45,6 +46,10 @@ func Example() {
 			fmt.Printf("[%v] NoteOff at channel %v: key %v\n", rd.Delta(), v.Channel(), v.Key())
 		}
 
+	}
+
+	if err != smf.ErrFinished {
+		panic("error: " + err.Error())
 	}
 
 	// Output: [0] NoteOn at channel 2: key 65 velocity 90
