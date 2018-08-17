@@ -38,16 +38,20 @@ func (m SongPositionPointer) readFrom(rd io.Reader) (Message, error) {
 	return SongPositionPointer(abs), nil
 }
 
+// SongPositionPointer represents the MIDI song position pointer (SPP)
 type SongPositionPointer uint16
 
+// Number returns the number of the song position pointer
 func (m SongPositionPointer) Number() uint16 {
 	return uint16(m)
 }
 
+// String represents the MIDI song position pointer message as a string (for debugging)
 func (m SongPositionPointer) String() string {
 	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
+// Raw returns the raw bytes for the message
 func (m SongPositionPointer) Raw() []byte {
 	var b = make([]byte, 2)
 	b[1] = byte(uint16(m) & 0x7F)

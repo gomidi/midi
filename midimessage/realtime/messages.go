@@ -36,10 +36,12 @@ type Message interface {
 
 type msg byte
 
+// String represents the MIDI message as a string (for debugging)
 func (m msg) String() string {
 	return msg2String[m]
 }
 
+// Raw returns the raw bytes for the message
 func (m msg) Raw() []byte {
 	return []byte{byte(m)}
 }
