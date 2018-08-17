@@ -16,10 +16,5 @@
 	  github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
 	  github.com/gomidi/midi/midimessage/meta       (Meta Messages)
 	  github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
-
-	There is also a more comfortable package that has it all:
-
-	  github.com/gomidi/midi/mid
-
 */
 package smf

@@ -1,5 +1,5 @@
 # midi
-Reading and writing of MIDI messages with Go.
+Core library for reading and writing of MIDI messages with Go.
 
 [![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi)
 
@@ -9,27 +9,27 @@ Reading and writing of MIDI messages with Go.
 - provide building blocks for MIDI applications
 - stable API
 - no dependencies outside the standard library
-- small modular core packages and a fat comfortable porcelain package
+- small modular core packages
 - pure Go library (no C, no assembler) 
 
 ## Non-Goals
 
+- one import highlevel comfort package, for that see: http://github.com/gomidi/mid
 - constructing of MIDI time code messages
 - dealing with the inner structure of sysex messages
-- connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi )
+- connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
 - CLI tools
 
 ## Usage
 
-Most users will want to use the porcelain package
+Most users will want to use the porcelain package http://github.com/gomidi/mid
+which provides nice and easy abstractions over this package.
 
 ```
-go get -d -t github.com/gomidi/midi/mid
+go get github.com/gomidi/midi
 ```
 
-Docs: [![Documentation](http://godoc.org/github.com/gomidi/midi/mid?status.png)](http://godoc.org/github.com/gomidi/midi/mid)
-
-You don't need to read here further, if you are not interested in the nitty gritty details. 
+Docs: [![Documentation](http://godoc.org/github.com/gomidi/midi/mid?status.png)](http://godoc.org/github.com/gomidi/midi)
 
 ## Modularity
 
@@ -52,38 +52,16 @@ On my laptop, reading noteon and noteoff ("live")
     BenchmarkSameChannel            351 ns/op  12 B/op  7 allocs/op
     BenchmarkAlternatingChannel     425 ns/op  14 B/op  9 allocs/op
 
-## Full Documentation
+## Documentation
 
 see http://godoc.org/github.com/gomidi/midi
 
 ## Status
 
-late beta - API mostly stable
+stable
 
 - Supported Go versions: >= 1.2
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
-
-
-```
-    package                   API stable          complete
-    ----------------------------------------------------
-    midiwriter                yes                 yes
-    midireader                yes                 yes
-    smf                       yes                 yes
-    smf/smfwriter             yes                 yes
-    smf/smfreader             yes                 yes
-    midimessage/channel       yes                 yes
-    midimessage/cc            yes                 yes
-    midimessage/meta          yes                 yes
-    midimessage/realtime      yes                 yes
-    midimessage/syscommon     yes                 yes
-    midimessage/sysex         no                  yes
-    midiio                    yes                 yes
-    
-	------- porcelain packages -------
-    smf/smftrack              no                  no
-    mid                       almost              yes
-```
 
 ## License
 

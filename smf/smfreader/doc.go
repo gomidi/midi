@@ -5,10 +5,6 @@
 /*
 	Package smfreader provides a reader of Standard MIDI Files (SMF).
 
-	There is also a more comfortable handler package:
-
-	  github.com/gomidi/midi/midihandler    (reading MIDI messages live or from SMF files)
-
 	Usage
 
 		import (

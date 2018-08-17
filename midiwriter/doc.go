@@ -5,10 +5,6 @@
 /*
 	Package midiwriter provides a writer for live/streaming/"over the wire" MIDI data.
 
-	There is also a more comfortable package that has it all:
-
-	  github.com/gomidi/midi/mid
-
 	Usage
 
 

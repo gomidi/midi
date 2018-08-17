@@ -18,7 +18,7 @@
   If you want a comfortable common package providing everything at a high level, use the
   procelain package
 
-    github.com/gomidi/midi/mid
+    github.com/gomidi/mid
 
   The underlying core implementations can be found here:
 
@@ -31,7 +31,6 @@
   The core of the MIDI messages that can be written or analyzed can be found here:
 
     github.com/gomidi/midi/midimessage/channel    (Channel Messages)
-    github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
     github.com/gomidi/midi/midimessage/meta       (Meta Messages)
     github.com/gomidi/midi/midimessage/realtime   (System Realtime Messages)
     github.com/gomidi/midi/midimessage/syscommon  (System Common messages)
