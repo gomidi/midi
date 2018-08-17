@@ -88,53 +88,38 @@ func (m KeySignature) String() string {
 	return fmt.Sprintf("%T: %s", m, m.Text())
 }
 
+var keyNotes = map[uint8]string{
+	degreeC:  "C",
+	degreeD:  "D",
+	degreeE:  "E",
+	degreeF:  "F",
+	degreeG:  "G",
+	degreeA:  "A",
+	degreeB:  "B",
+	degreeCs: "C♯",
+	degreeDs: "D♯",
+	degreeFs: "F♯",
+	degreeGs: "G♯",
+	degreeAs: "A♯",
+}
+
+var keyNotesFlat = map[uint8]string{
+	degreeCs: "D♭",
+	degreeDs: "E♭",
+	degreeFs: "G♭",
+	degreeGs: "A♭",
+	degreeAs: "B♭",
+}
+
 // Note returns the note of the key signature as a string, e.g. C♯ or E♭
 func (m KeySignature) Note() (note string) {
-	switch m.Key {
-	case degreeC:
-		note = "C"
-	case degreeD:
-		note = "D"
-	case degreeE:
-		note = "E"
-	case degreeF:
-		note = "F"
-	case degreeG:
-		note = "G"
-	case degreeA:
-		note = "A"
-	case degreeB:
-		note = "B"
-	case degreeCs:
-		note = "C♯"
-		if m.IsFlat {
-			note = "D♭"
+	if m.IsFlat {
+		if nt, has := keyNotesFlat[m.Key]; has {
+			return nt
 		}
-	case degreeDs:
-		note = "D♯"
-		if m.IsFlat {
-			note = "E♭"
-		}
-	case degreeFs:
-		note = "F♯"
-		if m.IsFlat {
-			note = "G♭"
-		}
-	case degreeGs:
-		note = "G♯"
-		if m.IsFlat {
-			note = "A♭"
-		}
-	case degreeAs:
-		note = "A♯"
-		if m.IsFlat {
-			note = "B♭"
-		}
-	default:
-		panic("unreachable")
 	}
 
-	return
+	return keyNotes[m.Key]
 }
 
 // Text returns a the text of the key signature
