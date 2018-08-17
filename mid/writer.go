@@ -3,8 +3,10 @@ package mid
 import (
 	"github.com/gomidi/midi/midimessage/meta/meter"
 	// "bytes"
+	// "encoding/binary"
 	"fmt"
 	"github.com/gomidi/midi"
+	// "github.com/gomidi/midi/internal/midilib"
 	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/midimessage/realtime"
@@ -124,15 +126,41 @@ func (m *midiWriter) ProgramChange(program uint8) error {
 	return m.wr.Write(m.ch.ProgramChange(program))
 }
 
-// CC writes a control change message. It is meant to be used in conjunction
-// with the midimessages/cc package.
-func (m *midiWriter) CC(cch channel.ControlChange) error {
-	return m.wr.Write(cch)
+// MsbLsb writes a Msb control change message, followed by a Lsb control change message
+// for the current channel
+// For more comfortable use, used it in conjunction with the gomidi/cc package
+func (m *midiWriter) MsbLsb(msb, lsb uint8, value uint16) error {
+
+	var b = make([]byte, 2)
+	b[1] = byte(value & 0x7F)
+	b[0] = byte((value >> 7) & 0x7F)
+
+	/*
+		r := midilib.MsbLsbSigned(value)
+
+		var b = make([]byte, 2)
+
+		binary.BigEndian.PutUint16(b, r)
+	*/
+	err := m.ControlChange(msb, b[0])
+	if err != nil {
+		return err
+	}
+	return m.ControlChange(lsb, b[1])
 }
 
 // ControlChange writes a control change message for the current channel
+// For more comfortable use, used it in conjunction with the gomidi/cc package
 func (m *midiWriter) ControlChange(controller, value uint8) error {
 	return m.wr.Write(m.ch.ControlChange(controller, value))
+}
+
+func (m *midiWriter) ControlChangeOff(controller uint8) error {
+	return m.ControlChange(controller, 0)
+}
+
+func (m *midiWriter) ControlChangeOn(controller uint8) error {
+	return m.ControlChange(controller, 127)
 }
 
 // SysEx writes sysex data
