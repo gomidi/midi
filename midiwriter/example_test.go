@@ -15,9 +15,11 @@ import (
 )
 
 func Example() {
+	fmt.Println()
 	var bf bytes.Buffer
 
 	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
+	wr.Write(Channel2.PitchBend(5000))
 	wr.Write(Channel2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
 	Sleep(Second)
@@ -40,6 +42,9 @@ func Example() {
 			break
 		}
 
+		// inspect
+		fmt.Println(m)
+
 		switch v := m.(type) {
 		case NoteOn:
 			fmt.Printf("NoteOn at channel %v: key %v velocity %v\n", v.Channel(), v.Key(), v.Velocity())
@@ -49,7 +54,12 @@ func Example() {
 
 	}
 
-	// Output: NoteOn at channel 2: key 65 velocity 90
+	// Output:
+	// channel.PitchBend ("Portamento") channel 2 value 5000 absValue 13192
+	// channel.NoteOn channel 2 key 65 velocity 90
+	// NoteOn at channel 2: key 65 velocity 90
 	// Realtime: Reset
+	// channel.NoteOff channel 2 key 65
 	// NoteOff at channel 2: key 65
+
 }
