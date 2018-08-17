@@ -226,13 +226,13 @@ func (w *writer) writeHeader(wr io.Writer) error {
 
 	ch.Write(bf.Bytes())
 
-	err = ch.WriteTo(wr)
+	_, err = ch.WriteTo(wr)
 	return err
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
 func (w *writer) writeTrackTo(wr io.Writer) (err error) {
-	err = w.track.WriteTo(wr)
+	_, err = w.track.WriteTo(wr)
 
 	if err != nil {
 		return
