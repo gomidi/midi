@@ -62,7 +62,7 @@ import (
     "github.com/gomidi/midi"
 )
 
-func Example() {
+func main() {
     var bf bytes.Buffer
 
     wr := midiwriter.New(&bf)
