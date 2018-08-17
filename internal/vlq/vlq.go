@@ -23,6 +23,8 @@ bits in a routine to write variable-length numbers. Theoretically, larger number
 // see https://blogs.infosupport.com/a-primer-on-vlq/
 // we use the variant of the midi-spec
 // stolen and converted to go from https://github.com/dvberkel/VLQKata/blob/master/src/main/java/nl/dvberkel/kata/Kata.java#L12
+
+// Encode encodes the given value as variable length quantity
 func Encode(n uint32) (out []byte) {
 	var quo, rem uint32
 	quo = n / vlqContinue
@@ -40,6 +42,7 @@ func Encode(n uint32) (out []byte) {
 	return
 }
 
+// Decode decodes a variable length quantity
 func Decode(source []byte) (num uint32) {
 
 	for i := 0; i < len(source); i++ {

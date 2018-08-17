@@ -158,7 +158,7 @@ func ParseTwoUint7(b1, b2 byte) (uint8, uint8) {
 	return (b1 & 0x7f), (b2 & 0x7f)
 }
 
-// ParsePitchWheelValue parses a 14-bit signed value, which becomes a signed int16.
+// ParsePitchWheelVals parses a 14-bit signed value, which becomes a signed int16.
 //
 // This is a slightly modified variant of the parsePitchWheelValue function
 // from Joe Wass. See the file midi_functions.go for the original.

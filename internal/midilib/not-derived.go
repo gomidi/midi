@@ -14,12 +14,14 @@ func clearBitU16(n uint16, pos uint16) uint16 {
 	return n
 }
 
+// ClearBitU8 clears the bit at position pos within n
 func ClearBitU8(n uint8, pos uint8) uint8 {
 	mask := ^(uint8(1) << pos)
 	n &= mask
 	return n
 }
 
+// MsbLsbSigned returns the uint16 for a signed MSB LSB message combination
 func MsbLsbSigned(n int16) uint16 {
 	/*
 		if n > 8191 {

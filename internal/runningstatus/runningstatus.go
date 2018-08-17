@@ -7,7 +7,10 @@ import (
 	"io"
 )
 
+// Reader is a running status reader
 type Reader interface {
+	// Read reads the status byte off the canary and returns
+	// if it has changed compared to the previous read
 	Read(canary byte) (status byte, changed bool)
 }
 
@@ -40,6 +43,9 @@ type livereader struct {
        Nothing is done to the buffer when a RealTime Category message is received.
        Any data bytes are ignored when the buffer is 0. (I think that only holds for realtime midi)
 */
+
+// Read reads the status byte from the given canary, while repsecting
+// running status and returns whether the status has changed
 func (r *livereader) Read(canary byte) (status byte, changed bool) {
 
 	// here we clear for System Common Category messages
@@ -55,6 +61,8 @@ type smfreader struct {
 	reader
 }
 
+// Read reads the status byte from the given canary, while repsecting
+// running status and returns whether the status has changed
 func (r *smfreader) Read(canary byte) (status byte, changed bool) {
 
 	// here we clear for meta messages
@@ -66,28 +74,34 @@ func (r *smfreader) Read(canary byte) (status byte, changed bool) {
 	return r.read(canary)
 }
 
+// NewLiveReader returns a new Reader for reading of live MIDI data
 func NewLiveReader() Reader {
 	return &livereader{}
 }
 
+// NewSMFReader returns a new Reader for reading of SMF MIDI data
 func NewSMFReader() Reader {
 	return &smfreader{}
 }
 
+// Writer writes messages with running status byte
 type Writer interface {
 	io.Writer
 	runningstatus()
 }
 
+// NewSMFWriter returns a new SMFWriter
 func NewSMFWriter() SMFWriter {
 	return &smfwriter{0}
 }
 
+// SMFWriter is a writer for writing messages with running status byte in SMF files
 type SMFWriter interface {
 	Write(midi.Message) []byte
 	ResetStatus()
 }
 
+// NewLiveWriter returns a new Writer for live writing of messages with running status byte
 func NewLiveWriter(output io.Writer) Writer {
 	return &liveWriter{output, 0}
 }
@@ -100,6 +114,7 @@ func (w *smfwriter) ResetStatus() {
 	w.status = 0
 }
 
+// Write writes the given message with running status
 func (w *smfwriter) Write(msg midi.Message) []byte {
 	raw := msg.Raw()
 	// fmt.Printf("should write %s (% X)\n", msg, raw)
@@ -137,6 +152,7 @@ type liveWriter struct {
 	status byte
 }
 
+// Write writes the given message with running status
 func (w *liveWriter) Write(msg []byte) (int, error) {
 	// fmt.Printf("should write % X\n", msg)
 	// for realtime system messages, don't affect status and write the whole message
