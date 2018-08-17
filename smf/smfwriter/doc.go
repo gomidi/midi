@@ -29,8 +29,8 @@
 
 			// starts MIDI key 65 on MIDI channel 3 with velocity 90 with delta of 480 to
 			// the beginning of the track (note starts after a quaver pause)
-			// MIDI channels 1-16 correspond to channel.Ch0 - channel.Ch15.
-			_, err1 = wr.Write(channel.Ch2.NoteOn(65, 90))
+			// MIDI channels 1-16 correspond to channel.Channel0 - channel.Channel15.
+			_, err1 = wr.Write(channel.Channel2.NoteOn(65, 90))
 
 			if err1 != nil {
 				return
@@ -40,7 +40,7 @@
 
 			// stops MIDI note 65 on MIDI channel 3 with delta of 960 to previous message
 			// this results in a duration of 1 quarter note for midi note 65
-			_, err1 = wr.Write(channel.Ch2.NoteOff(65))
+			_, err1 = wr.Write(channel.Channel2.NoteOff(65))
 
 			if err1 != nil {
 				return
