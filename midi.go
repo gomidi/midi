@@ -37,6 +37,7 @@ type ReadCloser interface {
 	Close() error
 }
 
+// ErrUnexpectedEOF is returned, when an unexspected end of file is reached.
 var ErrUnexpectedEOF = errors.New("Unexpected End of File found.")
 
 /*

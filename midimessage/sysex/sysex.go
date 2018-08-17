@@ -18,24 +18,26 @@ func (m Escape) Data() []byte {
 	return []byte(m)
 }
 
+// String represents the sysex.Escape as a string (for debugging)
 func (m Escape) String() string {
 	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
-// Raw() returns the data with the escape prefix 0xF7
+// Raw returns the data with the escape prefix 0xF7
 func (m Escape) Raw() []byte {
 	var b = []byte{0xF7}
 	b = append(b, []byte(m)...)
 	return b
 }
 
+// Len returns the length of the sysex data
 func (m Escape) Len() int {
 	return len(m)
 }
 
 func (c Escape) sysex() {}
 
-// SysExStart is an incomplete sysex that is the start of several sysexes (casio style)
+// Start is an incomplete sysex that is the start of several sysexes (casio style)
 // i.e. beginning with 0xF0 but no 0xF7 at the end
 // when used within a SMF file, the first byte (0xF0) must be followed by a length
 // when used live, no messages apart from realtime messages may be send before the
@@ -47,19 +49,21 @@ func (m Start) Data() []byte {
 	return []byte(m)
 }
 
-// Raw() returns the data with the prefix 0xF0
+// Raw returns the data with the prefix 0xF0
 func (m Start) Raw() []byte {
 	var b = []byte{0xF0}
 	b = append(b, []byte(m)...)
 	return b
 }
 
+// Len returns the length of the sysex data
 func (m Start) Len() int {
 	return len(m)
 }
 
 func (c Start) sysex() {}
 
+// String represents the sysex.Start as a string (for debugging)
 func (m Start) String() string {
 	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
@@ -78,6 +82,7 @@ func (m Continue) Data() []byte {
 
 func (c Continue) sysex() {}
 
+// String represents the sysex.Continue as a string (for debugging)
 func (m Continue) String() string {
 	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
@@ -89,6 +94,7 @@ func (m Continue) Raw() []byte {
 	return b
 }
 
+// Len returns the length of the sysex data
 func (m Continue) Len() int {
 	return len(m)
 }
@@ -105,17 +111,19 @@ func (m End) Data() []byte {
 	return []byte(m)
 }
 
+// String represents the sysex.End as a string (for debugging)
 func (m End) String() string {
 	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
+// Len returns the length of the sysex data
 func (m End) Len() int {
 	return len(m)
 }
 
 func (c End) sysex() {}
 
-// Raw() returns the data with the prefix 0xF7 and the postfix 0xF7
+// Raw returns the data with the prefix 0xF7 and the postfix 0xF7
 func (m End) Raw() []byte {
 	var b = []byte{0xF7}
 	b = append(b, []byte(m)...)
@@ -151,10 +159,12 @@ func (m SysEx) Data() []byte {
 
 func (m SysEx) sysex() {}
 
+// String represents the sysex message as a string (for debugging)
 func (m SysEx) String() string {
 	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
+// Len returns the length of the sysex data
 func (m SysEx) Len() int {
 	return len(m)
 }

@@ -19,10 +19,10 @@ func (n NoteOffVelocity) Velocity() uint8 {
 
 // set returns a new note-off message with velocity that is set to the parsed arguments
 func (NoteOffVelocity) set(channel uint8, arg1, arg2 uint8) setter2 {
-	var m NoteOffVelocity
-	m.channel = channel
-	m.key, m.velocity = midilib.ParseTwoUint7(arg1, arg2)
-	return m
+	var n NoteOffVelocity
+	n.channel = channel
+	n.key, n.velocity = midilib.ParseTwoUint7(arg1, arg2)
+	return n
 }
 
 // Raw returns the bytes for the noteoff message.
@@ -33,8 +33,8 @@ func (n NoteOffVelocity) Raw() []byte {
 }
 
 // String returns human readable information about the note-off message that includes velocity.
-func (m NoteOffVelocity) String() string {
-	return fmt.Sprintf("%T channel %v key %v velocity %v", m, m.Channel(), m.Key(), m.Velocity())
+func (n NoteOffVelocity) String() string {
+	return fmt.Sprintf("%T channel %v key %v velocity %v", n, n.Channel(), n.Key(), n.Velocity())
 }
 
 // NoteOff represents a note-off message by a note-on message with velocity of 0 (helps for running status).
@@ -44,6 +44,7 @@ type NoteOff struct {
 	key     uint8
 }
 
+// Key returns the key of the note off message
 func (n NoteOff) Key() uint8 {
 	return n.key
 }
@@ -61,14 +62,14 @@ func (n NoteOff) Channel() uint8 {
 }
 
 // String returns human readable information about the note-off message.
-func (m NoteOff) String() string {
-	return fmt.Sprintf("%T channel %v key %v", m, m.Channel(), m.Key())
+func (n NoteOff) String() string {
+	return fmt.Sprintf("%T channel %v key %v", n, n.Channel(), n.Key())
 }
 
 // set returns a new note-off message that is set to the parsed arguments
 func (NoteOff) set(channel uint8, arg1, arg2 uint8) setter2 {
-	var m NoteOff
-	m.channel = channel
-	m.key, _ = midilib.ParseTwoUint7(arg1, arg2)
-	return m
+	var n NoteOff
+	n.channel = channel
+	n.key, _ = midilib.ParseTwoUint7(arg1, arg2)
+	return n
 }

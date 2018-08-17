@@ -7,8 +7,13 @@ import (
 )
 
 const (
-	PitchReset   = 0
-	PitchLowest  = -8191
+	// PitchReset is the pitch bend value to reset the pitch wheel to zero
+	PitchReset = 0
+
+	// PitchLowest is the lowest possible value of the pitch bending
+	PitchLowest = -8191
+
+	// PitchHighest is the highest possible value of the pitch bending
 	PitchHighest = 8191
 )
 
@@ -34,18 +39,23 @@ type PitchBend struct {
 	absValue uint16
 }
 
+// Value returns the relative value of the pitch bending in relation
+// to the middle (zero) point at 0 (-8191 to 8191)
 func (p PitchBend) Value() int16 {
 	return p.value
 }
 
+// AbsValue returns the absolute value (14bit) of the pitch bending (unsigned)
 func (p PitchBend) AbsValue() uint16 {
 	return p.absValue
 }
 
+// Channel returns the MIDI channel (starting with 0)
 func (p PitchBend) Channel() uint8 {
 	return p.channel
 }
 
+// Raw returns the raw bytes for the message
 func (p PitchBend) Raw() []byte {
 	r := midilib.MsbLsbSigned(p.value)
 
@@ -55,6 +65,7 @@ func (p PitchBend) Raw() []byte {
 	return channelMessage2(p.channel, 14, b[0], b[1])
 }
 
+// String represents the MIDI pitch bend message as a string (for debugging)
 func (p PitchBend) String() string {
 	return fmt.Sprintf("%T (\"Portamento\") channel %v value %v absValue %v", p, p.Channel(), p.Value(), p.AbsValue())
 }
