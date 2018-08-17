@@ -40,14 +40,12 @@ type Writer interface {
 	//   If the last track has been written, io.EOF will be returned. (Also for any further attempt to write).
 	// - It is the responsibility of the caller to make sure the provided NumTracks (which defaults to 1) is not
 	//   larger as the number of tracks in the file.
-	// Keep the above in mind when examinating the written nbytes that are returned. They reflect the number of bytes
-	// that have been physically written at that point in time.
-	// any error stops the writing, is tracked and prohibits further writing.
-	// this last error is returned from Error()
+	// Any error stops the writing, is tracked and prohibits further writing.
 	Write(midi.Message) error
 
 	// SetDelta sets a time distance between the last written and the following message in ticks.
 	// The meaning of a tick depends on the time format that is set in the header of the SMF file.
+	// Use Header.TimeFormat.(MetricTicks).Ticks*th() to get the ticks of quarter notes etc.
 	SetDelta(ticks uint32)
 }
 
@@ -71,6 +69,8 @@ type Reader interface {
 
 	// Delta returns the time distance between the last read midi message and the message before in ticks.
 	// The meaning of a tick depends on the time format that is set in the header of the SMF file.
+	// Use Header.TimeFormat.(MetricTicks).In64ths() to convert the ticks to 64ths notes. From there you may calculate
+	// 16ths,quaver,4ths etc by dividing by 4,8,16 etc.
 	Delta() (ticks uint32)
 
 	// Track returns the number of the track of the last read midi message (starting with 0)
@@ -222,6 +222,15 @@ func SMPTE30(subframes uint8) TimeCode {
 // MetricTicks represents the "ticks per quarter note" (metric) time format
 // It defaults to 960 (i.e. 0 is treated as if it where 960 ticks per quarter note)
 type MetricTicks uint16
+
+// In64ths returns the deltaTicks in 64th notes.
+// To get 32ths, divide result by 2
+// To get 16ths, divide result by 4
+// To get 8ths, divide result by 8
+// To get 4ths, divide result by 16
+func (q MetricTicks) In64ths(deltaTicks uint32) uint32 {
+	return (deltaTicks * 16) / uint32(q)
+}
 
 // Duration returns the time.Duration for a number of ticks at a certain tempo (in BPM)
 func (q MetricTicks) Duration(tempoBPM uint32, deltaTicks uint32) time.Duration {

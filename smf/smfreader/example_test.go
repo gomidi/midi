@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/midimessage/channel"
+	. "github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf/smfreader"
 	"github.com/gomidi/midi/smf/smfwriter"
@@ -16,9 +16,9 @@ func mkMIDI() io.Reader {
 	var bf bytes.Buffer
 
 	wr := smfwriter.New(&bf)
-	wr.Write(channel.Channel2.NoteOn(65, 90))
+	wr.Write(Channel2.NoteOn(65, 90))
 	wr.SetDelta(2)
-	wr.Write(channel.Channel2.NoteOff(65))
+	wr.Write(Channel2.NoteOff(65))
 	wr.Write(meta.EndOfTrack)
 	return bytes.NewReader(bf.Bytes())
 }
@@ -39,9 +39,9 @@ func Example() {
 		}
 
 		switch v := m.(type) {
-		case channel.NoteOn:
+		case NoteOn:
 			fmt.Printf("[%v] NoteOn at channel %v: key %v velocity %v\n", rd.Delta(), v.Channel(), v.Key(), v.Velocity())
-		case channel.NoteOff:
+		case NoteOff:
 			fmt.Printf("[%v] NoteOff at channel %v: key %v\n", rd.Delta(), v.Channel(), v.Key())
 		}
 

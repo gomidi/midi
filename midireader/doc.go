@@ -9,7 +9,7 @@ Usage
 
 	import (
 		"github.com/gomidi/midi/midireader"
-		"github.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
+		. "github.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
 		"github.com/gomidi/midi/midimessage/realtime"   // (System Realtime Messages)
 
 		// you may also want to use these
@@ -45,14 +45,14 @@ Usage
 
 		// deal with them based on a type switch
 		switch msg := m.(type) {
-		case channel.NoteOn:
+		case NoteOn:
 			fmt.Printf(
 			  "NoteOn at channel %v: key %v velocity: %v\n",
 			  msg.Channel(), // MIDI channels 1-16 correspond to msg.Channel 0-15
 			  msg.Key(),
 			  msg.Velocity(),
 			)
-		case channel.NoteOff:
+		case NoteOff:
 			...
 		}
 	}

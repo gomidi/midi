@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/gomidi/midi/midimessage/channel"
+	. "github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/realtime"
 	"github.com/gomidi/midi/midireader"
 	"github.com/gomidi/midi/midiwriter"
 
-	"time"
+	. "time"
 
 	"github.com/gomidi/midi"
 )
@@ -18,10 +18,10 @@ func Example() {
 	var bf bytes.Buffer
 
 	wr := midiwriter.New(&bf, midiwriter.NoRunningStatus())
-	wr.Write(channel.Channel2.NoteOn(65, 90))
+	wr.Write(Channel2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
-	time.Sleep(time.Second)
-	wr.Write(channel.Channel2.NoteOff(65))
+	Sleep(Second)
+	wr.Write(Channel2.NoteOff(65))
 
 	rthandler := func(m realtime.Message) {
 		fmt.Printf("Realtime: %s\n", m)
@@ -41,9 +41,9 @@ func Example() {
 		}
 
 		switch v := m.(type) {
-		case channel.NoteOn:
+		case NoteOn:
 			fmt.Printf("NoteOn at channel %v: key %v velocity %v\n", v.Channel(), v.Key(), v.Velocity())
-		case channel.NoteOff:
+		case NoteOff:
 			fmt.Printf("NoteOff at channel %v: key %v\n", v.Channel(), v.Key())
 		}
 
