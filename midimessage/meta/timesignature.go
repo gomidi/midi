@@ -48,6 +48,7 @@ type TimeSignature struct {
 	DemiSemiQuaverPerQuarter uint8
 }
 
+// Raw returns the raw MIDI data
 func (m TimeSignature) Raw() []byte {
 	cpcl := m.ClocksPerClick
 	if cpcl == 0 {
@@ -68,10 +69,12 @@ func (m TimeSignature) Raw() []byte {
 
 }
 
+// Signature returns the time signature in a readable way
 func (m TimeSignature) Signature() string {
 	return fmt.Sprintf("%v/%v", m.Numerator, m.Denominator)
 }
 
+// String represents the time signature MIDI message as a string (for debugging)
 func (m TimeSignature) String() string {
 	return fmt.Sprintf("%T %v/%v clocksperclick %v dsqpq %v", m, m.Numerator, m.Denominator, m.ClocksPerClick, m.DemiSemiQuaverPerQuarter)
 	//return fmt.Sprintf("%T %v/%v", m, m.Numerator, m.Denominator)

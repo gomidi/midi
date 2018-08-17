@@ -15,12 +15,15 @@ sequencer which elects to use this as its only file format; sequencers with thei
 formats should probably stick to the standard features when using this format.
 */
 
+// SequencerSpecific is a sequencer specific meta message
 type SequencerSpecific []byte
 
+// Data returns the sequencer specific data
 func (s SequencerSpecific) Data() []byte {
 	return []byte(s)
 }
 
+// Raw returns the raw MIDI data
 func (s SequencerSpecific) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byteSequencerSpecific,
@@ -28,10 +31,12 @@ func (s SequencerSpecific) Raw() []byte {
 	}).Bytes()
 }
 
+// Len returns the length of the sequencer specific data
 func (s SequencerSpecific) Len() int {
 	return len(s)
 }
 
+// String represents the sequencer spefici MIDI message as a string (for debugging)
 func (s SequencerSpecific) String() string {
 	return fmt.Sprintf("%T len %v", s, s.Len())
 }

@@ -5,6 +5,7 @@ import (
 	"io"
 )
 
+// ProgramName represents a MIDI program name
 type ProgramName string
 
 /*

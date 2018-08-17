@@ -61,7 +61,7 @@ var SpecSMF1 = []byte{
 	0x00 /* delta */, 0xFF, 0x2F, 0x00, // end of track
 }
 
-// like SpecSMF1 but with missing data for last track
+// SpecSMF1Missing is like SpecSMF1 but with missing data for last track
 var SpecSMF1Missing = []byte{
 	// header chunk
 	0x4D, 0x54, 0x68, 0x64, // MThd

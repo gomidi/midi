@@ -10,13 +10,16 @@ import (
 type endOfTrack bool
 
 const (
+	// EndOfTrack represents the end of track MIDI message. It must be written at the end of a track
 	EndOfTrack = endOfTrack(true)
 )
 
+// String represents the end of track message as a string (for debugging)
 func (m endOfTrack) String() string {
 	return fmt.Sprintf("%T", m)
 }
 
+// Raw returns the raw MIDI data
 func (m endOfTrack) Raw() []byte {
 	return (&metaMessage{
 		Typ: byte(byteEndOfTrack),

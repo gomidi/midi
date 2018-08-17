@@ -7,17 +7,20 @@ import (
 	"math/big"
 )
 
-// value is equal to BPM
+// Tempo represents a MIDI tempo (change) message in BPM
 type Tempo uint32
 
+// BPM returns the tempo in beats per minute
 func (t Tempo) BPM() uint32 {
 	return uint32(t)
 }
 
+// String represents the tempo message as a string (for debugging)
 func (m Tempo) String() string {
 	return fmt.Sprintf("%T BPM: %v", m, m.BPM())
 }
 
+// Raw returns the raw MIDI data
 func (m Tempo) Raw() []byte {
 
 	f := float64(60000000) / float64(m.BPM())

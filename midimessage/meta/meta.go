@@ -37,6 +37,7 @@ Meta event types 0x01 to 0x0F inclusive are reserved for text events. In each ca
 Although most Meta events are optional, a few are mandatory. Also some events have restrictions regarding their placement.
 */
 
+// Message is a MIDI meta message
 type Message interface {
 	String() string
 	Raw() []byte

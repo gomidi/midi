@@ -23,6 +23,7 @@ reference time in some absolute way rather than based upon musical beats at
 a certain tempo.
 */
 
+// SMPTEOffset represents a smpte offset MIDI meta message
 type SMPTEOffset struct {
 	Hour            byte
 	Minute          byte
@@ -31,6 +32,7 @@ type SMPTEOffset struct {
 	FractionalFrame byte
 }
 
+// Raw returns the raw bytes for the message
 func (s SMPTEOffset) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byteSMPTEOffset,
@@ -38,6 +40,7 @@ func (s SMPTEOffset) Raw() []byte {
 	}).Bytes()
 }
 
+// String represents the smpte offset MIDI message as a string (for debugging)
 func (s SMPTEOffset) String() string {
 	return fmt.Sprintf("%T %v:%v:%v %v.%0d", s, s.Hour, s.Minute, s.Second, s.Frame, s.FractionalFrame)
 }

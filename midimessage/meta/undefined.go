@@ -6,15 +6,18 @@ import (
 	"io"
 )
 
+// Undefined represents an undefined meta message
 type Undefined struct {
 	Typ  byte
 	Data []byte
 }
 
+// String represents the undefined meta message as a string (for debugging)
 func (m Undefined) String() string {
 	return fmt.Sprintf("%T type: % X", m, m.Typ)
 }
 
+// Raw returns the raw MIDI data
 func (m Undefined) Raw() []byte {
 	return (&metaMessage{
 		Typ:  m.Typ,

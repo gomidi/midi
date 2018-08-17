@@ -62,14 +62,12 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 			}
 			return sysex.Escape(data), nil
 
-		} else {
-			// casio style
-			if s.inSequence {
-				return sysex.Continue(data), nil
-			}
-			return sysex.Escape(data), nil
-
 		}
+		// casio style
+		if s.inSequence {
+			return sysex.Continue(data), nil
+		}
+		return sysex.Escape(data), nil
 
 	default:
 		panic("sysex in SMF must start with F0 or F7")

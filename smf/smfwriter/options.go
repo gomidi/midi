@@ -19,6 +19,7 @@ options:
 
 */
 
+// Option is a Writer option
 type Option func(*writer)
 
 // NoRunningStatus forces the writer to always write the status byte.

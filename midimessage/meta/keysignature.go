@@ -65,6 +65,7 @@ func NewKeySignature(key uint8, ismajor bool, num uint8, isflat bool) KeySignatu
 }
 */
 
+// Raw returns the raw MIDI data
 func (m KeySignature) Raw() []byte {
 	mi := int8(0)
 	if !m.IsMajor {
@@ -82,10 +83,12 @@ func (m KeySignature) Raw() []byte {
 	}).Bytes()
 }
 
+// String represents the key signature message as a string (for debugging)
 func (m KeySignature) String() string {
 	return fmt.Sprintf("%T: %s", m, m.Text())
 }
 
+// Note returns the note of the key signature as a string, e.g. C♯ or E♭
 func (m KeySignature) Note() (note string) {
 	switch m.Key {
 	case degreeC:
@@ -134,6 +137,7 @@ func (m KeySignature) Note() (note string) {
 	return
 }
 
+// Text returns a the text of the key signature
 func (m KeySignature) Text() string {
 	if m.IsMajor {
 		return m.Note() + " maj."
