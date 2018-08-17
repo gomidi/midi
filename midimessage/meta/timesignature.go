@@ -38,9 +38,8 @@ For a format 1 MIDI file, Time Signature Meta events should only occur within th
 
 // TimeSignature sets the time signature according to the SMF spec.
 // Denominator isn't a power of 2, but a readable decimal number (uint8).
-// If you want a comfortabel way without
-// having to worry about ClocksPerClick and DemiSemiQuaverPerQuarter, use
-// the meter subpackage.
+// If you want an easy way without having to worry about ClocksPerClick
+// and DemiSemiQuaverPerQuarter, use the meter subpackage.
 type TimeSignature struct {
 	Numerator                uint8
 	Denominator              uint8
