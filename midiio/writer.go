@@ -34,7 +34,7 @@ type iowriter struct {
 }
 
 func (p *iowriter) writeRealtime(msg realtime.Message) {
-	p.bf.Write(msg.Raw())
+	p.to.Write(msg)
 }
 
 // Write translates the given midi data to typed midi.Messages and writes them to
