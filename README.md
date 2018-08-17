@@ -32,6 +32,7 @@ see http://godoc.org/github.com/gomidi/midi
 - [x] stable API
 - [x] no dependencies outside the standard library
 - [x] small modular core packages
+- [x] typed Messages 
 - [x] pure Go library (no C, no assembler) 
 
 ## Non-Goals
