@@ -1,7 +1,7 @@
 # midi
 Core library for reading and writing of MIDI messages with Go.
 
-[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi) [![Documentation](http://godoc.org/github.com/gomidi/midi/mid?status.png)](http://godoc.org/github.com/gomidi/midi)
+[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi) [![Documentation](http://godoc.org/github.com/gomidi/midi?status.png)](http://godoc.org/github.com/gomidi/midi)
 
 ## Please read
 
@@ -25,21 +25,22 @@ go get github.com/gomidi/midi
 
 see http://godoc.org/github.com/gomidi/midi
 
-## Goals
+## Features
 
-- implementation of complete MIDI standard (live and SMF data)
-- provide building blocks for MIDI applications
-- stable API
-- no dependencies outside the standard library
-- small modular core packages
-- pure Go library (no C, no assembler) 
+- [x] implementation of complete MIDI standard (live and SMF data)
+- [x] provide building blocks for other MIDI libraries and applications
+- [x] stable API
+- [x] no dependencies outside the standard library
+- [x] small modular core packages
+- [x] pure Go library (no C, no assembler) 
 
 ## Non-Goals
 
-- constructing of MIDI time code messages
-- dealing with the inner structure of sysex messages
-- connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
-- CLI tools
+- [] constructing of MIDI time code messages
+- [] Multidimensional Polyphonic Expression (MPE)
+- [] dealing with the inner structure of sysex messages
+- [] connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
+- [] CLI tools
 
 ## Modularity
 
