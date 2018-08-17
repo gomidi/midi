@@ -39,11 +39,11 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 		if data[len(data)-1] == 0xF7 {
 			s.inSequence = false
 			return sysex.SysEx(data[0 : len(data)-1]), nil
-		} else {
-			// casio style
-			s.inSequence = true
-			return sysex.Start(data), nil
 		}
+
+		// casio style
+		s.inSequence = true
+		return sysex.Start(data), nil
 
 	case 0xF7:
 		var data []byte
@@ -59,16 +59,16 @@ func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys sysex.Message, err
 			if s.inSequence {
 				s.inSequence = false
 				return sysex.End(data[0 : len(data)-1]), nil
-			} else {
-				return sysex.Escape(data), nil
 			}
+			return sysex.Escape(data), nil
+
 		} else {
 			// casio style
 			if s.inSequence {
 				return sysex.Continue(data), nil
-			} else {
-				return sysex.Escape(data), nil
 			}
+			return sysex.Escape(data), nil
+
 		}
 
 	default:

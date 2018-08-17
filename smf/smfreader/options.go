@@ -1,5 +1,6 @@
 package smfreader
 
+// Option is an option for the Reader
 type Option func(*reader)
 
 func debug(l logger) Option {

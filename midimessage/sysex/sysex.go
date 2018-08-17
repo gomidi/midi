@@ -35,7 +35,7 @@ func (m Escape) Len() int {
 	return len(m)
 }
 
-func (c Escape) sysex() {}
+func (m Escape) sysex() {}
 
 // Start is an incomplete sysex that is the start of several sysexes (casio style)
 // i.e. beginning with 0xF0 but no 0xF7 at the end
@@ -61,7 +61,7 @@ func (m Start) Len() int {
 	return len(m)
 }
 
-func (c Start) sysex() {}
+func (m Start) sysex() {}
 
 // String represents the sysex.Start as a string (for debugging)
 func (m Start) String() string {
@@ -80,14 +80,14 @@ func (m Continue) Data() []byte {
 	return []byte(m)
 }
 
-func (c Continue) sysex() {}
+func (m Continue) sysex() {}
 
 // String represents the sysex.Continue as a string (for debugging)
 func (m Continue) String() string {
 	return fmt.Sprintf("%T len: %v", m, m.Len())
 }
 
-// Raw() returns the data with the prefix 0xF7
+// Raw returns the data with the prefix 0xF7
 func (m Continue) Raw() []byte {
 	var b = []byte{0xF7}
 	b = append(b, []byte(m)...)
@@ -121,7 +121,7 @@ func (m End) Len() int {
 	return len(m)
 }
 
-func (c End) sysex() {}
+func (m End) sysex() {}
 
 // Raw returns the data with the prefix 0xF7 and the postfix 0xF7
 func (m End) Raw() []byte {

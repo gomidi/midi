@@ -16,6 +16,10 @@ midi.Messages that are passed to a custom midi.Writer
 NewWriter allows us to pass our custom midi.Writer and returns an io.Writer
 that we can write the bytes to.
 */
+
+// NewWriter allows us to pass our custom midi.Writer and returns an io.Writer
+// that we can write the bytes to. This is important, if we get the midi bytes
+// from a third party library as bytes but want to use them as typed midi.Messages
 func NewWriter(to midi.Writer) io.Writer {
 	p := &iowriter{}
 	p.to = to
@@ -33,7 +37,8 @@ func (p *iowriter) writeRealtime(msg realtime.Message) {
 	p.bf.Write(msg.Raw())
 }
 
-// each write does in fact write to the midi.Writer passed to new
+// Write translates the given midi data to typed midi.Messages and writes them to
+// the midi.Writer passed to NewWriter
 func (p *iowriter) Write(data []byte) (n int, err error) {
 	_, err = p.bf.Write(data)
 	if err != nil {

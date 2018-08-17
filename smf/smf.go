@@ -106,12 +106,13 @@ const (
 	SMF2 = format(2)
 )
 
+// Chunk is a chunk of a SMF file
 type Chunk struct {
 	typ  []byte // must always be 4 bytes long, to avoid conversions everytime, we take []byte here instead of [4]byte
 	data []byte
 }
 
-// Chunk returns the length of the chunk body
+// Len returns the length of the chunk body
 func (c *Chunk) Len() int {
 	return len(c.data)
 }
@@ -125,13 +126,14 @@ func (c *Chunk) SetType(typ [4]byte) {
 	c.typ[3] = typ[3]
 }
 
+// Type returns the type of the chunk (from the header)
 func (c *Chunk) Type() string {
 	var bf bytes.Buffer
 	bf.Write(c.typ)
 	return bf.String()
 }
 
-// Clear removes all data but keeps the typ
+// Clear removes all data but keeps the type
 func (c *Chunk) Clear() {
 	c.data = nil
 }

@@ -1,6 +1,6 @@
 package examples
 
-// example from SMF spec for SMF type 0
+// SpecSMF0 is an example from SMF spec for SMF type 0
 var SpecSMF0 = []byte{
 	// header chunk
 	0x4D, 0x54, 0x68, 0x64, // MThd

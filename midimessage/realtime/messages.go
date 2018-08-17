@@ -1,28 +1,28 @@
 package realtime
 
 const (
-	// MIDI Clock
+	// TimingClock is a MIDI timing clock message
 	TimingClock = msg(0xF8)
 
-	// Tick
+	// Tick is a midi tick message
 	Tick = msg(0xF9)
 
-	// MIDI Start
+	// Start is a MIDI start message
 	Start = msg(0xFA)
 
-	// MIDI Continue
+	// Continue is a MIDI continue message
 	Continue = msg(0xFB)
 
-	// MIDI Stop
+	// Stop is a MIDI stop message
 	Stop = msg(0xFC)
 
-	// Undefined4
+	// Undefined4 is an undefined realtime message
 	Undefined4 = msg(0xFD)
 
-	// Active Sense
+	// ActiveSensing is a MIDI active sensing message
 	ActiveSensing = msg(0xFE)
 
-	// Reset
+	// Reset is a MIDI reset message
 	Reset = msg(0xFF)
 )
 

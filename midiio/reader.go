@@ -13,6 +13,10 @@ use case:
 we want to read bytes that are MIDI data and come from a custom midi.Reader
 with each read there should come the data of a single MIDI message.
 */
+
+// NewReader returns an io.Reader that can be read of by third party
+// libraries that expect midi as bytes. When the data is read, it
+// gets the midi as typed midi.Messages from the given midi.Reader
 func NewReader(from midi.Reader) io.Reader {
 	p := &ioreader{}
 	p.rd = from
@@ -27,6 +31,8 @@ type ioreader struct {
 	rd midi.Reader
 }
 
+// Read reads the typed midi.Messages from the midi.Reader that have
+// been passed to NewReader and returns them as bytes.
 func (p *ioreader) Read(data []byte) (n int, err error) {
 	msg, err := p.rd.Read()
 

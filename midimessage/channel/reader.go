@@ -24,6 +24,7 @@ type Reader interface {
 	Read(status, arg1 byte) (Message, error)
 }
 
+// ReaderOption is an option for the channel reader.
 type ReaderOption func(*reader)
 
 // ReadNoteOffVelocity lets the reader differentiate between "fake" noteoff messages
