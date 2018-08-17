@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package key provides helper functions for key signature meta messages.
+Package key provides helper functions for key signature meta messages.
 
 */
 package key

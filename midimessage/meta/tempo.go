@@ -11,8 +11,8 @@ import (
 type Tempo uint32
 
 // BPM returns the tempo in beats per minute
-func (t Tempo) BPM() uint32 {
-	return uint32(t)
+func (m Tempo) BPM() uint32 {
+	return uint32(m)
 }
 
 // String represents the tempo message as a string (for debugging)
