@@ -16,7 +16,7 @@ This should allow to easily develop transformations (e.g. quantization,
 filtering) that may be used in both cases.
 
 If you want a comfortable common package providing everything at a high level, use the
-procelain package
+porcelain package
 
   github.com/gomidi/mid
 

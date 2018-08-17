@@ -44,7 +44,7 @@ type livereader struct {
        Any data bytes are ignored when the buffer is 0. (I think that only holds for realtime midi)
 */
 
-// Read reads the status byte from the given canary, while repsecting
+// Read reads the status byte from the given canary, while respecting
 // running status and returns whether the status has changed
 func (r *livereader) Read(canary byte) (status byte, changed bool) {
 
@@ -61,7 +61,7 @@ type smfreader struct {
 	reader
 }
 
-// Read reads the status byte from the given canary, while repsecting
+// Read reads the status byte from the given canary, while respecting
 // running status and returns whether the status has changed
 func (r *smfreader) Read(canary byte) (status byte, changed bool) {
 
