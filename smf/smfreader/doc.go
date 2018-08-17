@@ -50,7 +50,7 @@ Usage
 
 	smfreader.ReadFile("file.mid", readMIDI)
 
-  if err != smf.ErrFinished {
+	if err != smf.ErrFinished {
 	   // real error happend
 	}
 
