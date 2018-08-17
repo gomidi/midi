@@ -4,6 +4,8 @@ import (
 	"github.com/gomidi/midi/midimessage/meta"
 )
 
+// Meter returns the MIDI time signature meta message for the given
+// numerator and denominator.
 func Meter(num, denom uint8) meta.TimeSignature {
 	if denom == 0 {
 		denom = 1
@@ -17,30 +19,37 @@ func Meter(num, denom uint8) meta.TimeSignature {
 	}
 }
 
+// M2_4 returns  the MIDI time signature meta message for a 2/4 meter
 func M2_4() meta.TimeSignature {
 	return Meter(2, 4)
 }
 
+// M4_4 returns  the MIDI time signature meta message for a 4/4 meter
 func M4_4() meta.TimeSignature {
 	return Meter(4, 4)
 }
 
+// M3_4 returns  the MIDI time signature meta message for a 3/4 meter
 func M3_4() meta.TimeSignature {
 	return Meter(3, 4)
 }
 
+// M6_8 returns  the MIDI time signature meta message for a 6/8 meter
 func M6_8() meta.TimeSignature {
 	return Meter(6, 8)
 }
 
+// M12_8 returns  the MIDI time signature meta message for a 12/8 meter
 func M12_8() meta.TimeSignature {
 	return Meter(12, 8)
 }
 
+// M5_8 returns  the MIDI time signature meta message for a 5/8 meter
 func M5_8() meta.TimeSignature {
 	return Meter(5, 8)
 }
 
+// M7_8 returns  the MIDI time signature meta message for a 7/8 meter
 func M7_8() meta.TimeSignature {
 	return Meter(7, 8)
 }

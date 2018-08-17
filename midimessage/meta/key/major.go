@@ -4,67 +4,67 @@ import (
 	"github.com/gomidi/midi/midimessage/meta"
 )
 
-// ok
+// CMaj returns the MIDI key signature meta message for C Major
 func CMaj() meta.KeySignature {
 	return key(0, 0, true, false)
 }
 
-// ok
+// DMaj returns the MIDI key signature meta message for D Major
 func DMaj() meta.KeySignature {
 	return key(2, 2, true, false)
 }
 
-// ok
+// EMaj returns the MIDI key signature meta message for E Major
 func EMaj() meta.KeySignature {
 	return key(4, 4, true, false)
 }
 
-// ok
+// FSharpMaj returns the MIDI key signature meta message for F# Major
 func FSharpMaj() meta.KeySignature {
 	return key(6, 6, true, false)
 }
 
-// ok
+// GMaj returns the MIDI key signature meta message for G Major
 func GMaj() meta.KeySignature {
 	return key(7, 1, true, false)
 }
 
-// ok
+// AMaj returns the MIDI key signature meta message for A Major
 func AMaj() meta.KeySignature {
 	return key(9, 3, true, false)
 }
 
-// ok
+// BMaj returns the MIDI key signature meta message for B Major
 func BMaj() meta.KeySignature {
 	return key(11, 5, true, false)
 }
 
-// ok
+// FMaj returns the MIDI key signature meta message for F Major
 func FMaj() meta.KeySignature {
 	return key(5, 1, true, true)
 }
 
-// ok
+// BFlatMaj returns the MIDI key signature meta message for Bb Major
 func BFlatMaj() meta.KeySignature {
 	return key(10, 2, true, true)
 }
 
-// ok
+// EFlatMaj returns the MIDI key signature meta message for Eb Major
 func EFlatMaj() meta.KeySignature {
 	return key(3, 3, true, true)
 }
 
-// ok
+// AFlatMaj returns the MIDI key signature meta message for Ab Major
 func AFlatMaj() meta.KeySignature {
 	return key(8, 4, true, true)
 }
 
-// ok
+// DFlatMaj returns the MIDI key signature meta message for Db Major
 func DFlatMaj() meta.KeySignature {
 	return key(1, 5, true, true)
 }
 
-// ok
+// GFlatMaj returns the MIDI key signature meta message for Gb Major
 func GFlatMaj() meta.KeySignature {
 	return key(6, 6, true, true)
 }

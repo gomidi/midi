@@ -4,67 +4,67 @@ import (
 	"github.com/gomidi/midi/midimessage/meta"
 )
 
-// ok
+// AMin returns the MIDI key signature meta message for A Minor
 func AMin() meta.KeySignature {
 	return key(9, 0, false, false)
 }
 
-// ok
+// BMin returns the MIDI key signature meta message for B Minor
 func BMin() meta.KeySignature {
 	return key(11, 2, false, false)
 }
 
-// ok
+// CSharpMin returns the MIDI key signature meta message for C# Minor
 func CSharpMin() meta.KeySignature {
 	return key(1, 4, false, false)
 }
 
-// ok
+// DSharpMin returns the MIDI key signature meta message for D# Minor
 func DSharpMin() meta.KeySignature {
 	return key(3, 6, false, false)
 }
 
-// ok
+// EMin returns the MIDI key signature meta message for E Minor
 func EMin() meta.KeySignature {
 	return key(4, 1, false, false)
 }
 
-// ok
+// FSharpMin returns the MIDI key signature meta message for F# Minor
 func FSharpMin() meta.KeySignature {
 	return key(6, 3, false, false)
 }
 
-// ok
+// GSharpMin returns the MIDI key signature meta message for G# Minor
 func GSharpMin() meta.KeySignature {
 	return key(8, 5, false, false)
 }
 
-// ok
+// DMin returns the MIDI key signature meta message for D Minor
 func DMin() meta.KeySignature {
 	return key(2, 1, false, true)
 }
 
-// ok
+// GMin returns the MIDI key signature meta message for G Minor
 func GMin() meta.KeySignature {
 	return key(7, 2, false, true)
 }
 
-// ok
+// CMin returns the MIDI key signature meta message for C Minor
 func CMin() meta.KeySignature {
 	return key(0, 3, false, true)
 }
 
-// ok
+// FMin returns the MIDI key signature meta message for F Minor
 func FMin() meta.KeySignature {
 	return key(5, 4, false, true)
 }
 
-// ok
+// BFlatMin returns the MIDI key signature meta message for Bb Minor
 func BFlatMin() meta.KeySignature {
 	return key(10, 5, false, true)
 }
 
-// ok
+// EFlatMin returns the MIDI key signature meta message for Eb Minor
 func EFlatMin() meta.KeySignature {
 	return key(3, 6, false, true)
 }
