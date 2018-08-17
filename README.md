@@ -53,6 +53,8 @@ what you really need. This keeps packages and dependencies small, better testabl
 
 For reading and writing of live and SMF MIDI data io.Readers are accepted as input and io.Writers as output. Furthermore there are common interfaces for live and SMF MIDI data handling: midi.Reader and midi.Writer. The typed MIDI messages used in each case are the same.
 
+To connect with MIDI libraries expecting and returning plain bytes (e.g. over the wire), use `midiio` subpackage.
+
 ## Perfomance
 
 On my laptop, writing noteon and noteoff ("live")

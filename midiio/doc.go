@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package midiio provides helpers for converting between io.Readers and io.Writers and midi.Readers and midi.Writers.
+Package midiio provides helpers for connecting io.Readers and io.Writers to midi.Readers and midi.Writers.
 
 */
 package midiio
