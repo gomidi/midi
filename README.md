@@ -18,7 +18,7 @@ stable
 ## Installation
 
 ```
-go get github.com/gomidi/midi
+go get github.com/gomidi/midi/...
 ```
 
 ## Documentation
