@@ -36,11 +36,11 @@ see http://godoc.org/github.com/gomidi/midi
 
 ## Non-Goals
 
-- [] constructing of MIDI time code messages
-- [] Multidimensional Polyphonic Expression (MPE)
-- [] dealing with the inner structure of sysex messages
-- [] connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
-- [] CLI tools
+- [ ] constructing of MIDI time code messages
+- [ ] Multidimensional Polyphonic Expression (MPE)
+- [ ] dealing with the inner structure of sysex messages
+- [ ] connection to MIDI devices (combine this lib with http://github.com/rakyll/portmidi or http://github.com/scgolang/midi)
+- [ ] CLI tools
 
 ## Modularity
 
