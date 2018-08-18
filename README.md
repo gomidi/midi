@@ -1,19 +1,16 @@
 # midi
-Core library for reading and writing of MIDI messages with Go.
+Modular library for reading and writing of MIDI messages with Go.
 
 [![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg)](https://coveralls.io/github/gomidi/midi) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi) [![Documentation](http://godoc.org/github.com/gomidi/midi?status.png)](http://godoc.org/github.com/gomidi/midi)
 
-## Please read
-
-This package is for users having intimate knowledge of the MIDI and SMF standard.
-If you are not very experienced with MIDI, try out https://github.com/gomidi/mid which is based on this package and makes it easy to read ad write MIDI / SMF.
+**This package is meant for users that have some knowledge of the MIDI standards. Beginners, and people on the run might want to look at the porcelain package https://github.com/gomidi/mid.**
 
 ## Status
 
 stable
 
-- Supported Go versions: >= 1.5
-- Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
+- Go version: >= 1.5
+- OS/architectures: everywhere Go runs (tested on Linux and Windows).
 
 ## Installation
 
