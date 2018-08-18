@@ -12,7 +12,7 @@ If you are not very experienced with MIDI, try out https://github.com/gomidi/mid
 
 stable
 
-- Supported Go versions: >= 1.2
+- Supported Go versions: >= 1.5
 - Supported OS/architecture: Should work on all OS/architectures that Go supports (is tested on Linux and Windows, but no OS specific code).
 
 ## Installation
