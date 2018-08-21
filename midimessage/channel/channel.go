@@ -51,6 +51,35 @@ const (
 	Channel15 = Channel(15)
 )
 
+func SetChannel(msg Message, ch uint8) Message {
+	if ch > 15 {
+		panic("invalid channel number")
+	}
+
+	c := Channel(ch)
+
+	switch v := msg.(type) {
+	case AfterTouch:
+		return c.AfterTouch(v.Pressure())
+	case ControlChange:
+		return c.ControlChange(v.Controller(), v.Value())
+	case NoteOn:
+		return c.NoteOn(v.Key(), v.Velocity())
+	case NoteOff:
+		return c.NoteOff(v.Key())
+	case NoteOffVelocity:
+		return c.NoteOffVelocity(v.Key(), v.Velocity())
+	case PitchBend:
+		return c.PitchBend(v.Value())
+	case PolyphonicAfterTouch:
+		return c.PolyphonicAfterTouch(v.Key(), v.Pressure())
+	case ProgramChange:
+		return c.ProgramChange(v.Program())
+	}
+
+	panic("unreachable")
+}
+
 // Channel represents a MIDI channel
 // there must not be more than 16 MIDI channels (0-15)
 type Channel uint8
