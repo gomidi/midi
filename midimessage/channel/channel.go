@@ -94,21 +94,42 @@ func (c Channel) Channel() uint8 {
 // This allows saving bandwidth by using running status.
 // If you need a "real" note-off message with velocity, use NoteOffVelocity.
 func (c Channel) NoteOff(key uint8) NoteOff {
+	if key > 127 {
+		key = 127
+	}
 	return NoteOff{channel: c.Channel(), key: key}
 }
 
 // NoteOffVelocity creates a note-off message with velocity on the channel.
 func (c Channel) NoteOffVelocity(key uint8, velocity uint8) NoteOffVelocity {
+	if key > 127 {
+		key = 127
+	}
+	if velocity > 127 {
+		velocity = 127
+	}
 	return NoteOffVelocity{NoteOff{channel: c.Channel(), key: key}, velocity}
 }
 
 // NoteOn creates a note-on message on the channel
-func (c Channel) NoteOn(key uint8, veloctiy uint8) NoteOn {
-	return NoteOn{channel: c.Channel(), key: key, velocity: veloctiy}
+func (c Channel) NoteOn(key uint8, velocity uint8) NoteOn {
+	if key > 127 {
+		key = 127
+	}
+	if velocity > 127 {
+		velocity = 127
+	}
+	return NoteOn{channel: c.Channel(), key: key, velocity: velocity}
 }
 
 // KeyPressure creates a polyphonic aftertouch message on the channel
 func (c Channel) KeyPressure(key uint8, pressure uint8) PolyphonicAfterTouch {
+	if key > 127 {
+		key = 127
+	}
+	if pressure > 127 {
+		pressure = 127
+	}
 	return c.PolyphonicAfterTouch(key, pressure)
 }
 
@@ -119,6 +140,12 @@ func (c Channel) PolyphonicAfterTouch(key uint8, pressure uint8) PolyphonicAfter
 
 // ControlChange creates a control change message on the channel
 func (c Channel) ControlChange(controller uint8, value uint8) ControlChange {
+	if controller > 127 {
+		controller = 127
+	}
+	if value > 127 {
+		value = 127
+	}
 	return ControlChange{channel: c.Channel(), controller: controller, value: value}
 }
 
@@ -134,11 +161,21 @@ func (c Channel) ChannelPressure(pressure uint8) AfterTouch {
 
 // AfterTouch creates an aftertouch message on the channel
 func (c Channel) AfterTouch(pressure uint8) AfterTouch {
+	if pressure > 127 {
+		pressure = 127
+	}
 	return AfterTouch{channel: c.Channel(), pressure: pressure}
 }
 
 // PitchBend creates a pitch bend message on the channel
 func (c Channel) PitchBend(value int16) PitchBend {
+	if value < -8191 {
+		value = -8191
+	}
+
+	if value > 8191 {
+		value = 8191
+	}
 	return PitchBend{channel: c.Channel(), value: value}
 }
 
