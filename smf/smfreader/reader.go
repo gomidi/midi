@@ -124,7 +124,8 @@ func (r *reader) Header() smf.Header {
 }
 
 func (r *reader) tracksMissing() bool {
-	return r.processedTracks < int16(r.header.NumTracks)
+	// allow the last track to skip the endoftrack message
+	return r.processedTracks+1 < int16(r.header.NumTracks)
 }
 
 // Read reads the next midi message
