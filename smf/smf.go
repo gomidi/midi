@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math"
 	"time"
 
 	"github.com/gomidi/midi/internal/midilib"
@@ -235,9 +236,12 @@ func (q MetricTicks) In64ths(deltaTicks uint32) uint32 {
 // Duration returns the time.Duration for a number of ticks at a certain tempo (in BPM)
 func (q MetricTicks) Duration(tempoBPM uint32, deltaTicks uint32) time.Duration {
 	// (60000 / T) * (d / R) = D[ms]
-	durQnMilli := 60000 / float64(tempoBPM)
-	_4thticks := float64(deltaTicks) / float64(uint16(q))
-	return time.Duration(roundFloat(durQnMilli*_4thticks, 0)) * time.Millisecond
+	//	durQnMilli := 60000 / float64(tempoBPM)
+	//	_4thticks := float64(deltaTicks) / float64(uint16(q))
+	res := 60000000000 * float64(deltaTicks) / (float64(tempoBPM) * float64(uint16(q)))
+	//fmt.Printf("what: %vns\n", res)
+	return time.Duration(int64(math.Round(res)))
+	//	return time.Duration(roundFloat(durQnMilli*_4thticks, 0)) * time.Millisecond
 }
 
 // Ticks returns the ticks for a given time.Duration at a certain tempo (in BPM)
