@@ -9,7 +9,7 @@ Modular library for reading and writing of MIDI messages with Go.
 
 stable
 
-- Go version: >= 1.5
+- Go version: >= 1.10
 - OS/architectures: everywhere Go runs (tested on Linux and Windows).
 
 ## Installation
