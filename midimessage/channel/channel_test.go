@@ -13,8 +13,8 @@ func TestMessagesString(t *testing.T) {
 		expected string
 	}{
 		{
-			Channel1.AfterTouch(120),
-			"channel.AfterTouch (\"ChannelPressure\") channel 1 pressure 120",
+			Channel1.Aftertouch(120),
+			"channel.Aftertouch channel 1 pressure 120",
 		},
 		{
 			Channel8.ControlChange(7, 110),
@@ -33,12 +33,12 @@ func TestMessagesString(t *testing.T) {
 			"channel.NoteOffVelocity channel 4 key 80 velocity 20",
 		},
 		{
-			Channel4.PitchBend(300),
-			"channel.PitchBend (\"Portamento\") channel 4 value 300 absValue 0",
+			Channel4.Pitchbend(300),
+			"channel.Pitchbend channel 4 value 300 absValue 0",
 		},
 		{
-			Channel4.PolyAfterTouch(86, 109),
-			"channel.PolyAfterTouch (\"KeyPressure\") channel 4 key 86 pressure 109",
+			Channel4.PolyAftertouch(86, 109),
+			"channel.PolyAftertouch channel 4 key 86 pressure 109",
 		},
 		{
 			Channel4.ProgramChange(83),
@@ -66,7 +66,7 @@ func TestMessagesRaw(t *testing.T) {
 		expected string
 	}{
 		{
-			Channel1.AfterTouch(120),
+			Channel1.Aftertouch(120),
 			"D1 78",
 		},
 		{
@@ -86,11 +86,11 @@ func TestMessagesRaw(t *testing.T) {
 			"84 50 14",
 		},
 		{
-			Channel4.PitchBend(300),
+			Channel4.Pitchbend(300),
 			"E4 2C 42",
 		},
 		{
-			Channel4.PolyAfterTouch(86, 109),
+			Channel4.PolyAftertouch(86, 109),
 			"A4 56 6D",
 		},
 		{

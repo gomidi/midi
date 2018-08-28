@@ -30,7 +30,7 @@ const (
 
 var metaMessages = map[byte]Message{
 	byteEndOfTrack:        EndOfTrack,
-	byteSequenceNumber:    SequenceNumber(0),
+	byteSequenceNumber:    SequenceNo(0),
 	byteText:              Text(""),
 	byteCopyright:         Copyright(""),
 	byteSequence:          Sequence(""),
@@ -38,15 +38,15 @@ var metaMessages = map[byte]Message{
 	byteLyric:             Lyric(""),
 	byteMarker:            Marker(""),
 	byteCuepoint:          Cuepoint(""),
-	byteMIDIChannel:       MIDIChannel(0),
-	byteDevicePort:        DevicePort(""),
-	byteMIDIPort:          MIDIPort(0),
+	byteMIDIChannel:       Channel(0),
+	byteDevicePort:        Device(""),
+	byteMIDIPort:          Port(0),
 	byteTempo:             Tempo(0),
-	byteTimeSignature:     TimeSignature{},
-	byteKeySignature:      KeySignature{},
-	byteSMPTEOffset:       SMPTEOffset{},
-	byteSequencerSpecific: SequencerSpecific(nil),
-	byteProgramName:       ProgramName(""),
+	byteTimeSignature:     TimeSig{},
+	byteKeySignature:      Key{},
+	byteSMPTEOffset:       SMPTE{},
+	byteSequencerSpecific: SequencerData(nil),
+	byteProgramName:       Program(""),
 }
 
 // Reader reads a Meta Message

@@ -92,7 +92,7 @@ func (r *reader) getMsg1(typ uint8, channel uint8, arg uint8) (msg setter1) {
 	case byteProgramChange:
 		msg = ProgramChange{}
 	case byteChannelPressure:
-		msg = AfterTouch{}
+		msg = Aftertouch{}
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
 	}
@@ -113,11 +113,11 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 	case byteNoteOn:
 		msg = NoteOn{}
 	case bytePolyphonicKeyPressure:
-		msg = PolyAfterTouch{}
+		msg = PolyAftertouch{}
 	case byteControlChange:
 		msg = ControlChange{}
 	case bytePitchWheel:
-		msg = PitchBend{}
+		msg = Pitchbend{}
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
 	}

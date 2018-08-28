@@ -3,8 +3,9 @@ package syscommon
 import (
 	// "encoding/binary"
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 func clearBitU16(n uint16, pos uint16) uint16 {
@@ -28,31 +29,31 @@ func msbLsbUnsigned(n uint16) uint16 {
 	return lsb | msb
 }
 
-func (m SongPositionPointer) readFrom(rd io.Reader) (Message, error) {
+func (m SPP) readFrom(rd io.Reader) (Message, error) {
 	bt, err := midilib.ReadNBytes(2, rd)
 	if err != nil {
 		return nil, err
 	}
 
 	_, abs := midilib.ParsePitchWheelVals(bt[1], bt[0])
-	return SongPositionPointer(abs), nil
+	return SPP(abs), nil
 }
 
-// SongPositionPointer represents the MIDI song position pointer (SPP)
-type SongPositionPointer uint16
+// SPP represents the MIDI song position pointer (SPP)
+type SPP uint16
 
 // Number returns the number of the song position pointer
-func (m SongPositionPointer) Number() uint16 {
+func (m SPP) Number() uint16 {
 	return uint16(m)
 }
 
 // String represents the MIDI song position pointer message as a string (for debugging)
-func (m SongPositionPointer) String() string {
+func (m SPP) String() string {
 	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
 // Raw returns the raw bytes for the message
-func (m SongPositionPointer) Raw() []byte {
+func (m SPP) Raw() []byte {
 	var b = make([]byte, 2)
 	b[1] = byte(uint16(m) & 0x7F)
 	b[0] = byte((uint16(m) >> 7) & 0x7F)
@@ -64,4 +65,4 @@ func (m SongPositionPointer) Raw() []byte {
 
 	return []byte{0xF2, b[0], b[1]}
 }
-func (m SongPositionPointer) sysCommon() {}
+func (m SPP) sysCommon() {}

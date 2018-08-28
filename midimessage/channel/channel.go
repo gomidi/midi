@@ -59,8 +59,8 @@ func SetChannel(msg Message, ch uint8) Message {
 	c := Channel(ch)
 
 	switch v := msg.(type) {
-	case AfterTouch:
-		return c.AfterTouch(v.Pressure())
+	case Aftertouch:
+		return c.Aftertouch(v.Pressure())
 	case ControlChange:
 		return c.ControlChange(v.Controller(), v.Value())
 	case NoteOn:
@@ -69,10 +69,10 @@ func SetChannel(msg Message, ch uint8) Message {
 		return c.NoteOff(v.Key())
 	case NoteOffVelocity:
 		return c.NoteOffVelocity(v.Key(), v.Velocity())
-	case PitchBend:
-		return c.PitchBend(v.Value())
-	case PolyAfterTouch:
-		return c.PolyAfterTouch(v.Key(), v.Pressure())
+	case Pitchbend:
+		return c.Pitchbend(v.Value())
+	case PolyAftertouch:
+		return c.PolyAftertouch(v.Key(), v.Pressure())
 	case ProgramChange:
 		return c.ProgramChange(v.Program())
 	}
@@ -122,20 +122,9 @@ func (c Channel) NoteOn(key uint8, velocity uint8) NoteOn {
 	return NoteOn{channel: c.Channel(), key: key, velocity: velocity}
 }
 
-// KeyPressure creates a polyphonic aftertouch message on the channel
-func (c Channel) KeyPressure(key uint8, pressure uint8) PolyAfterTouch {
-	if key > 127 {
-		key = 127
-	}
-	if pressure > 127 {
-		pressure = 127
-	}
-	return c.PolyAfterTouch(key, pressure)
-}
-
-// PolyphonicAfterTouch creates a polyphonic aftertouch message on the channel
-func (c Channel) PolyAfterTouch(key uint8, pressure uint8) PolyAfterTouch {
-	return PolyAfterTouch{channel: c.Channel(), key: key, pressure: pressure}
+// PolyAftertouch creates a polyphonic aftertouch message on the channel
+func (c Channel) PolyAftertouch(key uint8, pressure uint8) PolyAftertouch {
+	return PolyAftertouch{channel: c.Channel(), key: key, pressure: pressure}
 }
 
 // ControlChange creates a control change message on the channel
@@ -154,21 +143,16 @@ func (c Channel) ProgramChange(program uint8) ProgramChange {
 	return ProgramChange{channel: c.Channel(), program: program}
 }
 
-// ChannelPressure creates an aftertouch message on the channel
-func (c Channel) ChannelPressure(pressure uint8) AfterTouch {
-	return c.AfterTouch(pressure)
-}
-
-// AfterTouch creates an aftertouch message on the channel
-func (c Channel) AfterTouch(pressure uint8) AfterTouch {
+// Aftertouch creates an aftertouch message on the channel
+func (c Channel) Aftertouch(pressure uint8) Aftertouch {
 	if pressure > 127 {
 		pressure = 127
 	}
-	return AfterTouch{channel: c.Channel(), pressure: pressure}
+	return Aftertouch{channel: c.Channel(), pressure: pressure}
 }
 
-// PitchBend creates a pitch bend message on the channel
-func (c Channel) PitchBend(value int16) PitchBend {
+// Pitchbend creates a pitch bend message on the channel
+func (c Channel) Pitchbend(value int16) Pitchbend {
 	if value < -8191 {
 		value = -8191
 	}
@@ -176,10 +160,5 @@ func (c Channel) PitchBend(value int16) PitchBend {
 	if value > 8191 {
 		value = 8191
 	}
-	return PitchBend{channel: c.Channel(), value: value}
-}
-
-// Portamento creates a pitch bend message on the channel
-func (c Channel) Portamento(value int16) PitchBend {
-	return c.PitchBend(value)
+	return Pitchbend{channel: c.Channel(), value: value}
 }

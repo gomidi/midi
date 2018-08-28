@@ -5,8 +5,8 @@ import (
 	"io"
 )
 
-// ProgramName represents a MIDI program name
-type ProgramName string
+// Program represents a MIDI program name
+type Program string
 
 /*
 ProgramName
@@ -22,31 +22,31 @@ This event may appear anywhere in a track, and there may be multiple occurrences
 */
 
 // String represents the MIDI program name message as a string (for debugging)
-func (p ProgramName) String() string {
+func (p Program) String() string {
 	return fmt.Sprintf("%T: %#v", p, p.Text())
 }
 
 // Text returns the program name
-func (p ProgramName) Text() string {
+func (p Program) Text() string {
 	return string(p)
 }
 
 // Raw returns the raw bytes for the message
-func (p ProgramName) Raw() []byte {
+func (p Program) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byte(byteProgramName),
 		Data: []byte(p),
 	}).Bytes()
 }
 
-func (p ProgramName) readFrom(rd io.Reader) (Message, error) {
+func (p Program) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return ProgramName(text), nil
+	return Program(text), nil
 }
 
-func (p ProgramName) meta() {}
+func (p Program) meta() {}

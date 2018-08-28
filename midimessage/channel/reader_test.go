@@ -88,13 +88,10 @@ func TestRead(t *testing.T) {
 		mkTest(channel.Channel9.NoteOff(100), "channel.NoteOff channel 9 key 100"),
 		mkTest(channel.Channel9.NoteOffVelocity(120, 64), "channel.NoteOffVelocity channel 9 key 120 velocity 64"),
 		mkTest(channel.Channel8.ProgramChange(3), "channel.ProgramChange channel 8 program 3"),
-		mkTest(channel.Channel8.AfterTouch(30), "channel.AfterTouch (\"ChannelPressure\") channel 8 pressure 30"),
-		mkTest(channel.Channel8.ChannelPressure(30), "channel.AfterTouch (\"ChannelPressure\") channel 8 pressure 30"),
+		mkTest(channel.Channel8.Aftertouch(30), "channel.Aftertouch channel 8 pressure 30"),
 		mkTest(channel.Channel3.ControlChange(23, 25), "channel.ControlChange channel 3 controller 23 value 25"),
-		mkTest(channel.Channel0.PitchBend(123), "channel.PitchBend (\"Portamento\") channel 0 value 123 absValue 8315"),
-		mkTest(channel.Channel0.Portamento(123), "channel.PitchBend (\"Portamento\") channel 0 value 123 absValue 8315"),
-		mkTest(channel.Channel15.PolyAfterTouch(120, 106), "channel.PolyAfterTouch (\"KeyPressure\") channel 15 key 120 pressure 106"),
-		mkTest(channel.Channel15.KeyPressure(120, 106), "channel.PolyAfterTouch (\"KeyPressure\") channel 15 key 120 pressure 106"),
+		mkTest(channel.Channel0.Pitchbend(123), "channel.Pitchbend channel 0 value 123 absValue 8315"),
+		mkTest(channel.Channel15.PolyAftertouch(120, 106), "channel.PolyAftertouch channel 15 key 120 pressure 106"),
 	}
 
 	for n, test := range tests {

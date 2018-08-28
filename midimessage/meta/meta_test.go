@@ -21,16 +21,16 @@ func TestMessagesString(t *testing.T) {
 			"meta.Cuepoint: \"verse\"",
 		},
 		{
-			DevicePort("2"),
-			"meta.DevicePort: \"2\"",
+			Device("2"),
+			"meta.Device: \"2\"",
 		},
 		{
 			EndOfTrack,
-			"meta.endOfTrack",
+			"meta.EndOfTrack",
 		},
 		{
-			KeySignature{Key: 0, IsMajor: true, Num: 0, IsFlat: false},
-			"meta.KeySignature: C maj.",
+			Key{Key: 0, IsMajor: true, Num: 0, IsFlat: false},
+			"meta.Key: C maj.",
 		},
 		{
 			Lyric("yeah"),
@@ -41,38 +41,38 @@ func TestMessagesString(t *testing.T) {
 			"meta.Marker: \"TODO\"",
 		},
 		{
-			MIDIChannel(3),
-			"meta.MIDIChannel: 3",
+			Channel(3),
+			"meta.Channel: 3",
 		},
 		{
-			MIDIPort(10),
-			"meta.MIDIPort: 10",
+			Port(10),
+			"meta.Port: 10",
 		},
 		{
-			ProgramName("violin"),
-			"meta.ProgramName: \"violin\"",
+			Program("violin"),
+			"meta.Program: \"violin\"",
 		},
 		{
 			Sequence("A"),
 			"meta.Sequence: \"A\"",
 		},
 		{
-			SequenceNumber(18),
-			"meta.SequenceNumber: 18",
+			SequenceNo(18),
+			"meta.SequenceNo: 18",
 		},
 		{
-			SequencerSpecific([]byte("hello world")),
-			"meta.SequencerSpecific len 11",
+			SequencerData([]byte("hello world")),
+			"meta.SequencerData len 11",
 		},
 		{
-			SMPTEOffset{
+			SMPTE{
 				Hour:            2,
 				Minute:          3,
 				Second:          4,
 				Frame:           5,
 				FractionalFrame: 6,
 			},
-			"meta.SMPTEOffset 2:3:4 5.6",
+			"meta.SMPTE 2:3:4 5.6",
 		},
 		{
 			Tempo(240),
@@ -83,8 +83,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.Text: \"hi\"",
 		},
 		{
-			TimeSignature{3, 4, 8, 8},
-			"meta.TimeSignature 3/4 clocksperclick 8 dsqpq 8",
+			TimeSig{3, 4, 8, 8},
+			"meta.TimeSig 3/4 clocksperclick 8 dsqpq 8",
 		},
 		{
 			Track("1st violins"),
@@ -120,7 +120,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 07 05 76 65 72 73 65",
 		},
 		{
-			DevicePort("2"),
+			Device("2"),
 			"FF 09 01 32",
 		},
 		{
@@ -128,7 +128,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 2F 00",
 		},
 		{
-			KeySignature{Key: 0, IsMajor: true, Num: 0, IsFlat: false},
+			Key{Key: 0, IsMajor: true, Num: 0, IsFlat: false},
 			"FF 59 02 00 00",
 		},
 		{
@@ -140,15 +140,15 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 06 04 54 4F 44 4F",
 		},
 		{
-			MIDIChannel(3),
+			Channel(3),
 			"FF 20 01 03",
 		},
 		{
-			MIDIPort(10),
+			Port(10),
 			"FF 21 01 0A",
 		},
 		{
-			ProgramName("violin"),
+			Program("violin"),
 			"FF 08 06 76 69 6F 6C 69 6E",
 		},
 		{
@@ -156,15 +156,15 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 03 01 41",
 		},
 		{
-			SequenceNumber(18),
+			SequenceNo(18),
 			"FF 00 02 00 12",
 		},
 		{
-			SequencerSpecific([]byte("hello world")),
+			SequencerData([]byte("hello world")),
 			"FF 7F 0B 68 65 6C 6C 6F 20 77 6F 72 6C 64",
 		},
 		{
-			SMPTEOffset{
+			SMPTE{
 				Hour:            2,
 				Minute:          3,
 				Second:          4,
@@ -182,7 +182,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 01 02 68 69",
 		},
 		{
-			TimeSignature{3, 4, 8, 8},
+			TimeSig{3, 4, 8, 8},
 			"FF 58 04 03 02 08 08",
 		},
 		{

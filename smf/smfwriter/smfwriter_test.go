@@ -43,7 +43,7 @@ func TestWriteSMF0(t *testing.T) {
 	resolution := smf.MetricTicks(96)
 
 	wr := New(&bf, TimeFormat(resolution), Format(smf.SMF0))
-	wr.Write(meta.TimeSignature{
+	wr.Write(meta.TimeSig{
 		Numerator:                4,
 		Denominator:              4,
 		ClocksPerClick:           24,
@@ -109,7 +109,7 @@ func TestWriteSMF1(t *testing.T) {
 	resolution := smf.MetricTicks(96)
 
 	wr := New(&bf, NumTracks(4), TimeFormat(resolution))
-	wr.Write(meta.TimeSignature{
+	wr.Write(meta.TimeSig{
 		Numerator:                4,
 		Denominator:              4,
 		ClocksPerClick:           24,

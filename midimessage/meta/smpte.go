@@ -2,8 +2,9 @@ package meta
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 /*
@@ -23,8 +24,8 @@ reference time in some absolute way rather than based upon musical beats at
 a certain tempo.
 */
 
-// SMPTEOffset represents a smpte offset MIDI meta message
-type SMPTEOffset struct {
+// SMPTE represents a smpte offset MIDI meta message
+type SMPTE struct {
 	Hour            byte
 	Minute          byte
 	Second          byte
@@ -33,7 +34,7 @@ type SMPTEOffset struct {
 }
 
 // Raw returns the raw bytes for the message
-func (s SMPTEOffset) Raw() []byte {
+func (s SMPTE) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byteSMPTEOffset,
 		Data: []byte{s.Hour, s.Minute, s.Second, s.Frame, s.FractionalFrame},
@@ -41,11 +42,11 @@ func (s SMPTEOffset) Raw() []byte {
 }
 
 // String represents the smpte offset MIDI message as a string (for debugging)
-func (s SMPTEOffset) String() string {
+func (s SMPTE) String() string {
 	return fmt.Sprintf("%T %v:%v:%v %v.%0d", s, s.Hour, s.Minute, s.Second, s.Frame, s.FractionalFrame)
 }
 
-func (s SMPTEOffset) readFrom(rd io.Reader) (Message, error) {
+func (s SMPTE) readFrom(rd io.Reader) (Message, error) {
 	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
@@ -72,6 +73,6 @@ func (s SMPTEOffset) readFrom(rd io.Reader) (Message, error) {
 	return s, nil
 }
 
-func (s SMPTEOffset) meta() {
+func (s SMPTE) meta() {
 
 }

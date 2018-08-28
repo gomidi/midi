@@ -2,8 +2,9 @@ package meta
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
 /*
@@ -15,16 +16,16 @@ sequencer which elects to use this as its only file format; sequencers with thei
 formats should probably stick to the standard features when using this format.
 */
 
-// SequencerSpecific is a sequencer specific meta message
-type SequencerSpecific []byte
+// SequencerData is a sequencer specific meta message
+type SequencerData []byte
 
 // Data returns the sequencer specific data
-func (s SequencerSpecific) Data() []byte {
+func (s SequencerData) Data() []byte {
 	return []byte(s)
 }
 
 // Raw returns the raw MIDI data
-func (s SequencerSpecific) Raw() []byte {
+func (s SequencerData) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byteSequencerSpecific,
 		Data: s.Data(),
@@ -32,20 +33,20 @@ func (s SequencerSpecific) Raw() []byte {
 }
 
 // Len returns the length of the sequencer specific data
-func (s SequencerSpecific) Len() int {
+func (s SequencerData) Len() int {
 	return len(s)
 }
 
 // String represents the sequencer spefici MIDI message as a string (for debugging)
-func (s SequencerSpecific) String() string {
+func (s SequencerData) String() string {
 	return fmt.Sprintf("%T len %v", s, s.Len())
 }
 
-func (s SequencerSpecific) meta() {
+func (s SequencerData) meta() {
 
 }
 
-func (s SequencerSpecific) readFrom(rd io.Reader) (Message, error) {
+func (s SequencerData) readFrom(rd io.Reader) (Message, error) {
 	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
@@ -58,5 +59,5 @@ func (s SequencerSpecific) readFrom(rd io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	return SequencerSpecific(bt), nil
+	return SequencerData(bt), nil
 }

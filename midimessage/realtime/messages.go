@@ -19,8 +19,8 @@ const (
 	// Undefined4 is an undefined realtime message
 	Undefined4 = msg(0xFD)
 
-	// ActiveSensing is a MIDI active sensing message
-	ActiveSensing = msg(0xFE)
+	// Activesense is a MIDI active sensing message
+	Activesense = msg(0xFE)
 
 	// Reset is a MIDI reset message
 	Reset = msg(0xFF)
@@ -55,12 +55,12 @@ func (m msg) IsLiveMessage() {
 func (m msg) realTime() {}
 
 var msg2String = map[msg]string{
-	TimingClock:   "TimingClock",
-	Tick:          "Tick",
-	Start:         "Start",
-	Continue:      "Continue",
-	Stop:          "Stop",
-	Undefined4:    "Undefined4",
-	ActiveSensing: "ActiveSensing",
-	Reset:         "Reset",
+	TimingClock: "TimingClock",
+	Tick:        "Tick",
+	Start:       "Start",
+	Continue:    "Continue",
+	Stop:        "Stop",
+	Undefined4:  "Undefined4",
+	Activesense: "Activesense",
+	Reset:       "Reset",
 }

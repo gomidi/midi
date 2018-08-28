@@ -42,10 +42,10 @@ func dispatch(b byte) Message {
 }
 
 var systemMessages = map[byte]Message{
-	byteMIDITimingCodeMessage:  MIDITimingCode(0),
-	byteSysSongPositionPointer: SongPositionPointer(0),
+	byteMIDITimingCodeMessage:  MTC(0),
+	byteSysSongPositionPointer: SPP(0),
 	byteSysSongSelect:          SongSelect(0),
-	byteSysTuneRequest:         TuneRequest,
+	byteSysTuneRequest:         Tune,
 	//	0xF4:                       Undefined4(0), // unused (ignore them)
 	//	0xF5:                       Undefined5(0), // unused (ignore them)
 }

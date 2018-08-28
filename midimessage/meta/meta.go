@@ -53,17 +53,17 @@ var (
 	_ Message = Marker("")
 	_ Message = Lyric("")
 	_ Message = Cuepoint("")
-	_ Message = SequenceNumber(0)
-	_ Message = MIDIChannel(0)
-	_ Message = DevicePort("")
-	_ Message = MIDIPort(0)
+	_ Message = SequenceNo(0)
+	_ Message = Channel(0)
+	_ Message = Device("")
+	_ Message = Port(0)
 	_ Message = Tempo(0)
-	_ Message = SMPTEOffset{}
-	_ Message = TimeSignature{}
-	_ Message = KeySignature{}
+	_ Message = SMPTE{}
+	_ Message = TimeSig{}
+	_ Message = Key{}
 	_ Message = EndOfTrack
 	_ Message = Undefined{}
-	_ Message = SequencerSpecific(nil)
+	_ Message = SequencerData(nil)
 )
 
 /*

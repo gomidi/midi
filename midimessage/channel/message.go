@@ -11,19 +11,19 @@ var (
 	_ Message = NoteOff{}
 	_ Message = NoteOffVelocity{}
 	_ Message = NoteOn{}
-	_ Message = PolyAfterTouch{}
+	_ Message = PolyAftertouch{}
 	_ Message = ControlChange{}
 	_ Message = ProgramChange{}
-	_ Message = AfterTouch{}
-	_ Message = PitchBend{}
+	_ Message = Aftertouch{}
+	_ Message = Pitchbend{}
 
 	_ setter2 = NoteOff{}
 	_ setter2 = NoteOffVelocity{}
 	_ setter2 = NoteOn{}
-	_ setter2 = PolyAfterTouch{}
+	_ setter2 = PolyAftertouch{}
 	_ setter2 = ControlChange{}
-	_ setter2 = PitchBend{}
+	_ setter2 = Pitchbend{}
 
 	_ setter1 = ProgramChange{}
-	_ setter1 = AfterTouch{}
+	_ setter1 = Aftertouch{}
 )

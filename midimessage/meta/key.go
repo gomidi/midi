@@ -46,9 +46,9 @@ const (
 	minorMode = 1
 )
 
-// KeySignature sets the key/scale of the SMF file.
+// Key sets the key/scale of the SMF file.
 // If you want a more comfortable way to set the key, use the key subpackage.
-type KeySignature struct {
+type Key struct {
 	Key     uint8
 	IsMajor bool
 	Num     uint8
@@ -66,7 +66,7 @@ func NewKeySignature(key uint8, ismajor bool, num uint8, isflat bool) KeySignatu
 */
 
 // Raw returns the raw MIDI data
-func (m KeySignature) Raw() []byte {
+func (m Key) Raw() []byte {
 	mi := int8(0)
 	if !m.IsMajor {
 		mi = 1
@@ -84,7 +84,7 @@ func (m KeySignature) Raw() []byte {
 }
 
 // String represents the key signature message as a string (for debugging)
-func (m KeySignature) String() string {
+func (m Key) String() string {
 	return fmt.Sprintf("%T: %s", m, m.Text())
 }
 
@@ -112,7 +112,7 @@ var keyNotesFlat = map[uint8]string{
 }
 
 // Note returns the note of the key signature as a string, e.g. C♯ or E♭
-func (m KeySignature) Note() (note string) {
+func (m Key) Note() (note string) {
 	if m.IsFlat {
 		if nt, has := keyNotesFlat[m.Key]; has {
 			return nt
@@ -123,7 +123,7 @@ func (m KeySignature) Note() (note string) {
 }
 
 // Text returns a the text of the key signature
-func (m KeySignature) Text() string {
+func (m Key) Text() string {
 	if m.IsMajor {
 		return m.Note() + " maj."
 	}
@@ -131,7 +131,7 @@ func (m KeySignature) Text() string {
 	return m.Note() + " min."
 }
 
-func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
+func (m Key) readFrom(rd io.Reader) (Message, error) {
 
 	// fmt.Println("Key signature")
 	// TODO TEST
@@ -173,7 +173,7 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 
 	key := midilib.KeyFromSharpsOrFlats(sharpsOrFlats, mode)
 
-	return KeySignature{
+	return Key{
 		Key:     key,
 		Num:     uint8(num),
 		IsMajor: mode == majorMode,
@@ -182,4 +182,4 @@ func (m KeySignature) readFrom(rd io.Reader) (Message, error) {
 
 }
 
-func (m KeySignature) meta() {}
+func (m Key) meta() {}

@@ -21,7 +21,7 @@ func mkMIDI() io.Reader {
 	wr.Write(realtime.Start)
 	wr.Write(sysex.Start([]byte{0x50}))
 	wr.Write(channel.Channel(1).NoteOffVelocity(65, 64))
-	wr.Write(syscommon.TuneRequest)
+	wr.Write(syscommon.Tune)
 	wr.Write(channel.Channel(2).NoteOn(62, 30))
 	bf.Write([]byte{0xF5, 0x51, 0x52})
 	wr.Write(sysex.SysEx([]byte{0x50, 0x51}))
@@ -54,7 +54,7 @@ channel.NoteOn channel 1 key 65 velocity 100
 Realtime: Start
 sysex.SysEx len: 1
 channel.NoteOff channel 1 key 65
-syscommon.tuneRequest
+syscommon.Tune
 channel.NoteOn channel 2 key 62 velocity 30
 sysex.SysEx len: 2
 channel.NoteOff channel 2 key 62
@@ -89,7 +89,7 @@ channel.NoteOn channel 1 key 65 velocity 100
 Realtime: Start
 sysex.SysEx len: 1
 channel.NoteOffVelocity channel 1 key 65 velocity 64
-syscommon.tuneRequest
+syscommon.Tune
 channel.NoteOn channel 2 key 62 velocity 30
 sysex.SysEx len: 2
 channel.NoteOff channel 2 key 62

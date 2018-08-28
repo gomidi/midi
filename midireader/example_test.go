@@ -16,7 +16,7 @@ func Example() {
 	var bf bytes.Buffer
 
 	wr := midiwriter.New(&bf)
-	wr.Write(Channel2.PitchBend(5000))
+	wr.Write(Channel2.Pitchbend(5000))
 	wr.Write(Channel2.NoteOn(65, 90))
 	wr.Write(realtime.Reset)
 	wr.Write(Channel2.NoteOff(65))
@@ -55,7 +55,7 @@ func Example() {
 	}
 
 	// Output:
-	// channel.PitchBend ("Portamento") channel 2 value 5000 absValue 13192
+	// channel.Pitchbend channel 2 value 5000 absValue 13192
 	// channel.NoteOn channel 2 key 65 velocity 90
 	// NoteOn at channel 2: key: 65 velocity: 90
 	// Realtime: Reset

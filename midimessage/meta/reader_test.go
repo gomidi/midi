@@ -55,16 +55,16 @@ func TestRead(t *testing.T) {
 			"meta.Cuepoint: \"verse\"",
 		),
 		mkTest(
-			DevicePort("2"),
-			"meta.DevicePort: \"2\"",
+			Device("2"),
+			"meta.Device: \"2\"",
 		),
 		mkTest(
 			EndOfTrack,
-			"meta.endOfTrack",
+			"meta.EndOfTrack",
 		),
 		mkTest(
-			KeySignature{Key: 0, IsMajor: true, Num: 0, IsFlat: false},
-			"meta.KeySignature: C maj.",
+			Key{Key: 0, IsMajor: true, Num: 0, IsFlat: false},
+			"meta.Key: C maj.",
 		),
 		mkTest(
 			Lyric("yeah"),
@@ -75,38 +75,38 @@ func TestRead(t *testing.T) {
 			"meta.Marker: \"TODO\"",
 		),
 		mkTest(
-			MIDIChannel(3),
-			"meta.MIDIChannel: 3",
+			Channel(3),
+			"meta.Channel: 3",
 		),
 		mkTest(
-			MIDIPort(10),
-			"meta.MIDIPort: 10",
+			Port(10),
+			"meta.Port: 10",
 		),
 		mkTest(
-			ProgramName("violin"),
-			"meta.ProgramName: \"violin\"",
+			Program("violin"),
+			"meta.Program: \"violin\"",
 		),
 		mkTest(
 			Sequence("A"),
 			"meta.Sequence: \"A\"",
 		),
 		mkTest(
-			SequenceNumber(18),
-			"meta.SequenceNumber: 18",
+			SequenceNo(18),
+			"meta.SequenceNo: 18",
 		),
 		mkTest(
-			SequencerSpecific([]byte("hello world")),
-			"meta.SequencerSpecific len 11",
+			SequencerData([]byte("hello world")),
+			"meta.SequencerData len 11",
 		),
 		mkTest(
-			SMPTEOffset{
+			SMPTE{
 				Hour:            2,
 				Minute:          3,
 				Second:          4,
 				Frame:           5,
 				FractionalFrame: 6,
 			},
-			"meta.SMPTEOffset 2:3:4 5.6",
+			"meta.SMPTE 2:3:4 5.6",
 		),
 		mkTest(
 			Tempo(240),
@@ -117,8 +117,8 @@ func TestRead(t *testing.T) {
 			"meta.Text: \"hi\"",
 		),
 		mkTest(
-			TimeSignature{3, 4, 8, 8},
-			"meta.TimeSignature 3/4 clocksperclick 8 dsqpq 8",
+			TimeSig{3, 4, 8, 8},
+			"meta.TimeSig 3/4 clocksperclick 8 dsqpq 8",
 		),
 		mkTest(
 			Track("1st violins"),

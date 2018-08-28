@@ -22,10 +22,10 @@ type Message interface {
 }
 
 var (
-	_ Message = SongPositionPointer(0)
+	_ Message = SPP(0)
 	_ Message = SongSelect(0)
-	_ Message = TuneRequest
+	_ Message = Tune
 	//	_ Message = Undefined4(0)
 	//	_ Message = Undefined5(0)
-	_ Message = MIDITimingCode(0)
+	_ Message = MTC(0)
 )

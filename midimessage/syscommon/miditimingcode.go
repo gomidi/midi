@@ -30,33 +30,33 @@ cdefg = Hours (0-23)
 8	0111 0abc	Frame Rate, and Hours MSB
 */
 
-// MIDITimingCode represents a MIDI timing code message (quarter frame)
-type MIDITimingCode uint8
+// MTC represents a MIDI timing code message (quarter frame)
+type MTC uint8
 
 // String represents the MIDI timing code message as a string (for debugging)
-func (m MIDITimingCode) String() string {
+func (m MTC) String() string {
 	return fmt.Sprintf("%T: %v", m, m.QuarterFrame())
 }
 
 // Raw returns the raw bytes for the message
-func (m MIDITimingCode) Raw() []byte {
+func (m MTC) Raw() []byte {
 	// TODO check - it is a guess
 	return []byte{byte(0xF1), byte(m)}
 }
 
 // QuarterFrame returns the quarter frame
-func (m MIDITimingCode) QuarterFrame() uint8 {
+func (m MTC) QuarterFrame() uint8 {
 	return uint8(m)
 }
 
-func (m MIDITimingCode) readFrom(rd io.Reader) (Message, error) {
+func (m MTC) readFrom(rd io.Reader) (Message, error) {
 	b, err := midilib.ReadByte(rd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return MIDITimingCode(b), nil
+	return MTC(b), nil
 }
 
-func (m MIDITimingCode) sysCommon() {}
+func (m MTC) sysCommon() {}

@@ -34,27 +34,27 @@ import (
 	   Note that len could be a series of bytes since it is expressed as a variable length quantity.
 */
 
-// DevicePort represents a MIDI device point message
-type DevicePort string
+// Device represents a MIDI device point message
+type Device string
 
 // String represents the device point MIDI message as a string (for debugging)
-func (m DevicePort) String() string {
+func (m Device) String() string {
 	return fmt.Sprintf("%T: %#v", m, m.Text())
 }
 
-func (m DevicePort) meta() {}
+func (m Device) meta() {}
 
-func (m DevicePort) readFrom(rd io.Reader) (Message, error) {
+func (m Device) readFrom(rd io.Reader) (Message, error) {
 	text, err := readText(rd)
 	if err != nil {
 		return nil, err
 	}
 
-	return DevicePort(text), nil
+	return Device(text), nil
 }
 
 // Raw returns the raw MIDI data
-func (m DevicePort) Raw() []byte {
+func (m Device) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byte(byteDevicePort),
 		Data: []byte(m),
@@ -62,6 +62,6 @@ func (m DevicePort) Raw() []byte {
 }
 
 // Text returns the name of the device port
-func (m DevicePort) Text() string {
+func (m Device) Text() string {
 	return string(m)
 }

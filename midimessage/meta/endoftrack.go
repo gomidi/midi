@@ -1,7 +1,6 @@
 package meta
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/gomidi/midi/internal/midilib"
@@ -16,7 +15,7 @@ const (
 
 // String represents the end of track message as a string (for debugging)
 func (m endOfTrack) String() string {
-	return fmt.Sprintf("%T", m)
+	return "meta.EndOfTrack"
 }
 
 // Raw returns the raw MIDI data

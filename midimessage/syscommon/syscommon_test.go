@@ -13,20 +13,20 @@ func TestMessagesString(t *testing.T) {
 		expected string
 	}{
 		{
-			MIDITimingCode(3),
-			"syscommon.MIDITimingCode: 3",
+			MTC(3),
+			"syscommon.MTC: 3",
 		},
 		{
-			SongPositionPointer(4),
-			"syscommon.SongPositionPointer: 4",
+			SPP(4),
+			"syscommon.SPP: 4",
 		},
 		{
 			SongSelect(2),
 			"syscommon.SongSelect: 2",
 		},
 		{
-			TuneRequest,
-			"syscommon.tuneRequest",
+			Tune,
+			"syscommon.Tune",
 		},
 	}
 
@@ -56,13 +56,13 @@ func TestMessagesSongPositionPointer(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		bt := SongPositionPointer(test.expected).Raw()
+		bt := SPP(test.expected).Raw()
 		rd := bytes.NewReader(bt)
 		typ, _ := rd.ReadByte()
 		r := NewReader(rd, typ)
 		msg, _ := r.Read()
 
-		if got, want := msg.(SongPositionPointer).Number(), test.expected; got != want {
+		if got, want := msg.(SPP).Number(), test.expected; got != want {
 			t.Errorf("SongPositionPointer(%v) = %v; want %v", test.expected, got, want)
 		}
 	}
@@ -76,11 +76,11 @@ func TestMessagesRaw(t *testing.T) {
 		expected string
 	}{
 		{
-			MIDITimingCode(3),
+			MTC(3),
 			"F1 03",
 		},
 		{
-			SongPositionPointer(8),
+			SPP(8),
 			"F2 00 08",
 		},
 		{
@@ -88,7 +88,7 @@ func TestMessagesRaw(t *testing.T) {
 			"F3 02",
 		},
 		{
-			TuneRequest,
+			Tune,
 			"F6",
 		},
 	}

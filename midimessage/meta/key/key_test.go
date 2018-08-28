@@ -1,14 +1,15 @@
 package key
 
 import (
+	"os"
+	"testing"
+
 	"github.com/gomidi/midi/midimessage/channel"
 	"github.com/gomidi/midi/midimessage/meta"
 	"github.com/gomidi/midi/smf/smfwriter"
-	"os"
-	"testing"
 )
 
-func writeFile(file string, sig meta.KeySignature) {
+func writeFile(file string, sig meta.Key) {
 	f, _ := os.Create(file)
 	wr := smfwriter.New(f, smfwriter.NumTracks(1))
 	wr.WriteHeader()
@@ -24,7 +25,7 @@ func writeFile(file string, sig meta.KeySignature) {
 func TestKeys(t *testing.T) {
 
 	tests := []struct {
-		sig      func() meta.KeySignature
+		sig      func() meta.Key
 		file     string
 		expected string
 	}{

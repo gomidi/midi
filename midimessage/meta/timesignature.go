@@ -36,11 +36,11 @@ For a format 1 MIDI file, Time Signature Meta events should only occur within th
 
 */
 
-// TimeSignature sets the time signature according to the SMF spec.
+// TimeSig sets the time signature according to the SMF spec.
 // Denominator isn't a power of 2, but a readable decimal number (uint8).
 // If you want an easy way without having to worry about ClocksPerClick
 // and DemiSemiQuaverPerQuarter, use the meter subpackage.
-type TimeSignature struct {
+type TimeSig struct {
 	Numerator                uint8
 	Denominator              uint8
 	ClocksPerClick           uint8
@@ -48,7 +48,7 @@ type TimeSignature struct {
 }
 
 // Raw returns the raw MIDI data
-func (m TimeSignature) Raw() []byte {
+func (m TimeSig) Raw() []byte {
 	cpcl := m.ClocksPerClick
 	if cpcl == 0 {
 		cpcl = byte(8)
@@ -69,12 +69,12 @@ func (m TimeSignature) Raw() []byte {
 }
 
 // Signature returns the time signature in a readable way
-func (m TimeSignature) Signature() string {
+func (m TimeSig) Signature() string {
 	return fmt.Sprintf("%v/%v", m.Numerator, m.Denominator)
 }
 
 // String represents the time signature MIDI message as a string (for debugging)
-func (m TimeSignature) String() string {
+func (m TimeSig) String() string {
 	return fmt.Sprintf("%T %v/%v clocksperclick %v dsqpq %v", m, m.Numerator, m.Denominator, m.ClocksPerClick, m.DemiSemiQuaverPerQuarter)
 	//return fmt.Sprintf("%T %v/%v", m, m.Numerator, m.Denominator)
 }
@@ -93,7 +93,7 @@ func dec2binDenom(dec uint8) (bin uint8) {
 	return bin + 1
 }
 
-func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
+func (m TimeSig) readFrom(rd io.Reader) (Message, error) {
 	length, err := midilib.ReadVarLength(rd)
 
 	if err != nil {
@@ -105,7 +105,6 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	// TODO TEST
 	var numerator uint8
 	numerator, err = midilib.ReadByte(rd)
 
@@ -153,7 +152,7 @@ func (m TimeSignature) readFrom(rd io.Reader) (Message, error) {
 	*/
 }
 
-func (m TimeSignature) meta() {}
+func (m TimeSig) meta() {}
 
 // bin2decDenom converts the binary denominator to the decimal
 func bin2decDenom(bin uint8) uint8 {

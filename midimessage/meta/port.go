@@ -7,30 +7,30 @@ import (
 	"github.com/gomidi/midi/internal/midilib"
 )
 
-// MIDIPort represents the deprecated MIDI port message
-type MIDIPort uint8
+// Port represents the deprecated MIDI port message
+type Port uint8
 
 // Number returns the number of the port
-func (m MIDIPort) Number() uint8 {
+func (m Port) Number() uint8 {
 	return uint8(m)
 }
 
 // String represents the MIDI port message as a string (for debugging)
-func (m MIDIPort) String() string {
+func (m Port) String() string {
 	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
 // Raw returns the raw MIDI data
-func (m MIDIPort) Raw() []byte {
+func (m Port) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byte(byteMIDIPort),
 		Data: []byte{byte(m)},
 	}).Bytes()
 }
 
-func (m MIDIPort) meta() {}
+func (m Port) meta() {}
 
-func (m MIDIPort) readFrom(rd io.Reader) (Message, error) {
+func (m Port) readFrom(rd io.Reader) (Message, error) {
 
 	// Obsolete 'MIDI Port'
 	//	we can't ignore it, since it advanced in deltatime
@@ -52,6 +52,6 @@ func (m MIDIPort) readFrom(rd io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	return MIDIPort(port), nil
+	return Port(port), nil
 
 }

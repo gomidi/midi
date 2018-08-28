@@ -48,23 +48,22 @@ func TestRead(t *testing.T) {
 
 	tests := []*readTest{
 		mkTest(
-			MIDITimingCode(3),
-			"syscommon.MIDITimingCode: 3",
+			MTC(3),
+			"syscommon.MTC: 3",
 		),
-		/*
-			// TODO: make this test work
-				mkTest(
-					SongPositionPointer(4),
-					"syscommon.SongPositionPointer: 4",
-				),
-		*/
+
+		mkTest(
+			SPP(4),
+			"syscommon.SPP: 4",
+		),
+
 		mkTest(
 			SongSelect(2),
 			"syscommon.SongSelect: 2",
 		),
 		mkTest(
-			TuneRequest,
-			"syscommon.tuneRequest",
+			Tune,
+			"syscommon.Tune",
 		),
 	}
 

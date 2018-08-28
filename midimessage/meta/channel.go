@@ -2,34 +2,35 @@ package meta
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"github.com/gomidi/midi/internal/midilib"
 )
 
-// MIDIChannel represents the deprecated MIDI channel meta message
-type MIDIChannel uint8
+// Channel represents the deprecated MIDI channel meta message
+type Channel uint8
 
 // Number returns the number of the MIDI channel (starting with 0)
-func (m MIDIChannel) Number() uint8 {
+func (m Channel) Number() uint8 {
 	return uint8(m)
 }
 
 // String represents the MIDIChannel message as a string (for debugging)
-func (m MIDIChannel) String() string {
+func (m Channel) String() string {
 	return fmt.Sprintf("%T: %v", m, m.Number())
 }
 
 // Raw returns the raw bytes for the message
-func (m MIDIChannel) Raw() []byte {
+func (m Channel) Raw() []byte {
 	return (&metaMessage{
 		Typ:  byte(byteMIDIChannel),
 		Data: []byte{byte(m)},
 	}).Bytes()
 }
 
-func (m MIDIChannel) meta() {}
+func (m Channel) meta() {}
 
-func (m MIDIChannel) readFrom(rd io.Reader) (Message, error) {
+func (m Channel) readFrom(rd io.Reader) (Message, error) {
 
 	// Obsolete 'MIDI Channel'
 	//	we can't ignore it, since it advanced in deltatime
@@ -51,6 +52,6 @@ func (m MIDIChannel) readFrom(rd io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	return MIDIChannel(ch), nil
+	return Channel(ch), nil
 
 }
