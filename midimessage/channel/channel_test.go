@@ -37,8 +37,8 @@ func TestMessagesString(t *testing.T) {
 			"channel.PitchBend (\"Portamento\") channel 4 value 300 absValue 0",
 		},
 		{
-			Channel4.PolyphonicAfterTouch(86, 109),
-			"channel.PolyphonicAfterTouch (\"KeyPressure\") channel 4 key 86 pressure 109",
+			Channel4.PolyAfterTouch(86, 109),
+			"channel.PolyAfterTouch (\"KeyPressure\") channel 4 key 86 pressure 109",
 		},
 		{
 			Channel4.ProgramChange(83),
@@ -90,7 +90,7 @@ func TestMessagesRaw(t *testing.T) {
 			"E4 2C 42",
 		},
 		{
-			Channel4.PolyphonicAfterTouch(86, 109),
+			Channel4.PolyAfterTouch(86, 109),
 			"A4 56 6D",
 		},
 		{

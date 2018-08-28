@@ -71,8 +71,8 @@ func SetChannel(msg Message, ch uint8) Message {
 		return c.NoteOffVelocity(v.Key(), v.Velocity())
 	case PitchBend:
 		return c.PitchBend(v.Value())
-	case PolyphonicAfterTouch:
-		return c.PolyphonicAfterTouch(v.Key(), v.Pressure())
+	case PolyAfterTouch:
+		return c.PolyAfterTouch(v.Key(), v.Pressure())
 	case ProgramChange:
 		return c.ProgramChange(v.Program())
 	}
@@ -123,19 +123,19 @@ func (c Channel) NoteOn(key uint8, velocity uint8) NoteOn {
 }
 
 // KeyPressure creates a polyphonic aftertouch message on the channel
-func (c Channel) KeyPressure(key uint8, pressure uint8) PolyphonicAfterTouch {
+func (c Channel) KeyPressure(key uint8, pressure uint8) PolyAfterTouch {
 	if key > 127 {
 		key = 127
 	}
 	if pressure > 127 {
 		pressure = 127
 	}
-	return c.PolyphonicAfterTouch(key, pressure)
+	return c.PolyAfterTouch(key, pressure)
 }
 
 // PolyphonicAfterTouch creates a polyphonic aftertouch message on the channel
-func (c Channel) PolyphonicAfterTouch(key uint8, pressure uint8) PolyphonicAfterTouch {
-	return PolyphonicAfterTouch{channel: c.Channel(), key: key, pressure: pressure}
+func (c Channel) PolyAfterTouch(key uint8, pressure uint8) PolyAfterTouch {
+	return PolyAfterTouch{channel: c.Channel(), key: key, pressure: pressure}
 }
 
 // ControlChange creates a control change message on the channel

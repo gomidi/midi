@@ -113,7 +113,7 @@ func (r *reader) getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg 
 	case byteNoteOn:
 		msg = NoteOn{}
 	case bytePolyphonicKeyPressure:
-		msg = PolyphonicAfterTouch{}
+		msg = PolyAfterTouch{}
 	case byteControlChange:
 		msg = ControlChange{}
 	case bytePitchWheel:

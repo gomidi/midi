@@ -11,7 +11,7 @@ var (
 	_ Message = NoteOff{}
 	_ Message = NoteOffVelocity{}
 	_ Message = NoteOn{}
-	_ Message = PolyphonicAfterTouch{}
+	_ Message = PolyAfterTouch{}
 	_ Message = ControlChange{}
 	_ Message = ProgramChange{}
 	_ Message = AfterTouch{}
@@ -20,7 +20,7 @@ var (
 	_ setter2 = NoteOff{}
 	_ setter2 = NoteOffVelocity{}
 	_ setter2 = NoteOn{}
-	_ setter2 = PolyphonicAfterTouch{}
+	_ setter2 = PolyAfterTouch{}
 	_ setter2 = ControlChange{}
 	_ setter2 = PitchBend{}
 

@@ -93,8 +93,8 @@ func TestRead(t *testing.T) {
 		mkTest(channel.Channel3.ControlChange(23, 25), "channel.ControlChange channel 3 controller 23 value 25"),
 		mkTest(channel.Channel0.PitchBend(123), "channel.PitchBend (\"Portamento\") channel 0 value 123 absValue 8315"),
 		mkTest(channel.Channel0.Portamento(123), "channel.PitchBend (\"Portamento\") channel 0 value 123 absValue 8315"),
-		mkTest(channel.Channel15.PolyphonicAfterTouch(120, 106), "channel.PolyphonicAfterTouch (\"KeyPressure\") channel 15 key 120 pressure 106"),
-		mkTest(channel.Channel15.KeyPressure(120, 106), "channel.PolyphonicAfterTouch (\"KeyPressure\") channel 15 key 120 pressure 106"),
+		mkTest(channel.Channel15.PolyAfterTouch(120, 106), "channel.PolyAfterTouch (\"KeyPressure\") channel 15 key 120 pressure 106"),
+		mkTest(channel.Channel15.KeyPressure(120, 106), "channel.PolyAfterTouch (\"KeyPressure\") channel 15 key 120 pressure 106"),
 	}
 
 	for n, test := range tests {
