@@ -29,26 +29,49 @@ import (
 // so it is better practise to send it after each track (including the last one).
 // The options and their defaults are the same as for New and they are documented
 // at the corresponding option.
+// The callback may call the given writer to write messages. If any of this write
+// results in an error, the file won't be written and the error is returned.
+// Only a successful write will manifest itself in the file being created.
 func WriteFile(file string, callback func(smf.Writer), options ...Option) error {
 	f, err := os.Create(file)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("writing midi file failed: could not create file %#v", file)
 	}
 
 	defer func() {
 		f.Close()
 	}()
 
-	wr := New(f, options...)
+	wr := newWriter(f, options...)
 	err = wr.WriteHeader()
 	if err != nil {
-		return err
+		f.Close()
+		os.Remove(file)
+		return fmt.Errorf("could not write header to midi file %#v: %v", file, err)
 	}
 	callback(wr)
 
+	if wr.error != nil && wr.error != smf.ErrFinished {
+		f.Close()
+		os.Remove(file)
+		return fmt.Errorf("writing of midi file %#v aborted due to error returned from callback: %v", file, wr.error)
+	}
+
 	// make sure the data of the last track is written
-	wr.Write(meta.EndOfTrack)
+	err = wr.Write(meta.EndOfTrack)
+
+	if err != nil && err != smf.ErrFinished {
+		f.Close()
+		os.Remove(file)
+		return fmt.Errorf("could not write end of track message to midi file %#v", file)
+	}
+
+	err = f.Close()
+	if err != nil {
+		os.Remove(file)
+		return fmt.Errorf("could not close midi file %#v", file)
+	}
 
 	return nil
 }
@@ -134,14 +157,18 @@ func (w *writer) Header() smf.Header {
 	return w.header
 }
 
-var errFinished = fmt.Errorf("all tracks written (finished)")
-
 // Write writes the message and returns the bytes that have been physically written.
+// If a write fails with an error, every following attempt to write will return this first error,
+// so de facto writing will be blocked.
 func (w *writer) Write(m midi.Message) (err error) {
+	if w.error != nil {
+		return w.error
+	}
 	if !w.headerWritten {
 		w.error = w.WriteHeader()
 	}
 	if w.error != nil {
+		w.error = fmt.Errorf("writing header before midi message %#v failed: %v", m, w.error)
 		return w.error
 	}
 	defer func() {
@@ -149,7 +176,7 @@ func (w *writer) Write(m midi.Message) (err error) {
 	}()
 
 	if w.header.NumTracks == w.tracksProcessed {
-		w.error = errFinished
+		w.error = smf.ErrFinished
 		return w.error
 	}
 
@@ -206,7 +233,8 @@ func (w *writer) writeTimeFormat(wr io.Writer) error {
 		}
 		return binary.Write(wr, binary.BigEndian, tf.SubFrames)
 	default:
-		panic(fmt.Sprintf("unsupported TimeFormat: %#v", w.header.TimeFormat))
+		//panic(fmt.Sprintf("unsupported TimeFormat: %#v", w.header.TimeFormat))
+		return fmt.Errorf("unsupported TimeFormat: %#v", w.header.TimeFormat)
 	}
 }
 
@@ -221,13 +249,19 @@ func (w *writer) writeHeader(wr io.Writer) error {
 
 	err := w.writeTimeFormat(&bf)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not write header: %v", err)
 	}
 
-	ch.Write(bf.Bytes())
+	_, err = ch.Write(bf.Bytes())
+	if err != nil {
+		return fmt.Errorf("could not write header: %v", err)
+	}
 
 	_, err = ch.WriteTo(wr)
-	return err
+	if err != nil {
+		return fmt.Errorf("could not write header: %v", err)
+	}
+	return nil
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
@@ -235,7 +269,7 @@ func (w *writer) writeTrackTo(wr io.Writer) (err error) {
 	_, err = w.track.WriteTo(wr)
 
 	if err != nil {
-		return
+		return fmt.Errorf("could not write track %v: %v", w.tracksProcessed+1, err)
 	}
 
 	if !w.noRunningStatus {

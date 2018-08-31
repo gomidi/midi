@@ -1,7 +1,5 @@
 package channel
 
-import "github.com/gomidi/midi"
-
 // TODO do with iota
 const (
 	// MIDI channel 1
@@ -164,4 +162,3 @@ func (c Channel) Pitchbend(value int16) Pitchbend {
 	}
 	return Pitchbend{channel: c.Channel(), value: value}
 }
-

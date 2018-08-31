@@ -150,7 +150,10 @@ func (c *Chunk) WriteTo(wr io.Writer) (int64, error) {
 	binary.Write(&bf, binary.BigEndian, int32(c.Len()))
 	bf.Write(c.data)
 	n, err := wr.Write(bf.Bytes())
-	return int64(n), err
+	if err != nil {
+		return int64(n), fmt.Errorf("could not write chunk: %v", err)
+	}
+	return int64(n), nil
 }
 
 // ReadHeader reads the header from the given reader
