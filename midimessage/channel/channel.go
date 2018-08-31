@@ -1,5 +1,7 @@
 package channel
 
+import "github.com/gomidi/midi"
+
 // TODO do with iota
 const (
 	// MIDI channel 1
@@ -153,12 +155,13 @@ func (c Channel) Aftertouch(pressure uint8) Aftertouch {
 
 // Pitchbend creates a pitch bend message on the channel
 func (c Channel) Pitchbend(value int16) Pitchbend {
-	if value < -8191 {
-		value = -8191
+	if value < PitchLowest {
+		value = PitchLowest
 	}
 
-	if value > 8191 {
-		value = 8191
+	if value > PitchHighest {
+		value = PitchHighest
 	}
 	return Pitchbend{channel: c.Channel(), value: value}
 }
+

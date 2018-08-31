@@ -12,7 +12,7 @@ const (
 	PitchReset = 0
 
 	// PitchLowest is the lowest possible value of the pitch bending
-	PitchLowest = -8191
+	PitchLowest = -8192
 
 	// PitchHighest is the highest possible value of the pitch bending
 	PitchHighest = 8191
