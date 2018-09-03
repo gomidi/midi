@@ -1,8 +1,9 @@
 package midilib
 
 import (
-	"github.com/gomidi/midi"
 	"io"
+
+	"github.com/gomidi/midi"
 )
 
 /*

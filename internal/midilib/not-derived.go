@@ -23,14 +23,14 @@ func ClearBitU8(n uint8, pos uint8) uint8 {
 
 // MsbLsbSigned returns the uint16 for a signed MSB LSB message combination
 func MsbLsbSigned(n int16) uint16 {
-	/*
-		if n > 8191 {
-			panic("n must not overflow 14bits (max 8191)")
-		}
-		if n < -8191 {
-			panic("n must not overflow 14bits (min -8191)")
-		}
-	*/
+
+	//		if n > 8191 {
+	//			panic("n must not overflow 14bits (max 8191)")
+	//		}
+	//		if n < -8191 {
+	//			panic("n must not overflow 14bits (min -8191)")
+	//		}
+
 	return msbLsbUnsigned(uint16(n + 8192))
 }
 
