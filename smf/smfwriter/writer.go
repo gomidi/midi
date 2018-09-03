@@ -101,6 +101,13 @@ type writer struct {
 	runningWriter   runningstatus.SMFWriter
 }
 
+func (w *writer) Close() error {
+	if cl, is := w.output.(io.WriteCloser); is {
+		return cl.Close()
+	}
+	return nil
+}
+
 func (w *writer) WriteHeader() error {
 	if w.headerWritten {
 		return w.error

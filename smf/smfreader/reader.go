@@ -71,6 +71,14 @@ func New(src io.Reader, opts ...Option) smf.Reader {
 	return rd
 }
 
+// Close closes the internal reader if it is an io.ReadCloser
+func (r *reader) Close() error {
+	if cl, is := r.input.(io.ReadCloser); is {
+		return cl.Close()
+	}
+	return nil
+}
+
 func (r *reader) ReadHeader() error {
 	if r.headerIsRead {
 		return r.error
