@@ -95,6 +95,39 @@ func TestHeaderSMF0(t *testing.T) {
 
 }
 
+func TestTicksNoteLengths(t *testing.T) {
+	var resolution MetricTicks
+
+	tests := []struct {
+		description string
+		got         uint32
+		expected    uint32
+	}{
+		{"4th", resolution.Ticks4th(), uint32(resolution.Number())},
+		{"8th", resolution.Ticks8th(), 480},
+		{"16th", resolution.Ticks16th(), 240},
+		{"32th", resolution.Ticks32th(), 120},
+		{"64th", resolution.Ticks64th(), 60},
+		{"128th", resolution.Ticks128th(), 30},
+		{"256th", resolution.Ticks256th(), 15},
+		{"512th", resolution.Ticks512th(), 8},
+		{"1024th", resolution.Ticks1024th(), 4},
+	}
+
+	for _, test := range tests {
+
+		if got, want := test.got, test.expected; got != want {
+			t.Errorf(
+				"%s = %v; want %v",
+				test.description,
+				got,
+				want,
+			)
+		}
+	}
+
+}
+
 func TestTicksDuration(t *testing.T) {
 	tests := []struct {
 		resolution MetricTicks
