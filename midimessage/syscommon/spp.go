@@ -14,6 +14,7 @@ func clearBitU16(n uint16, pos uint16) uint16 {
 	return n
 }
 
+/*
 // takes a 14bit uint and pads it to 16 bit like in the specs for e.g. pitchbend
 func msbLsbUnsigned(n uint16) uint16 {
 	if n > 16383 {
@@ -28,6 +29,7 @@ func msbLsbUnsigned(n uint16) uint16 {
 	msb := 0x7f & (n >> 7)
 	return lsb | msb
 }
+*/
 
 func (m SPP) readFrom(rd io.Reader) (Message, error) {
 	bt, err := midilib.ReadNBytes(2, rd)
