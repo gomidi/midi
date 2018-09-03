@@ -124,6 +124,12 @@ func (c Channel) NoteOn(key uint8, velocity uint8) NoteOn {
 
 // PolyAftertouch creates a polyphonic aftertouch message on the channel
 func (c Channel) PolyAftertouch(key uint8, pressure uint8) PolyAftertouch {
+	if key > 127 {
+		key = 127
+	}
+	if pressure > 127 {
+		pressure = 127
+	}
 	return PolyAftertouch{channel: c.Channel(), key: key, pressure: pressure}
 }
 
@@ -140,6 +146,9 @@ func (c Channel) ControlChange(controller uint8, value uint8) ControlChange {
 
 // ProgramChange creates a program change message on the channel
 func (c Channel) ProgramChange(program uint8) ProgramChange {
+	if program > 127 {
+		program = 127
+	}
 	return ProgramChange{channel: c.Channel(), program: program}
 }
 
