@@ -22,7 +22,7 @@ SMF0
 1 Track(s)
 TimeFormat: 96 QuarterNoteTicks
 Track 0@0 meta.TimeSignature 4/4
-Track 0@0 meta.Tempo BPM: 120
+Track 0@0 meta.Tempo BPM: 120.00
 Track 0@0 channel.ProgramChange channel 0 program 5
 Track 0@0 channel.ProgramChange channel 1 program 46
 Track 0@0 channel.ProgramChange channel 2 program 70
@@ -85,7 +85,7 @@ SMF1
 4 Track(s)
 TimeFormat: 96 QuarterNoteTicks
 Track 0@0 meta.TimeSignature 4/4
-Track 0@0 meta.Tempo BPM: 120
+Track 0@0 meta.Tempo BPM: 120.00
 Track 0@384 meta.endOfTrack
 Track 1@0 channel.ProgramChange channel 0 program 5
 Track 1@192 channel.NoteOn channel 0 pitch 76 vel 32
