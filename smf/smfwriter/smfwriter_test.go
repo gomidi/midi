@@ -49,7 +49,7 @@ func TestWriteSMF0(t *testing.T) {
 		ClocksPerClick:           24,
 		DemiSemiQuaverPerQuarter: 8,
 	})
-	wr.Write(meta.Tempo(120))
+	wr.Write(meta.BPM(120))
 	wr.Write(channel.Channel0.ProgramChange(5))
 	wr.Write(channel.Channel1.ProgramChange(46))
 	wr.Write(channel.Channel2.ProgramChange(70))
@@ -115,7 +115,7 @@ func TestWriteSMF1(t *testing.T) {
 		ClocksPerClick:           24,
 		DemiSemiQuaverPerQuarter: 8,
 	})
-	wr.Write(meta.Tempo(120))
+	wr.Write(meta.BPM(120))
 
 	wr.SetDelta(resolution.Ticks4th() * 4)
 	wr.Write(meta.EndOfTrack)

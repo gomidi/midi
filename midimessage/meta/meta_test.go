@@ -75,8 +75,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.SMPTE 2:3:4 5.6",
 		},
 		{
-			Tempo(240),
-			"meta.Tempo BPM: 240",
+			BPM(240),
+			"meta.Tempo BPM: 240.00",
 		},
 		{
 			Text("hi"),
@@ -174,7 +174,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 54 05 02 03 04 05 06",
 		},
 		{
-			Tempo(240),
+			BPM(240),
 			"FF 51 03 03 D0 90",
 		},
 		{

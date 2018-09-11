@@ -44,7 +44,6 @@ func mkTest(event midi.Message, expected string) *readTest {
 }
 
 func TestRead(t *testing.T) {
-
 	tests := []*readTest{
 		mkTest(
 			Copyright("(c) 2017"),
@@ -109,8 +108,8 @@ func TestRead(t *testing.T) {
 			"meta.SMPTE 2:3:4 5.6",
 		),
 		mkTest(
-			Tempo(240),
-			"meta.Tempo BPM: 240",
+			BPM(240),
+			"meta.Tempo BPM: 240.00",
 		),
 		mkTest(
 			Text("hi"),
