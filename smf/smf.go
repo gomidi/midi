@@ -247,10 +247,28 @@ func (q MetricTicks) Duration(tempoBPM uint32, deltaTicks uint32) time.Duration 
 	//	return time.Duration(roundFloat(durQnMilli*_4thticks, 0)) * time.Millisecond
 }
 
+// FractionalDuration returns the time.Duration for a number of ticks at a certain tempo (in fractional BPM)
+func (q MetricTicks) FractionalDuration(fractionalBPM float64, deltaTicks uint32) time.Duration {
+	// (60000 / T) * (d / R) = D[ms]
+	//	durQnMilli := 60000 / float64(tempoBPM)
+	//	_4thticks := float64(deltaTicks) / float64(uint16(q))
+	res := 60000000000 * float64(deltaTicks) / (fractionalBPM * float64(uint16(q)))
+	//fmt.Printf("what: %vns\n", res)
+	return time.Duration(int64(math.Round(res)))
+	//	return time.Duration(roundFloat(durQnMilli*_4thticks, 0)) * time.Millisecond
+}
+
 // Ticks returns the ticks for a given time.Duration at a certain tempo (in BPM)
 func (q MetricTicks) Ticks(tempoBPM uint32, d time.Duration) (ticks uint32) {
 	// d = (D[ms] * R * T) / 60000
 	ticks = uint32(roundFloat((float64(d.Nanoseconds())/1000000*float64(uint16(q))*float64(tempoBPM))/60000, 0))
+	return ticks
+}
+
+// FractionalTicks returns the ticks for a given time.Duration at a certain tempo (in fractional BPM)
+func (q MetricTicks) FractionalTicks(fractionalBPM float64, d time.Duration) (ticks uint32) {
+	// d = (D[ms] * R * T) / 60000
+	ticks = uint32(roundFloat((float64(d.Nanoseconds())/1000000*float64(uint16(q))*fractionalBPM)/60000, 0))
 	return ticks
 }
 
