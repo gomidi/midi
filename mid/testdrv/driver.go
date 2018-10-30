@@ -3,7 +3,7 @@ package testdrv
 import (
 	"io"
 
-	"gitlab.com/gomidi/midi/connect"
+	"gitlab.com/gomidi/midi/mid"
 )
 
 type Driver struct {
@@ -13,17 +13,17 @@ type Driver struct {
 	name     string
 }
 
-func New(name string) connect.Driver {
+func New(name string) mid.Driver {
 	d := &Driver{name: name}
 	d.in = &in{name: name + "-in", driver: d, number: 0}
 	d.out = &out{name: name + "-out", driver: d, number: 0}
 	return d
 }
 
-func (f *Driver) String() string               { return f.name }
-func (f *Driver) Close() error                 { return nil }
-func (f *Driver) Ins() ([]connect.In, error)   { return []connect.In{f.in}, nil }
-func (f *Driver) Outs() ([]connect.Out, error) { return []connect.Out{f.out}, nil }
+func (f *Driver) String() string           { return f.name }
+func (f *Driver) Close() error             { return nil }
+func (f *Driver) Ins() ([]mid.In, error)   { return []mid.In{f.in}, nil }
+func (f *Driver) Outs() ([]mid.Out, error) { return []mid.Out{f.out}, nil }
 
 type in struct {
 	number int
@@ -80,7 +80,7 @@ func (f *out) Close() error {
 }
 func (f *out) Send(b []byte) error {
 	if !f.isOpen {
-		return connect.ErrClosed
+		return mid.ErrClosed
 	}
 	if f.driver.listener == nil {
 		return io.EOF

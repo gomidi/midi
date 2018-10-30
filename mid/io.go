@@ -5,13 +5,12 @@ import (
 	"time"
 
 	"gitlab.com/gomidi/midi"
-	"gitlab.com/gomidi/midi/connect"
 	"gitlab.com/gomidi/midi/midireader"
 	"gitlab.com/gomidi/midi/smf"
 )
 
 type outWriter struct {
-	out connect.Out
+	out Out
 }
 
 func (w *outWriter) Write(b []byte) (int, error) {
@@ -19,15 +18,13 @@ func (w *outWriter) Write(b []byte) (int, error) {
 }
 
 // WriteTo returns a Writer that writes to the given MIDI out connection.
-// The gomidi/connect package provides adapters to rtmidi and portaudio
-// that fullfill the OutConnection interface.
-func WriteTo(out connect.Out) *Writer {
+func WriteTo(out Out) *Writer {
 	return NewWriter(&outWriter{out})
 }
 
 type inReader struct {
 	rd         *Reader
-	in         connect.In
+	in         In
 	midiReader midi.Reader
 	bf         bytes.Buffer
 }
@@ -79,9 +76,7 @@ func (r *Reader) TempoBPM() float64 {
 }
 
 // ReadFrom configures the Reader to read from to the given MIDI in connection.
-// The gomidi/connect package provides adapters to rtmidi and portaudio
-// that fullfill the InConnection interface.
-func (r *Reader) ReadFrom(in connect.In) error {
+func (r *Reader) ReadFrom(in In) error {
 	r.resolution = LiveResolution
 	r.reset()
 	rd := &inReader{rd: r, in: in}
