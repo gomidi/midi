@@ -1,1 +1,1 @@
-module github.com/gomidi/midi
+module gitlab.com/gomidi/midi
