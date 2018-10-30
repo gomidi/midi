@@ -1,7 +1,7 @@
 package midi
 
 import (
-	"errors"
+	"fmt"
 )
 
 // Message is a MIDI message
@@ -38,7 +38,7 @@ type ReadCloser interface {
 }
 
 // ErrUnexpectedEOF is returned, when an unexspected end of file is reached.
-var ErrUnexpectedEOF = errors.New("Unexpected End of File found.")
+var ErrUnexpectedEOF = fmt.Errorf("Unexpected End of File found.")
 
 /*
    A MIDI message is made up of an eight-bit status byte which is generally followed by one or two data bytes.
