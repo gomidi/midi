@@ -1,7 +1,7 @@
 package meter
 
 import (
-	"github.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/midimessage/meta"
 )
 
 // Meter returns the MIDI time signature meta message for the given

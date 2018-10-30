@@ -1,8 +1,8 @@
 package runningstatus
 
 import (
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/internal/midilib"
 
 	"io"
 )

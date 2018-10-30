@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 /*

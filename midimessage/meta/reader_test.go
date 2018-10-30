@@ -8,9 +8,9 @@ import (
 	"io"
 	"testing"
 
-	"github.com/gomidi/midi"
-	. "github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi"
+	. "gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 type readTest struct {

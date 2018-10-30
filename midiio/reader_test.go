@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midiwriter"
-	// "github.com/gomidi/midi"
-	"github.com/gomidi/midi/midireader"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midiwriter"
+
+	// "gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midireader"
 )
 
 func mkMIDI() []byte {

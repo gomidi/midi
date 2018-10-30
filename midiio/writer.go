@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/midimessage/realtime"
-	"github.com/gomidi/midi/midireader"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midimessage/realtime"
+	"gitlab.com/gomidi/midi/midireader"
 )
 
 /*

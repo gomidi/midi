@@ -8,14 +8,14 @@ Package midireader provides a reader for live/streaming/"over the wire" MIDI dat
 Usage
 
 	import (
-		"github.com/gomidi/midi/midireader"
-		. "github.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
-		"github.com/gomidi/midi/midimessage/realtime"   // (System Realtime Messages)
+		"gitlab.com/gomidi/midi/midireader"
+		. "gitlab.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
+		"gitlab.com/gomidi/midi/midimessage/realtime"   // (System Realtime Messages)
 
 		// you may also want to use these
-		// github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
-		// github.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
-		// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
+		// gitlab.com/gomidi/midi/midimessage/cc         (Control Change Messages)
+		// gitlab.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
+		// gitlab.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 	)
 
 	// given some MIDI input

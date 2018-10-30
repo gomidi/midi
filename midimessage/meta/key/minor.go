@@ -1,7 +1,7 @@
 package key
 
 import (
-	"github.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/midimessage/meta"
 )
 
 // AMin returns the MIDI key signature meta message for A Minor

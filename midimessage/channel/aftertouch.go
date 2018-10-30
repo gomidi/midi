@@ -3,7 +3,7 @@ package channel
 import (
 	"fmt"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // Aftertouch represents a MIDI aftertouch message (aka "channel pressure")

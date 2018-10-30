@@ -2,7 +2,8 @@ package channel
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
+
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // ProgramChange represents a MIDI program change message

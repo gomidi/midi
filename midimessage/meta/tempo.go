@@ -6,7 +6,7 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 const bpmFac = 60000000

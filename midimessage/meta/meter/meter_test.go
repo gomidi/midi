@@ -3,7 +3,7 @@ package meter
 import (
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/midimessage/meta"
 )
 
 func TestMeter(t *testing.T) {

@@ -1,7 +1,7 @@
 package smfwriter
 
 import (
-	"github.com/gomidi/midi/smf"
+	"gitlab.com/gomidi/midi/smf"
 )
 
 /*

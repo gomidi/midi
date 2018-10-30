@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // SequenceNo represents the sequence number MIDI meta message

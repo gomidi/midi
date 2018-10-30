@@ -8,14 +8,14 @@ Package smfreader provides a reader of Standard MIDI Files (SMF).
 Usage
 
 	import (
-		"github.com/gomidi/midi/smf/smfreader"
-		. "github.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
+		"gitlab.com/gomidi/midi/smf/smfreader"
+		. "gitlab.com/gomidi/midi/midimessage/channel"    // (Channel Messages)
 
 		// you may also want to use these
-		// github.com/gomidi/midi/midimessage/meta       (Meta Messages)
-		// github.com/gomidi/midi/midimessage/cc         (Control Change Messages)
-		// github.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
-		// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
+		// gitlab.com/gomidi/midi/midimessage/meta       (Meta Messages)
+		// gitlab.com/gomidi/midi/midimessage/cc         (Control Change Messages)
+		// gitlab.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
+		// gitlab.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 	)
 
 	var err error

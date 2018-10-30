@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/smf"
-	"github.com/gomidi/midi/smf/smfwriter"
+	"gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/smf"
+	"gitlab.com/gomidi/midi/smf/smfwriter"
 )
 
 func TestParseTimeCode(t *testing.T) {

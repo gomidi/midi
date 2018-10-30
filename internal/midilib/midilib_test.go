@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gomidi/midi/internal/vlq"
+	"gitlab.com/gomidi/midi/internal/vlq"
 )
 
 func TestKeyFromSharpsOrFlats(t *testing.T) {

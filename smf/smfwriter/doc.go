@@ -8,14 +8,14 @@ Package smfwriter provides a writer of Standard MIDI Files (SMF).
 Usage
 
 	import (
-		"github.com/gomidi/midi/smf"
-		"github.com/gomidi/midi/smf/smfwriter"
-		"github.com/gomidi/midi/midimessage/meta"    // (Meta Messages)
-		. "github.com/gomidi/midi/midimessage/channel" // (Channel Messages)
+		"gitlab.com/gomidi/midi/smf"
+		"gitlab.com/gomidi/midi/smf/smfwriter"
+		"gitlab.com/gomidi/midi/midimessage/meta"    // (Meta Messages)
+		. "gitlab.com/gomidi/midi/midimessage/channel" // (Channel Messages)
 
 		// you may also want to use these
-		// github.com/gomidi/midi/midimessage/cc         (ControlChange Messages)
-		// github.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
+		// gitlab.com/gomidi/midi/midimessage/cc         (ControlChange Messages)
+		// gitlab.com/gomidi/midi/midimessage/sysex      (System Exclusive Messages)
 	)
 
 	var err error

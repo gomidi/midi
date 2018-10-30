@@ -3,10 +3,11 @@ package midiio
 import (
 	"bytes"
 	"fmt"
-	"github.com/gomidi/midi/midimessage/realtime"
 	"testing"
 
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi/midimessage/realtime"
+
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 func TestWriter(t *testing.T) {

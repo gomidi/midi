@@ -3,14 +3,14 @@ package channel_test
 import (
 	"bytes"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 	// "fmt"
 	"io"
 	"testing"
 
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 type readTest struct {

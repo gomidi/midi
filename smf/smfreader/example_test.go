@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi"
-	. "github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/smf"
-	"github.com/gomidi/midi/smf/smfreader"
-	"github.com/gomidi/midi/smf/smfwriter"
+	"gitlab.com/gomidi/midi"
+	. "gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/smf"
+	"gitlab.com/gomidi/midi/smf/smfreader"
+	"gitlab.com/gomidi/midi/smf/smfwriter"
 )
 
 func mkMIDI() io.Reader {

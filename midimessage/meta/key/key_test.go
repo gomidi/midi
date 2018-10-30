@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/smf/smfwriter"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/smf/smfwriter"
 )
 
 func writeFile(file string, sig meta.Key) {

@@ -3,7 +3,7 @@ package midiwriter
 import (
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/channel"
 )
 
 type writeNothing struct{}

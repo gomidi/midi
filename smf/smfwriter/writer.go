@@ -6,15 +6,15 @@ import (
 	"io"
 	"os"
 
-	"github.com/gomidi/midi/internal/runningstatus"
-	"github.com/gomidi/midi/internal/vlq"
+	"gitlab.com/gomidi/midi/internal/runningstatus"
+	"gitlab.com/gomidi/midi/internal/vlq"
 
 	"encoding/binary"
 
-	"github.com/gomidi/midi"
+	"gitlab.com/gomidi/midi"
 
-	"github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/smf"
+	"gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/smf"
 )
 
 // WriteFile creates file, calls callback with a writer and closes file

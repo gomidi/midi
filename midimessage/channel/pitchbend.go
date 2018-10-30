@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 const (

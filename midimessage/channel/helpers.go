@@ -1,7 +1,7 @@
 package channel
 
 import (
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 type setter1 interface {

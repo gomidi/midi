@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midimessage/channel"
 )
 
 func msgs(m ...midi.Message) []midi.Message {

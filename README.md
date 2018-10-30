@@ -1,9 +1,9 @@
 # midi
 Modular library for reading and writing of MIDI messages with Go.
 
-[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/github/gomidi/midi/badge.svg?branch=master)](https://coveralls.io/github/gomidi/midi?branch=master) [![Go Report](https://goreportcard.com/badge/github.com/gomidi/midi)](https://goreportcard.com/report/github.com/gomidi/midi) [![Documentation](http://godoc.org/github.com/gomidi/midi?status.png)](http://godoc.org/github.com/gomidi/midi)
+[![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/gitlab/gomidi/midi/badge.svg?branch=master)](https://coveralls.io/gitlab/gomidi/midi?branch=master) [![Go Report](https://goreportcard.com/badge/gitlab.com/gomidi/midi)](https://goreportcard.com/report/gitlab.com/gomidi/midi) [![Documentation](http://godoc.org/gitlab.com/gomidi/midi?status.png)](http://godoc.org/gitlab.com/gomidi/midi)
 
-**This package is meant for users that have some knowledge of the MIDI standards. Beginners, and people on the run might want to look at the porcelain package https://github.com/gomidi/mid.**
+**This package is meant for users that have some knowledge of the MIDI standards. Beginners, and people on the run might want to look at the porcelain package https://gitlab.com/gomidi/mid.**
 
 ## Status
 
@@ -15,12 +15,12 @@ stable
 ## Installation
 
 ```
-go get github.com/gomidi/midi/...
+go get gitlab.com/gomidi/midi/...
 ```
 
 ## Documentation
 
-see http://godoc.org/github.com/gomidi/midi
+see http://godoc.org/gitlab.com/gomidi/midi
 
 ## Features
 
@@ -40,7 +40,7 @@ see http://godoc.org/github.com/gomidi/midi
 - [ ] constructing of MIDI time code messages
 - [ ] Multidimensional Polyphonic Expression (MPE)
 - [ ] dealing with the inner structure of sysex messages
-- [ ] connection to MIDI devices (for this combine it with https://github.com/gomidi/connect)
+- [ ] connection to MIDI devices (for this combine it with https://gitlab.com/gomidi/connect)
 - [ ] CLI tools
 
 ## Usage / Example
@@ -51,12 +51,12 @@ package main
 import (
     "bytes"
     "fmt"
-    . "github.com/gomidi/midi/midimessage/channel"
-    "github.com/gomidi/midi/midimessage/realtime"
-    "github.com/gomidi/midi/midireader"
-    "github.com/gomidi/midi/midiwriter"
+    . "gitlab.com/gomidi/midi/midimessage/channel"
+    "gitlab.com/gomidi/midi/midimessage/realtime"
+    "gitlab.com/gomidi/midi/midireader"
+    "gitlab.com/gomidi/midi/midiwriter"
     "io"
-    "github.com/gomidi/midi"
+    "gitlab.com/gomidi/midi"
 )
 
 func main() {

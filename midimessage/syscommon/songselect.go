@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // Raw returns the raw bytes for the message

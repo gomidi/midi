@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // Port represents the deprecated MIDI port message

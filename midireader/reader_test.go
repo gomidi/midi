@@ -5,11 +5,11 @@ import (
 	"io"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/realtime"
-	"github.com/gomidi/midi/midimessage/syscommon"
-	"github.com/gomidi/midi/midimessage/sysex"
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/realtime"
+	"gitlab.com/gomidi/midi/midimessage/syscommon"
+	"gitlab.com/gomidi/midi/midimessage/sysex"
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 func mkMIDI() io.Reader {

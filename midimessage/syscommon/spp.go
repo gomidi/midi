@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 func clearBitU16(n uint16, pos uint16) uint16 {

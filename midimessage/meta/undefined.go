@@ -2,8 +2,9 @@ package meta
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
 	"io"
+
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // Undefined represents an undefined meta message

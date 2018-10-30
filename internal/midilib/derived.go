@@ -3,7 +3,7 @@ package midilib
 import (
 	"io"
 
-	"github.com/gomidi/midi"
+	"gitlab.com/gomidi/midi"
 )
 
 /*

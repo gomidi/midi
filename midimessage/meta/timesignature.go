@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 	// "github.com/gomidi/midi/smf"
 )
 

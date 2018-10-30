@@ -1,9 +1,10 @@
 package midiwriter
 
 import (
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/internal/runningstatus"
 	"io"
+
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/internal/runningstatus"
 )
 
 // New returns a new midi.Writer.

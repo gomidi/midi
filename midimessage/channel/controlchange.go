@@ -2,7 +2,8 @@ package channel
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
+
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // ControlChange represents a MIDI control change message

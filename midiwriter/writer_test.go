@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/channel"
 )
 
 func TestRunningStatus(t *testing.T) {

@@ -3,7 +3,7 @@ package channel
 import (
 	"fmt"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // PolyAftertouch represents a MIDI polyphonic aftertouch message (aka "key pressure")

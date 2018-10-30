@@ -5,8 +5,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 type testreader struct {

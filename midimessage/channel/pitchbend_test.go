@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midireader"
-	"github.com/gomidi/midi/midiwriter"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midireader"
+	"gitlab.com/gomidi/midi/midiwriter"
 )
 
 func TestPitchbend(t *testing.T) {

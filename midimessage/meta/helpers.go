@@ -2,9 +2,10 @@ package meta
 
 import (
 	"errors"
-	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/internal/vlq"
 	"io"
+
+	"gitlab.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/vlq"
 )
 
 func unexpectedMessageLengthError(s string) error {

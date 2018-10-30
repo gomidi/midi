@@ -9,15 +9,15 @@ Usage
 
 
 	import (
-		"github.com/gomidi/midi/midiwriter"
-		. "github.com/gomidi/midi/midimessage/channel"     // (Channel Messages)
+		"gitlab.com/gomidi/midi/midiwriter"
+		. "gitlab.com/gomidi/midi/midimessage/channel"     // (Channel Messages)
 		. "time"
 
 		// you may also want to use these
-		// github.com/gomidi/midi/midimessage/realtime   (System Realtime Messages)
-		// github.com/gomidi/midi/midimessage/cc         (ControlChange Messages)
-		// github.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
-		// github.com/gomidi/midi/midimessage/sysex      (system exclusive messages)
+		// gitlab.com/gomidi/midi/midimessage/realtime   (System Realtime Messages)
+		// gitlab.com/gomidi/midi/midimessage/cc         (ControlChange Messages)
+		// gitlab.com/gomidi/midi/midimessage/syscommon  (System Common Messages)
+		// gitlab.com/gomidi/midi/midimessage/sysex      (system exclusive messages)
 	)
 
 	// given some output

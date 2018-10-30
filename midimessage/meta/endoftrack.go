@@ -3,7 +3,7 @@ package meta
 import (
 	"io"
 
-	"github.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 type endOfTrack bool

@@ -1,11 +1,11 @@
 package midimessage
 
 import (
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/realtime"
-	"github.com/gomidi/midi/midimessage/syscommon"
-	"github.com/gomidi/midi/midimessage/sysex"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/realtime"
+	"gitlab.com/gomidi/midi/midimessage/syscommon"
+	"gitlab.com/gomidi/midi/midimessage/sysex"
 )
 
 // IsLive checks if msg can be send to a MIDI device (as "live" MIDI/ over the wire)

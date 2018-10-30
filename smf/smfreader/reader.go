@@ -6,15 +6,15 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/gomidi/midi/internal/runningstatus"
+	"gitlab.com/gomidi/midi/internal/runningstatus"
 
 	"errors"
 
-	"github.com/gomidi/midi"
-	"github.com/gomidi/midi/internal/midilib"
-	"github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/meta"
-	"github.com/gomidi/midi/smf"
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/internal/midilib"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/smf"
 )
 
 // ReadFile opens file, calls callback with a reader and closes file

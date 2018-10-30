@@ -2,7 +2,8 @@ package channel
 
 import (
 	"fmt"
-	"github.com/gomidi/midi/internal/midilib"
+
+	"gitlab.com/gomidi/midi/internal/midilib"
 )
 
 // NoteOffVelocity is offered as an alternative to NoteOff for

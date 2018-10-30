@@ -3,13 +3,14 @@ package midireader_test
 import (
 	"bytes"
 	"fmt"
-	. "github.com/gomidi/midi/midimessage/channel"
-	"github.com/gomidi/midi/midimessage/realtime"
-	"github.com/gomidi/midi/midireader"
-	"github.com/gomidi/midi/midiwriter"
 	"io"
 
-	"github.com/gomidi/midi"
+	. "gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/realtime"
+	"gitlab.com/gomidi/midi/midireader"
+	"gitlab.com/gomidi/midi/midiwriter"
+
+	"gitlab.com/gomidi/midi"
 )
 
 func Example() {
