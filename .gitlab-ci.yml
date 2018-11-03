@@ -28,17 +28,17 @@ test-project:
 #    paths:
 #      - artifacts/
 
-WindowsJob:
-  stage: test
-  tags:
-    - windows
-  script:
-    - go.exe test ./...
+#WindowsJob:
+#  stage: test
+#  tags:
+#    - windows
+#  script:
+#    - go.exe test ./...
 
-OSXJob:
-  stage: test
-  tags:
-    - osx
-  script:
-    - uname -a
-    - go test ./...
+#OSXJob:
+#  stage: test
+#  tags:
+#    - osx
+#  script:
+#    - uname -a
+#    - go test ./...
