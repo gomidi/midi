@@ -31,11 +31,11 @@ func MsbLsbSigned(n int16) uint16 {
 	//			panic("n must not overflow 14bits (min -8191)")
 	//		}
 
-	return msbLsbUnsigned(uint16(n + 8192))
+	return MsbLsbUnsigned(uint16(n + 8192))
 }
 
 // takes a 14bit uint and pads it to 16 bit like in the specs for e.g. pitchbend
-func msbLsbUnsigned(n uint16) uint16 {
+func MsbLsbUnsigned(n uint16) uint16 {
 	if n > 16383 {
 		panic("n must not overflow 14bits (max 16383)")
 	}

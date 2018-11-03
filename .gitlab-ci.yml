@@ -1,0 +1,11 @@
+image: golang:1.11
+
+stages:
+  - build
+
+before_script:
+
+build:
+  stage: build
+  script:
+    - make test

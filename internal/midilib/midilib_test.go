@@ -91,7 +91,7 @@ func TestMsbLsbUnsigned(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		var b = msbLsbUnsigned(test.num)
+		var b = MsbLsbUnsigned(test.num)
 
 		if got, want := fmt.Sprintf("%b", b), test.expected; got != want {
 			t.Errorf("%s = %s; want %s", test.descr, got, want)
