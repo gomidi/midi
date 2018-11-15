@@ -87,7 +87,7 @@ func TestSMFWriter(t *testing.T) {
 			// no running status (same channel, different message type)
 			msgs(
 				channel.Channel2.NoteOn(48, 96),
-				// NoteOffPedantic creates a "real" noteoff message with the given velocity,
+				// NoteOffVelocity creates a "real" noteoff message with the given velocity,
 				// that is a different message type than noteon, so running status is not active
 				channel.Channel2.NoteOffVelocity(48, 96),
 			),
