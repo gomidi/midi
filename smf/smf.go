@@ -227,17 +227,25 @@ func SMPTE30(subframes uint8) TimeCode {
 // It defaults to 960 (i.e. 0 is treated as if it where 960 ticks per quarter note)
 type MetricTicks uint16
 
+const defaultMetric MetricTicks = 960
+
 // In64ths returns the deltaTicks in 64th notes.
 // To get 32ths, divide result by 2
 // To get 16ths, divide result by 4
 // To get 8ths, divide result by 8
 // To get 4ths, divide result by 16
 func (q MetricTicks) In64ths(deltaTicks uint32) uint32 {
+	if q == 0 {
+		q = defaultMetric
+	}
 	return (deltaTicks * 16) / uint32(q)
 }
 
 // Duration returns the time.Duration for a number of ticks at a certain tempo (in BPM)
 func (q MetricTicks) Duration(tempoBPM uint32, deltaTicks uint32) time.Duration {
+	if q == 0 {
+		q = defaultMetric
+	}
 	// (60000 / T) * (d / R) = D[ms]
 	//	durQnMilli := 60000 / float64(tempoBPM)
 	//	_4thticks := float64(deltaTicks) / float64(uint16(q))
@@ -249,6 +257,9 @@ func (q MetricTicks) Duration(tempoBPM uint32, deltaTicks uint32) time.Duration 
 
 // FractionalDuration returns the time.Duration for a number of ticks at a certain tempo (in fractional BPM)
 func (q MetricTicks) FractionalDuration(fractionalBPM float64, deltaTicks uint32) time.Duration {
+	if q == 0 {
+		q = defaultMetric
+	}
 	// (60000 / T) * (d / R) = D[ms]
 	//	durQnMilli := 60000 / float64(tempoBPM)
 	//	_4thticks := float64(deltaTicks) / float64(uint16(q))
@@ -260,26 +271,35 @@ func (q MetricTicks) FractionalDuration(fractionalBPM float64, deltaTicks uint32
 
 // Ticks returns the ticks for a given time.Duration at a certain tempo (in BPM)
 func (q MetricTicks) Ticks(tempoBPM uint32, d time.Duration) (ticks uint32) {
+	if q == 0 {
+		q = defaultMetric
+	}
 	// d = (D[ms] * R * T) / 60000
-	ticks = uint32(roundFloat((float64(d.Nanoseconds())/1000000*float64(uint16(q))*float64(tempoBPM))/60000, 0))
+	ticks = uint32(math.Round((float64(d.Nanoseconds()) / 1000000 * float64(uint16(q)) * float64(tempoBPM)) / 60000))
 	return ticks
 }
 
 // FractionalTicks returns the ticks for a given time.Duration at a certain tempo (in fractional BPM)
 func (q MetricTicks) FractionalTicks(fractionalBPM float64, d time.Duration) (ticks uint32) {
+	if q == 0 {
+		q = defaultMetric
+	}
 	// d = (D[ms] * R * T) / 60000
-	ticks = uint32(roundFloat((float64(d.Nanoseconds())/1000000*float64(uint16(q))*fractionalBPM)/60000, 0))
+	ticks = uint32(math.Round((float64(d.Nanoseconds()) / 1000000 * float64(uint16(q)) * fractionalBPM) / 60000))
 	return ticks
 }
 
 func (q MetricTicks) div(d float64) uint32 {
-	return uint32(roundFloat(float64(q.Number())/d, 0))
+	if q == 0 {
+		q = defaultMetric
+	}
+	return uint32(math.Round(float64(q.Number()) / d))
 }
 
 // Number returns the number of the metric ticks (ticks for a quarter note, defaults to 960)
 func (q MetricTicks) Number() uint16 {
 	if q == 0 {
-		return 960 // default
+		q = defaultMetric
 	}
 	return uint16(q)
 }
