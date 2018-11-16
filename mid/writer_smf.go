@@ -81,12 +81,12 @@ func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error, op
 
 	if no := wr.wr.Header().NumTracks; wr.finishedTracks < no {
 		err := wr.EndOfTrack()
-		if err != nil {
+		if err != nil && err != smf.ErrFinished {
 			return err
 		}
 	}
 
-	return err
+	return nil
 }
 
 // SetDelta sets the delta ticks to the next message
