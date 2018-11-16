@@ -293,11 +293,11 @@ func (q MetricTicks) div(d float64) uint32 {
 	if q == 0 {
 		q = defaultMetric
 	}
-	return uint32(math.Round(float64(q.Number()) / d))
+	return uint32(math.Round(float64(q.Resolution()) / d))
 }
 
-// Number returns the number of the metric ticks (ticks for a quarter note, defaults to 960)
-func (q MetricTicks) Number() uint16 {
+// Resolution returns the number of the metric ticks (ticks for a quarter note, defaults to 960)
+func (q MetricTicks) Resolution() uint16 {
 	if q == 0 {
 		q = defaultMetric
 	}
@@ -306,7 +306,7 @@ func (q MetricTicks) Number() uint16 {
 
 // Ticks4th returns the ticks for a quarter note
 func (q MetricTicks) Ticks4th() uint32 {
-	return uint32(q.Number())
+	return uint32(q.Resolution())
 }
 
 // Ticks8th returns the ticks for a quaver note

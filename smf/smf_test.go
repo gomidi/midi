@@ -48,7 +48,7 @@ func TestChunk(t *testing.T) {
 func TestMetricTicks(t *testing.T) {
 	var tf = MetricTicks(1920)
 
-	expected := uint32(tf.Number()) / 2
+	expected := uint32(tf.Resolution()) / 2
 
 	if got, want := tf.Ticks8th(), expected; got != want {
 		t.Errorf("MetricTicks(1920).Ticks8th() ==  = %#v; want %#v", got, want)
@@ -103,7 +103,7 @@ func TestTicksNoteLengths(t *testing.T) {
 		got         uint32
 		expected    uint32
 	}{
-		{"4th", resolution.Ticks4th(), uint32(resolution.Number())},
+		{"4th", resolution.Ticks4th(), uint32(resolution.Resolution())},
 		{"8th", resolution.Ticks8th(), 480},
 		{"16th", resolution.Ticks16th(), 240},
 		{"32th", resolution.Ticks32th(), 120},
