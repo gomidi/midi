@@ -25,6 +25,7 @@ type SMFWriter struct {
 	*midiWriter
 	finishedTracks uint16
 	dest           io.Writer
+	smf.MetricTicks
 }
 
 // NewSMF returns a new SMFWriter that writes to dest.
@@ -37,15 +38,21 @@ func NewSMF(dest io.Writer, numtracks uint16, options ...smfwriter.Option) *SMFW
 	options = append(
 		[]smfwriter.Option{
 			smfwriter.NumTracks(numtracks),
-			smfwriter.TimeFormat(smf.MetricTicks(0)),
+			smfwriter.TimeFormat(smf.MetricTicks(960)),
 		}, options...)
 
 	wr := smfwriter.New(dest, options...)
-	return &SMFWriter{
+
+	smfwr := &SMFWriter{
 		dest:       dest,
 		wr:         wr,
 		midiWriter: &midiWriter{wr: wr, ch: channel.Channel0},
 	}
+
+	if metr, isMetric := wr.Header().TimeFormat.(smf.MetricTicks); isMetric {
+		smfwr.MetricTicks = metr
+	}
+	return smfwr
 }
 
 // NewSMFFile creates a new SMF file and allows writer to write to it.
