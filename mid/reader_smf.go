@@ -22,7 +22,7 @@ func (r *Reader) ReadSMFFile(file string, options ...smfreader.Option) error {
 	r.errSMF = nil
 	r.pos = &Position{}
 	r.reset()
-	err := smfreader.ReadFile(file, r.readSMF, options...)
+	err := smfreader.ReadFile(file, r.readSMF2, options...)
 	if err != nil && err != smf.ErrFinished {
 		return err
 	}
@@ -98,6 +98,15 @@ func (r *Reader) setHeader(hd smf.Header) {
 	if r.SMFHeader != nil {
 		r.SMFHeader(r.header)
 	}
+}
+
+func (r *Reader) readSMF2(rd smf.Reader) {
+	err := rd.ReadHeader()
+	if err != nil {
+		r.errSMF = err
+	}
+	r.setHeader(rd.Header())
+	r.readSMF(rd)
 }
 
 func (r *Reader) readSMF(rd smf.Reader) {
