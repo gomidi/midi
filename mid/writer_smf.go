@@ -15,6 +15,7 @@ import (
 	"os"
 
 	"gitlab.com/gomidi/midi/smf"
+	"gitlab.com/gomidi/midi/smf/smftimeline"
 	"gitlab.com/gomidi/midi/smf/smfwriter"
 	// "time"
 )
@@ -26,6 +27,7 @@ type SMFWriter struct {
 	finishedTracks uint16
 	dest           io.Writer
 	smf.MetricTicks
+	timeline *smftimeline.TimeLine
 }
 
 // NewSMF returns a new SMFWriter that writes to dest.
@@ -51,6 +53,9 @@ func NewSMF(dest io.Writer, numtracks uint16, options ...smfwriter.Option) *SMFW
 
 	if metr, isMetric := wr.Header().TimeFormat.(smf.MetricTicks); isMetric {
 		smfwr.MetricTicks = metr
+		smfwr.timeline = smftimeline.New(metr)
+	} else {
+		panic("timeformat must be metric")
 	}
 	return smfwr
 }
@@ -90,9 +95,44 @@ func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error, op
 }
 
 // SetDelta sets the delta ticks to the next message
+// It should mostly not be needed, use Forward instead to advance in musical time.
 func (w *SMFWriter) SetDelta(deltatime uint32) {
 	w.wr.SetDelta(deltatime)
 }
+
+// Forward sets the cursor based on the given number of bars and ratio of whole notes.
+// The cursor is the current position where the next event will be inserted. In the background
+// it sets the delta to the next event. The cursor can only move forward.
+//
+// Examples:
+// 
+// To move the cursor to the 2nd next bar (respecting time signature changes), use
+//   Forward(2,0,0)
+// To move the cursor by 23 8ths (independent from time signatures), use
+//   Forward(0,23,8)
+// To move the cursor to the 3rd 4th of the next bar (respecting time signature changes), use
+//   Forward(1,3,4)
+//
+// Important notes: 
+//   1. Always put time signature changes at the beginning of a bar.
+//   2. Never forward more than once without setting a event in between.
+func (w *SMFWriter) Forward(nbars, num, denom uint32) {
+	if nbars > 0 {
+		w.timeline.ForwardNBars(nbars)
+	}
+	
+	if num > 0 && denom > 0 {		
+	w.timeline.Forward(num,denom)
+	}
+	
+	delta := w.timeline.GetDelta()
+	if delta < 0 {
+		panic("cursor before last delta, must not happen")
+	}
+	w.SetDelta(uint32(delta))
+}
+
+
 
 // EndOfTrack signals the end of a track
 func (w *SMFWriter) EndOfTrack() error {
@@ -101,6 +141,9 @@ func (w *SMFWriter) EndOfTrack() error {
 		return fmt.Errorf("too many tracks: in header: %v, closed: %v", no, w.finishedTracks+1)
 	}
 	w.finishedTracks++
+	if w.timeline != nil {
+		w.timeline.Reset()
+	}
 	return w.wr.Write(meta.EndOfTrack)
 }
 
@@ -196,14 +239,16 @@ func (w *SMFWriter) Text(text string) error {
 // Meter writes the time signature meta message in a more comfortable way.
 // Numerator and Denominator are decimalw.
 func (w *SMFWriter) Meter(numerator, denominator uint8) error {
+	w.timeline.AddTimeSignature(numerator,denominator)
 	return w.wr.Write(meter.Meter(numerator, denominator))
 }
 
 // TimeSig writes the time signature meta message.
-// Numerator and Denominator are decimalw.
+// Numerator and Denominator are decimal.
 // If you don't want to deal with clocks per click and demisemiquaverperquarter,
 // user the Meter method instead.
 func (w *SMFWriter) TimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) error {
+	w.timeline.AddTimeSignature(numerator,denominator)
 	return w.wr.Write(meta.TimeSig{
 		Numerator:                numerator,
 		Denominator:              denominator,

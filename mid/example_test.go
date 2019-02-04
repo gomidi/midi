@@ -14,9 +14,10 @@ func makeSMF() io.Reader {
 	var bf bytes.Buffer
 	wr := NewSMF(&bf, 1 /* number of tracks */)
 	wr.TempoBPM(160 /* beats per minute */)
+	wr.Meter(4, 4) /* set the meter of 4/4 */
 	wr.SetChannel(2 /* valid: 0-15 */)
 	wr.NoteOn(65 /* key */, 90 /* velocity */)
-	wr.SetDelta(4000 /* ticks */)
+	wr.Forward(1, 0, 0) // forwards the cursor to the next bar (we make a whole note)
 	wr.NoteOff(65 /* key */)
 	wr.EndOfTrack() // required at the end of a track
 	return bytes.NewReader(bf.Bytes())
