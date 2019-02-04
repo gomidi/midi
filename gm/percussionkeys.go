@@ -2,7 +2,7 @@ package gm
 
 //General MIDI Percussion Key Map
 
-type DrumKey byte
+type DrumKey uint8
 
 const (
 	DrumKey_AcousticBassDrum DrumKey = 34
