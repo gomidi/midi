@@ -1,6 +1,6 @@
 package gm
 
-type DrumKit byte
+type DrumKit uint8
 
 const (
 	DrumKit_Standard    DrumKit = 0
