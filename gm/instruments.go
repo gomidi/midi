@@ -11,6 +11,10 @@ sounds, etc.
 
 type Instr uint8
 
+func (i Instr) Value() uint8 {
+	return uint8(i)
+}
+
 const (
 	Instr_AcousticGrandPiano  Instr = 0
 	Instr_BrightAcousticPiano Instr = 1

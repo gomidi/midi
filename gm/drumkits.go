@@ -2,6 +2,10 @@ package gm
 
 type DrumKit uint8
 
+func (d DrumKit) Value() uint8 {
+	return uint8(d)
+}
+
 const (
 	DrumKit_Standard    DrumKit = 0
 	DrumKit_Standard1   DrumKit = 1

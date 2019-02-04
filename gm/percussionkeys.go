@@ -4,6 +4,10 @@ package gm
 
 type DrumKey uint8
 
+func (d DrumKey) Key() uint8 {
+	return uint8(d)
+}
+
 const (
 	DrumKey_AcousticBassDrum DrumKey = 34
 	DrumKey_BassDrum1        DrumKey = 35
