@@ -9,7 +9,7 @@ sounds, 86 are chromatic percussion sounds, 17-24 are organ sounds, 25-32 are gu
 sounds, etc.
 */
 
-type Instr byte
+type Instr uint8
 
 const (
 	Instr_AcousticGrandPiano  Instr = 0
