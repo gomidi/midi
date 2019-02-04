@@ -5,7 +5,7 @@ package gm
 type DrumKey uint8
 
 func (d DrumKey) Key() uint8 {
-	return uint8(d)
+	return uint8(d) + 1
 }
 
 const (
