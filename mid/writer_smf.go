@@ -105,7 +105,7 @@ func (w *SMFWriter) SetDelta(deltatime uint32) {
 // it sets the delta to the next event. The cursor can only move forward.
 //
 // Examples:
-// 
+//
 // To move the cursor to the 2nd next bar (respecting time signature changes), use
 //   Forward(2,0,0)
 // To move the cursor by 23 8ths (independent from time signatures), use
@@ -113,26 +113,24 @@ func (w *SMFWriter) SetDelta(deltatime uint32) {
 // To move the cursor to the 3rd 4th of the next bar (respecting time signature changes), use
 //   Forward(1,3,4)
 //
-// Important notes: 
+// Important notes:
 //   1. Always put time signature changes at the beginning of a bar.
 //   2. Never forward more than once without setting a event in between.
 func (w *SMFWriter) Forward(nbars, num, denom uint32) {
 	if nbars > 0 {
 		w.timeline.ForwardNBars(nbars)
 	}
-	
-	if num > 0 && denom > 0 {		
-	w.timeline.Forward(num,denom)
+
+	if num > 0 && denom > 0 {
+		w.timeline.Forward(num, denom)
 	}
-	
+
 	delta := w.timeline.GetDelta()
 	if delta < 0 {
 		panic("cursor before last delta, must not happen")
 	}
 	w.SetDelta(uint32(delta))
 }
-
-
 
 // EndOfTrack signals the end of a track
 func (w *SMFWriter) EndOfTrack() error {
@@ -239,7 +237,7 @@ func (w *SMFWriter) Text(text string) error {
 // Meter writes the time signature meta message in a more comfortable way.
 // Numerator and Denominator are decimalw.
 func (w *SMFWriter) Meter(numerator, denominator uint8) error {
-	w.timeline.AddTimeSignature(numerator,denominator)
+	w.timeline.AddTimeSignature(numerator, denominator)
 	return w.wr.Write(meter.Meter(numerator, denominator))
 }
 
@@ -248,7 +246,7 @@ func (w *SMFWriter) Meter(numerator, denominator uint8) error {
 // If you don't want to deal with clocks per click and demisemiquaverperquarter,
 // user the Meter method instead.
 func (w *SMFWriter) TimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) error {
-	w.timeline.AddTimeSignature(numerator,denominator)
+	w.timeline.AddTimeSignature(numerator, denominator)
 	return w.wr.Write(meta.TimeSig{
 		Numerator:                numerator,
 		Denominator:              denominator,
