@@ -35,17 +35,16 @@ func (t *TimeLine) Ticks(num, denom uint32) int64 {
 	return int64(math.Round((float64(t.ticks.Ticks4th()) * 4.0 * float64(num)) / float64(denom)))
 }
 
-// ForwardNBars checks the bar where the cursor currently is
-// and goes n bars ahead and sets the cursor to the start of that bar.
-func (t *TimeLine) ForwardNBars(nbars uint32) {
+// goes ahead and sets the cursor to the start of the next bar.
+func (t *TimeLine) toNextBar() {
 	var num, denom int64 = 4, 4
-	var idx int
+	//	var idx int
 	var startOfBar int64
 
-	for i, timeSig := range t.timeSigs {
+	for _, timeSig := range t.timeSigs {
 		if timeSig[0] <= t.cursor {
 			//			println("timeSig[0] <= t.cursor")
-			idx = i
+			//			idx = i
 			startOfBar = timeSig[0]
 			num = timeSig[1]
 			denom = timeSig[2]
@@ -73,22 +72,15 @@ func (t *TimeLine) ForwardNBars(nbars uint32) {
 
 	t.cursor = startOfBar
 
-	/*
-		now check where the next time Signature change is
-		then we advance bar by bar by the signature of the last bar
-		until we either did the nbars or we got a different timesig
-	*/
-	for i := uint32(0); i < nbars; i++ {
-		//println("i Forward", i, num, denom)
-		t.Forward(uint32(num), uint32(denom))
-		//println("idx  len(t.timeSigs)", idx, len(t.timeSigs))
-		if idx < len(t.timeSigs) && t.timeSigs[idx][0] <= t.cursor {
-			num = t.timeSigs[idx][1]
-			denom = t.timeSigs[idx][2]
-			idx++
-		}
-	}
+	t.Forward(uint32(num), uint32(denom))
+}
 
+// ForwardNBars checks the bar where the cursor currently is
+// and goes n bars ahead and sets the cursor to the start of that bar.
+func (t *TimeLine) ForwardNBars(nbars uint32) {
+	for i := uint32(0); i < nbars; i++ {
+		t.toNextBar()
+	}
 }
 
 // Forward sets the cursor forward for the given ratio of whole notes
