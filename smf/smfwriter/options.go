@@ -22,6 +22,16 @@ options:
 // Option is a Writer option
 type Option func(*writer)
 
+type Logger interface {
+	Printf(format string, vals ...interface{})
+}
+
+func Debug(l Logger) Option {
+	return func(w *writer) {
+		w.logger = l
+	}
+}
+
 // NoRunningStatus forces the writer to always write the status byte.
 // Without passing this option, running status will be used if possible (saving some bytes).
 func NoRunningStatus() Option {

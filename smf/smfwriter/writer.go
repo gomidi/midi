@@ -98,11 +98,21 @@ type writer struct {
 	deltatime       uint32
 	noRunningStatus bool
 	error           error
+	logger          Logger
 	runningWriter   runningstatus.SMFWriter
+}
+
+func (w *writer) printf(format string, vals ...interface{}) {
+	if w.logger == nil {
+		return
+	}
+
+	w.logger.Printf("smfwriter: "+format, vals...)
 }
 
 func (w *writer) Close() error {
 	if cl, is := w.output.(io.WriteCloser); is {
+		w.printf("closing output")
 		return cl.Close()
 	}
 	return nil
@@ -175,6 +185,7 @@ func (w *writer) Write(m midi.Message) (err error) {
 		w.error = w.WriteHeader()
 	}
 	if w.error != nil {
+		w.printf("ERROR: writing header before midi message %#v failed: %v", m, w.error)
 		w.error = fmt.Errorf("writing header before midi message %#v failed: %v", m, w.error)
 		return w.error
 	}
@@ -183,6 +194,7 @@ func (w *writer) Write(m midi.Message) (err error) {
 	}()
 
 	if w.header.NumTracks == w.tracksProcessed {
+		w.printf("last track written, finished")
 		w.error = smf.ErrFinished
 		return w.error
 	}
@@ -231,6 +243,7 @@ func (w *writer) writeTimeFormat(wr io.Writer) error {
 		if ticks > 32767 {
 			ticks = 32767 // 32767 is the largest possible value, since bit 15 must always be 0
 		}
+		w.printf("writing metric ticks: %v", ticks)
 		return binary.Write(wr, binary.BigEndian, uint16(ticks))
 	case smf.TimeCode:
 		// multiplication with -1 makes sure that bit 15 is set
@@ -238,36 +251,45 @@ func (w *writer) writeTimeFormat(wr io.Writer) error {
 		if err != nil {
 			return err
 		}
+		w.printf("writing time code fps: %v subframes: %v", int8(tf.FramesPerSecond)*-1, tf.SubFrames)
 		return binary.Write(wr, binary.BigEndian, tf.SubFrames)
 	default:
 		//panic(fmt.Sprintf("unsupported TimeFormat: %#v", w.header.TimeFormat))
+		w.printf("ERROR: unsupported TimeFormat: %#v", w.header.TimeFormat)
 		return fmt.Errorf("unsupported TimeFormat: %#v", w.header.TimeFormat)
 	}
 }
 
 // <Header Chunk> = <chunk type><length><format><ntrks><division>
 func (w *writer) writeHeader(wr io.Writer) error {
+	w.printf("write header")
 	var ch smf.Chunk
 	ch.SetType([4]byte{byte('M'), byte('T'), byte('h'), byte('d')})
 	var bf bytes.Buffer
 
+	w.printf("write format %v", w.header.Format.Type())
 	binary.Write(&bf, binary.BigEndian, w.header.Format.Type())
+	w.printf("write num tracks %v", w.header.NumTracks)
 	binary.Write(&bf, binary.BigEndian, w.header.NumTracks)
 
 	err := w.writeTimeFormat(&bf)
 	if err != nil {
+		w.printf("ERROR: could not write header: %v", err)
 		return fmt.Errorf("could not write header: %v", err)
 	}
 
 	_, err = ch.Write(bf.Bytes())
 	if err != nil {
+		w.printf("ERROR: could not write header: %v", err)
 		return fmt.Errorf("could not write header: %v", err)
 	}
 
 	_, err = ch.WriteTo(wr)
 	if err != nil {
+		w.printf("ERROR: could not write header: %v", err)
 		return fmt.Errorf("could not write header: %v", err)
 	}
+	w.printf("header written successfully")
 	return nil
 }
 
@@ -276,8 +298,11 @@ func (w *writer) writeTrackTo(wr io.Writer) (err error) {
 	_, err = w.track.WriteTo(wr)
 
 	if err != nil {
+		w.printf("ERROR: could not write track %v: %v", w.tracksProcessed+1, err)
 		return fmt.Errorf("could not write track %v: %v", w.tracksProcessed+1, err)
 	}
+
+	w.printf("track %v successfully written", w.tracksProcessed+1)
 
 	if !w.noRunningStatus {
 		w.runningWriter = runningstatus.NewSMFWriter()
@@ -289,6 +314,7 @@ func (w *writer) writeTrackTo(wr io.Writer) (err error) {
 
 	w.tracksProcessed++
 	if w.header.NumTracks == w.tracksProcessed {
+		w.printf("last track written, finished")
 		err = smf.ErrFinished
 	}
 
@@ -302,6 +328,7 @@ func (w *writer) appendToChunk(deltaTime uint32, b []byte) {
 
 // delta is distance in time to last event in this track (independent of the channel)
 func (w *writer) addMessage(deltaTime uint32, msg midi.Message) {
+	w.printf("adding message deltaTime %v and message %s", deltaTime, msg.String())
 	// we have some sort of sysex, so we need to
 	// calculate the length of msg[1:]
 	// set msg to msg[0] + length of msg[1:] + msg[1:]
