@@ -48,8 +48,8 @@ type Message interface {
 var (
 	_ Message = Text("")
 	_ Message = Copyright("")
-	_ Message = Sequence("")
-	_ Message = Track("")
+	_ Message = TrackSequenceName("")
+	_ Message = Instrument("")
 	_ Message = Marker("")
 	_ Message = Lyric("")
 	_ Message = Cuepoint("")

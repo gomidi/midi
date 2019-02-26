@@ -86,8 +86,8 @@ func TestRead(t *testing.T) {
 			"meta.Program: \"violin\"",
 		),
 		mkTest(
-			Sequence("A"),
-			"meta.Sequence: \"A\"",
+			TrackSequenceName("A"),
+			"meta.TrackSequenceName: \"A\"",
 		),
 		mkTest(
 			SequenceNo(18),
@@ -120,8 +120,8 @@ func TestRead(t *testing.T) {
 			"meta.TimeSig 3/4 clocksperclick 8 dsqpq 8",
 		),
 		mkTest(
-			Track("1st violins"),
-			"meta.Track: \"1st violins\"",
+			Instrument("1st violins"),
+			"meta.Instrument: \"1st violins\"",
 		),
 	}
 

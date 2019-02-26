@@ -12,8 +12,8 @@ const (
 	byteSequenceNumber    = byte(0x00)
 	byteText              = byte(0x01)
 	byteCopyright         = byte(0x02)
-	byteSequence          = byte(0x03)
-	byteTrack             = byte(0x04)
+	byteTrackSequenceName = byte(0x03)
+	byteInstrument        = byte(0x04)
 	byteLyric             = byte(0x05)
 	byteMarker            = byte(0x06)
 	byteCuepoint          = byte(0x07)
@@ -33,8 +33,8 @@ var metaMessages = map[byte]Message{
 	byteSequenceNumber:    SequenceNo(0),
 	byteText:              Text(""),
 	byteCopyright:         Copyright(""),
-	byteSequence:          Sequence(""),
-	byteTrack:             Track(""),
+	byteTrackSequenceName: TrackSequenceName(""),
+	byteInstrument:        Instrument(""),
 	byteLyric:             Lyric(""),
 	byteMarker:            Marker(""),
 	byteCuepoint:          Cuepoint(""),

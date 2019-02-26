@@ -20,6 +20,21 @@ type TimeLine struct {
 	lastDelta    int64      // absticks
 }
 
+// Forward checks the bar where the cursor currently is
+// and goes nbars ahead and moves the cursor to the start of that bar.
+// It then moves the cursor forward within the target bar for the given ratio of whole notes.
+func (t *TimeLine) Forward(nbars, num, denom uint32) {
+	if nbars > 0 {
+		t.forwardNBars(nbars)
+	}
+
+	if num > 0 && denom > 0 {
+		t.forward(num, denom)
+	}
+}
+
+//func (t *TimeLine) Plan()
+
 // AddTimeSignature adds the given timesignature at the current cursor position
 func (t *TimeLine) AddTimeSignature(num, denom uint8) {
 	t.timeSigs = append(t.timeSigs, [3]int64{t.cursor, int64(num), int64(denom)})
@@ -72,19 +87,19 @@ func (t *TimeLine) toNextBar() {
 
 	t.cursor = startOfBar
 
-	t.Forward(uint32(num), uint32(denom))
+	t.forward(uint32(num), uint32(denom))
 }
 
-// ForwardNBars checks the bar where the cursor currently is
+// forwardNBars checks the bar where the cursor currently is
 // and goes n bars ahead and sets the cursor to the start of that bar.
-func (t *TimeLine) ForwardNBars(nbars uint32) {
+func (t *TimeLine) forwardNBars(nbars uint32) {
 	for i := uint32(0); i < nbars; i++ {
 		t.toNextBar()
 	}
 }
 
-// Forward sets the cursor forward for the given ratio of whole notes
-func (t *TimeLine) Forward(num, denom uint32) {
+// forward sets the cursor forward for the given ratio of whole notes
+func (t *TimeLine) forward(num, denom uint32) {
 	t.cursor += t.Ticks(num, denom)
 }
 

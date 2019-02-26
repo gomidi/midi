@@ -53,8 +53,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.Program: \"violin\"",
 		},
 		{
-			Sequence("A"),
-			"meta.Sequence: \"A\"",
+			TrackSequenceName("A"),
+			"meta.TrackSequenceName: \"A\"",
 		},
 		{
 			SequenceNo(18),
@@ -87,8 +87,8 @@ func TestMessagesString(t *testing.T) {
 			"meta.TimeSig 3/4 clocksperclick 8 dsqpq 8",
 		},
 		{
-			Track("1st violins"),
-			"meta.Track: \"1st violins\"",
+			Instrument("1st violins"),
+			"meta.Instrument: \"1st violins\"",
 		},
 	}
 
@@ -152,7 +152,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 08 06 76 69 6F 6C 69 6E",
 		},
 		{
-			Sequence("A"),
+			TrackSequenceName("A"),
 			"FF 03 01 41",
 		},
 		{
@@ -186,7 +186,7 @@ func TestMessagesRaw(t *testing.T) {
 			"FF 58 04 03 02 08 08",
 		},
 		{
-			Track("1st violins"),
+			Instrument("1st violins"),
 			"FF 04 0B 31 73 74 20 76 69 6F 6C 69 6E 73",
 		},
 	}

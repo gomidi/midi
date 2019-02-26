@@ -94,7 +94,7 @@ func TestForwardNBars(t *testing.T) {
 		tl.Reset()
 		tl.cursor = int64(test.start)
 
-		tl.ForwardNBars(test.nbars)
+		tl.Forward(test.nbars, 0, 0)
 
 		if tl.cursor != int64(test.expected) {
 			t.Errorf("[%v] expecting %v, got: %v", i, test.expected, tl.cursor)
@@ -133,7 +133,7 @@ func TestForward(t *testing.T) {
 		tl.Reset()
 
 		for _, step := range test.steps {
-			tl.Forward(step[0], step[1])
+			tl.Forward(0, step[0], step[1])
 		}
 
 		if tl.cursor != test.expected {

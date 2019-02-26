@@ -462,14 +462,14 @@ func (r *Reader) dispatchMessage(rd midi.Reader) (err error) {
 			r.Msg.Meta.Key(*r.pos, msg.Key, msg.IsMajor, msg.Num, msg.IsFlat)
 		}
 
-	case meta.Sequence:
-		if r.Msg.Meta.Sequence != nil {
-			r.Msg.Meta.Sequence(*r.pos, msg.Text())
+	case meta.TrackSequenceName:
+		if r.Msg.Meta.TrackSequenceName != nil {
+			r.Msg.Meta.TrackSequenceName(*r.pos, msg.Text())
 		}
 
-	case meta.Track:
-		if r.Msg.Meta.Track != nil {
-			r.Msg.Meta.Track(*r.pos, msg.Text())
+	case meta.Instrument:
+		if r.Msg.Meta.Instrument != nil {
+			r.Msg.Meta.Instrument(*r.pos, msg.Text())
 		}
 
 	case meta.Channel:

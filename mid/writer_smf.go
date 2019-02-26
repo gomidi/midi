@@ -117,14 +117,7 @@ func (w *SMFWriter) SetDelta(deltatime uint32) {
 //   1. Always put time signature changes at the beginning of a bar.
 //   2. Never forward more than once without setting a event in between.
 func (w *SMFWriter) Forward(nbars, num, denom uint32) {
-	if nbars > 0 {
-		w.timeline.ForwardNBars(nbars)
-	}
-
-	if num > 0 && denom > 0 {
-		w.timeline.Forward(num, denom)
-	}
-
+	w.timeline.Forward(nbars, num, denom)
 	delta := w.timeline.GetDelta()
 	if delta < 0 {
 		panic("cursor before last delta, must not happen")
@@ -198,9 +191,10 @@ func (w *SMFWriter) Program(text string) error {
 	return w.wr.Write(meta.Program(text))
 }
 
-// Sequence writes the sequence (name) meta message
-func (w *SMFWriter) Sequence(text string) error {
-	return w.wr.Write(meta.Sequence(text))
+// TrackSequenceName writes the track / sequence name meta message
+// If in a format 0 track, or the first track in a format 1 file, the name of the sequence. Otherwise, the name of the track.
+func (w *SMFWriter) TrackSequenceName(name string) error {
+	return w.wr.Write(meta.TrackSequenceName(name))
 }
 
 // SequenceNo writes the sequence number meta message
@@ -235,7 +229,7 @@ func (w *SMFWriter) Text(text string) error {
 }
 
 // Meter writes the time signature meta message in a more comfortable way.
-// Numerator and Denominator are decimalw.
+// Numerator and Denominator are decimals.
 func (w *SMFWriter) Meter(numerator, denominator uint8) error {
 	w.timeline.AddTimeSignature(numerator, denominator)
 	return w.wr.Write(meter.Meter(numerator, denominator))
@@ -255,7 +249,7 @@ func (w *SMFWriter) TimeSig(numerator, denominator, clocksPerClick, demiSemiQuav
 	})
 }
 
-// Track writes the track name aka instrument name meta message
-func (w *SMFWriter) Track(track string) error {
-	return w.wr.Write(meta.Track(track))
+// Instrument writes the instrument name meta message
+func (w *SMFWriter) Instrument(name string) error {
+	return w.wr.Write(meta.Instrument(name))
 }

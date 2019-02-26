@@ -72,11 +72,12 @@ type Reader struct {
 			// Key is called for the key signature (change) message
 			Key func(p Position, key uint8, ismajor bool, num_accidentals uint8, accidentals_are_flat bool)
 
-			// Track is called for the track (name) message
-			Track func(p Position, name string)
+			// Instrument is called for the instrument (name) message
+			Instrument func(p Position, name string)
 
-			// Sequence is called for the sequence (name) message
-			Sequence func(p Position, name string)
+			// TrackSequenceName is called for the sequence / track name message
+			// If in a format 0 track, or the first track in a format 1 file, the name of the sequence. Otherwise, the name of the track.
+			TrackSequenceName func(p Position, name string)
 
 			// SequenceNo is called for the sequence number message
 			SequenceNo func(p Position, number uint16)
