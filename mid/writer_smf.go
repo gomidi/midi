@@ -1,7 +1,9 @@
 package mid
 
 import (
+	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/midimessage/meta/meter"
+
 	// "bytes"
 	// "encoding/binary"
 	"fmt"
@@ -20,6 +22,8 @@ import (
 	// "time"
 )
 
+var _ smf.Writer = &SMFWriter{}
+
 // SMFWriter writes SMF MIDI data. Its methods must not be called concurrently
 type SMFWriter struct {
 	wr smf.Writer
@@ -28,6 +32,14 @@ type SMFWriter struct {
 	dest           io.Writer
 	smf.MetricTicks
 	timeline *smftimeline.TimeLine
+}
+
+func (wr *SMFWriter) Header() smf.Header {
+	return wr.wr.Header()
+}
+
+func (wr *SMFWriter) WriteHeader() error {
+	return wr.wr.WriteHeader()
 }
 
 // NewSMF returns a new SMFWriter that writes to dest.
@@ -123,6 +135,20 @@ func (w *SMFWriter) Forward(nbars, num, denom uint32) {
 		panic("cursor before last delta, must not happen")
 	}
 	w.SetDelta(uint32(delta))
+}
+
+// Plan plans the given midi.Message at the given position. That leads to the message being written
+// when the Forward method is crossing the corresponding position
+func (w *SMFWriter) Plan(nbars, num, denom uint32, msg midi.Message) {
+	w.timeline.Plan(nbars, num, denom, func(delta int32) {
+		w.SetDelta(uint32(delta))
+		w.Write(msg)
+	})
+}
+
+// FinishPlanned finishes the planned midi.Messages
+func (w *SMFWriter) FinishPlanned() {
+	w.timeline.FinishPlanned()
 }
 
 // EndOfTrack signals the end of a track

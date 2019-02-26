@@ -35,7 +35,7 @@ func TestMsbLsb(t *testing.T) {
 		rd.Msg.Channel.ControlChange.Each = func(p *Position, channel, cc, val uint8) {
 			result = append(result, cc, val)
 		}
-		rd.Read(&bf)
+		rd.ReadAllFrom(&bf)
 
 		if len(result) != 4 {
 			t.Errorf("len(result) must be 4, but is: %v", len(result))
