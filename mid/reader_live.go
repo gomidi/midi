@@ -1,29 +1,71 @@
 package mid
 
 import (
+	"fmt"
 	"io"
 
 	"time"
 
+	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/midimessage/realtime"
 	"gitlab.com/gomidi/midi/midireader"
+	"gitlab.com/gomidi/midi/smf"
 )
 
-// Read reads midi messages from src until an error happens (for "live" MIDI data "over the wire").
+var _ midi.Reader = &Reader{}
+var _ smf.Reader = &Reader{}
+
+func (r *Reader) Track() int16 {
+	return r.pos.Track
+}
+
+func (r *Reader) Delta() uint32 {
+	return r.pos.DeltaTicks
+}
+
+func (r *Reader) Header() smf.Header {
+	return r.header
+}
+
+func (r *Reader) ReadHeader() error {
+	rd, ok := r.reader.(smf.Reader)
+	if !ok {
+		return fmt.Errorf("header could only be read from SMF files")
+	}
+	err := rd.ReadHeader()
+	if err != nil {
+		return err
+	}
+	r.setHeader(rd.Header())
+	return nil
+}
+
+// Read reads a midi.Message without dispatching it.
+func (r *Reader) Read() (m midi.Message, err error) {
+	m, err = r.reader.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.dispatchMessage(m)
+	return
+}
+
+// ReadAllFrom reads midi messages from src until an error happens (for "live" MIDI data "over the wire").
 // io.EOF is the expected error that is returned when reading should stop.
 //
-// Read does not close the src.
+// ReadAllFrom does not close the src.
 //
 // The messages are dispatched to the corresponding attached functions of the Reader.
 //
-// They must be attached before Reader.Read is called
+// They must be attached before Reader.ReadAllFrom is called
 // and they must not be unset or replaced until Read returns.
 // For more infomation about dealing with the MIDI messages, see Reader.
-func (r *Reader) Read(src io.Reader) (err error) {
+func (r *Reader) ReadAllFrom(src io.Reader) (err error) {
 	r.pos = nil
 	r.reset()
-	rd := midireader.New(src, r.dispatchRealTime, r.midiReaderOptions...)
-	return r.dispatch(rd)
+	r.reader = midireader.New(src, r.dispatchRealTime, r.midiReaderOptions...)
+	return r.dispatch()
 }
 
 func (r *Reader) dispatchRealTime(m realtime.Message) {

@@ -59,9 +59,9 @@ func (r *Reader) log(m midi.Message) {
 
 // dispatch dispatches the messages from the midi.Reader (which might be an smf reader)
 // for realtime reading, the passed *SMFPosition is nil
-func (r *Reader) dispatch(rd midi.Reader) (err error) {
+func (r *Reader) dispatch() (err error) {
 	for {
-		err = r.dispatchMessage(rd)
+		err = r.dispatchMessageFromReader()
 		if err != nil {
 			return
 		}
@@ -113,16 +113,8 @@ func (r *Reader) hasNoRPNorNRPNCallback() bool {
 	return !r.hasRPNCallback() && !r.hasNRPNCallback()
 }
 
-// dispatchMessage dispatches a single message from the midi.Reader (which might be an smf reader)
-// for realtime reading, the passed *SMFPosition is nil
-func (r *Reader) dispatchMessage(rd midi.Reader) (err error) {
-	var m midi.Message
-	m, err = rd.Read()
-	if err != nil {
-		return
-	}
-
-	if frd, ok := rd.(smf.Reader); ok && r.pos != nil {
+func (r *Reader) dispatchMessage(m midi.Message) (err error) {
+	if frd, ok := r.reader.(smf.Reader); ok && r.pos != nil {
 		r.pos.DeltaTicks = frd.Delta()
 		r.pos.AbsoluteTicks += uint64(r.pos.DeltaTicks)
 		r.pos.Track = frd.Track()
@@ -525,7 +517,7 @@ func (r *Reader) dispatchMessage(rd midi.Reader) (err error) {
 				r.Msg.SysCommon.Tune()
 			}
 		case meta.EndOfTrack:
-			if _, ok := rd.(smf.Reader); ok && r.pos != nil {
+			if _, ok := r.reader.(smf.Reader); ok && r.pos != nil {
 				r.pos.DeltaTicks = 0
 				r.pos.AbsoluteTicks = 0
 			}
@@ -541,8 +533,19 @@ func (r *Reader) dispatchMessage(rd midi.Reader) (err error) {
 		}
 
 	}
+	return nil
+}
 
-	return
+// dispatchMessageFromReader dispatches a single message from the midi.Reader (which might be an smf reader)
+// for realtime reading, the passed *SMFPosition is nil
+func (r *Reader) dispatchMessageFromReader() (err error) {
+	var m midi.Message
+	m, err = r.reader.Read()
+	if err != nil {
+		return
+	}
+
+	return r.dispatchMessage(m)
 }
 
 type tempoChange struct {

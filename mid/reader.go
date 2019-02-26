@@ -35,7 +35,7 @@ type Reader struct {
 	pos               *Position           // the current SMFPosition
 	errSMF            error               // error when reading SMF
 	midiReaderOptions []midireader.Option // options for the midireader
-	liveReader        midi.Reader
+	reader            midi.Reader
 	midiClocks        [3]*time.Time
 	clockmx           sync.Mutex // protect the midiClocks
 	ignoreMIDIClock   bool

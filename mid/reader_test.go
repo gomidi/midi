@@ -262,7 +262,7 @@ func TestRPN_NRPN_JustLSBCallback(t *testing.T) {
 		wr := NewWriter(&bf)
 		test.write(wr)
 
-		rd.Read(&bf)
+		rd.ReadAllFrom(&bf)
 
 		if got, want := out.String(), test.expected; got != want {
 			t.Errorf("%#v\n\tgot  %#v\n\twant %#v", test.description, got, want)
@@ -586,7 +586,7 @@ func TestRPN_NRPN(t *testing.T) {
 		wr := NewWriter(&bf)
 		test.write(wr)
 
-		rd.Read(&bf)
+		rd.ReadAllFrom(&bf)
 
 		if got, want := out.String(), test.expected; got != want {
 			t.Errorf("%#v\n\tgot  %#v\n\twant %#v", test.description, got, want)
@@ -637,7 +637,7 @@ func TestTimeAt(t *testing.T) {
 		wr.EndOfTrack()
 
 		h := NewReader(NoLogger())
-		h.ReadSMF(&bf)
+		h.ReadAllSMF(&bf)
 		d := *h.TimeAt(uint64(test.absPos))
 		// ms := int64(d / time.Millisecond)
 

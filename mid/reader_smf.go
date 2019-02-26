@@ -42,24 +42,22 @@ func (r *Reader) ReadSMFFileHeader(file string, options ...smfreader.Option) (sm
 		fmt.Printf("can't open file: %v", err)
 		return smf.Header{}, err
 	}
-	rd := smfreader.New(f, options...)
+	r.reader = smfreader.New(f, options...)
 
-	err2 := rd.ReadHeader()
-
-	r.setHeader(rd.Header())
+	err2 := r.ReadHeader()
 
 	f.Close()
 
 	if err2 != nil && err2 != smf.ErrFinished {
-		return rd.Header(), err2
+		return r.Header(), err2
 	}
-	return rd.Header(), nil
+	return r.Header(), nil
 }
 
-// ReadSMF reads midi messages from src (which is supposed to be the content of a standard midi file (SMF))
+// ReadAllSMF reads midi messages from src (which is supposed to be the content of a standard midi file (SMF))
 // until an error or io.EOF happens.
 //
-// ReadSMF does not close the src.
+// ReadAllSMF does not close the src.
 //
 // If the read content was a valid midi file, nil is returned.
 //
@@ -69,18 +67,17 @@ func (r *Reader) ReadSMFFileHeader(file string, options ...smfreader.Option) (sm
 // and they must not be unset or replaced until ReadSMF returns.
 // For more infomation about dealing with the SMF midi messages, see Reader and
 // SMFPosition.
-func (r *Reader) ReadSMF(src io.Reader, options ...smfreader.Option) error {
+func (r *Reader) ReadAllSMF(src io.Reader, options ...smfreader.Option) error {
 	r.errSMF = nil
 	r.pos = &Position{}
 	r.reset()
-	rd := smfreader.New(src, options...)
+	r.reader = smfreader.New(src, options...)
 
-	err := rd.ReadHeader()
+	err := r.ReadHeader()
 	if err != nil {
 		return err
 	}
-	r.setHeader(rd.Header())
-	r.readSMF(rd)
+	r.readSMF()
 
 	if r.errSMF == smf.ErrFinished {
 		return nil
@@ -101,16 +98,16 @@ func (r *Reader) setHeader(hd smf.Header) {
 }
 
 func (r *Reader) readSMF2(rd smf.Reader) {
-	err := rd.ReadHeader()
+	r.reader = rd
+	err := r.ReadHeader()
 	if err != nil {
 		r.errSMF = err
 	}
-	r.setHeader(rd.Header())
-	r.readSMF(rd)
+	r.readSMF()
 }
 
-func (r *Reader) readSMF(rd smf.Reader) {
-	err := r.dispatch(rd)
+func (r *Reader) readSMF() {
+	err := r.dispatch()
 	if err != io.EOF {
 		r.errSMF = err
 	}
