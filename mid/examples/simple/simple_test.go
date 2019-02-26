@@ -38,7 +38,7 @@ func Example() {
 	}()
 
 	for {
-		if rd.Read(piperd) == io.EOF {
+		if rd.ReadAllFrom(piperd) == io.EOF {
 			piperd.Close() // finishes the reading
 			break
 		}

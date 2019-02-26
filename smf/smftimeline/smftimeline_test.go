@@ -1,13 +1,125 @@
 package smftimeline
 
 import (
+	"reflect"
 	"testing"
 
 	"gitlab.com/gomidi/midi/smf"
 )
 
-func TestForwardNBars(t *testing.T) {
+func TestPlanned(t *testing.T) {
 
+	ticks := smf.MetricTicks(960)
+
+	var tests = []struct {
+		start     int64
+		until     int64
+		nbars     uint32
+		steps     [2]uint32
+		deltas    []int32
+		times     int
+		remaining int
+	}{
+		{
+
+			0, int64(ticks.Ticks4th() * 8),
+			1, [2]uint32{0, 0},
+			[]int32{int32(ticks.Ticks4th() * 4)},
+			1,
+			0,
+		},
+		{
+
+			0, int64(ticks.Ticks4th() * 8),
+			1, [2]uint32{1, 4},
+			[]int32{int32(ticks.Ticks4th() * 5)},
+			1,
+			0,
+		},
+		{
+
+			0, int64(ticks.Ticks4th() * 8),
+			1, [2]uint32{1, 4},
+			[]int32{int32(ticks.Ticks4th() * 5), 0, 0},
+			3,
+			0,
+		},
+		{
+
+			int64(ticks.Ticks4th() * 4), -1,
+			2, [2]uint32{1, 4},
+			[]int32{int32(ticks.Ticks4th() * 5), 0, 0},
+			3,
+			0,
+		},
+		{
+
+			0, int64(ticks.Ticks4th() * 8),
+			2, [2]uint32{1, 4},
+			[]int32{},
+			1,
+			1,
+		},
+		{
+
+			int64(ticks.Ticks4th() * 5), int64(ticks.Ticks4th() * 8),
+			1, [2]uint32{0, 0},
+			[]int32{},
+			1,
+			0,
+		},
+		{
+
+			int64(ticks.Ticks4th() * 4), int64(ticks.Ticks4th() * 8),
+			1, [2]uint32{0, 0},
+			[]int32{0},
+			1,
+			0,
+		},
+		{
+
+			int64(ticks.Ticks4th() * 1), int64(ticks.Ticks4th() * 8),
+			1, [2]uint32{0, 0},
+			[]int32{int32(ticks.Ticks4th() * 3)},
+			1,
+			0,
+		},
+	}
+
+	for i, test := range tests {
+		//		if i != 2 {
+		//			continue
+		//		}
+		//		fmt.Printf("test %v\n", i)
+		var tl TimeLine
+		tl.ticks = ticks
+		tl.Reset()
+
+		var deltas []int32
+
+		for j := 0; j < test.times; j++ {
+			tl.Plan(test.nbars, test.steps[0], test.steps[1], func(_delta int32) {
+				deltas = append(deltas, _delta)
+			})
+		}
+
+		tl.cursor = test.start
+		tl.runCallbacks(test.until)
+
+		if !reflect.DeepEqual(deltas, test.deltas) && (len(deltas) != 0 || len(test.deltas) != 0) {
+			t.Errorf("[%v] expecting deltas %v, got: %v", i, test.deltas, deltas)
+		}
+
+		if got, expected := len(tl.plannedCallbacks), test.remaining; got != expected {
+			t.Errorf("[%v] expecting remaining %v, got: %v", i, test.remaining, got)
+		}
+
+	}
+
+}
+
+func TestForwardNBars(t *testing.T) {
+	//	t.Skip()
 	var tests = []struct {
 		ticks    smf.MetricTicks
 		start    uint32
@@ -105,6 +217,7 @@ func TestForwardNBars(t *testing.T) {
 }
 
 func TestForward(t *testing.T) {
+	//	t.Skip()
 	var tests = []struct {
 		ticks    smf.MetricTicks
 		steps    [][2]uint32

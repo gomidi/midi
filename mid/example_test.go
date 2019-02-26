@@ -91,7 +91,7 @@ func Example() {
 
 	// handle the smf
 	fmt.Println("-- SMF data --")
-	rd.ReadSMF(makeSMF())
+	rd.ReadAllSMF(makeSMF())
 
 	// handle the live data
 	fmt.Println("-- live data --")
@@ -115,7 +115,7 @@ func Example() {
 	}()
 
 	for {
-		if rd.Read(piperd) == io.EOF {
+		if rd.ReadAllFrom(piperd) == io.EOF {
 			piperd.Close() // we're done reading
 			break
 		}

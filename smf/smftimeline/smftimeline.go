@@ -2,6 +2,7 @@ package smftimeline
 
 import (
 	"math"
+	"sort"
 
 	"gitlab.com/gomidi/midi/smf"
 )
@@ -13,11 +14,31 @@ func New(ticks smf.MetricTicks) *TimeLine {
 }
 
 type TimeLine struct {
-	ticks        smf.MetricTicks
-	timeSigs     [][3]int64 // first: abs ticks, second: numerator, third: denominator
-	tempoChanges [][2]int64 // first: abs ticks, second: bpm
-	cursor       int64      // absticks
-	lastDelta    int64      // absticks
+	ticks            smf.MetricTicks
+	timeSigs         [][3]int64 // first: abs ticks, second: numerator, third: denominator
+	tempoChanges     [][2]int64 // first: abs ticks, second: bpm
+	cursor           int64      // absticks
+	lastDelta        int64      // absticks
+	plannedCallbacks plannedCallbacks
+}
+
+type plannedCallbacks []plannedCallback
+
+func (p plannedCallbacks) Len() int {
+	return len(p)
+}
+
+func (p plannedCallbacks) Swap(a, b int) {
+	p[a], p[b] = p[b], p[a]
+}
+
+func (p plannedCallbacks) Less(a, b int) bool {
+	return p[a].position < p[b].position
+}
+
+type plannedCallback struct {
+	callback func(delta int32)
+	position int64 // absticks
 }
 
 // Forward checks the bar where the cursor currently is
@@ -25,15 +46,46 @@ type TimeLine struct {
 // It then moves the cursor forward within the target bar for the given ratio of whole notes.
 func (t *TimeLine) Forward(nbars, num, denom uint32) {
 	if nbars > 0 {
-		t.forwardNBars(nbars)
+		t.forwardNBars(nbars, true)
 	}
 
 	if num > 0 && denom > 0 {
-		t.forward(num, denom)
+		t.forward(num, denom, true)
 	}
 }
 
-//func (t *TimeLine) Plan()
+func (t *TimeLine) forwardIgnoringCallbacks(nbars, num, denom uint32) {
+	if nbars > 0 {
+		t.forwardNBars(nbars, false)
+	}
+
+	if num > 0 && denom > 0 {
+		t.forward(num, denom, false)
+	}
+}
+
+// Plan registers the given callback to be invoked, when the cursor moves to the
+// position given by the delta resulting from nbars, num, denom from the current
+// cursor position.
+// I.e. when Forward is invoked, it checks, if it moves the cursor across planned callbacks
+// and if so they are called. However these callbacks must not move the cursor or set a delta.
+// They should simply write midi events to some smf.Writer.
+func (t *TimeLine) Plan(nbars, num, denom uint32, callback func(delta int32)) {
+	/*
+	   1. calc the abs position for the callback by using forward
+	   2. rewind cursor
+	   3. register callback
+	   4. sort planned callbacks
+	*/
+
+	savedCursor := t.cursor
+	t.forwardIgnoringCallbacks(nbars, num, denom)
+	pos := t.cursor
+	t.cursor = savedCursor
+	//	fmt.Printf("cursor: %v, pos: %v\n", t.cursor, pos)
+	t.plannedCallbacks = append(t.plannedCallbacks, plannedCallback{callback: callback, position: pos})
+	sort.Sort(t.plannedCallbacks)
+}
 
 // AddTimeSignature adds the given timesignature at the current cursor position
 func (t *TimeLine) AddTimeSignature(num, denom uint8) {
@@ -51,7 +103,7 @@ func (t *TimeLine) Ticks(num, denom uint32) int64 {
 }
 
 // goes ahead and sets the cursor to the start of the next bar.
-func (t *TimeLine) toNextBar() {
+func (t *TimeLine) toNextBar(runCallbacks bool) {
 	var num, denom int64 = 4, 4
 	//	var idx int
 	var startOfBar int64
@@ -85,22 +137,61 @@ func (t *TimeLine) toNextBar() {
 		}
 	}
 
+	if runCallbacks {
+		t.runCallbacks(startOfBar)
+	}
 	t.cursor = startOfBar
 
-	t.forward(uint32(num), uint32(denom))
+	t.forward(uint32(num), uint32(denom), runCallbacks)
 }
 
 // forwardNBars checks the bar where the cursor currently is
 // and goes n bars ahead and sets the cursor to the start of that bar.
-func (t *TimeLine) forwardNBars(nbars uint32) {
+func (t *TimeLine) forwardNBars(nbars uint32, runCallbacks bool) {
 	for i := uint32(0); i < nbars; i++ {
-		t.toNextBar()
+		t.toNextBar(runCallbacks)
 	}
 }
 
+func (t *TimeLine) FinishPlanned() {
+	t.runCallbacks(-1)
+}
+
+// runCallbacks runs all planed callbacks until the given absolute position in ticks
+// if until is < 0 all remaining callbacks are called
+func (t *TimeLine) runCallbacks(until int64) {
+	lastPos := t.cursor
+	var rest plannedCallbacks
+
+	for _, posCb := range t.plannedCallbacks {
+		if posCb.position < t.cursor {
+			continue
+		}
+
+		if until >= 0 {
+			if posCb.position > until {
+				rest = append(rest, posCb)
+				continue
+			}
+		}
+
+		delta := posCb.position - lastPos
+		//		fmt.Printf("callback position %v, lastPos %v delta %v cursor %v\n", posCb.position, lastPos, delta, t.cursor)
+		lastPos = posCb.position
+		posCb.callback(int32(delta))
+	}
+	t.lastDelta = lastPos
+	sort.Sort(rest)
+	t.plannedCallbacks = rest
+}
+
 // forward sets the cursor forward for the given ratio of whole notes
-func (t *TimeLine) forward(num, denom uint32) {
-	t.cursor += t.Ticks(num, denom)
+func (t *TimeLine) forward(num, denom uint32, runCallbacks bool) {
+	end := t.cursor + t.Ticks(num, denom)
+	if runCallbacks {
+		t.runCallbacks(end)
+	}
+	t.cursor = end
 }
 
 // GetDelta returns the delta of the current cursor position

@@ -17,16 +17,20 @@ func (w *outWriter) Write(b []byte) (int, error) {
 	return len(b), w.out.Send(b)
 }
 
-// WriteTo returns a Writer that writes to the given MIDI out connection.
-func WriteTo(out Out) *Writer {
+// ConnectOut returns a Writer that writes to the given MIDI out connection.
+func ConnectOut(out Out) *Writer {
 	return NewWriter(&outWriter{out})
 }
 
 type inReader struct {
 	rd         *Reader
 	in         In
-	midiReader midi.Reader
+	midireader midi.Reader
 	bf         bytes.Buffer
+}
+
+func (r *inReader) Read() (midi.Message, error) {
+	return r.midireader.Read()
 }
 
 func (r *inReader) handleMessage(b []byte, deltaMicroseconds int64) {
@@ -35,7 +39,7 @@ func (r *inReader) handleMessage(b []byte, deltaMicroseconds int64) {
 	r.rd.pos.DeltaTicks = r.rd.Ticks(time.Duration(deltaMicroseconds * 1000)) // deltaticks
 	r.rd.pos.AbsoluteTicks += uint64(r.rd.pos.DeltaTicks)
 	r.bf.Write(b)
-	r.rd.dispatchMessage(r.midiReader)
+	r.rd.dispatchMessageFromReader()
 }
 
 // Duration returns the duration for the given delta ticks, respecting the current tempo
@@ -75,12 +79,13 @@ func (r *Reader) TempoBPM() float64 {
 	return tempochange.bpm
 }
 
-// ReadFrom configures the Reader to read from to the given MIDI in connection.
-func (r *Reader) ReadFrom(in In) error {
+// ConnectIn connects the reader to the given MIDI in connection and starts reading from it.
+func ConnectIn(in In, r *Reader) error {
 	r.resolution = LiveResolution
 	r.reset()
 	rd := &inReader{rd: r, in: in}
-	rd.midiReader = midireader.New(&rd.bf, r.dispatchRealTime, r.midiReaderOptions...)
+	rd.midireader = midireader.New(&rd.bf, r.dispatchRealTime, r.midiReaderOptions...)
+	r.reader = rd
 	return rd.in.SetListener(rd.handleMessage)
 }
 
