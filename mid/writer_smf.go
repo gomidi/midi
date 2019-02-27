@@ -60,7 +60,7 @@ func NewSMF(dest io.Writer, numtracks uint16, options ...smfwriter.Option) *SMFW
 	smfwr := &SMFWriter{
 		dest:       dest,
 		wr:         wr,
-		midiWriter: &midiWriter{wr: wr, ch: channel.Channel0},
+		midiWriter: &midiWriter{wr: wr, Channel: channel.Channel0},
 	}
 
 	if metr, isMetric := wr.Header().TimeFormat.(smf.MetricTicks); isMetric {

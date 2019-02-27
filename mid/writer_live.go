@@ -26,7 +26,7 @@ func NewWriter(dest io.Writer, options ...midiwriter.Option) *Writer {
 		}, options...)
 
 	wr := midiwriter.New(dest, options...)
-	return &Writer{&midiWriter{wr: wr, ch: channel.Channel0}}
+	return &Writer{&midiWriter{wr: wr, Channel: channel.Channel0}}
 }
 
 // ActiveSensing writes the active sensing realtime message
