@@ -2,9 +2,67 @@ package mid
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
+	"strings"
 	"testing"
+
+	"gitlab.com/gomidi/midi"
 )
+
+type captureLogger struct {
+	bf bytes.Buffer
+}
+
+func (c *captureLogger) String() string {
+	return c.bf.String()
+}
+
+func (c *captureLogger) Printf(format string, vals ...interface{}) {
+	c.bf.WriteString(fmt.Sprintf(format, vals...))
+}
+
+func TestPlan(t *testing.T) {
+
+	var bf bytes.Buffer
+
+	wr := NewSMF(&bf, 1)
+
+	wr.NoteOn(1, 120)
+	wr.Plan(0, 4, 32, wr.Channel.NoteOff(1))
+	wr.Forward(0, 8, 32)
+	wr.NoteOn(2, 120)
+	wr.Plan(0, 4, 32, wr.Channel.NoteOff(2))
+	wr.Forward(1, 0, 0)
+	wr.NoteOn(3, 120)
+	wr.Plan(0, 4, 32, wr.Channel.NoteOff(3))
+	wr.FinishPlanned()
+	wr.EndOfTrack()
+
+	var res captureLogger
+	var expected = `
+#0 [0 d:0] channel.NoteOn channel 0 key 1 velocity 120
+#0 [480 d:480] channel.NoteOff channel 0 key 1
+#0 [960 d:480] channel.NoteOn channel 0 key 2 velocity 120
+#0 [1440 d:480] channel.NoteOff channel 0 key 2
+#0 [3840 d:2400] channel.NoteOn channel 0 key 3 velocity 120
+#0 [4320 d:480] channel.NoteOff channel 0 key 3
+#0 [4320 d:0] meta.EndOfTrack	
+`
+
+	expected = strings.TrimSpace(expected)
+
+	rd := NewReader(SetLogger(&res))
+	//rd := NewReader()
+	rd.Msg.Each = func(p *Position, msg midi.Message) {
+		//		result = append(result, cc, val)
+	}
+	rd.ReadAllSMF(&bf)
+
+	if got := strings.TrimSpace(res.String()); got != expected {
+		t.Errorf("got\n%s\nexpected: \n\n%s\n", got, expected)
+	}
+}
 
 func TestMsbLsb(t *testing.T) {
 

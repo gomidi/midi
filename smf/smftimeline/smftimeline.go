@@ -50,7 +50,7 @@ func (t *TimeLine) Forward(nbars, num, denom uint32) {
 	}
 
 	if num > 0 && denom > 0 {
-		t.forward(num, denom, true)
+		t.forward(num, denom, t.cursor, true)
 	}
 }
 
@@ -60,7 +60,7 @@ func (t *TimeLine) forwardIgnoringCallbacks(nbars, num, denom uint32) {
 	}
 
 	if num > 0 && denom > 0 {
-		t.forward(num, denom, false)
+		t.forward(num, denom, t.cursor, false)
 	}
 }
 
@@ -140,9 +140,9 @@ func (t *TimeLine) toNextBar(runCallbacks bool) {
 	if runCallbacks {
 		t.runCallbacks(startOfBar)
 	}
-	t.cursor = startOfBar
+	//t.cursor = startOfBar
 
-	t.forward(uint32(num), uint32(denom), runCallbacks)
+	t.forward(uint32(num), uint32(denom), startOfBar, runCallbacks)
 }
 
 // forwardNBars checks the bar where the cursor currently is
@@ -186,8 +186,8 @@ func (t *TimeLine) runCallbacks(until int64) {
 }
 
 // forward sets the cursor forward for the given ratio of whole notes
-func (t *TimeLine) forward(num, denom uint32, runCallbacks bool) {
-	end := t.cursor + t.Ticks(num, denom)
+func (t *TimeLine) forward(num, denom uint32, starter int64, runCallbacks bool) {
+	end := starter + t.Ticks(num, denom)
 	if runCallbacks {
 		t.runCallbacks(end)
 	}

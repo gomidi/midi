@@ -220,22 +220,32 @@ func TestForward(t *testing.T) {
 	//	t.Skip()
 	var tests = []struct {
 		ticks    smf.MetricTicks
+		bars     uint32
 		steps    [][2]uint32
 		expected int64
 	}{
 		{
 			smf.MetricTicks(960),
+			0,
 			[][2]uint32{}, // steps
 			int64(0),      // result
 		}, {
 			smf.MetricTicks(960),
-			[][2]uint32{[2]uint32{4, 4}},               // steps
+			0,
+			[][2]uint32{[2]uint32{4, 4}}, // steps
 			int64(smf.MetricTicks(960).Ticks4th() * 4), // result
 		},
 		{
 			smf.MetricTicks(960),
-			[][2]uint32{{4, 4}, {6, 8}},                // steps
+			0,
+			[][2]uint32{{4, 4}, {6, 8}}, // steps
 			int64(smf.MetricTicks(960).Ticks4th() * 7), // result
+		},
+		{
+			smf.MetricTicks(960),
+			1,
+			[][2]uint32{{2, 4}}, // steps
+			int64(smf.MetricTicks(960).Ticks4th() * 6),
 		},
 	}
 
@@ -246,7 +256,7 @@ func TestForward(t *testing.T) {
 		tl.Reset()
 
 		for _, step := range test.steps {
-			tl.Forward(0, step[0], step[1])
+			tl.Forward(test.bars, step[0], step[1])
 		}
 
 		if tl.cursor != test.expected {
