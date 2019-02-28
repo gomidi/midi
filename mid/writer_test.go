@@ -26,28 +26,53 @@ func TestPlan(t *testing.T) {
 
 	var bf bytes.Buffer
 
-	wr := NewSMF(&bf, 1)
+	wr := NewSMF(&bf, 2)
 
+	wr.Meter(4, 4)
+	wr.Forward(0, 8, 4)
+	wr.Meter(3, 4)
+	wr.EndOfTrack()
+
+	// 1
 	wr.NoteOn(1, 120)
+	// 1&
 	wr.Plan(0, 4, 32, wr.Channel.NoteOff(1))
+	// 2
 	wr.Forward(0, 8, 32)
 	wr.NoteOn(2, 120)
+	// 2&
 	wr.Plan(0, 4, 32, wr.Channel.NoteOff(2))
+
+	// 1
 	wr.Forward(1, 0, 0)
 	wr.NoteOn(3, 120)
+
+	// 1&
 	wr.Plan(0, 4, 32, wr.Channel.NoteOff(3))
+
+	// 2
+	wr.Forward(1, 8, 32)
+	wr.NoteOn(4, 120)
+	// 2&
+	wr.Plan(0, 4, 32, wr.Channel.NoteOff(4))
+
 	wr.FinishPlanned()
 	wr.EndOfTrack()
 
 	var res captureLogger
 	var expected = `
-#0 [0 d:0] channel.NoteOn channel 0 key 1 velocity 120
-#0 [480 d:480] channel.NoteOff channel 0 key 1
-#0 [960 d:480] channel.NoteOn channel 0 key 2 velocity 120
-#0 [1440 d:480] channel.NoteOff channel 0 key 2
-#0 [3840 d:2400] channel.NoteOn channel 0 key 3 velocity 120
-#0 [4320 d:480] channel.NoteOff channel 0 key 3
-#0 [4320 d:0] meta.EndOfTrack	
+#0 [0 d:0] meta.TimeSig 4/4 clocksperclick 8 dsqpq 8
+#0 [7680 d:7680] meta.TimeSig 3/4 clocksperclick 8 dsqpq 8
+#0 [7680 d:0] meta.EndOfTrack
+#1 [0 d:0] channel.NoteOn channel 0 key 1 velocity 120
+#1 [480 d:480] channel.NoteOff channel 0 key 1
+#1 [960 d:480] channel.NoteOn channel 0 key 2 velocity 120
+#1 [1440 d:480] channel.NoteOff channel 0 key 2
+#1 [3840 d:2400] channel.NoteOn channel 0 key 3 velocity 120
+#1 [4320 d:480] channel.NoteOff channel 0 key 3
+#1 [8640 d:4320] channel.NoteOn channel 0 key 4 velocity 120
+#1 [9120 d:480] channel.NoteOff channel 0 key 4
+#1 [9120 d:0] meta.EndOfTrack	
 `
 
 	expected = strings.TrimSpace(expected)

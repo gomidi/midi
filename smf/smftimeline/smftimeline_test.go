@@ -104,7 +104,8 @@ func TestPlanned(t *testing.T) {
 		}
 
 		tl.cursor = test.start
-		tl.runCallbacks(test.until)
+		tl.lastDelta = test.start
+		tl.runCallbacks(test.start, test.until)
 
 		if !reflect.DeepEqual(deltas, test.deltas) && (len(deltas) != 0 || len(test.deltas) != 0) {
 			t.Errorf("[%v] expecting deltas %v, got: %v", i, test.deltas, deltas)

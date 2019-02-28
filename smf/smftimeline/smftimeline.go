@@ -46,21 +46,24 @@ type plannedCallback struct {
 // It then moves the cursor forward within the target bar for the given ratio of whole notes.
 func (t *TimeLine) Forward(nbars, num, denom uint32) {
 	if nbars > 0 {
-		t.forwardNBars(nbars, true)
+		oldCursor := t.cursor
+		t.forwardNBars(nbars)
+		t.lastDelta = t.runCallbacks(oldCursor, t.cursor)
 	}
 
 	if num > 0 && denom > 0 {
-		t.forward(num, denom, t.cursor, true)
+		t.forward(num, denom, true)
 	}
+
 }
 
 func (t *TimeLine) forwardIgnoringCallbacks(nbars, num, denom uint32) {
 	if nbars > 0 {
-		t.forwardNBars(nbars, false)
+		t.forwardNBars(nbars)
 	}
 
 	if num > 0 && denom > 0 {
-		t.forward(num, denom, t.cursor, false)
+		t.forward(num, denom, false)
 	}
 }
 
@@ -103,7 +106,7 @@ func (t *TimeLine) Ticks(num, denom uint32) int64 {
 }
 
 // goes ahead and sets the cursor to the start of the next bar.
-func (t *TimeLine) toNextBar(runCallbacks bool) {
+func (t *TimeLine) toNextBar() {
 	var num, denom int64 = 4, 4
 	//	var idx int
 	var startOfBar int64
@@ -137,34 +140,31 @@ func (t *TimeLine) toNextBar(runCallbacks bool) {
 		}
 	}
 
-	if runCallbacks {
-		t.runCallbacks(startOfBar)
-	}
-	//t.cursor = startOfBar
-
-	t.forward(uint32(num), uint32(denom), startOfBar, runCallbacks)
+	t.cursor = startOfBar
+	t.forward(uint32(num), uint32(denom), false)
 }
 
 // forwardNBars checks the bar where the cursor currently is
 // and goes n bars ahead and sets the cursor to the start of that bar.
-func (t *TimeLine) forwardNBars(nbars uint32, runCallbacks bool) {
+func (t *TimeLine) forwardNBars(nbars uint32) {
 	for i := uint32(0); i < nbars; i++ {
-		t.toNextBar(runCallbacks)
+		t.toNextBar()
 	}
 }
 
 func (t *TimeLine) FinishPlanned() {
-	t.runCallbacks(-1)
+	t.lastDelta = t.runCallbacks(t.cursor, -1)
+	t.cursor = t.lastDelta
 }
 
 // runCallbacks runs all planed callbacks until the given absolute position in ticks
 // if until is < 0 all remaining callbacks are called
-func (t *TimeLine) runCallbacks(until int64) {
-	lastPos := t.cursor
+func (t *TimeLine) runCallbacks(from, until int64) (lastPos int64) {
+	lastPos = t.lastDelta
 	var rest plannedCallbacks
 
 	for _, posCb := range t.plannedCallbacks {
-		if posCb.position < t.cursor {
+		if posCb.position < from {
 			continue
 		}
 
@@ -178,18 +178,22 @@ func (t *TimeLine) runCallbacks(until int64) {
 		delta := posCb.position - lastPos
 		//		fmt.Printf("callback position %v, lastPos %v delta %v cursor %v\n", posCb.position, lastPos, delta, t.cursor)
 		lastPos = posCb.position
+		//		t.lastDelta = lastPos
+		//		t.cursor = lastPos
 		posCb.callback(int32(delta))
 	}
-	t.lastDelta = lastPos
+
+	//	t.cursor = lastPos
 	sort.Sort(rest)
 	t.plannedCallbacks = rest
+	return
 }
 
 // forward sets the cursor forward for the given ratio of whole notes
-func (t *TimeLine) forward(num, denom uint32, starter int64, runCallbacks bool) {
-	end := starter + t.Ticks(num, denom)
+func (t *TimeLine) forward(num, denom uint32, runCallbacks bool) {
+	end := t.cursor + t.Ticks(num, denom)
 	if runCallbacks {
-		t.runCallbacks(end)
+		t.lastDelta = t.runCallbacks(t.cursor, end)
 	}
 	t.cursor = end
 }
