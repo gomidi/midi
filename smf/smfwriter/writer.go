@@ -96,6 +96,7 @@ type writer struct {
 	headerWritten   bool
 	tracksProcessed uint16
 	deltatime       uint32
+	absPos          uint64
 	noRunningStatus bool
 	error           error
 	logger          Logger
@@ -162,6 +163,10 @@ func newWriter(output io.Writer, opts ...Option) *writer {
 	}
 
 	return wr
+}
+
+func (w *writer) Position() uint64 {
+	return w.absPos
 }
 
 // SetDelta sets the delta time in ticks for the next message(s)
@@ -329,6 +334,7 @@ func (w *writer) appendToChunk(deltaTime uint32, b []byte) {
 // delta is distance in time to last event in this track (independent of the channel)
 func (w *writer) addMessage(deltaTime uint32, msg midi.Message) {
 	w.printf("adding message deltaTime %v and message %s", deltaTime, msg.String())
+	w.absPos += uint64(deltaTime)
 	// we have some sort of sysex, so we need to
 	// calculate the length of msg[1:]
 	// set msg to msg[0] + length of msg[1:] + msg[1:]

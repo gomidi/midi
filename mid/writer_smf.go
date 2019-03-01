@@ -137,6 +137,11 @@ func (w *SMFWriter) Forward(nbars, num, denom uint32) {
 	w.SetDelta(uint32(delta))
 }
 
+// Position returns absolute position of the last written message in ticks
+func (w *SMFWriter) Position() uint64 {
+	return w.wr.Position()
+}
+
 // Plan plans the given midi.Message at the given position. That leads to the message being written
 // when the Forward method is crossing the corresponding position
 func (w *SMFWriter) Plan(nbars, num, denom uint32, msg midi.Message) {

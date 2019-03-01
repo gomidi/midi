@@ -49,6 +49,9 @@ type Writer interface {
 	// The meaning of a tick depends on the time format that is set in the header of the SMF file.
 	// Use Header.TimeFormat.(MetricTicks).Ticks*th() to get the ticks of quarter notes etc.
 	SetDelta(ticks uint32)
+
+	// Position returns the absolut position of the last written message in ticks
+	Position() uint64
 }
 
 // Reader reads midi messages from a standard midi file (SMF)
