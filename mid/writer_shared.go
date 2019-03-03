@@ -107,6 +107,12 @@ func (w *midiWriter) ProgramChange(program uint8) error {
 	return w.wr.Write(w.Channel.ProgramChange(program))
 }
 
+/*
+CC101 00 Selects RPN function.
+CC100 00 Selects pitch bend as the parameter you want to adjust.
+CC06 XX Sensitivity in half steps. The range is 0-24.
+*/
+
 // PitchBendSensitivityRPN sets the pitch bend range via RPN
 func (w *midiWriter) PitchBendSensitivityRPN(msbVal, lsbVal uint8) error {
 	return w.RPN(0, 0, msbVal, lsbVal)
