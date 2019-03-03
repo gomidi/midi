@@ -20,6 +20,25 @@ type TimeLine struct {
 	cursor           int64      // absticks
 	lastDelta        int64      // absticks
 	plannedCallbacks plannedCallbacks
+	backup           struct {
+		cursor           int64 // absticks
+		lastDelta        int64 // absticks
+		plannedCallbacks plannedCallbacks
+	}
+}
+
+// Backup saves a backup of cursor, lastDelta and plannedCallbacks
+func (t *TimeLine) Backup() {
+	t.backup.cursor = t.cursor
+	t.backup.lastDelta = t.lastDelta
+	t.backup.plannedCallbacks = t.plannedCallbacks
+}
+
+// Restore restores cursor, lastDelta and plannedCallbacks from the backup
+func (t *TimeLine) Restore() {
+	t.cursor = t.backup.cursor
+	t.lastDelta = t.backup.lastDelta
+	t.plannedCallbacks = t.backup.plannedCallbacks
 }
 
 type plannedCallbacks []plannedCallback

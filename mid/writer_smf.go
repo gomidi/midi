@@ -31,7 +31,20 @@ type SMFWriter struct {
 	finishedTracks uint16
 	dest           io.Writer
 	smf.MetricTicks
-	timeline *smftimeline.TimeLine
+	timeline  *smftimeline.TimeLine
+	deltatime uint32
+}
+
+func (wr *SMFWriter) DeltaTime() uint32 {
+	return wr.deltatime
+}
+
+func (wr *SMFWriter) BackupTimeline() {
+	wr.timeline.Backup()
+}
+
+func (wr *SMFWriter) RestoreTimeline() {
+	wr.timeline.Restore()
 }
 
 func (wr *SMFWriter) Header() smf.Header {
@@ -109,6 +122,7 @@ func NewSMFFile(file string, numtracks uint16, writer func(*SMFWriter) error, op
 // SetDelta sets the delta ticks to the next message
 // It should mostly not be needed, use Forward instead to advance in musical time.
 func (w *SMFWriter) SetDelta(deltatime uint32) {
+	w.deltatime = deltatime
 	w.wr.SetDelta(deltatime)
 }
 
