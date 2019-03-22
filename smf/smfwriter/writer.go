@@ -333,7 +333,7 @@ func (w *writer) appendToChunk(deltaTime uint32, b []byte) {
 
 // delta is distance in time to last event in this track (independent of the channel)
 func (w *writer) addMessage(deltaTime uint32, msg midi.Message) {
-	w.printf("adding message deltaTime %v and message %s", deltaTime, msg.String())
+	w.printf("adding message deltaTime %v and message %s", deltaTime, msg)
 	w.absPos += uint64(deltaTime)
 	// we have some sort of sysex, so we need to
 	// calculate the length of msg[1:]
