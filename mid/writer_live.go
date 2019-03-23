@@ -17,6 +17,10 @@ type Writer struct {
 
 var _ midi.Writer = &Writer{}
 
+func NewWriterTo(wr midi.Writer) *Writer {
+	return &Writer{&midiWriter{wr: wr, Channel: channel.Channel0}}
+}
+
 // NewWriter creates and new Writer for writing of "live" MIDI data ("over the wire")
 // By default it makes no use of the running status.
 func NewWriter(dest io.Writer, options ...midiwriter.Option) *Writer {
@@ -25,8 +29,7 @@ func NewWriter(dest io.Writer, options ...midiwriter.Option) *Writer {
 			midiwriter.NoRunningStatus(),
 		}, options...)
 
-	wr := midiwriter.New(dest, options...)
-	return &Writer{&midiWriter{wr: wr, Channel: channel.Channel0}}
+	return NewWriterTo(midiwriter.New(dest, options...))
 }
 
 // ActiveSensing writes the active sensing realtime message

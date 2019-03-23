@@ -47,6 +47,7 @@ type Message interface {
 
 var (
 	_ Message = Text("")
+	_ Message = Program("")
 	_ Message = Copyright("")
 	_ Message = TrackSequenceName("")
 	_ Message = Instrument("")

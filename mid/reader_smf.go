@@ -54,6 +54,24 @@ func (r *Reader) ReadSMFFileHeader(file string, options ...smfreader.Option) (sm
 	return r.Header(), nil
 }
 
+func (r *Reader) ReadSMFFrom(rd smf.Reader) error {
+	r.errSMF = nil
+	r.pos = &Position{}
+	r.reset()
+	r.reader = rd
+
+	err := r.ReadHeader()
+	if err != nil {
+		return err
+	}
+	r.readSMF()
+
+	if r.errSMF == smf.ErrFinished {
+		return nil
+	}
+	return r.errSMF
+}
+
 // ReadAllSMF reads midi messages from src (which is supposed to be the content of a standard midi file (SMF))
 // until an error or io.EOF happens.
 //
@@ -68,21 +86,7 @@ func (r *Reader) ReadSMFFileHeader(file string, options ...smfreader.Option) (sm
 // For more infomation about dealing with the SMF midi messages, see Reader and
 // SMFPosition.
 func (r *Reader) ReadAllSMF(src io.Reader, options ...smfreader.Option) error {
-	r.errSMF = nil
-	r.pos = &Position{}
-	r.reset()
-	r.reader = smfreader.New(src, options...)
-
-	err := r.ReadHeader()
-	if err != nil {
-		return err
-	}
-	r.readSMF()
-
-	if r.errSMF == smf.ErrFinished {
-		return nil
-	}
-	return r.errSMF
+	return r.ReadSMFFrom(smfreader.New(src, options...))
 }
 
 func (r *Reader) setHeader(hd smf.Header) {

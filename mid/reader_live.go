@@ -40,7 +40,7 @@ func (r *Reader) ReadHeader() error {
 	return nil
 }
 
-// Read reads a midi.Message without dispatching it.
+// Read reads a midi.Message and dispatches it.
 func (r *Reader) Read() (m midi.Message, err error) {
 	m, err = r.reader.Read()
 	if err != nil {
@@ -49,6 +49,17 @@ func (r *Reader) Read() (m midi.Message, err error) {
 
 	err = r.dispatchMessage(m)
 	return
+}
+
+func (r *Reader) ReadFrom(rd midi.Reader) {
+	r.pos = nil
+	r.reset()
+	r.reader = rd
+}
+
+// ReadAll reads midi messages until an error happens
+func (r *Reader) ReadAll() error {
+	return r.dispatch()
 }
 
 // ReadAllFrom reads midi messages from src until an error happens (for "live" MIDI data "over the wire").
@@ -62,10 +73,8 @@ func (r *Reader) Read() (m midi.Message, err error) {
 // and they must not be unset or replaced until Read returns.
 // For more infomation about dealing with the MIDI messages, see Reader.
 func (r *Reader) ReadAllFrom(src io.Reader) (err error) {
-	r.pos = nil
-	r.reset()
-	r.reader = midireader.New(src, r.dispatchRealTime, r.midiReaderOptions...)
-	return r.dispatch()
+	r.ReadFrom(midireader.New(src, r.dispatchRealTime, r.midiReaderOptions...))
+	return r.ReadAll()
 }
 
 func (r *Reader) dispatchRealTime(m realtime.Message) {

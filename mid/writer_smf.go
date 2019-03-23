@@ -29,10 +29,10 @@ type SMFWriter struct {
 	wr smf.Writer
 	*midiWriter
 	finishedTracks uint16
-	dest           io.Writer
+	//dest           io.Writer
 	smf.MetricTicks
-	timeline  *smftimeline.TimeLine
-	delta uint32
+	timeline *smftimeline.TimeLine
+	delta    uint32
 }
 
 func (wr *SMFWriter) Delta() uint32 {
@@ -55,6 +55,25 @@ func (wr *SMFWriter) WriteHeader() error {
 	return wr.wr.WriteHeader()
 }
 
+// NewSMFWriter returns a new SMFWriter for a given smf.Writer
+// The TimeFormat of the smf.Writer must be metric or this function will panic.
+func NewSMFWriter(wr smf.Writer) *SMFWriter {
+	smfwr := &SMFWriter{
+		wr:         wr,
+		midiWriter: &midiWriter{wr: wr, Channel: channel.Channel0},
+	}
+
+	metr, isMetric := wr.Header().TimeFormat.(smf.MetricTicks)
+
+	if !isMetric {
+		panic("timeformat must be metric")
+	}
+	smfwr.MetricTicks = metr
+	smfwr.timeline = smftimeline.New(metr)
+
+	return smfwr
+}
+
 // NewSMF returns a new SMFWriter that writes to dest.
 // It panics if numtracks is == 0.
 func NewSMF(dest io.Writer, numtracks uint16, options ...smfwriter.Option) *SMFWriter {
@@ -68,21 +87,7 @@ func NewSMF(dest io.Writer, numtracks uint16, options ...smfwriter.Option) *SMFW
 			smfwriter.TimeFormat(smf.MetricTicks(960)),
 		}, options...)
 
-	wr := smfwriter.New(dest, options...)
-
-	smfwr := &SMFWriter{
-		dest:       dest,
-		wr:         wr,
-		midiWriter: &midiWriter{wr: wr, Channel: channel.Channel0},
-	}
-
-	if metr, isMetric := wr.Header().TimeFormat.(smf.MetricTicks); isMetric {
-		smfwr.MetricTicks = metr
-		smfwr.timeline = smftimeline.New(metr)
-	} else {
-		panic("timeformat must be metric")
-	}
-	return smfwr
+	return NewSMFWriter(smfwriter.New(dest, options...))
 }
 
 // NewSMFFile creates a new SMF file and allows writer to write to it.
