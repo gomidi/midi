@@ -1,25 +1,17 @@
 package mid
 
 import (
-	"gitlab.com/gomidi/midi"
-	"gitlab.com/gomidi/midi/midimessage/meta/meter"
-
-	// "bytes"
-	// "encoding/binary"
 	"fmt"
-	// "github.com/gomidi/midi/internal/midilib"
-	"gitlab.com/gomidi/midi/midimessage/channel"
-	"gitlab.com/gomidi/midi/midimessage/meta"
-
-	// "github.com/gomidi/midi/midimessage/realtime"
-	// "github.com/gomidi/midi/midimessage/syscommon"
 	"io"
 	"os"
 
+	"gitlab.com/gomidi/midi"
+	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/midimessage/meta"
+	"gitlab.com/gomidi/midi/midimessage/meta/meter"
 	"gitlab.com/gomidi/midi/smf"
 	"gitlab.com/gomidi/midi/smf/smftimeline"
 	"gitlab.com/gomidi/midi/smf/smfwriter"
-	// "time"
 )
 
 var _ smf.Writer = &SMFWriter{}
@@ -191,6 +183,11 @@ func (w *SMFWriter) EndOfTrack() error {
 // Copyright writes the copyright meta message
 func (w *SMFWriter) Copyright(text string) error {
 	return w.wr.Write(meta.Copyright(text))
+}
+
+// Writes an undefined meta message
+func (w *SMFWriter) Undefined(typ byte, bt []byte) error {
+	return w.wr.Write(meta.Undefined{typ, bt})
 }
 
 // Cuepoint writes the cuepoint meta message

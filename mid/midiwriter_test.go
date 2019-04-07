@@ -1,16 +1,14 @@
 package mid
 
 import (
-	"testing"
-	//"io"
 	"bytes"
+	"testing"
 
 	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/midimessage/channel"
 	"gitlab.com/gomidi/midi/midimessage/syscommon"
 	"gitlab.com/gomidi/midi/midimessage/sysex"
 
-	//"github.com/gomidi/midiio"
 	"reflect"
 
 	mr "gitlab.com/gomidi/midi/midireader"

@@ -54,7 +54,7 @@ type Reader struct {
 		// Each is called for every MIDI message in addition to the other callbacks.
 		Each func(*Position, midi.Message)
 
-		// Unknown is called for undefined or unknown messages
+		// Unknown is called for unknown messages
 		Unknown func(p *Position, msg midi.Message)
 
 		// Meta provides callbacks for meta messages (only in SMF files)
@@ -108,6 +108,9 @@ type Reader struct {
 
 			// SequencerData is called for the sequencer specific message
 			SequencerData func(p Position, data []byte)
+
+			// Undefined is called for the undefined meta message
+			Undefined func(p Position, typ byte, data []byte)
 
 			Deprecated struct {
 				// Channel is called for the deprecated MIDI channel message

@@ -506,8 +506,8 @@ func (r *Reader) dispatchMessage(m midi.Message) (err error) {
 
 	//case meta.Undefined, syscommon.Undefined4, syscommon.Undefined5:
 	case meta.Undefined:
-		if r.Msg.Unknown != nil {
-			r.Msg.Unknown(r.pos, m)
+		if r.Msg.Meta.Undefined != nil {
+			r.Msg.Meta.Undefined(*r.pos, msg.Typ, msg.Data)
 		}
 
 	default:

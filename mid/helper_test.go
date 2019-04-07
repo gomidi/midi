@@ -1,7 +1,6 @@
 package mid
 
 import (
-	// "github.com/metakeule/fmtdate"
 	"testing"
 	"time"
 )
