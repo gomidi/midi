@@ -18,7 +18,7 @@ type Writer struct {
 var _ midi.Writer = &Writer{}
 
 func NewWriterTo(wr midi.Writer) *Writer {
-	return &Writer{&midiWriter{wr: wr, Channel: channel.Channel0}}
+	return &Writer{&midiWriter{wr: wr, channel: channel.Channel0}}
 }
 
 // NewWriter creates and new Writer for writing of "live" MIDI data ("over the wire")

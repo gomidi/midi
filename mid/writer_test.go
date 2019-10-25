@@ -36,25 +36,25 @@ func TestPlan(t *testing.T) {
 	// 1
 	wr.NoteOn(1, 120)
 	// 1&
-	wr.Plan(0, 4, 32, wr.Channel.NoteOff(1))
+	wr.Plan(0, 4, 32, wr.channel.NoteOff(1))
 	// 2
 	wr.Forward(0, 8, 32)
 	wr.NoteOn(2, 120)
 	// 2&
-	wr.Plan(0, 4, 32, wr.Channel.NoteOff(2))
+	wr.Plan(0, 4, 32, wr.channel.NoteOff(2))
 
 	// 1
 	wr.Forward(1, 0, 0)
 	wr.NoteOn(3, 120)
 
 	// 1&
-	wr.Plan(0, 4, 32, wr.Channel.NoteOff(3))
+	wr.Plan(0, 4, 32, wr.channel.NoteOff(3))
 
 	// 2
 	wr.Forward(1, 8, 32)
 	wr.NoteOn(4, 120)
 	// 2&
-	wr.Plan(0, 4, 32, wr.Channel.NoteOff(4))
+	wr.Plan(0, 4, 32, wr.channel.NoteOff(4))
 
 	wr.FinishPlanned()
 	wr.EndOfTrack()

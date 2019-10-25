@@ -11,7 +11,7 @@ import (
 
 type midiWriter struct {
 	wr              midi.Writer
-	Channel         channel.Channel
+	channel         channel.Channel
 	noteState       [16][128]bool
 	noConsolidation bool
 }
@@ -34,27 +34,27 @@ func (w *midiWriter) GMReset(prog uint8) error {
 */
 func (w *midiWriter) Reset(bank uint8, prog uint8) error {
 	var msgs = []midi.Message{
-		w.Channel.ControlChange(cc.BankSelectMSB, bank),
-		w.Channel.ProgramChange(prog),
-		w.Channel.ControlChange(cc.AllControllersOff, 0),
-		w.Channel.ControlChange(cc.VolumeMSB, 100),
-		w.Channel.ControlChange(cc.ExpressionMSB, 127),
-		w.Channel.ControlChange(cc.HoldPedalSwitch, 0),
-		w.Channel.ControlChange(cc.PanPositionMSB, 64),
+		w.channel.ControlChange(cc.BankSelectMSB, bank),
+		w.channel.ProgramChange(prog),
+		w.channel.ControlChange(cc.AllControllersOff, 0),
+		w.channel.ControlChange(cc.VolumeMSB, 100),
+		w.channel.ControlChange(cc.ExpressionMSB, 127),
+		w.channel.ControlChange(cc.HoldPedalSwitch, 0),
+		w.channel.ControlChange(cc.PanPositionMSB, 64),
 	}
 
 	for _, msg := range msgs {
 		err := w.Write(msg)
 
 		if err != nil {
-			return fmt.Errorf("could not reset channel %v: %v", w.Channel.Channel(), err)
+			return fmt.Errorf("could not reset channel %v: %v", w.channel.Channel(), err)
 		}
 	}
 
 	err := w.PitchBendSensitivityRPN(2, 0)
 
 	if err != nil {
-		return fmt.Errorf("could not reset channel %v: %v", w.Channel.Channel(), err)
+		return fmt.Errorf("could not reset channel %v: %v", w.channel.Channel(), err)
 	}
 	return nil
 }
@@ -63,48 +63,52 @@ func (w *midiWriter) Reset(bank uint8, prog uint8) error {
 // Channel numbers are counted from 0 to 15 (MIDI channel 1 to 16).
 // The initial channel number is 0.
 func (w *midiWriter) SetChannel(no uint8 /* 0-15 */) {
-	w.Channel = channel.Channel(no)
+	w.channel = channel.Channel(no)
+}
+
+func (w *midiWriter) Channel() uint8 /* 0-15 */ {
+	return uint8(w.channel)
 }
 
 // Aftertouch writes a channel pressure message for the current channel
 func (w *midiWriter) Aftertouch(pressure uint8) error {
-	return w.wr.Write(w.Channel.Aftertouch(pressure))
+	return w.wr.Write(w.channel.Aftertouch(pressure))
 }
 
 // PolyAftertouch writes a key pressure message for the current channel
 func (w *midiWriter) PolyAftertouch(key, pressure uint8) error {
-	return w.wr.Write(w.Channel.PolyAftertouch(key, pressure))
+	return w.wr.Write(w.channel.PolyAftertouch(key, pressure))
 }
 
 // NoteOff writes a note off message for the current channel
 // By default, midi notes are consolidated (see ConsolidateNotes method)
 func (w *midiWriter) NoteOff(key uint8) error {
-	return w.Write(w.Channel.NoteOff(key))
+	return w.Write(w.channel.NoteOff(key))
 }
 
 // NoteOffVelocity writes a note off message for the current channel with a velocity.
 // By default, midi notes are consolidated (see ConsolidateNotes method)
 func (w *midiWriter) NoteOffVelocity(key, velocity uint8) error {
-	return w.Write(w.Channel.NoteOffVelocity(key, velocity))
+	return w.Write(w.channel.NoteOffVelocity(key, velocity))
 }
 
 // NoteOn writes a note on message for the current channel
 // By default, midi notes are consolidated (see ConsolidateNotes method)
 func (w *midiWriter) NoteOn(key, veloctiy uint8) error {
-	return w.Write(w.Channel.NoteOn(key, veloctiy))
+	return w.Write(w.channel.NoteOn(key, veloctiy))
 }
 
 // Pitchbend writes a pitch bend message for the current channel
 // For reset value, use 0, for lowest -8191 and highest 8191
 // Or use the pitch constants of midimessage/channel
 func (w *midiWriter) Pitchbend(value int16) error {
-	return w.wr.Write(w.Channel.Pitchbend(value))
+	return w.wr.Write(w.channel.Pitchbend(value))
 }
 
 // ProgramChange writes a program change message for the current channel
 // Program numbers start with 0 for program 1.
 func (w *midiWriter) ProgramChange(program uint8) error {
-	return w.wr.Write(w.Channel.ProgramChange(program))
+	return w.wr.Write(w.channel.ProgramChange(program))
 }
 
 /*
@@ -141,8 +145,8 @@ func (w *midiWriter) TuningBankSelectRPN(msbVal, lsbVal uint8) error {
 // ResetRPN aka Null
 func (w *midiWriter) ResetRPN() error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(101, 127),
-		w.Channel.ControlChange(100, 127),
+		w.channel.ControlChange(101, 127),
+		w.channel.ControlChange(100, 127),
 	)
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -156,10 +160,10 @@ func (w *midiWriter) ResetRPN() error {
 // RPN message consisting of a val101 and val100 to identify the RPN and a msb and lsb for the value
 func (w *midiWriter) RPN(val101, val100, msbVal, lsbVal uint8) error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(101, val101),
-		w.Channel.ControlChange(100, val100),
-		w.Channel.ControlChange(6, msbVal),
-		w.Channel.ControlChange(38, lsbVal))
+		w.channel.ControlChange(101, val101),
+		w.channel.ControlChange(100, val100),
+		w.channel.ControlChange(6, msbVal),
+		w.channel.ControlChange(38, lsbVal))
 
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -173,9 +177,9 @@ func (w *midiWriter) RPN(val101, val100, msbVal, lsbVal uint8) error {
 
 func (w *midiWriter) RPNIncrement(val101, val100 uint8) error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(101, val101),
-		w.Channel.ControlChange(100, val100),
-		w.Channel.ControlChange(96, 0))
+		w.channel.ControlChange(101, val101),
+		w.channel.ControlChange(100, val100),
+		w.channel.ControlChange(96, 0))
 
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -189,9 +193,9 @@ func (w *midiWriter) RPNIncrement(val101, val100 uint8) error {
 
 func (w *midiWriter) RPNDecrement(val101, val100 uint8) error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(101, val101),
-		w.Channel.ControlChange(100, val100),
-		w.Channel.ControlChange(97, 0))
+		w.channel.ControlChange(101, val101),
+		w.channel.ControlChange(100, val100),
+		w.channel.ControlChange(97, 0))
 
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -205,9 +209,9 @@ func (w *midiWriter) RPNDecrement(val101, val100 uint8) error {
 
 func (w *midiWriter) NRPNIncrement(val99, val98 uint8) error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(99, val99),
-		w.Channel.ControlChange(98, val98),
-		w.Channel.ControlChange(96, 0))
+		w.channel.ControlChange(99, val99),
+		w.channel.ControlChange(98, val98),
+		w.channel.ControlChange(96, 0))
 
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -220,9 +224,9 @@ func (w *midiWriter) NRPNIncrement(val99, val98 uint8) error {
 
 func (w *midiWriter) NRPNDecrement(val99, val98 uint8) error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(99, val99),
-		w.Channel.ControlChange(98, val98),
-		w.Channel.ControlChange(97, 0))
+		w.channel.ControlChange(99, val99),
+		w.channel.ControlChange(98, val98),
+		w.channel.ControlChange(97, 0))
 
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -236,10 +240,10 @@ func (w *midiWriter) NRPNDecrement(val99, val98 uint8) error {
 // NRPN message consisting of a val99 and val98 to identify the RPN and a msb and lsb for the value
 func (w *midiWriter) NRPN(val99, val98, msbVal, lsbVal uint8) error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(99, val99),
-		w.Channel.ControlChange(98, val98),
-		w.Channel.ControlChange(6, msbVal),
-		w.Channel.ControlChange(38, lsbVal))
+		w.channel.ControlChange(99, val99),
+		w.channel.ControlChange(98, val98),
+		w.channel.ControlChange(6, msbVal),
+		w.channel.ControlChange(38, lsbVal))
 
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -253,8 +257,8 @@ func (w *midiWriter) NRPN(val99, val98, msbVal, lsbVal uint8) error {
 // ResetNRPN aka Null
 func (w *midiWriter) ResetNRPN() error {
 	msgs := append([]midi.Message{},
-		w.Channel.ControlChange(99, 127),
-		w.Channel.ControlChange(98, 127),
+		w.channel.ControlChange(99, 127),
+		w.channel.ControlChange(98, 127),
 	)
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
@@ -291,7 +295,7 @@ func (w *midiWriter) MsbLsb(msbControl, lsbControl uint8, value uint16) error {
 // ControlChange writes a control change message for the current channel
 // For more comfortable use, used it in conjunction with the gomidi/cc package
 func (w *midiWriter) ControlChange(controller, value uint8) error {
-	return w.wr.Write(w.Channel.ControlChange(controller, value))
+	return w.wr.Write(w.channel.ControlChange(controller, value))
 }
 
 // CcOff writes a control change message with a value of 0 (=off) for the current channel

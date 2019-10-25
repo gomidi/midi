@@ -52,7 +52,7 @@ func (wr *SMFWriter) WriteHeader() error {
 func NewSMFWriter(wr smf.Writer) *SMFWriter {
 	smfwr := &SMFWriter{
 		wr:         wr,
-		midiWriter: &midiWriter{wr: wr, Channel: channel.Channel0},
+		midiWriter: &midiWriter{wr: wr, channel: channel.Channel0},
 	}
 
 	metr, isMetric := wr.Header().TimeFormat.(smf.MetricTicks)
