@@ -3,7 +3,7 @@ Modular library for reading and writing of MIDI messages with Go.
 
 [![Build Status Travis/Linux](https://travis-ci.org/gomidi/midi.svg?branch=master)](http://travis-ci.org/gomidi/midi) [![Build Status AppVeyor/Windows](https://ci.appveyor.com/api/projects/status/408nwdlo2b1lwdd1?svg=true)](https://ci.appveyor.com/project/metakeule/midi) [![Coverage Status](https://coveralls.io/repos/gitlab/gomidi/midi/badge.svg?branch=master)](https://coveralls.io/gitlab/gomidi/midi?branch=master) [![Go Report](https://goreportcard.com/badge/gitlab.com/gomidi/midi)](https://goreportcard.com/report/gitlab.com/gomidi/midi) [![Documentation](http://godoc.org/gitlab.com/gomidi/midi?status.png)](http://godoc.org/gitlab.com/gomidi/midi)
 
-**This package is meant for users that have some knowledge of the MIDI standards. Beginners, and people on the run might want to look at the porcelain package https://gitlab.com/gomidi/mid.**
+**This package is meant for users that have some knowledge of the MIDI standards. Beginners, and people on the run might want to look at the porcelain package `gitlab.com/gomidi/midi/mid`.**
 
 ## Status
 
