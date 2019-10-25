@@ -22,9 +22,9 @@ Then MIDI data could be read the following ways:
 
 For a simple example with "live" MIDI and io.Reader and io.Writer see examples/simple/simple_test.go.
 
-To connect with the MIDI ports of your computer (via InConnection and OutConnection), use it with
-the adapter packages for rtmidi and portaudio at https://github.com/gomidi/connect.
+To connect with the MIDI ports of your computer (via mid.In and mid.Out), use it with
+the adapter package for rtmidi (gitlab.com/gomidi/rtmididrv) or portmidi (gitlab.com/gomidi/portmididrv).
 
-There you can find a simple example how to do it.
+In the README.md you can find a simple example how to do it.
 */
 package mid

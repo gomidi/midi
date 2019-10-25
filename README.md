@@ -9,13 +9,13 @@ Modular library for reading and writing of MIDI messages with Go.
 
 stable
 
-- Go version: >= 1.10
+- Go version: >= 1.12
 - OS/architectures: everywhere Go runs (tested on Linux and Windows).
 
 ## Installation
 
 ```
-go get gitlab.com/gomidi/midi/...
+go get gitlab.com/gomidi/midi@latest
 ```
 
 ## Documentation
@@ -33,14 +33,12 @@ see http://godoc.org/gitlab.com/gomidi/midi
 - [x] no dependencies outside the standard library
 - [x] small modular core packages
 - [x] typed Messages 
-- [x] pure Go library (no C, no assembler) 
 
 ## Non-Goals
 
 - [ ] constructing of MIDI time code messages
 - [ ] Multidimensional Polyphonic Expression (MPE)
 - [ ] dealing with the inner structure of sysex messages
-- [ ] connection to MIDI devices (for this combine it with https://gitlab.com/gomidi/connect)
 - [ ] CLI tools
 
 ## Usage / Example
