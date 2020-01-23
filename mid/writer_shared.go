@@ -7,6 +7,8 @@ import (
 	"gitlab.com/gomidi/midi/cc"
 	"gitlab.com/gomidi/midi/midimessage/channel"
 	"gitlab.com/gomidi/midi/midimessage/sysex"
+	"gitlab.com/gomidi/midi/nrpn"
+	"gitlab.com/gomidi/midi/rpn"
 )
 
 type midiWriter struct {
@@ -144,14 +146,18 @@ func (w *midiWriter) TuningBankSelectRPN(msbVal, lsbVal uint8) error {
 
 // ResetRPN aka Null
 func (w *midiWriter) ResetRPN() error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(101, 127),
-		w.channel.ControlChange(100, 127),
-	)
+	err := w.writeMessages(rpn.Channel(w.channel.Channel()).Reset())
+	if err != nil {
+		err = fmt.Errorf("can't write ResetRPN: %v", err)
+	}
+	return err
+}
+
+func (w *midiWriter) writeMessages(msgs []midi.Message) error {
 	for _, msg := range msgs {
 		err := w.wr.Write(msg)
 		if err != nil {
-			return fmt.Errorf("can't write ResetRPN: %v", msg)
+			return err
 		}
 	}
 	return nil
@@ -159,114 +165,61 @@ func (w *midiWriter) ResetRPN() error {
 
 // RPN message consisting of a val101 and val100 to identify the RPN and a msb and lsb for the value
 func (w *midiWriter) RPN(val101, val100, msbVal, lsbVal uint8) error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(101, val101),
-		w.channel.ControlChange(100, val100),
-		w.channel.ControlChange(6, msbVal),
-		w.channel.ControlChange(38, lsbVal))
-
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write RPN(%v,%v): %v", val101, val100, msg)
-		}
+	err := w.writeMessages(rpn.Channel(w.channel.Channel()).RPN(val101, val100, msbVal, lsbVal))
+	if err != nil {
+		err = fmt.Errorf("can't write RPN(%v,%v): %v", val101, val100, err)
 	}
-
-	return w.ResetRPN()
+	return err
 }
 
 func (w *midiWriter) RPNIncrement(val101, val100 uint8) error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(101, val101),
-		w.channel.ControlChange(100, val100),
-		w.channel.ControlChange(96, 0))
-
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write RPNIncrement(%v,%v): %v", val101, val100, msg)
-		}
+	err := w.writeMessages(rpn.Channel(w.channel.Channel()).Increment(val101, val100))
+	if err != nil {
+		err = fmt.Errorf("can't write RPNIncrement(%v,%v): %v", val101, val100, err)
 	}
-
-	return w.ResetRPN()
+	return err
 }
 
 func (w *midiWriter) RPNDecrement(val101, val100 uint8) error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(101, val101),
-		w.channel.ControlChange(100, val100),
-		w.channel.ControlChange(97, 0))
-
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write RPNDecrement(%v,%v): %v", val101, val100, msg)
-		}
+	err := w.writeMessages(rpn.Channel(w.channel.Channel()).Decrement(val101, val100))
+	if err != nil {
+		err = fmt.Errorf("can't write RPNDecrement(%v,%v): %v", val101, val100, err)
 	}
-
-	return w.ResetRPN()
+	return err
 }
 
 func (w *midiWriter) NRPNIncrement(val99, val98 uint8) error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(99, val99),
-		w.channel.ControlChange(98, val98),
-		w.channel.ControlChange(96, 0))
-
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write NRPNIncrement(%v,%v): %v", val99, val98, msg)
-		}
+	err := w.writeMessages(nrpn.Channel(w.channel.Channel()).Increment(val99, val98))
+	if err != nil {
+		err = fmt.Errorf("can't write NRPNIncrement(%v,%v): %v", val99, val98, err)
 	}
-	return w.ResetNRPN()
+	return err
 }
 
 func (w *midiWriter) NRPNDecrement(val99, val98 uint8) error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(99, val99),
-		w.channel.ControlChange(98, val98),
-		w.channel.ControlChange(97, 0))
-
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write NRPNDecrement(%v,%v): %v", val99, val98, msg)
-		}
+	err := w.writeMessages(nrpn.Channel(w.channel.Channel()).Decrement(val99, val98))
+	if err != nil {
+		err = fmt.Errorf("can't write NRPNDecrement(%v,%v): %v", val99, val98, err)
 	}
-	return w.ResetNRPN()
+	return err
 }
 
 // NRPN message consisting of a val99 and val98 to identify the RPN and a msb and lsb for the value
 func (w *midiWriter) NRPN(val99, val98, msbVal, lsbVal uint8) error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(99, val99),
-		w.channel.ControlChange(98, val98),
-		w.channel.ControlChange(6, msbVal),
-		w.channel.ControlChange(38, lsbVal))
-
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write NRPN(%v,%v): %v", val99, val98, msg)
-		}
+	err := w.writeMessages(nrpn.Channel(w.channel.Channel()).NRPN(val99, val98, msbVal, lsbVal))
+	if err != nil {
+		err = fmt.Errorf("can't write NRPN(%v,%v): %v", val99, val98, err)
 	}
-	return w.ResetNRPN()
+	return err
 }
 
 // ResetNRPN aka Null
 func (w *midiWriter) ResetNRPN() error {
-	msgs := append([]midi.Message{},
-		w.channel.ControlChange(99, 127),
-		w.channel.ControlChange(98, 127),
-	)
-	for _, msg := range msgs {
-		err := w.wr.Write(msg)
-		if err != nil {
-			return fmt.Errorf("can't write ResetNRPN: %v", msg)
-		}
+	err := w.writeMessages(nrpn.Channel(w.channel.Channel()).Reset())
+	if err != nil {
+		err = fmt.Errorf("can't write ResetNRPN: %v", err)
 	}
-	return nil
+	return err
 }
 
 // MsbLsb writes a Msb control change message, followed by a Lsb control change message

@@ -71,7 +71,7 @@ const (
 	SustenutoPedalSwitch uint8 = 66  // send it with value of 127/On or 0/Off
 
 	SoftPedalSwitch             uint8 = 67 // send it with value of 127/On or 0/Off
-	LegatoPedalSwitch           uint8 = 67 // send it with value of 127/On or 0/Off
+	LegatoPedalSwitch           uint8 = 68 // send it with value of 127/On or 0/Off
 	Hold2PedalSwitch            uint8 = 69 // send it with value of 127/On or 0/Off
 	GeneralPurposeButton1Switch uint8 = 80 // send it with value of 127/On or 0/Off
 	GeneralPurposeButton2Switch uint8 = 81 // send it with value of 127/On or 0/Off
