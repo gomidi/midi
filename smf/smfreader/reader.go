@@ -80,6 +80,9 @@ func (r *reader) Close() error {
 }
 
 func (r *reader) ReadHeader() error {
+	if r.input == nil {
+		return fmt.Errorf("no input defined")
+	}
 	if r.headerIsRead {
 		return r.error
 	}
