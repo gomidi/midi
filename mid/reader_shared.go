@@ -225,7 +225,7 @@ func (r *Reader) dispatchMessage(m midi.Message) (err error) {
 		// the data entry controller
 		case 6:
 			if r.hasNoRPNorNRPNCallback() {
-				println("early return on cc6")
+				//println("early return on cc6")
 				return r.sendAsCC(ch, cc, val)
 			}
 			switch {
