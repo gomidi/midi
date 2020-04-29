@@ -1,6 +1,8 @@
-package mid
+package midi
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Driver is a driver for MIDI connections.
 type Driver interface {
@@ -66,12 +68,12 @@ type Out interface {
 	Port
 
 	// Send sends the given MIDI bytes over the wire.
-	// If the port is closed, ErrClosed must be returned
+	// If the port is closed, ErrPortClosed must be returned
 	Send([]byte) error
 }
 
-// ErrClosed should be returned from a driver when trying to write to a closed port.
-var ErrClosed = fmt.Errorf("ERROR: port is closed")
+// ErrPortClosed should be returned from a driver when trying to write to a closed port.
+var ErrPortClosed = fmt.Errorf("ERROR: port is closed")
 
 // OpenIn opens a MIDI port with the help of the given driver
 // To find the port by port number, pass a number >= 0.

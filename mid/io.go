@@ -10,7 +10,7 @@ import (
 )
 
 type outWriter struct {
-	out Out
+	out midi.Out
 }
 
 func (w *outWriter) Write(b []byte) (int, error) {
@@ -18,13 +18,13 @@ func (w *outWriter) Write(b []byte) (int, error) {
 }
 
 // ConnectOut returns a Writer that writes to the given MIDI out connection.
-func ConnectOut(out Out) *Writer {
+func ConnectOut(out midi.Out) *Writer {
 	return NewWriter(&outWriter{out})
 }
 
 type inReader struct {
 	rd         *Reader
-	in         In
+	in         midi.In
 	midireader midi.Reader
 	bf         bytes.Buffer
 }
@@ -80,7 +80,7 @@ func (r *Reader) TempoBPM() float64 {
 }
 
 // ConnectIn connects the reader to the given MIDI in connection and starts reading from it.
-func ConnectIn(in In, r *Reader) error {
+func ConnectIn(in midi.In, r *Reader) error {
 	r.resolution = LiveResolution
 	r.reset()
 	rd := &inReader{rd: r, in: in}
