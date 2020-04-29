@@ -23,7 +23,7 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 
 - [x] implementation of complete MIDI standard (live and SMF data)
 - [x] reading and optional writing with "running status"
-- [x] seemless integration with io.Reader and io.Writer
+- [x] seamless integration with io.Reader and io.Writer
 - [x] allows the reuse of same libraries for live writing and writing to SMF files
 - [x] provide building blocks for other MIDI libraries and applications
 - [x] stable API
@@ -42,7 +42,7 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 ## Drivers
 
 For "over the wire" communication you need a `Driver`to connect with the MIDI system of your OS.
-Currently there are two multi plattform drivers available:
+Currently there are two multi-platform drivers available:
 - package `gitlab.com/gomidi/rtmididrv` based on rtmidi
 - package `gitlab.com/gomidi/portmididrv` based on portmidi
 
