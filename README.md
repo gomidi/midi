@@ -50,8 +50,7 @@ Currently there are two multi-platform drivers available:
 
 For easy access, the porcelain package `gitlab.com/gomidi/midi/mid` is recommended.
 
-The other packages are more low level and allow you to write your own implementations of the `midi.Reader` and `midi.Writer` interfaces
-to wrap the given SMF and live readers/writers for your own application.
+The other packages are more low level and allow you to write your own implementations of the `midi.Reader`, `midi.Writer`and `midi.Driver` interfaces to wrap the given SMF and live readers/writers/drivers for your own application.
 
 [Documentation porcelain package](https://pkg.go.dev/gitlab.com/gomidi/midi/mid)
 
@@ -115,11 +114,11 @@ func main() {
 	mid.ConnectIn(in, rd)
 }
 
-func printPort(port mid.Port) {
+func printPort(port midi.Port) {
 	fmt.Printf("[%v] %s\n", port.Number(), port.String())
 }
 
-func printInPorts(ports []mid.In) {
+func printInPorts(ports []midi.In) {
 	fmt.Printf("MIDI IN Ports\n")
 	for _, port := range ports {
 		printPort(port)
@@ -127,7 +126,7 @@ func printInPorts(ports []mid.In) {
 	fmt.Printf("\n\n")
 }
 
-func printOutPorts(ports []mid.Out) {
+func printOutPorts(ports []midi.Out) {
 	fmt.Printf("MIDI OUT Ports\n")
 	for _, port := range ports {
 		printPort(port)
@@ -290,7 +289,7 @@ This keeps packages and dependencies small, better testable and should result in
 
 For reading and writing of live and SMF MIDI data io.Readers are accepted as input and io.Writers as output. Furthermore there are common interfaces for live and SMF MIDI data handling: midi.Reader and midi.Writer. The typed MIDI messages used in each case are the same.
 
-To connect with MIDI libraries expecting and returning plain bytes (e.g. over the wire), use `midiio` subpackage.
+To connect with MIDI libraries expecting and returning plain bytes, use the `midiio` subpackage.
 
 ## License
 

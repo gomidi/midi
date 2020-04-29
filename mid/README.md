@@ -84,11 +84,11 @@ func main() {
 	mid.ConnectIn(in, rd)
 }
 
-func printPort(port mid.Port) {
+func printPort(port midi.Port) {
 	fmt.Printf("[%v] %s\n", port.Number(), port.String())
 }
 
-func printInPorts(ports []mid.In) {
+func printInPorts(ports []midi.In) {
 	fmt.Printf("MIDI IN Ports\n")
 	for _, port := range ports {
 		printPort(port)
@@ -96,7 +96,7 @@ func printInPorts(ports []mid.In) {
 	fmt.Printf("\n\n")
 }
 
-func printOutPorts(ports []mid.Out) {
+func printOutPorts(ports []midi.Out) {
 	fmt.Printf("MIDI OUT Ports\n")
 	for _, port := range ports {
 		printPort(port)
