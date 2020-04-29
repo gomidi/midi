@@ -17,7 +17,7 @@ import (
 	"gitlab.com/gomidi/midi/smf"
 )
 
-// WriteFile creates file, calls callback with a writer and closes file
+// WriteFile creates file, calls callback with a writer and closes file.
 //
 // WriteFile makes sure that the data of the last track is written by sending
 // an meta.EndOfTrack message after callback has been run.
@@ -78,7 +78,7 @@ func WriteFile(file string, callback func(smf.Writer), options ...Option) error 
 
 // New returns a Writer
 //
-// The writer just uses an io.Writer..It is the responsibility of the caller to open and close any file where appropriate.
+// The writer just uses an io.Writer. It is the responsibility of the caller to open and close any file where appropriate.
 //
 // For the documentation of the Write and the SetDelta method, consult the documentation for smf.Writer.
 //

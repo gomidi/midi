@@ -7,20 +7,20 @@ import (
 // Driver is a driver for MIDI connections.
 type Driver interface {
 
-	// Ins returns the available MIDI input ports
+	// Ins returns the available MIDI input ports.
 	Ins() ([]In, error)
 
-	// Outs returns the available MIDI output ports
+	// Outs returns the available MIDI output ports.
 	Outs() ([]Out, error)
 
-	// String returns the name of the driver
+	// String returns the name of the driver.
 	String() string
 
-	// Close closes the driver. Must be called for cleanup at the end of a session
+	// Close closes the driver. Must be called for cleanup at the end of a session.
 	Close() error
 }
 
-// Port is an interface for a MIDI port
+// Port is an interface for a MIDI port.
 type Port interface {
 
 	// Open opens the MIDI port. An implementation should save the open state to make it
@@ -31,57 +31,57 @@ type Port interface {
 	// save to call close when the port is already closed without getting an error.
 	Close() error
 
-	// IsOpen returns wether the MIDI port is open
+	// IsOpen returns wether the MIDI port is open.
 	IsOpen() bool
 
 	// Number returns the number of the MIDI port. It is only guaranteed that the numbers are unique within
 	// MIDI port groups i.e. within MIDI input ports and MIDI output ports. So there may be the same number
 	// for a given MIDI input port and some MIDI output port. Or not - that depends on the underlying driver.
-	// outport
 	Number() int
 
 	// String represents the MIDI port by a string, aka name.
 	String() string
 
-	// Underlying returns the underlying driver to allow further adjustments
-	// When using the underlying driver, the use user must take care of proper opening/closing etc.
+	// Underlying returns the underlying driver to allow further adjustments.
+	// When using the underlying driver, the user must take care of proper opening/closing etc.
 	Underlying() interface{}
 }
 
-// In is an interface for a MIDI in port
+// println(big.NewRat(math.MaxInt64,1000 /* milliseonds */ *1000 /* seconds */ *60 /* minutes */ *60 /* hours */ *24 /* days */ *365 /* years */).FloatString(0))
+// output: 292471
+// => a ascending timestamp based on microseconds would wrap after 292471 years
+
+// In is an interface for a MIDI input port
 type In interface {
 	Port
 
-	// SetListener sets the callback function that is called when data arrives
-	// println(big.NewRat(math.MaxInt64,1000 /* milliseonds */ *1000 /* seconds */ *60 /* minutes */ *60 /* hours */ *24 /* days */ *365 /* years */).FloatString(0))
-	// output: 292471
-	// => a ascending timestamp based on microseconds would wrap after 292471 years
+	// SetListener sets the callback function that is called when data arrives.
 	SetListener(func(data []byte, deltaMicroseconds int64)) error
 
-	// StopListening stops the listening
-	// When closing an MIDI input port, StopListening must be called before (from the driver)
+	// StopListening stops the listening.
+	// When closing a MIDI input port, StopListening must be called before (from the driver).
 	StopListening() error
 }
 
-// Out is an interface for a MIDI out port
+// Out is an interface for a MIDI output port.
 type Out interface {
 	Port
 
 	// Send sends the given MIDI bytes over the wire.
-	// If the port is closed, ErrPortClosed must be returned
+	// If the port is closed, ErrPortClosed must be returned.
 	Send([]byte) error
 }
 
 // ErrPortClosed should be returned from a driver when trying to write to a closed port.
 var ErrPortClosed = fmt.Errorf("ERROR: port is closed")
 
-// OpenIn opens a MIDI port with the help of the given driver
+// OpenIn opens a MIDI input port with the help of the given driver.
 // To find the port by port number, pass a number >= 0.
 // To find the port by port name, pass a number < 0 and a non empty string.
 func OpenIn(d Driver, number int, name string) (in In, err error) {
 	ins, err := d.Ins()
 	if err != nil {
-		return nil, fmt.Errorf("can't find MIDI in ports: %v", err)
+		return nil, fmt.Errorf("can't find MIDI input ports: %v", err)
 	}
 
 	if number >= 0 {
@@ -92,7 +92,7 @@ func OpenIn(d Driver, number int, name string) (in In, err error) {
 			}
 		}
 		if in == nil {
-			return nil, fmt.Errorf("can't find MIDI in port %v", number)
+			return nil, fmt.Errorf("can't find MIDI input port %v", number)
 		}
 	} else {
 		if name != "" {
@@ -104,7 +104,7 @@ func OpenIn(d Driver, number int, name string) (in In, err error) {
 			}
 		}
 		if in == nil {
-			return nil, fmt.Errorf("can't find MIDI in port %v", name)
+			return nil, fmt.Errorf("can't find MIDI input port %v", name)
 		}
 	}
 
@@ -117,13 +117,13 @@ func OpenIn(d Driver, number int, name string) (in In, err error) {
 	return
 }
 
-// OpenOut opens a MIDI port with the help of the given driver
+// OpenOut opens a MIDI output port with the help of the given driver.
 // To find the port by port number, pass a number >= 0.
 // To find the port by port name, pass a number < 0 and a non empty string.
 func OpenOut(d Driver, number int, name string) (out Out, err error) {
 	outs, err := d.Outs()
 	if err != nil {
-		return nil, fmt.Errorf("can't find MIDI out ports: %v", err)
+		return nil, fmt.Errorf("can't find MIDI output ports: %v", err)
 	}
 
 	if number >= 0 {
@@ -134,7 +134,7 @@ func OpenOut(d Driver, number int, name string) (out Out, err error) {
 			}
 		}
 		if out == nil {
-			return nil, fmt.Errorf("can't find MIDI out port %v", number)
+			return nil, fmt.Errorf("can't find MIDI output port %v", number)
 		}
 	} else {
 		if name != "" {
@@ -146,7 +146,7 @@ func OpenOut(d Driver, number int, name string) (out Out, err error) {
 			}
 		}
 		if out == nil {
-			return nil, fmt.Errorf("can't find MIDI out port %v", name)
+			return nil, fmt.Errorf("can't find MIDI output port %v", name)
 		}
 	}
 

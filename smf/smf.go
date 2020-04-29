@@ -18,14 +18,14 @@ var (
 	_ midi.Reader = Reader(nil)
 )
 
-// Writer writes midi messages to a standard midi file (SMF)
-// Writer is also a midi.Writer
+// Writer writes midi messages to a standard midi file (SMF).
+// Writer is also a midi.Writer.
 type Writer interface {
 
-	// Header returns the header
+	// Header returns the header.
 	Header() Header
 
-	// WriteHeader writes the midi header
+	// WriteHeader writes the midi header.
 	// If WriteHeader was not called before the first run of Write,
 	// it will implicitly be called when calling Write.
 	WriteHeader() error
@@ -54,12 +54,12 @@ type Writer interface {
 	Position() uint64
 }
 
-// Reader reads midi messages from a standard midi file (SMF)
-// Reader is also a midi.Reader
+// Reader reads midi messages from a standard midi file (SMF).
+// Reader is also a midi.Reader.
 type Reader interface {
 
 	// ReadHeader reads the header of the SMF file. If Header is called before ReadHeader, it will panic.
-	// ReadHeader is also implicitly called with the first call of Read() (if it has not been run before)
+	// ReadHeader is also implicitly called with the first call of Read() (if it has not been run before).
 	ReadHeader() error
 
 	// Read reads a MIDI message from a SMF file.
@@ -67,8 +67,8 @@ type Reader interface {
 	// At the end, smf.ErrFinished will be returned.
 	Read() (midi.Message, error)
 
-	// Header returns the header of SMF file
-	// if the header is not yet read, it will be read before
+	// Header returns the header of SMF file.
+	// If the header is not yet read, it will be read before.
 	Header() Header
 
 	// Delta returns the time distance between the last read midi message and the message before in ticks.
@@ -77,7 +77,7 @@ type Reader interface {
 	// 16ths,quaver,4ths etc by dividing by 4,8,16 etc.
 	Delta() (ticks uint32)
 
-	// Track returns the number of the track of the last read midi message (starting with 0)
+	// Track returns the number of the track of the last read midi message (starting with 0).
 	// It returns -1 if no message has been read yet.
 	Track() int16
 }
@@ -85,13 +85,13 @@ type Reader interface {
 // Header represents the header of a SMF file.
 type Header struct {
 
-	// Format is the SMF file format: SMF0, SMF1 or SMF2
+	// Format is the SMF file format: SMF0, SMF1 or SMF2.
 	Format
 
-	// NumTracks is the number of tracks (always > 0)
+	// NumTracks is the number of tracks (always > 0).
 	NumTracks uint16
 
-	// TimeFormat is the time format (either MetricTicks or TimeCode)
+	// TimeFormat is the time format (either MetricTicks or TimeCode).
 	TimeFormat
 }
 
@@ -100,28 +100,28 @@ func (h Header) String() string {
 }
 
 const (
-	// SMF0 represents the singletrack SMF format (0)
+	// SMF0 represents the singletrack SMF format (0).
 	SMF0 = format(0)
 
-	// SMF1 represents the multitrack SMF format (1)
+	// SMF1 represents the multitrack SMF format (1).
 	SMF1 = format(1)
 
-	// SMF2 represents the sequential track SMF format (2)
+	// SMF2 represents the sequential track SMF format (2).
 	SMF2 = format(2)
 )
 
-// Chunk is a chunk of a SMF file
+// Chunk is a chunk of a SMF file.
 type Chunk struct {
 	typ  []byte // must always be 4 bytes long, to avoid conversions everytime, we take []byte here instead of [4]byte
 	data []byte
 }
 
-// Len returns the length of the chunk body
+// Len returns the length of the chunk body.
 func (c *Chunk) Len() int {
 	return len(c.data)
 }
 
-// SetType sets the type of the chunk
+// SetType sets the type of the chunk.
 func (c *Chunk) SetType(typ [4]byte) {
 	c.typ = make([]byte, 4)
 	c.typ[0] = typ[0]
@@ -130,19 +130,19 @@ func (c *Chunk) SetType(typ [4]byte) {
 	c.typ[3] = typ[3]
 }
 
-// Type returns the type of the chunk (from the header)
+// Type returns the type of the chunk (from the header).
 func (c *Chunk) Type() string {
 	var bf bytes.Buffer
 	bf.Write(c.typ)
 	return bf.String()
 }
 
-// Clear removes all data but keeps the type
+// Clear removes all data but keeps the type.
 func (c *Chunk) Clear() {
 	c.data = nil
 }
 
-// WriteTo writes the content of the chunk to the given writer
+// WriteTo writes the content of the chunk to the given writer.
 func (c *Chunk) WriteTo(wr io.Writer) (int64, error) {
 	if len(c.typ) != 4 {
 		return 0, fmt.Errorf("chunk header not set properly")
@@ -160,8 +160,8 @@ func (c *Chunk) WriteTo(wr io.Writer) (int64, error) {
 }
 
 // ReadHeader reads the header from the given reader
-// returns the length of the following body
-// for errors, length of 0 is returned
+// and returns the length of the following body.
+// For errors, length of 0 is returned.
 func (c *Chunk) ReadHeader(rd io.Reader) (length uint32, err error) {
 	c.typ, err = midilib.ReadNBytes(4, rd)
 
@@ -173,7 +173,7 @@ func (c *Chunk) ReadHeader(rd io.Reader) (length uint32, err error) {
 	return midilib.ReadUint32(rd)
 }
 
-// Write writes the given bytes to the body of the chunk
+// Write writes the given bytes to the body of the chunk.
 func (c *Chunk) Write(b []byte) (int, error) {
 	c.data = append(c.data, b...)
 	return len(b), nil
@@ -206,37 +206,37 @@ func (t TimeCode) String() string {
 
 func (t TimeCode) timeformat() {}
 
-// SMPTE24 returns a SMPTE24 TimeCode with the given subframes
+// SMPTE24 returns a SMPTE24 TimeCode with the given subframes.
 func SMPTE24(subframes uint8) TimeCode {
 	return TimeCode{24, subframes}
 }
 
-// SMPTE25 returns a SMPTE25 TimeCode with the given subframes
+// SMPTE25 returns a SMPTE25 TimeCode with the given subframes.
 func SMPTE25(subframes uint8) TimeCode {
 	return TimeCode{25, subframes}
 }
 
-// SMPTE30DropFrame returns a SMPTE30 drop frame TimeCode with the given subframes
+// SMPTE30DropFrame returns a SMPTE30 drop frame TimeCode with the given subframes.
 func SMPTE30DropFrame(subframes uint8) TimeCode {
 	return TimeCode{29, subframes}
 }
 
-// SMPTE30 returns a SMPTE30 TimeCode with the given subframes
+// SMPTE30 returns a SMPTE30 TimeCode with the given subframes.
 func SMPTE30(subframes uint8) TimeCode {
 	return TimeCode{30, subframes}
 }
 
-// MetricTicks represents the "ticks per quarter note" (metric) time format
-// It defaults to 960 (i.e. 0 is treated as if it where 960 ticks per quarter note)
+// MetricTicks represents the "ticks per quarter note" (metric) time format.
+// It defaults to 960 (i.e. 0 is treated as if it where 960 ticks per quarter note).
 type MetricTicks uint16
 
 const defaultMetric MetricTicks = 960
 
 // In64ths returns the deltaTicks in 64th notes.
-// To get 32ths, divide result by 2
-// To get 16ths, divide result by 4
-// To get 8ths, divide result by 8
-// To get 4ths, divide result by 16
+// To get 32ths, divide result by 2.
+// To get 16ths, divide result by 4.
+// To get 8ths, divide result by 8.
+// To get 4ths, divide result by 16.
 func (q MetricTicks) In64ths(deltaTicks uint32) uint32 {
 	if q == 0 {
 		q = defaultMetric
@@ -244,7 +244,7 @@ func (q MetricTicks) In64ths(deltaTicks uint32) uint32 {
 	return (deltaTicks * 16) / uint32(q)
 }
 
-// Duration returns the time.Duration for a number of ticks at a certain tempo (in BPM)
+// Duration returns the time.Duration for a number of ticks at a certain tempo (in BPM).
 func (q MetricTicks) Duration(tempoBPM uint32, deltaTicks uint32) time.Duration {
 	if q == 0 {
 		q = defaultMetric
