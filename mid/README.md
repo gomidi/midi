@@ -11,15 +11,15 @@ Package mid provides an easy abstraction for reading and writing of "live" `MIDI
 - `NewWriter` is used to write "live" MIDI to an `io.Writer`.
 - `NewSMF` is used to write SMF MIDI to an `io.Writer`.
 - `NewSMFFile` is used to write a complete SMF file.
-- `WriteTo` writes "live" MIDI to an `Out`, aka MIDI out port
+- `ConnectOut` creates a writer that writes "over the wire" to a MIDI out port
 
 To read, create a `Reader` and attach callbacks to it.
 Then MIDI data could be read the following ways:
 
-- `Reader.Read` reads "live" MIDI from an `io.Reader`.
-- `Reader.ReadSMF` reads SMF MIDI from an `io.Reader`.
+- `Reader.ReadAllFrom` reads "live" MIDI from an `io.Reader`.
+- `Reader.ReadAllSMF` reads SMF MIDI from an `io.Reader`.
 - `Reader.ReadSMFFile` reads a complete SMF file.
-- `Reader.ReadFrom` reads "live" MIDI from an `In`, aka MIDI in port
+- `ConnectIn` reads "over the wire" from a MIDI in port into the given reader
 
 To connect to external MIDI devices, you need a driver implementing the `Driver` interface. There are currently two drivers available: 
 - rtmidi based at `gitlab.com/gomidi/rtmididrv`
