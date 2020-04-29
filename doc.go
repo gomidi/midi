@@ -18,7 +18,7 @@ filtering) that may be used in both cases.
 If you want a comfortable common package providing everything at a high level, use the
 porcelain package
 
-  gitlab.com/gomidi/mid
+  gitlab.com/gomidi/midi/mid
 
 The underlying core implementations can be found here:
 
