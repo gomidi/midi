@@ -33,13 +33,13 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
+	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/mid"
 	"gitlab.com/gomidi/rtmididrv"
 )
 
-// This example reads from the first input and and writes to the first output port 
+// This example reads from the first input and and writes to the first output port
 func main() {
 	drv, err := rtmididrv.New()
 	must(err)
@@ -53,8 +53,8 @@ func main() {
 	outs, err := drv.Outs()
 	must(err)
 
-    // if the string `list` is passed as an argument,
-    // print the available in and out ports
+	// if the string `list` is passed as an argument,
+	// print the available in and out ports
 	if len(os.Args) == 2 && os.Args[1] == "list" {
 		printInPorts(ins)
 		printOutPorts(outs)
@@ -66,19 +66,19 @@ func main() {
 	must(in.Open())
 	must(out.Open())
 
-    defer in.Close()
-    defer out.Close()
+	defer in.Close()
+	defer out.Close()
 
-    // the writer we are writing to
+	// the writer we are writing to
 	wr := mid.ConnectOut(out)
 
-    // to disable logging, pass mid.NoLogger() as option
-    rd := mid.NewReader()
+	// to disable logging, pass mid.NoLogger() as option
+	rd := mid.NewReader()
 
-    // write every message to the out port
-    rd.Msg.Each = func(pos *Position, msg midi.Message) {
-      wr.Write(msg)
-    }
+	// write every message to the out port
+	rd.Msg.Each = func(pos *mid.Position, msg midi.Message) {
+		wr.Write(msg)
+	}
 
 	// listen for MIDI
 	mid.ConnectIn(in, rd)
@@ -109,8 +109,6 @@ func must(err error) {
 		panic(err.Error())
 	}
 }
-
-
 ```
 
 For a simple example with "live" MIDI and `io.Reader` and `io.Writer` see the example below.
@@ -123,56 +121,57 @@ We use an `io.Writer` to write to and `io.Reader` to read from. They are connect
 package main
 
 import (
-    "fmt"
-    "gitlab.com/gomidi/midi/mid"
-    "io"
-    "time"
+	"fmt"
+	"io"
+	"time"
+
+	"gitlab.com/gomidi/midi/mid"
 )
 
 // callback for note on messages
 func noteOn(p *mid.Position, channel, key, vel uint8) {
-    fmt.Printf("NoteOn (ch %v: key %v vel: %v)\n", channel, key, vel)
+	fmt.Printf("NoteOn (ch %v: key %v vel: %v)\n", channel, key, vel)
 }
 
 // callback for note off messages
 func noteOff(p *mid.Position, channel, key, vel uint8) {
-    fmt.Printf("NoteOff (ch %v: key %v)\n", channel, key)
+	fmt.Printf("NoteOff (ch %v: key %v)\n", channel, key)
 }
 
 func main() {
-    fmt.Println()
+	fmt.Println()
 
-    // to disable logging, pass mid.NoLogger() as option
-    rd := mid.NewReader()
+	// to disable logging, pass mid.NoLogger() as option
+	rd := mid.NewReader()
 
-    // set the functions for the messages you are interested in
-    rd.Msg.Channel.NoteOn = noteOn
-    rd.Msg.Channel.NoteOff = noteOff
+	// set the functions for the messages you are interested in
+	rd.Msg.Channel.NoteOn = noteOn
+	rd.Msg.Channel.NoteOff = noteOff
 
-    // to allow reading and writing concurrently in this example
-    // we need a pipe
-    piperd, pipewr := io.Pipe()
+	// to allow reading and writing concurrently in this example
+	// we need a pipe
+	piperd, pipewr := io.Pipe()
 
-    go func() {
-        wr := mid.NewWriter(pipewr)
-        wr.SetChannel(11) // sets the channel for the next messages
-        wr.NoteOn(120, 50)
-        time.Sleep(time.Second) // let the note ring for 1 sec
-        wr.NoteOff(120)
-        pipewr.Close() // finishes the writing
-    }()
+	go func() {
+		wr := mid.NewWriter(pipewr)
+		wr.SetChannel(11) // sets the channel for the next messages
+		wr.NoteOn(120, 50)
+		time.Sleep(time.Second) // let the note ring for 1 sec
+		wr.NoteOff(120)
+		pipewr.Close() // finishes the writing
+	}()
 
-    for {
-        if rd.Read(piperd) == io.EOF {
-            piperd.Close() // finishes the reading
-            break
-        }
-    }
+	for {
+		if rd.ReadAllFrom(piperd) == io.EOF {
+			piperd.Close() // finishes the reading
+			break
+		}
+	}
 
-    // Output:
-    // channel.NoteOn channel 11 key 120 velocity 50
-    // NoteOn (ch 11: key 120 vel: 50)
-    // channel.NoteOff channel 11 key 120
-    // NoteOff (ch 11: key 120)
+	// Output:
+	// channel.NoteOn channel 11 key 120 velocity 50
+	// NoteOn (ch 11: key 120 vel: 50)
+	// channel.NoteOff channel 11 key 120
+	// NoteOff (ch 11: key 120)
 }
 ```
