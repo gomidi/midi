@@ -246,10 +246,15 @@ type Callback func(r *Reader)
 // New returns a new Reader
 func New(opt Option, callbacks ...Callback) *Reader {
 	r := &Reader{logger: logfunc(printf)}
-	opt(r)
+
+	if opt != nil {
+		opt(r)
+	}
 
 	for _, c := range callbacks {
-		c(r)
+		if c != nil {
+			c(r)
+		}
 	}
 
 	return r

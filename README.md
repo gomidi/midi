@@ -47,32 +47,35 @@ Currently there are two multi-platform drivers available:
 
 ## Porcelain package
 
-For easy access, the porcelain package `gitlab.com/gomidi/midi/mid` is recommended.
+For easy access, the porcelain packages `gitlab.com/gomidi/midi/reader` and `gitlab.com/gomidi/midi/writer` are recommended.
 
 The other packages are more low level and allow you to write your own implementations of the `midi.Reader`, `midi.Writer`and `midi.Driver` interfaces to wrap the given SMF and live readers/writers/drivers for your own application.
 
-[Documentation porcelain package](https://pkg.go.dev/gitlab.com/gomidi/midi/mid)
+[Documentation reader package](https://pkg.go.dev/gitlab.com/gomidi/midi/reader)
+[Documentation writer package](https://pkg.go.dev/gitlab.com/gomidi/midi/writer)
 
 
-### Example with external MIDI gear
+### Example with MIDI cables
 
 ```go
 package main
 
 import (
 	"fmt"
-	"os"
+	"time"
 
 	"gitlab.com/gomidi/midi"
-	"gitlab.com/gomidi/midi/writer"
 	"gitlab.com/gomidi/midi/reader"
-	"gitlab.com/gomidi/rtmididrv"
+
+	// replace with e.g. "gitlab.com/gomidi/midi/rtmididrv" for real midi connections
+	driver "gitlab.com/gomidi/midi/testdrv"
+	"gitlab.com/gomidi/midi/writer"
 )
 
-// This example reads from the first input port and and writes to the first output port
+// This example reads from the first input and and writes to the first output port
 func main() {
-	drv, err := rtmididrv.New()
-	must(err)
+	// you would take a real driver here e.g. rtmididrv.New()
+	drv := driver.New("fake cables: messages written to output port 0 are received on input port 0")
 
 	// make sure to close all open ports at the end
 	defer drv.Close()
@@ -82,14 +85,6 @@ func main() {
 
 	outs, err := drv.Outs()
 	must(err)
-
-	// if the string `list` is passed as an argument,
-	// print the available in and out ports
-	if len(os.Args) == 2 && os.Args[1] == "list" {
-		printInPorts(ins)
-		printOutPorts(outs)
-		return
-	}
 
 	in, out := ins[0], outs[0]
 
@@ -103,35 +98,27 @@ func main() {
 	wr := writer.New(out)
 
 	// to disable logging, pass mid.NoLogger() as option
-	rd := reader.New()
-
-	// write every message to the out port
-	rd.Msg.Each = func(pos *mid.Position, msg midi.Message) {
-		wr.Write(msg)
-	}
+	rd := reader.New(
+		reader.NoLogger(),
+		// write every message to the out port
+		reader.Each(func(pos *reader.Position, msg midi.Message) {
+			fmt.Printf("got %s\n", msg)
+		}),
+	)
 
 	// listen for MIDI
-	rd.ListenTo(in)
-}
+	err = rd.ListenTo(in)
+	must(err)
 
-func printPort(port midi.Port) {
-	fmt.Printf("[%v] %s\n", port.Number(), port.String())
-}
+	err = writer.NoteOn(wr, 60, 100)
+	must(err)
 
-func printInPorts(ports []midi.In) {
-	fmt.Printf("MIDI IN Ports\n")
-	for _, port := range ports {
-		printPort(port)
-	}
-	fmt.Printf("\n\n")
-}
+	time.Sleep(1)
+	err = writer.NoteOff(wr, 60)
 
-func printOutPorts(ports []midi.Out) {
-	fmt.Printf("MIDI OUT Ports\n")
-	for _, port := range ports {
-		printPort(port)
-	}
-	fmt.Printf("\n\n")
+	must(err)
+	// Output: got channel.NoteOn channel 0 key 60 velocity 100
+	// got channel.NoteOff channel 0 key 60
 }
 
 func must(err error) {
@@ -141,68 +128,84 @@ func must(err error) {
 }
 ```
 
-### Example with io.Writer and io.Reader
+### Example with MIDI file (SMF)
 
-A simple example with "live" MIDI and `io.Reader` and `io.Writer`.
-
-We use an `io.Writer` to write to and `io.Reader` to read from. They are connected by the same `io.Pipe`.
 
 ```go
 package main
 
 import (
 	"fmt"
-	"io"
-	"time"
+	"os"
+	"path/filepath"
 
-	"gitlab.com/gomidi/midi/mid"
+	"gitlab.com/gomidi/midi/reader"
+	"gitlab.com/gomidi/midi/writer"
 )
 
-// callback for note on messages
-func noteOn(p *mid.Position, channel, key, vel uint8) {
-	fmt.Printf("NoteOn (ch %v: key %v vel: %v)\n", channel, key, vel)
+type printer struct{}
+
+func (pr printer) noteOn(p *reader.Position, channel, key, vel uint8) {
+	fmt.Printf("Track: %v Pos: %v NoteOn (ch %v: key %v vel: %v)\n", p.Track, p.AbsoluteTicks, channel, key, vel)
 }
 
-// callback for note off messages
-func noteOff(p *mid.Position, channel, key, vel uint8) {
-	fmt.Printf("NoteOff (ch %v: key %v)\n", channel, key)
+func (pr printer) noteOff(p *reader.Position, channel, key, vel uint8) {
+	fmt.Printf("Track: %v Pos: %v NoteOff (ch %v: key %v)\n", p.Track, p.AbsoluteTicks, channel, key)
 }
 
 func main() {
-	fmt.Println()
+	dir := os.TempDir()
+	f := filepath.Join(dir, "smf-test.mid")
 
-	// to disable logging, pass mid.NoLogger() as option
-	rd := mid.NewReader()
+	defer os.Remove(f)
 
-	// set the functions for the messages you are interested in
-	rd.Msg.Channel.NoteOn = noteOn
-	rd.Msg.Channel.NoteOff = noteOff
+	var p printer
 
-	// to allow reading and writing concurrently in this example
-	// we need a pipe
-	piperd, pipewr := io.Pipe()
-
-	go func() {
-		wr := mid.NewWriter(pipewr)
+	err := writer.WriteSMF(f, 2, func(wr *writer.SMF) error {
+		
 		wr.SetChannel(11) // sets the channel for the next messages
-		wr.NoteOn(120, 50)
-		time.Sleep(time.Second) // let the note ring for 1 sec
-		wr.NoteOff(120)
-		pipewr.Close() // finishes the writing
-	}()
+		writer.NoteOn(wr, 120, 50)
+		wr.SetDelta(120)
+		writer.NoteOff(wr, 120)
+		
+		wr.SetDelta(240)
+		writer.NoteOn(wr, 125, 50)
+		wr.SetDelta(20)
+		writer.NoteOff(wr, 125)
+		writer.EndOfTrack(wr)
+		
+		wr.SetChannel(2)
+		writer.NoteOn(wr, 120, 50)
+		wr.SetDelta(60)
+		writer.NoteOff(wr, 120)
+		writer.EndOfTrack(wr)
+		return nil
+	})
 
-	for {
-		if rd.ReadAllFrom(piperd) == io.EOF {
-			piperd.Close() // finishes the reading
-			break
-		}
+	if err != nil {
+		fmt.Printf("could not write SMF file %v\n", f)
+		return
 	}
 
-	// Output:
-	// channel.NoteOn channel 11 key 120 velocity 50
-	// NoteOn (ch 11: key 120 vel: 50)
-	// channel.NoteOff channel 11 key 120
-	// NoteOff (ch 11: key 120)
+	// to disable logging, pass mid.NoLogger() as option
+	rd := reader.New(reader.NoLogger(),
+		// set the functions for the messages you are interested in
+		reader.NoteOn(p.noteOn),
+		reader.NoteOff(p.noteOff),
+	)
+
+	err = reader.ReadSMFFile(rd, f)
+
+	if err != nil {
+		fmt.Printf("could not read SMF file %v\n", f)
+	}
+
+	// Output: Track: 0 Pos: 0 NoteOn (ch 11: key 120 vel: 50)
+	// Track: 0 Pos: 120 NoteOff (ch 11: key 120)
+	// Track: 0 Pos: 360 NoteOn (ch 11: key 125 vel: 50)
+	// Track: 0 Pos: 380 NoteOff (ch 11: key 125)
+	// Track: 1 Pos: 0 NoteOn (ch 2: key 120 vel: 50)
+	// Track: 1 Pos: 60 NoteOff (ch 2: key 120)
 }
 ```
 
@@ -282,12 +285,12 @@ func main() {
 
 ### Modularity
 
-Apart from the porcelain package there are small subpackages, so that you only need to import
+Apart from the porcelain packages there are small subpackages, so that you only need to import
 what you really need.
 
 This keeps packages and dependencies small, better testable and should result in a smaller memory footprint which should help smaller devices.
 
-For reading and writing of live and SMF MIDI data io.Readers are accepted as input and io.Writers as output. Furthermore there are common interfaces for live and SMF MIDI data handling: midi.Reader and midi.Writer. The typed MIDI messages used in each case are the same.
+For reading and writing of live and SMF MIDI data `io.Readers` are accepted as input and `io.Writers` as output. Furthermore there are common interfaces for live and SMF MIDI data handling: `midi.Reader` and `midi.Writer`. The typed MIDI messages used in each case are the same.
 
 To connect with MIDI libraries expecting and returning plain bytes, use the `midiio` subpackage.
 
