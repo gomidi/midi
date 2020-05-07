@@ -254,6 +254,10 @@ func New(callbacksAndOptions ...func(r *Reader)) *Reader {
 	return r
 }
 
+func (r *Reader) Callback(cb func(*Reader)) {
+	cb(r)
+}
+
 // Position is the position of the event inside a standard midi file (SMF) or since
 // start listening on a connection.
 type Position struct {
