@@ -7,30 +7,27 @@ import (
 )
 
 // IgnoreMIDIClock lets the reader not use MIDI clock to calculate the tempo
-func IgnoreMIDIClock() Option {
+func IgnoreMIDIClock() func(*Reader) {
 	return func(r *Reader) {
 		r.ignoreMIDIClock = true
 	}
 }
 
-// ReaderOption configures the reader
-type Option func(*Reader)
-
 // SetLogger allows to set a custom logger for the Reader
-func SetLogger(l Logger) Option {
+func SetLogger(l Logger) func(*Reader) {
 	return func(r *Reader) {
 		r.logger = l
 	}
 }
 
-func Options(options ...midireader.Option) Option {
+func Options(options ...midireader.Option) func(*Reader) {
 	return func(r *Reader) {
 		r.midiReaderOptions = append(r.midiReaderOptions, options...)
 	}
 }
 
 // NoLogger is an option to disable the defaut logging of a Reader
-func NoLogger() Option {
+func NoLogger() func(*Reader) {
 	return func(r *Reader) {
 		r.logger = nil
 	}

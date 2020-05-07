@@ -241,17 +241,11 @@ func (r *Reader) dispatchRealTime(m realtime.Message) {
 	}
 }
 
-type Callback func(r *Reader)
-
 // New returns a new Reader
-func New(opt Option, callbacks ...Callback) *Reader {
+func New(callbacksAndOptions ...func(r *Reader)) *Reader {
 	r := &Reader{logger: logfunc(printf)}
 
-	if opt != nil {
-		opt(r)
-	}
-
-	for _, c := range callbacks {
+	for _, c := range callbacksAndOptions {
 		if c != nil {
 			c(r)
 		}
