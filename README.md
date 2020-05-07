@@ -4,11 +4,7 @@ Modular library for reading and writing of MIDI messages and MIDI files with Go.
 
 Note: If you are reading this on Github, please note that the repo has moved to Gitlab (gitlab.com/gomidi/midi) and this is only a mirror.
 
-## Status
-
-stable
-
-- Go version: >= 1.12
+- Go version: >= 1.14
 - OS/architectures: everywhere Go runs (tested on Linux and Windows).
 
 ## Installation
@@ -21,7 +17,7 @@ go get gitlab.com/gomidi/midi@latest
 
 This package provides a unified way to read and write "over the wire" MIDI data and MIDI files (SMF).
 
-- [x] implementation of complete MIDI standard (live and SMF data)
+- [x] implementation of complete MIDI standard ("cable" and SMF MIDI)
 - [x] reading and optional writing with "running status"
 - [x] seamless integration with io.Reader and io.Writer
 - [x] allows the reuse of same libraries for live writing and writing to SMF files
@@ -30,24 +26,16 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 - [x] small modular core packages
 - [x] typed Messages 
 
-## Non-Goals
-
-- [ ] constructing of MIDI time code messages
-- [ ] Multidimensional Polyphonic Expression (MPE)
-- [ ] dealing with the inner structure of sysex messages
-- [ ] CLI tools
-
-
 ## Drivers
 
-For "over the wire" communication you need a `Driver`to connect with the MIDI system of your OS.
+For "cable" communication you need a `Driver`to connect with the MIDI system of your OS.
 Currently there are two multi-platform drivers available:
 - package `gitlab.com/gomidi/rtmididrv` based on rtmidi
 - package `gitlab.com/gomidi/portmididrv` based on portmidi
 
 ## Porcelain package
 
-For easy access, the porcelain packages `gitlab.com/gomidi/midi/reader` and `gitlab.com/gomidi/midi/writer` are recommended.
+For easy access, the packages `gitlab.com/gomidi/midi/reader` and `gitlab.com/gomidi/midi/writer` are recommended.
 
 The other packages are more low level and allow you to write your own implementations of the `midi.Reader`, `midi.Writer`and `midi.Driver` interfaces to wrap the given SMF and live readers/writers/drivers for your own application.
 
@@ -290,7 +278,7 @@ what you really need.
 
 This keeps packages and dependencies small, better testable and should result in a smaller memory footprint which should help smaller devices.
 
-For reading and writing of live and SMF MIDI data `io.Readers` are accepted as input and `io.Writers` as output. Furthermore there are common interfaces for live and SMF MIDI data handling: `midi.Reader` and `midi.Writer`. The typed MIDI messages used in each case are the same.
+For reading and writing of cable and SMF MIDI data `io.Readers` are accepted as input and `io.Writers` as output. Furthermore there are common interfaces for live and SMF MIDI data handling: `midi.Reader` and `midi.Writer`. The typed MIDI messages used in each case are the same.
 
 To connect with MIDI libraries expecting and returning plain bytes, use the `midiio` subpackage.
 
