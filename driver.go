@@ -67,9 +67,9 @@ type In interface {
 type Out interface {
 	Port
 
-	// Send sends the given MIDI bytes over the wire.
+	// Write writes the given MIDI bytes over the wire and returns the bytes send
 	// If the port is closed, ErrPortClosed must be returned.
-	Send([]byte) error
+	Write(b []byte) (int, error)
 }
 
 // ErrPortClosed should be returned from a driver when trying to write to a closed port.

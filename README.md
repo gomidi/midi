@@ -26,7 +26,6 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 - [x] seamless integration with io.Reader and io.Writer
 - [x] allows the reuse of same libraries for live writing and writing to SMF files
 - [x] provide building blocks for other MIDI libraries and applications
-- [x] stable API
 - [x] no dependencies outside the standard library
 - [x] small modular core packages
 - [x] typed Messages 
@@ -65,11 +64,12 @@ import (
 	"os"
 
 	"gitlab.com/gomidi/midi"
-	"gitlab.com/gomidi/midi/mid"
+	"gitlab.com/gomidi/midi/writer"
+	"gitlab.com/gomidi/midi/reader"
 	"gitlab.com/gomidi/rtmididrv"
 )
 
-// This example reads from the first input and and writes to the first output port
+// This example reads from the first input port and and writes to the first output port
 func main() {
 	drv, err := rtmididrv.New()
 	must(err)
@@ -100,10 +100,10 @@ func main() {
 	defer out.Close()
 
 	// the writer we are writing to
-	wr := mid.ConnectOut(out)
+	wr := writer.New(out)
 
 	// to disable logging, pass mid.NoLogger() as option
-	rd := mid.NewReader()
+	rd := reader.New()
 
 	// write every message to the out port
 	rd.Msg.Each = func(pos *mid.Position, msg midi.Message) {
@@ -111,7 +111,7 @@ func main() {
 	}
 
 	// listen for MIDI
-	mid.ConnectIn(in, rd)
+	rd.ListenTo(in)
 }
 
 func printPort(port midi.Port) {

@@ -86,15 +86,15 @@ func (f *out) Close() error {
 	f.isOpen = false
 	return nil
 }
-func (f *out) Send(b []byte) error {
+func (f *out) Write(b []byte) (int, error) {
 	if !f.isOpen {
-		return midi.ErrPortClosed
+		return 0, midi.ErrPortClosed
 	}
 	if f.driver.listener == nil {
-		return io.EOF
+		return 0, io.EOF
 	}
 	f.driver.listener(b, 0)
-	return nil
+	return len(b), nil
 }
 
 func (f *out) Open() error {

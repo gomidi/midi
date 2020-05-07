@@ -1,4 +1,4 @@
-package mid
+package reader
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ import (
 // and they must not be unset or replaced until ReadSMF returns.
 // For more infomation about dealing with the SMF midi messages, see Reader and
 // SMFPosition.
-func (r *Reader) ReadSMFFile(file string, options ...smfreader.Option) error {
+func ReadSMFFile(r *Reader, file string, options ...smfreader.Option) error {
 	r.errSMF = nil
 	r.pos = &Position{}
 	r.reset()
@@ -33,7 +33,7 @@ func (r *Reader) ReadSMFFile(file string, options ...smfreader.Option) error {
 }
 
 // ReadSMFFileHeader reads just the header of a SMF file
-func (r *Reader) ReadSMFFileHeader(file string, options ...smfreader.Option) (smf.Header, error) {
+func ReadSMFFileHeader(r *Reader, file string, options ...smfreader.Option) (smf.Header, error) {
 	r.errSMF = nil
 	r.pos = &Position{}
 	r.reset()
@@ -54,7 +54,7 @@ func (r *Reader) ReadSMFFileHeader(file string, options ...smfreader.Option) (sm
 	return r.Header(), nil
 }
 
-func (r *Reader) ReadSMFFrom(rd smf.Reader) error {
+func ReadSMFFrom(r *Reader, rd smf.Reader) error {
 	r.errSMF = nil
 	r.pos = &Position{}
 	r.reset()
@@ -85,8 +85,8 @@ func (r *Reader) ReadSMFFrom(rd smf.Reader) error {
 // and they must not be unset or replaced until ReadSMF returns.
 // For more infomation about dealing with the SMF midi messages, see Reader and
 // SMFPosition.
-func (r *Reader) ReadAllSMF(src io.Reader, options ...smfreader.Option) error {
-	return r.ReadSMFFrom(smfreader.New(src, options...))
+func ReadSMF(r *Reader, src io.Reader, options ...smfreader.Option) error {
+	return ReadSMFFrom(r, smfreader.New(src, options...))
 }
 
 func (r *Reader) setHeader(hd smf.Header) {
@@ -96,8 +96,8 @@ func (r *Reader) setHeader(hd smf.Header) {
 		r.resolution = metric
 	}
 
-	if r.SMFHeader != nil {
-		r.SMFHeader(r.header)
+	if r.smfheader != nil {
+		r.smfheader(r.header)
 	}
 }
 
