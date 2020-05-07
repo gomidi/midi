@@ -2,8 +2,6 @@ package reader
 
 import (
 	"fmt"
-
-	"gitlab.com/gomidi/midi/midireader"
 )
 
 // IgnoreMIDIClock lets the reader not use MIDI clock to calculate the tempo
@@ -17,12 +15,6 @@ func IgnoreMIDIClock() func(*Reader) {
 func SetLogger(l Logger) func(*Reader) {
 	return func(r *Reader) {
 		r.logger = l
-	}
-}
-
-func Options(options ...midireader.Option) func(*Reader) {
-	return func(r *Reader) {
-		r.midiReaderOptions = append(r.midiReaderOptions, options...)
 	}
 }
 
