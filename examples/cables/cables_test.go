@@ -7,7 +7,7 @@ import (
 	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/reader"
 
-	// replace with e.g. "gitlab.com/gomidi/midi/rtmididrv" for real midi connections
+	// replace with e.g. "gitlab.com/gomidi/rtmididrv" for real midi connections
 	driver "gitlab.com/gomidi/midi/testdrv"
 	"gitlab.com/gomidi/midi/writer"
 )
