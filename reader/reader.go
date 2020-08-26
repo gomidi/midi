@@ -161,16 +161,19 @@ func (r *Reader) dispatchRealTime(m realtime.Message) {
 
 		if r.midiClocks[0] == nil {
 			r.midiClocks[0] = &gotClock
+			r.clockmx.Unlock()
 			return
 		}
 
 		if r.midiClocks[1] == nil {
 			r.midiClocks[1] = &gotClock
+			r.clockmx.Unlock()
 			return
 		}
 
 		if r.midiClocks[2] == nil {
 			r.midiClocks[2] = &gotClock
+			r.clockmx.Unlock()
 			return
 		}
 
