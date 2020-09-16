@@ -288,23 +288,23 @@ To connect with MIDI libraries expecting and returning plain bytes, use the `mid
 perfectly the problem, I have with `Go modules`'s take on `semantic versioning`.
 
 First of all, the API of this library is large (if you use all of it, which is unlikely) and generally
-stable. There can be small incompatibilities here and there, that will affect only a small amount of users and
-that will "blow up into your face", when compiling. They are really easy to fix with the help of the compiler
-and by reading the documentation.
+stable. There may be small incompatibilities from time to time that will only affect a small amount of users and
+that will "blow up into your face"  when compiling. These are easy to fix with the help of the compiler
+and the documentation. 
 
-No need to change import paths or not to update. The diamond dependency problem should be extremly unlikely with this
-library, since that would mean, you are using a library that is abstracting over MIDI and uses this library in order to
-do that. Well, then you should reconsider the use of that library, since this is the purpose of this library and
-there really is no point in further abstractions. However, for other cases, the interfaces should be used and they won't
-change. And as a last resort, you could fork the other library, fix the issue and add a replace statement to your `go.mod`
-followed by a pull request. If the lib is not maintained anymore, you would need to fork anyway in the future. If not, your
+The `diamond dependency problem` should be unlikely with this library, since that would mean, 
+you are using a library that is abstracting over MIDI and uses this library in order to so. 
+Well, then you should reconsider the use of that library, since this is the purpose of this library and
+there really is no point in further abstractions. For other uses however (e.g. integration),  the interfaces should be 
+used and they won't change. 
+
+And as a last resort, you could fork that other library, fix the issue and add a replace statement to your `go.mod`
+followed by a pull request. If that libary is not maintained anymore, you would need to fork anyway in the future. If not, your
 pull request should be accepted.
 
-All that means, that we are not going to bump the major version with every tiny incompatible change of this code base.
+To sum it up: **We are not going to bump the major version with every tiny incompatible change of this code base.
 The costs are too high and the benefits too low. Instead, any `minor` version upgrade reflects incompatible changes and
-the `patch`versions contain compatible changes (i.e. also compatible additions).
-
-However, a larger rewrite will for sure end up in a major version bump.
+the `patch`versions contain compatible changes (i.e. also compatible additions). A large rewrite will however end up in a major version bump.**
 
 ## License
 
