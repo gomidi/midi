@@ -285,7 +285,7 @@ To connect with MIDI libraries expecting and returning plain bytes, use the `mid
 ## Stability / API / Semantic Versioning
 
 [This excellent blog post by Peter Bourgon](https://peter.bourgon.org/blog/2020/09/14/siv-is-unsound.html) describes
-perfectly the problem, I have with `Go modules`'s take on `semantic versioning`.
+perfectly the problem, I have with `Go modules`' take on `semantic versioning`.
 
 First of all, the API of this library is large (if you use all of it, which is unlikely) and generally
 stable. There may be small incompatibilities from time to time that will only affect a small amount of users and
@@ -293,16 +293,15 @@ that will "blow up into your face"  when compiling. These are easy to fix with t
 and the documentation. 
 
 The `diamond dependency problem` should be unlikely with this library, since that would mean, 
-you are using a library that is abstracting over MIDI and uses this library in order to so. 
-Well, then you should reconsider the use of that library, since this is the purpose of this library and
-there really is no point in further abstractions. For other uses however (e.g. integration),  the interfaces should be 
-used and they won't change. 
+you are using a library that is abstracting over MIDI and uses this library in order to do so. 
+Well, then you should reconsider the use of that library, since there really is no point in further abstractions. 
+For other uses however (e.g. integration),  the interfaces should be used and they won't change. 
 
-And as a last resort, you could fork that other library, fix the issue and add a replace statement to your `go.mod`
-followed by a pull request. If that libary is not maintained anymore, you would need to fork anyway in the future. If not, your
-pull request should be accepted.
+As a last resort, you could fork that other library, add a replace statement to your `go.mod`
+and fix the issue, followed by a pull request. If that libary requiring the old code is not maintained anymore, 
+you would need to fork anyway in the future. If it is maintained, your pull request should get accepted.
 
-To sum it up: **We are not going to bump the major version with every tiny incompatible change of this code base.
+**We are not going to bump the major version with every tiny incompatible change of this code base.
 The costs are too high and the benefits too low. Instead, any `minor` version upgrade reflects incompatible changes and
 the `patch`versions contain compatible changes (i.e. also compatible additions). A large rewrite will however end up in a major version bump.**
 
