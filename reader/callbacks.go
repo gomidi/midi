@@ -64,7 +64,7 @@ func Instrument(cb func(p Position, name string)) func(r *Reader) {
 // If in a format 0 track, or the first track in a format 1 file, the name of the sequence. Otherwise, the name of the track.
 func TrackSequenceName(cb func(p Position, name string)) func(r *Reader) {
 	return func(r *Reader) {
-		r.message.Meta.Instrument = cb
+		r.message.Meta.TrackSequenceName = cb
 	}
 }
 
