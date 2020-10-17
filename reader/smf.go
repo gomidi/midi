@@ -33,7 +33,8 @@ func ReadSMFFile(r *Reader, file string, options ...smfreader.Option) error {
 }
 
 // ReadSMFFileHeader reads just the header of a SMF file
-func ReadSMFFileHeader(r *Reader, file string, options ...smfreader.Option) (smf.Header, error) {
+func ReadSMFFileHeader(file string, options ...smfreader.Option) (smf.Header, error) {
+	r := New(NoLogger())
 	r.errSMF = nil
 	r.pos = &Position{}
 	r.reset()
