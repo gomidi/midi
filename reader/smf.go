@@ -102,6 +102,21 @@ func (r *Reader) setHeader(hd smf.Header) {
 	}
 }
 
+// ReadSMFHeader reads just the header of a SMF
+func ReadSMFHeader(in io.Reader, options ...smfreader.Option) (smf.Header, error) {
+	r := New(NoLogger())
+	r.errSMF = nil
+	r.pos = &Position{}
+	r.reset()
+	r.reader = smfreader.New(in, options...)
+	err := r.ReadHeader()
+	if err != nil && err != smf.ErrFinished {
+		return r.Header(), err
+	}
+	return r.Header(), nil
+}
+
+
 func (r *Reader) readSMF2(rd smf.Reader) {
 	r.reader = rd
 	err := r.ReadHeader()
