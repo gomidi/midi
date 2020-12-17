@@ -42,8 +42,7 @@ func Channel(ch int8) Filter {
 	}
 }
 
-// Filter detects  metronome beats on the metronome track.
-// It is a function that returns true when a metronome beat was detected.
+// Filter is a function that returns true when a certain kind of MIDI message was found.
 type Filter func(msg midi.Message) bool
 
 // NoteOn returns a Filter that triggers only for the given key.
