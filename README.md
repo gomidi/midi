@@ -33,6 +33,17 @@ Currently there are two multi-platform drivers available:
 - package `gitlab.com/gomidi/rtmididrv` based on rtmidi
 - package `gitlab.com/gomidi/portmididrv` based on portmidi
 
+## Projects using this library
+
+- [miti](https://pkg.go.dev/github.com/schollz/miti)
+- [launchpad](https://pkg.go.dev/github.com/rainu/launchpad)
+- [pamidicontrol](https://pkg.go.dev/github.com/solarnz/pamidicontrol)
+- [bleep](https://pkg.go.dev/github.com/bspaans/bleep)
+- [midi-macro](https://pkg.go.dev/github.com/vipul-sharma20/midi-macro)
+- [hyperarp](https://pkg.go.dev/gitlab.com/gomidi/hyperarp)
+- [golinnstrument](https://pkg.go.dev/gitlab.com/golinnstrument/linnstrument)
+- [midispy](https://pkg.go.dev/gitlab.com/gomidi/midispy)
+
 ## Porcelain package
 
 For easy access, the packages `gitlab.com/gomidi/midi/reader` and `gitlab.com/gomidi/midi/writer` are recommended.
