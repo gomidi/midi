@@ -22,3 +22,5 @@ realtime-midi-vs-midifiles.md
 todo.md
 specs
 *.wav
+examples/liverecord/liverecord
+examples/liverecord/recorded.mid
