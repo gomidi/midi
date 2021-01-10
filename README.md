@@ -42,6 +42,7 @@ Currently there are two multi-platform drivers available:
 - [midi-macro](https://pkg.go.dev/github.com/vipul-sharma20/midi-macro)
 - [hyperarp](https://pkg.go.dev/gitlab.com/gomidi/hyperarp)
 - [golinnstrument](https://pkg.go.dev/gitlab.com/golinnstrument/linnstrument)
+- [smfimage](https://pkg.go.dev/gitlab.com/gomidi/smfimage)
 - [midispy](https://pkg.go.dev/gitlab.com/gomidi/midispy)
 
 ## Porcelain package
