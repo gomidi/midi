@@ -50,7 +50,7 @@ Currently there are two multi-platform drivers available:
 For easy access, the following packages are recommended:
 
 - reading: `gitlab.com/gomidi/midi/reader` [![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/midi/reader.svg)](https://pkg.go.dev/gitlab.com/gomidi/midi/reader)
-- writing: `gitlab.com/gomidi/midi/writer  [![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/midi/writer.svg)](https://pkg.go.dev/gitlab.com/gomidi/midi/writer)
+- writing: `gitlab.com/gomidi/midi/writer`  [![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/midi/writer.svg)](https://pkg.go.dev/gitlab.com/gomidi/midi/writer)
 
 The other packages are more low level and allow you to write your own implementations of the `midi.Reader`, `midi.Writer`and `midi.Driver` interfaces to wrap the given SMF and live readers/writers/drivers for your own application.
 
