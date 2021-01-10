@@ -53,7 +53,7 @@ func Example() {
 	err = writer.NoteOn(wr, 60, 100)
 	must(err)
 
-	time.Sleep(1)
+	time.Sleep(100 * time.Millisecond)
 	err = writer.NoteOff(wr, 60)
 
 	must(err)
