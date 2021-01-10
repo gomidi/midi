@@ -112,7 +112,6 @@ func main() {
 	time.Sleep(1 * time.Second)
 	writer.NoteOff(livewr, 60)
 
-	M
 	bpmCh <- 60.00                    // change BPM
 	time.Sleep(10 * time.Millisecond) // give it a bit time
 	writer.NoteOn(livewr, 62, 90)
