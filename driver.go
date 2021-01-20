@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+var drivers = map[string]Driver{}
+
+func RegisterDriver(d Driver) {
+	drivers[d.String()] = d
+}
+
 // Driver is a driver for MIDI connections.
 type Driver interface {
 
