@@ -125,24 +125,24 @@ func (p *Player) GetMessages(callback func(wait time.Duration, m midi.Message, t
 
 // PlayAll is a shortcut for PlayAllTo when using a MIDI port as output.
 // It stops hanging notes before returning. If you need to pass a specific midi.Writer, use PlayAllTo.
-func (p *Player) PlayAll(out midi.Out, stop chan bool) {
+func (p *Player) PlayAll(out midi.Out, stop chan bool) (finished chan bool) {
 	wr := writer.New(out)
-	p.PlayAllTo(wr, stop)
+	finished = p.PlayAllTo(wr, stop)
 
 	// stop hanging notes
 	wr.Silence(-1, true)
 
 	// give it some time
 	time.Sleep(100 * time.Millisecond)
+	return
 }
 
 // PlayAllTo plays all tracks to the given midi.Writer until there are no messages left or
 // a boolean is inserted into the given stop channel.
 // When the function returns, the playing has stopped.
 // If you need to play to different writers per track or channel, use GetMessages and define your own playing style.
-func (p *Player) PlayAllTo(wr midi.Writer, stop chan bool) {
-	finished := p.playAllTo(wr, stop)
-	<-finished
+func (p *Player) PlayAllTo(wr midi.Writer, stop chan bool) (finished chan bool) {
+	return p.playAllTo(wr, stop)
 }
 
 func (p *Player) playAllTo(wr midi.Writer, stop chan bool) (finished chan bool) {

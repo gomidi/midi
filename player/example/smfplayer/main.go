@@ -76,8 +76,10 @@ func main() {
 
 	fmt.Fprintf(os.Stdout, "using MIDI out port %q\n", out)
 
-	// when the function returns, playing is done
-	pl.PlayAll(out, stop)
+	finished := pl.PlayAll(out, stop)
+
+	<-finished
+	// now playing is done
 
 	os.Exit(0)
 }
