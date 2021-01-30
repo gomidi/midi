@@ -148,7 +148,7 @@ func (p *Player) PlayAllTo(wr midi.Writer, stop chan bool) (finished chan bool) 
 func (p *Player) playAllTo(wr midi.Writer, stop chan bool) (finished chan bool) {
 	p.newDurCalc()
 
-	finished = make(chan bool)
+	finished = make(chan bool, 1)
 
 	d, msg, _ := p.durCalc.nextMessage()
 
