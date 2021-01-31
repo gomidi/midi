@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -183,6 +184,7 @@ func (p *Player) playAllTo(wr *writer.Writer, stop <-chan bool, finished chan<- 
 					finished <- true
 					return
 				}
+				runtime.Gosched()
 			}
 		}
 
