@@ -13,8 +13,8 @@ import (
 
 var (
 	cfg     = config.MustNew("smfplayer", "0.0.1", "a simple SMF player")
+	fileArg = cfg.LastString("file", "MIDI file that should be played",  config.Required)
 	outArg  = cfg.NewInt32("out", "number of the MIDI output port", config.Shortflag('o'), config.Required)
-	fileArg = cfg.NewString("file", "MIDI file that should be played", config.Shortflag('f'), config.Required)
 	listCmd = cfg.MustCommand("list", "list MIDI out ports").Relax("out").Relax("file")
 	sigchan = make(chan os.Signal, 10)
 )
@@ -75,8 +75,9 @@ func main() {
 	defer out.Close()
 
 	fmt.Fprintf(os.Stdout, "using MIDI out port %q\n", out)
+	finished := make(chan bool, 1)
 
-	finished := pl.PlayAll(out, stop)
+	pl.PlayAll(out, stop, finished)
 
 	<-finished
 	// now playing is done

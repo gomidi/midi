@@ -124,31 +124,38 @@ func (p *Player) GetMessages(callback func(wait time.Duration, m midi.Message, t
 }
 
 // PlayAll is a shortcut for PlayAllTo when using a MIDI port as output.
-// It stops hanging notes before returning. If you need to pass a specific midi.Writer, use PlayAllTo.
-func (p *Player) PlayAll(out midi.Out, stop chan bool) (finished chan bool) {
+// It stops hanging notes before returning and when stopping.
+// If you need to pass a specific midi.Writer, use PlayAllTo.
+func (p *Player) PlayAll(out midi.Out, stop <-chan bool, finished chan<- bool) {
 	wr := writer.New(out)
-	finished = p.PlayAllTo(wr, stop)
-
-	// stop hanging notes
-	wr.Silence(-1, true)
-
-	// give it some time
-	time.Sleep(100 * time.Millisecond)
+	p.playAllTo(wr, stop, finished)
 	return
 }
 
 // PlayAllTo plays all tracks to the given midi.Writer until there are no messages left or
 // a boolean is inserted into the given stop channel.
-// When the function returns, the playing has stopped.
+// When the function returns, the playing has finished.
+// It stops hanging notes, when finished / stopped.
 // If you need to play to different writers per track or channel, use GetMessages and define your own playing style.
-func (p *Player) PlayAllTo(wr midi.Writer, stop chan bool) (finished chan bool) {
-	return p.playAllTo(wr, stop)
+func (p *Player) PlayAllTo(wr midi.Writer, stop <-chan bool, finished chan<- bool) {
+	if w, ok := wr.(*writer.Writer); ok {
+		p.playAllTo(w, stop, finished)
+		return
+	}
+	p.playAllTo(writer.Wrap(wr), stop, finished)
 }
 
-func (p *Player) playAllTo(wr midi.Writer, stop chan bool) (finished chan bool) {
-	p.newDurCalc()
+// playAllTo plays all tracks to the given midi.Writer until there are no messages left or
+// a boolean is inserted into the given stop channel.
+// It stops hanging notes, when finished / stopped.
+func (p *Player) playAllTo(wr *writer.Writer, stop <-chan bool, finished chan<- bool) {
+	// stop hanging notes
+	wr.Silence(-1, true)
 
-	finished = make(chan bool, 1)
+	// give it some time
+	time.Sleep(10 * time.Millisecond)
+
+	p.newDurCalc()
 
 	d, msg, _ := p.durCalc.nextMessage()
 
@@ -162,6 +169,7 @@ func (p *Player) playAllTo(wr midi.Writer, stop chan bool) (finished chan bool) 
 			select {
 			case <-stop:
 				//fmt.Printf("received stop\n")
+				wr.Silence(-1, true)
 				finished <- true
 				return
 			default:
@@ -171,6 +179,7 @@ func (p *Player) playAllTo(wr midi.Writer, stop chan bool) (finished chan bool) 
 				d, msg, _ = p.durCalc.nextMessage()
 				//fmt.Printf("next at %v\n", d)
 				if msg == nil {
+					wr.Silence(-1, true)
 					finished <- true
 					return
 				}
