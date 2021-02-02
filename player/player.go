@@ -169,16 +169,13 @@ func (p *Player) playAllTo(wr *writer.Writer, stop <-chan bool, finished chan<- 
 		for {
 			select {
 			case <-stop:
-				//fmt.Printf("received stop\n")
 				wr.Silence(-1, true)
 				finished <- true
 				return
 			default:
-				//fmt.Printf("waiting %v\n", d)
 				time.Sleep(d)
 				wr.Write(msg)
 				d, msg, _ = p.durCalc.nextMessage()
-				//fmt.Printf("next at %v\n", d)
 				if msg == nil {
 					wr.Silence(-1, true)
 					finished <- true
