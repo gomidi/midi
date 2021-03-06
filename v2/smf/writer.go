@@ -136,7 +136,7 @@ func NewSMF2() *SMF {
 type writer struct {
 	*SMF
 	//header          smf.Header
-	track           Chunk
+	track           chunk
 	output          io.Writer
 	headerWritten   bool
 	tracksProcessed uint16
@@ -317,7 +317,7 @@ func (w *writer) writeTimeFormat(wr io.Writer) error {
 // <Header Chunk> = <chunk type><length><format><ntrks><division>
 func (w *writer) writeHeader(wr io.Writer) error {
 	w.printf("write header")
-	var ch Chunk
+	var ch chunk
 	ch.SetType([4]byte{byte('M'), byte('T'), byte('h'), byte('d')})
 	var bf bytes.Buffer
 

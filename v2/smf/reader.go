@@ -221,7 +221,7 @@ func (r *Reader) readMThd() (err error) {
 	// after the header a chunk should come
 	r.expectChunk = true
 
-	var chunk Chunk
+	var chunk chunk
 
 	_, err = chunk.ReadHeader(r.input)
 	r.log("reading header of chunk, error: %v", err)
@@ -252,7 +252,7 @@ func (r *Reader) readChunk() {
 		// define the variables here that are shared along the for loop
 		// err error
 		//head chunkHeader
-		chunk Chunk
+		chunk chunk
 	)
 
 	r.expectedChunkLength, r.error = chunk.ReadHeader(r.input)
