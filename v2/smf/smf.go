@@ -121,6 +121,10 @@ type SMF struct {
 	TimeFormat      TimeFormat
 }
 
+func (s *SMF) TempoChanges() TempoChanges {
+	return s.tempoChanges
+}
+
 func (s *SMF) Tracks() []*Track {
 	return s.tracks
 }
