@@ -71,41 +71,41 @@ const (
 	SPPMsg
 	UndefinedMsg
 	TuneMsg
-	Channel0
-	Channel1
-	Channel2
-	Channel3
-	Channel4
-	Channel5
-	Channel6
-	Channel7
-	Channel8
-	Channel9
-	Channel10
-	Channel11
-	Channel12
-	Channel13
-	Channel14
-	Channel15
+	Channel0Msg
+	Channel1Msg
+	Channel2Msg
+	Channel3Msg
+	Channel4Msg
+	Channel5Msg
+	Channel6Msg
+	Channel7Msg
+	Channel8Msg
+	Channel9Msg
+	Channel10Msg
+	Channel11Msg
+	Channel12Msg
+	Channel13Msg
+	Channel14Msg
+	Channel15Msg
 )
 
 var ChannelType = map[uint8]MessageType{
-	0:  Channel0,
-	1:  Channel1,
-	2:  Channel2,
-	3:  Channel3,
-	4:  Channel4,
-	5:  Channel5,
-	6:  Channel6,
-	7:  Channel7,
-	8:  Channel8,
-	9:  Channel9,
-	10: Channel10,
-	11: Channel11,
-	12: Channel12,
-	13: Channel13,
-	14: Channel14,
-	15: Channel15,
+	0:  Channel0Msg,
+	1:  Channel1Msg,
+	2:  Channel2Msg,
+	3:  Channel3Msg,
+	4:  Channel4Msg,
+	5:  Channel5Msg,
+	6:  Channel6Msg,
+	7:  Channel7Msg,
+	8:  Channel8Msg,
+	9:  Channel9Msg,
+	10: Channel10Msg,
+	11: Channel11Msg,
+	12: Channel12Msg,
+	13: Channel13Msg,
+	14: Channel14Msg,
+	15: Channel15Msg,
 }
 
 var msgTypeString = map[MessageType]string{
@@ -158,22 +158,22 @@ var msgTypeString = map[MessageType]string{
 	UndefinedMsg:       "UndefinedMsg",
 	TuneMsg:            "TuneMsg",
 	UnknownMsg:         "UnknownMsg",
-	Channel0:           "Channel0",
-	Channel1:           "Channel1",
-	Channel2:           "Channel2",
-	Channel3:           "Channel3",
-	Channel4:           "Channel4",
-	Channel5:           "Channel5",
-	Channel6:           "Channel6",
-	Channel7:           "Channel7",
-	Channel8:           "Channel8",
-	Channel9:           "Channel9",
-	Channel10:          "Channel10",
-	Channel11:          "Channel11",
-	Channel12:          "Channel12",
-	Channel13:          "Channel13",
-	Channel14:          "Channel14",
-	Channel15:          "Channel15",
+	Channel0Msg:        "Channel0Msg",
+	Channel1Msg:        "Channel1Msg",
+	Channel2Msg:        "Channel2Msg",
+	Channel3Msg:        "Channel3Msg",
+	Channel4Msg:        "Channel4Msg",
+	Channel5Msg:        "Channel5Msg",
+	Channel6Msg:        "Channel6Msg",
+	Channel7Msg:        "Channel7Msg",
+	Channel8Msg:        "Channel8Msg",
+	Channel9Msg:        "Channel9Msg",
+	Channel10Msg:       "Channel10Msg",
+	Channel11Msg:       "Channel11Msg",
+	Channel12Msg:       "Channel12Msg",
+	Channel13Msg:       "Channel13Msg",
+	Channel14Msg:       "Channel14Msg",
+	Channel15Msg:       "Channel15Msg",
 }
 
 func (m MessageType) String() string {
@@ -197,68 +197,68 @@ func (m MessageType) String() string {
 	if m.Is(ChannelMsg) {
 		var clCh MessageType
 
-		if m.Is(Channel0) {
-			clCh = Channel0
+		if m.Is(Channel0Msg) {
+			clCh = Channel0Msg
 		}
 
-		if m.Is(Channel1) {
-			clCh = Channel1
+		if m.Is(Channel1Msg) {
+			clCh = Channel1Msg
 		}
 
-		if m.Is(Channel2) {
-			clCh = Channel2
+		if m.Is(Channel2Msg) {
+			clCh = Channel2Msg
 		}
 
-		if m.Is(Channel3) {
-			clCh = Channel3
+		if m.Is(Channel3Msg) {
+			clCh = Channel3Msg
 		}
 
-		if m.Is(Channel4) {
-			clCh = Channel4
+		if m.Is(Channel4Msg) {
+			clCh = Channel4Msg
 		}
 
-		if m.Is(Channel5) {
-			clCh = Channel5
+		if m.Is(Channel5Msg) {
+			clCh = Channel5Msg
 		}
 
-		if m.Is(Channel6) {
-			clCh = Channel6
+		if m.Is(Channel6Msg) {
+			clCh = Channel6Msg
 		}
 
-		if m.Is(Channel7) {
-			clCh = Channel7
+		if m.Is(Channel7Msg) {
+			clCh = Channel7Msg
 		}
 
-		if m.Is(Channel8) {
-			clCh = Channel8
+		if m.Is(Channel8Msg) {
+			clCh = Channel8Msg
 		}
 
-		if m.Is(Channel9) {
-			clCh = Channel9
+		if m.Is(Channel9Msg) {
+			clCh = Channel9Msg
 		}
 
-		if m.Is(Channel10) {
-			clCh = Channel10
+		if m.Is(Channel10Msg) {
+			clCh = Channel10Msg
 		}
 
-		if m.Is(Channel11) {
-			clCh = Channel11
+		if m.Is(Channel11Msg) {
+			clCh = Channel11Msg
 		}
 
-		if m.Is(Channel12) {
-			clCh = Channel12
+		if m.Is(Channel12Msg) {
+			clCh = Channel12Msg
 		}
 
-		if m.Is(Channel13) {
-			clCh = Channel13
+		if m.Is(Channel13Msg) {
+			clCh = Channel13Msg
 		}
 
-		if m.Is(Channel14) {
-			clCh = Channel14
+		if m.Is(Channel14Msg) {
+			clCh = Channel14Msg
 		}
 
-		if m.Is(Channel15) {
-			clCh = Channel15
+		if m.Is(Channel15Msg) {
+			clCh = Channel15Msg
 		}
 
 		return msgTypeString[clCh] + " & " + msgTypeString[Clear(Clear(m, ChannelMsg), clCh)]
@@ -549,37 +549,37 @@ func GetMessageType(msg []byte) (mType MessageType) {
 
 		switch ch {
 		case 0:
-			ctype = Channel0
+			ctype = Channel0Msg
 		case 1:
-			ctype = Channel1
+			ctype = Channel1Msg
 		case 2:
-			ctype = Channel2
+			ctype = Channel2Msg
 		case 3:
-			ctype = Channel3
+			ctype = Channel3Msg
 		case 4:
-			ctype = Channel4
+			ctype = Channel4Msg
 		case 5:
-			ctype = Channel5
+			ctype = Channel5Msg
 		case 6:
-			ctype = Channel6
+			ctype = Channel6Msg
 		case 7:
-			ctype = Channel7
+			ctype = Channel7Msg
 		case 8:
-			ctype = Channel8
+			ctype = Channel8Msg
 		case 9:
-			ctype = Channel9
+			ctype = Channel9Msg
 		case 10:
-			ctype = Channel10
+			ctype = Channel10Msg
 		case 11:
-			ctype = Channel11
+			ctype = Channel11Msg
 		case 12:
-			ctype = Channel12
+			ctype = Channel12Msg
 		case 13:
-			ctype = Channel13
+			ctype = Channel13Msg
 		case 14:
-			ctype = Channel14
+			ctype = Channel14Msg
 		case 15:
-			ctype = Channel15
+			ctype = Channel15Msg
 		}
 
 		mType = Set(mType, ctype)
