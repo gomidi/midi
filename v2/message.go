@@ -183,15 +183,15 @@ func (m MessageType) String() string {
 	}
 
 	if m.Is(MetaMsg) {
-		return msgTypeString[Clear(m, MetaMsg)]
+		return msgTypeString[m.Clear(MetaMsg)]
 	}
 
 	if m.Is(SysCommonMsg) {
-		return msgTypeString[Clear(m, SysCommonMsg)]
+		return msgTypeString[m.Clear(SysCommonMsg)]
 	}
 
 	if m.Is(RealTimeMsg) {
-		return msgTypeString[Clear(m, RealTimeMsg)]
+		return msgTypeString[m.Clear(RealTimeMsg)]
 	}
 
 	if m.Is(ChannelMsg) {
@@ -261,7 +261,7 @@ func (m MessageType) String() string {
 			clCh = Channel15Msg
 		}
 
-		return msgTypeString[clCh] + " & " + msgTypeString[Clear(Clear(m, ChannelMsg), clCh)]
+		return msgTypeString[clCh] + " & " + msgTypeString[m.Clear(ChannelMsg).Clear(clCh)]
 	}
 
 	return "Unknown"
@@ -269,9 +269,9 @@ func (m MessageType) String() string {
 
 // Key returns the MIDI key - a number from 0 to 127 or
 // -1, if it is no noteOn / noteOff / PolyAfterTouch message or an invalid key
-func (msg Message) Key() int8 {
-	if msg.Type.IsOneOf(NoteOnMsg, NoteOffMsg, PolyAfterTouchMsg) {
-		k, _ := utils.ParseTwoUint7(msg.Data[1], msg.Data[2])
+func (m Message) Key() int8 {
+	if m.Type.IsOneOf(NoteOnMsg, NoteOffMsg, PolyAfterTouchMsg) {
+		k, _ := utils.ParseTwoUint7(m.Data[1], m.Data[2])
 		return int8(k)
 	}
 
@@ -394,9 +394,10 @@ func (m Message) IsAllOf(ts ...MessageType) bool {
 	return m.Type.IsAllOf(ts...)
 }
 
-func Set(b, flag MessageType) MessageType         { return b | flag }
-func Clear(b, flag MessageType) MessageType       { return b &^ flag }
-func Toggle(b, flag MessageType) MessageType      { return b ^ flag }
+func (b MessageType) Set(flag MessageType) MessageType    { return b | flag }
+func (b MessageType) Clear(flag MessageType) MessageType  { return b &^ flag }
+func (b MessageType) Toggle(flag MessageType) MessageType { return b ^ flag }
+
 func (b MessageType) Is(flag MessageType) bool    { return b&flag != 0 }
 func (b MessageType) IsNot(flag MessageType) bool { return b&flag == 0 }
 func (b MessageType) IsOneOf(flags ...MessageType) bool {
@@ -544,7 +545,7 @@ func GetMessageType(msg []byte) (mType MessageType) {
 		var sType MessageType
 		//r.status = canary
 		tp, ch := utils.ParseStatus(canary)
-		mType = Set(mType, ChannelMsg)
+		mType = mType.Set(ChannelMsg)
 		var ctype MessageType
 
 		switch ch {
@@ -582,7 +583,7 @@ func GetMessageType(msg []byte) (mType MessageType) {
 			ctype = Channel15Msg
 		}
 
-		mType = Set(mType, ctype)
+		mType = mType.Set(ctype)
 
 		switch tp {
 		case 0xC:
@@ -602,7 +603,7 @@ func GetMessageType(msg []byte) (mType MessageType) {
 		default:
 			return UnknownMsg
 		}
-		mType = Set(mType, sType)
+		mType = mType.Set(sType)
 		return mType
 	} else {
 		switch canary {

@@ -317,7 +317,7 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 				return m, err
 			}
 			m.Data = midi.SysEx(bt)
-			m.Type = midi.Set(midi.MetaMsg, midi.SysExMsg)
+			m.Type = midi.MetaMsg.Set(midi.SysExMsg)
 			return m, nil
 		// meta event
 		case 0xFF:
