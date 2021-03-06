@@ -23,8 +23,8 @@ func EMaj() []byte {
 	return key(4, 4, true, false)
 }
 
-// FSharpMaj returns the MIDI key signature meta message for F# Major
-func FSharpMaj() []byte {
+// FsharpMaj returns the MIDI key signature meta message for F# Major
+func FsharpMaj() []byte {
 	return key(6, 6, true, false)
 }
 
@@ -48,28 +48,28 @@ func FMaj() []byte {
 	return key(5, 1, true, true)
 }
 
-// BFlatMaj returns the MIDI key signature meta message for Bb Major
-func BFlatMaj() []byte {
+// BbMaj returns the MIDI key signature meta message for Bb Major
+func BbMaj() []byte {
 	return key(10, 2, true, true)
 }
 
-// EFlatMaj returns the MIDI key signature meta message for Eb Major
-func EFlatMaj() []byte {
+// EbMaj returns the MIDI key signature meta message for Eb Major
+func EbMaj() []byte {
 	return key(3, 3, true, true)
 }
 
-// AFlatMaj returns the MIDI key signature meta message for Ab Major
-func AFlatMaj() []byte {
+// AbMaj returns the MIDI key signature meta message for Ab Major
+func AbMaj() []byte {
 	return key(8, 4, true, true)
 }
 
-// DFlatMaj returns the MIDI key signature meta message for Db Major
-func DFlatMaj() []byte {
+// DbMaj returns the MIDI key signature meta message for Db Major
+func DbMaj() []byte {
 	return key(1, 5, true, true)
 }
 
-// GFlatMaj returns the MIDI key signature meta message for Gb Major
-func GFlatMaj() []byte {
+// GbMaj returns the MIDI key signature meta message for Gb Major
+func GbMaj() []byte {
 	return key(6, 6, true, true)
 }
 
@@ -117,13 +117,13 @@ func BMin() []byte {
 	return key(11, 2, false, false)
 }
 
-// CSharpMin returns the MIDI key signature meta message for C# Minor
-func CSharpMin() []byte {
+// CsharpMin returns the MIDI key signature meta message for C# Minor
+func CsharpMin() []byte {
 	return key(1, 4, false, false)
 }
 
-// DSharpMin returns the MIDI key signature meta message for D# Minor
-func DSharpMin() []byte {
+// DsharpMin returns the MIDI key signature meta message for D# Minor
+func DsharpMin() []byte {
 	return key(3, 6, false, false)
 }
 
@@ -132,13 +132,13 @@ func EMin() []byte {
 	return key(4, 1, false, false)
 }
 
-// FSharpMin returns the MIDI key signature meta message for F# Minor
-func FSharpMin() []byte {
+// FsharpMin returns the MIDI key signature meta message for F# Minor
+func FsharpMin() []byte {
 	return key(6, 3, false, false)
 }
 
-// GSharpMin returns the MIDI key signature meta message for G# Minor
-func GSharpMin() []byte {
+// GsharpMin returns the MIDI key signature meta message for G# Minor
+func GsharpMin() []byte {
 	return key(8, 5, false, false)
 }
 
@@ -162,13 +162,13 @@ func FMin() []byte {
 	return key(5, 4, false, true)
 }
 
-// BFlatMin returns the MIDI key signature meta message for Bb Minor
-func BFlatMin() []byte {
+// BbMin returns the MIDI key signature meta message for Bb Minor
+func BbMin() []byte {
 	return key(10, 5, false, true)
 }
 
-// EFlatMin returns the MIDI key signature meta message for Eb Minor
-func EFlatMin() []byte {
+// EbMin returns the MIDI key signature meta message for Eb Minor
+func EbMin() []byte {
 	return key(3, 6, false, true)
 }
 
