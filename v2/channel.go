@@ -49,15 +49,15 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 }
 
 func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
-	m.Type = ChannelMsg.Set(channelType[channel])
+	m.MsgType = ChannelMsg.Set(channelType[channel])
 	//m.Data = []byte{channel, arg}
 	m.Data = channelMessage1(channel, typ, arg)
 
 	switch typ {
 	case byteProgramChange:
-		m.Type = m.Type.Set(ProgramChangeMsg)
+		m.MsgType = m.MsgType.Set(ProgramChangeMsg)
 	case byteChannelPressure:
-		m.Type = m.Type.Set(AfterTouchMsg)
+		m.MsgType = m.MsgType.Set(AfterTouchMsg)
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
 	}
@@ -66,21 +66,21 @@ func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
 }
 
 func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Message) {
-	msg.Type = ChannelMsg.Set(channelType[channel])
+	msg.MsgType = ChannelMsg.Set(channelType[channel])
 	//msg.Data = []byte{channel, arg1, arg2}
 	msg.Data = channelMessage2(channel, typ, arg1, arg2)
 
 	switch typ {
 	case byteNoteOff:
-		msg.Type = msg.Type.Set(NoteOffMsg)
+		msg.MsgType = msg.MsgType.Set(NoteOffMsg)
 	case byteNoteOn:
-		msg.Type = msg.Type.Set(NoteOnMsg)
+		msg.MsgType = msg.MsgType.Set(NoteOnMsg)
 	case bytePolyphonicKeyPressure:
-		msg.Type = msg.Type.Set(PolyAfterTouchMsg)
+		msg.MsgType = msg.MsgType.Set(PolyAfterTouchMsg)
 	case byteControlChange:
-		msg.Type = msg.Type.Set(ControlChangeMsg)
+		msg.MsgType = msg.MsgType.Set(ControlChangeMsg)
 	case bytePitchWheel:
-		msg.Type = msg.Type.Set(PitchBendMsg)
+		msg.MsgType = msg.MsgType.Set(PitchBendMsg)
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
 	}

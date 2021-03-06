@@ -26,17 +26,15 @@ func main() {
 	s.AddAndClose(0, tr)
 	s.WriteFile("./test.mid")
 
-	fmt.Printf("%v: %q\n", n1, midi.GetMessageType(n1))
-	fmt.Printf("%v: %q\n", n1Off, midi.GetMessageType(n1Off))
-	fmt.Printf("%q: %q\n", midi.NewMessage(l).Text(), midi.GetMessageType(l))
+	fmt.Printf("%v: %q\n", n1, midi.GetMsgType(n1))
+	fmt.Printf("%v: %q\n", n1Off, midi.GetMsgType(n1Off))
+	fmt.Printf("%q: %q\n", midi.NewMessage(l).Text(), midi.GetMsgType(l))
 
-	if !midi.GetMessageType(n1).IsAllOf(midi.Channel2Msg, midi.ChannelMsg, midi.NoteOnMsg) {
+	if !midi.GetMsgType(n1).IsAllOf(midi.Channel2Msg, midi.ChannelMsg, midi.NoteOnMsg) {
 		println("type is invalid")
 	}
 
-	var n1m midi.Message
-	n1m = midi.NewMessage(n1)
-	n1m.Type = midi.GetMessageType(n1)
+	n1m := midi.NewMessage(n1)
 
 	c, k, v := n1m.Channel(), n1m.Key(), n1m.Velocity()
 

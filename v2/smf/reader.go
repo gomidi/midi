@@ -294,7 +294,7 @@ func (r *Reader) readChunk() {
 
 func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 	r.log("_readEvent, canary: % X", canary)
-	m.Type = midi.UnknownMsg
+	m.MsgType = midi.UnknownMsg
 
 	status, changed := r.runningStatus.Read(canary)
 	r.log("got status: % X, changed: %v", status, changed)
@@ -317,7 +317,7 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 				return m, err
 			}
 			m.Data = midi.SysEx(bt)
-			m.Type = midi.MetaMsg.Set(midi.SysExMsg)
+			m.MsgType = midi.MetaMsg.Set(midi.SysExMsg)
 			return m, nil
 		// meta event
 		case 0xFF:
@@ -339,14 +339,14 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 			if err != nil {
 				return m, err
 			}
-			m.Type = midi.GetMetaMessage(typ)
+			m.MsgType = midi.GetMetaMessage(typ)
 			//m.Data = bt
 			m.Data = midi.MetaMessage(typ, bt)
 
 			// since System Common messages are not allowed within smf files, there could only be meta messages
 			// all (event unknown) meta messages must be handled by the meta dispatcher
 			//m, err = newMetaReader(r.input, typ).Read()
-			r.log("got meta: %T data: % X", m.Type, m.Data)
+			r.log("got meta: %T data: % X", m.MsgType, m.Data)
 			//fmt.Printf("got meta: %s data: % X\n", m.Type, m.Data)
 		default:
 			panic(fmt.Sprintf("must not happen: invalid canary % X", canary))

@@ -8,7 +8,7 @@ import (
 )
 
 func (m Message) BPM() float64 {
-	if m.Type.IsNot(MetaTempoMsg) {
+	if m.MsgType.IsNot(MetaTempoMsg) {
 		fmt.Println("not tempo message")
 		return -1
 	}

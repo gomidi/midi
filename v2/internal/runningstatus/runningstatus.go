@@ -121,7 +121,7 @@ func (w *smfwriter) Write(raw []byte) []byte {
 
 	// for non channel messages, reset status and write whole message
 	//if !midilib.IsChannelMessage(firstByte) {
-	if midi.GetMessageType(raw).IsNot(midi.ChannelMsg) {
+	if midi.GetMsgType(raw).IsNot(midi.ChannelMsg) {
 		//fmt.Printf("is no channel message, resetting status\n")
 		w.status = 0
 		return raw
@@ -162,7 +162,7 @@ func (w *liveWriter) Write(m []byte) (int, error) {
 
 	// for non channel messages, reset status and write whole message
 	//if !midilib.IsChannelMessage(msg[0]) {
-	if midi.GetMessageType(m).IsNot(midi.ChannelMsg) {
+	if midi.GetMsgType(m).IsNot(midi.ChannelMsg) {
 		// fmt.Printf("is no channel message, resetting status\n")
 		w.status = 0
 		return w.write(m)

@@ -1,6 +1,6 @@
 package midi
 
-type Filter []MessageType
+type Filter []MsgType
 
 func (f Filter) Sender(target Sender) Sender {
 	return &filteringSender{f, target}
@@ -17,7 +17,7 @@ type filteringSender struct {
 
 // Send sends the midi message and silently filters the unwanted out
 func (f *filteringSender) Send(m Message) error {
-	if m.Type.IsOneOf(f.Filter...) {
+	if m.MsgType.IsOneOf(f.Filter...) {
 		return f.Send(m)
 	}
 	return nil
@@ -30,7 +30,7 @@ type filteringReceiver struct {
 
 // Read reads the midi message and silently filters the unwanted out
 func (f *filteringReceiver) Receive(m Message, deltamicrosec int64) {
-	if m.Type.IsOneOf(f.Filter...) {
+	if m.MsgType.IsOneOf(f.Filter...) {
 		f.Receiver.Receive(m, deltamicrosec)
 	}
 	return

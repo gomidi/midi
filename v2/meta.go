@@ -10,7 +10,7 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-func ReadMetaData(tp MessageType, rd io.Reader) (data []byte, err error) {
+func ReadMetaData(tp MsgType, rd io.Reader) (data []byte, err error) {
 	return utils.ReadVarLengthData(rd)
 }
 
@@ -38,7 +38,7 @@ const (
 	byteProgramName       = byte(0x8)
 )
 
-var metaMessages = map[byte]MessageType{
+var metaMessages = map[byte]MsgType{
 	byteEndOfTrack:        MetaMsg.Set(MetaEndOfTrackMsg),
 	byteSequenceNumber:    MetaMsg.Set(MetaSeqNumberMsg),
 	byteText:              MetaMsg.Set(MetaTextMsg),

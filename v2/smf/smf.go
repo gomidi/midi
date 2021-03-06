@@ -59,8 +59,8 @@ func (e Event) Message() midi.Message {
 	return midi.NewMessage(e.Data)
 }
 
-func (e *Event) MessageType() midi.MessageType {
-	return midi.GetMessageType(e.Data)
+func (e *Event) MsgType() midi.MsgType {
+	return midi.GetMsgType(e.Data)
 }
 
 type TempoChange struct {

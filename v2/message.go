@@ -8,269 +8,20 @@ import (
 )
 
 type Message struct {
-	Type MessageType
+	MsgType
 	Data []byte
 }
 
 func NewMessage(data []byte) (m Message) {
-	m.Type = GetMessageType(data)
+	m.MsgType = GetMsgType(data)
 	m.Data = data
 	return
-}
-
-type MessageType uint64
-
-const UnknownMsg MessageType = 0
-
-const (
-	ChannelMsg MessageType = 1 << iota
-	MetaMsg
-	RealTimeMsg
-	SysCommonMsg
-	SysExMsg
-	NoteOnMsg
-	NoteOffMsg
-	ControlChangeMsg
-	PitchBendMsg
-	AfterTouchMsg
-	PolyAfterTouchMsg
-	ProgramChangeMsg
-	MetaChannelMsg
-	MetaCopyrightMsg
-	MetaCuepointMsg
-	MetaDeviceMsg
-	MetaEndOfTrackMsg
-	MetaInstrumentMsg
-	MetaKeySigMsg
-	MetaLyricMsg
-	MetaTextMsg
-	MetaMarkerMsg
-	MetaPortMsg
-	MetaSeqNumberMsg
-	MetaSeqDataMsg
-	MetaTempoMsg
-	MetaTimeSigMsg
-	MetaTrackNameMsg
-	MetaSMPTEOffsetMsg
-	MetaUndefinedMsg
-	MetaProgramNameMsg
-	TimingClockMsg
-	TickMsg
-	StartMsg
-	ContinueMsg
-	StopMsg
-	ActiveSenseMsg
-	ResetMsg
-	SysExStartMsg
-	SysExEndMsg
-	SysExCompleteMsg
-	SysExEscapeMsg
-	SysExContinueMsg
-	MTCMsg
-	SongSelectMsg
-	SPPMsg
-	UndefinedMsg
-	TuneMsg
-	Channel0Msg
-	Channel1Msg
-	Channel2Msg
-	Channel3Msg
-	Channel4Msg
-	Channel5Msg
-	Channel6Msg
-	Channel7Msg
-	Channel8Msg
-	Channel9Msg
-	Channel10Msg
-	Channel11Msg
-	Channel12Msg
-	Channel13Msg
-	Channel14Msg
-	Channel15Msg
-)
-
-var channelType = map[uint8]MessageType{
-	0:  Channel0Msg,
-	1:  Channel1Msg,
-	2:  Channel2Msg,
-	3:  Channel3Msg,
-	4:  Channel4Msg,
-	5:  Channel5Msg,
-	6:  Channel6Msg,
-	7:  Channel7Msg,
-	8:  Channel8Msg,
-	9:  Channel9Msg,
-	10: Channel10Msg,
-	11: Channel11Msg,
-	12: Channel12Msg,
-	13: Channel13Msg,
-	14: Channel14Msg,
-	15: Channel15Msg,
-}
-
-var msgTypeString = map[MessageType]string{
-	ChannelMsg:         "ChannelMsg",
-	MetaMsg:            "MetaMsg",
-	RealTimeMsg:        "RealTimeMsg",
-	SysCommonMsg:       "SysCommonMsg",
-	SysExMsg:           "SysExMsg",
-	NoteOnMsg:          "NoteOnMsg",
-	NoteOffMsg:         "NoteOffMsg",
-	ControlChangeMsg:   "ControlChangeMsg",
-	PitchBendMsg:       "PitchBendMsg",
-	AfterTouchMsg:      "AfterTouchMsg",
-	PolyAfterTouchMsg:  "PolyAfterTouchMsg",
-	ProgramChangeMsg:   "ProgramChangeMsg",
-	MetaChannelMsg:     "MetaChannelMsg",
-	MetaCopyrightMsg:   "MetaCopyrightMsg",
-	MetaCuepointMsg:    "MetaCuepointMsg",
-	MetaDeviceMsg:      "MetaDeviceMsg",
-	MetaEndOfTrackMsg:  "MetaEndOfTrackMsg",
-	MetaInstrumentMsg:  "MetaInstrumentMsg",
-	MetaKeySigMsg:      "MetaKeySigMsg",
-	MetaLyricMsg:       "MetaLyricMsg",
-	MetaTextMsg:        "MetaTextMsg",
-	MetaMarkerMsg:      "MetaMarkerMsg",
-	MetaPortMsg:        "MetaPortMsg",
-	MetaSeqNumberMsg:   "MetaSeqNumberMsg",
-	MetaSeqDataMsg:     "MetaSeqDataMsg",
-	MetaTempoMsg:       "MetaTempoMsg",
-	MetaTimeSigMsg:     "MetaTimeSigMsg",
-	MetaTrackNameMsg:   "MetaTrackNameMsg",
-	MetaSMPTEOffsetMsg: "MetaSMPTEOffsetMsg",
-	MetaUndefinedMsg:   "MetaUndefinedMsg",
-	MetaProgramNameMsg: "MetaProgramNameMsg",
-	TimingClockMsg:     "TimingClockMsg",
-	TickMsg:            "TickMsg",
-	StartMsg:           "StartMsg",
-	ContinueMsg:        "ContinueMsg",
-	StopMsg:            "StopMsg",
-	ActiveSenseMsg:     "ActiveSenseMsg",
-	ResetMsg:           "ResetMsg",
-	SysExStartMsg:      "SysExStartMsg",
-	SysExEndMsg:        "SysExEndMsg",
-	SysExCompleteMsg:   "SysExCompleteMsg",
-	SysExEscapeMsg:     "SysExEscapeMsg",
-	SysExContinueMsg:   "SysExContinueMsg",
-	MTCMsg:             "MTCMsg",
-	SongSelectMsg:      "SongSelectMsg",
-	SPPMsg:             "SPPMsg",
-	UndefinedMsg:       "UndefinedMsg",
-	TuneMsg:            "TuneMsg",
-	UnknownMsg:         "UnknownMsg",
-	Channel0Msg:        "Channel0Msg",
-	Channel1Msg:        "Channel1Msg",
-	Channel2Msg:        "Channel2Msg",
-	Channel3Msg:        "Channel3Msg",
-	Channel4Msg:        "Channel4Msg",
-	Channel5Msg:        "Channel5Msg",
-	Channel6Msg:        "Channel6Msg",
-	Channel7Msg:        "Channel7Msg",
-	Channel8Msg:        "Channel8Msg",
-	Channel9Msg:        "Channel9Msg",
-	Channel10Msg:       "Channel10Msg",
-	Channel11Msg:       "Channel11Msg",
-	Channel12Msg:       "Channel12Msg",
-	Channel13Msg:       "Channel13Msg",
-	Channel14Msg:       "Channel14Msg",
-	Channel15Msg:       "Channel15Msg",
-}
-
-func (m MessageType) String() string {
-	//return msgTypeString[m]
-	if m.Is(SysExMsg) {
-		return msgTypeString[SysExMsg]
-	}
-
-	if m.Is(MetaMsg) {
-		return msgTypeString[m.Clear(MetaMsg)]
-	}
-
-	if m.Is(SysCommonMsg) {
-		return msgTypeString[m.Clear(SysCommonMsg)]
-	}
-
-	if m.Is(RealTimeMsg) {
-		return msgTypeString[m.Clear(RealTimeMsg)]
-	}
-
-	if m.Is(ChannelMsg) {
-		var clCh MessageType
-
-		if m.Is(Channel0Msg) {
-			clCh = Channel0Msg
-		}
-
-		if m.Is(Channel1Msg) {
-			clCh = Channel1Msg
-		}
-
-		if m.Is(Channel2Msg) {
-			clCh = Channel2Msg
-		}
-
-		if m.Is(Channel3Msg) {
-			clCh = Channel3Msg
-		}
-
-		if m.Is(Channel4Msg) {
-			clCh = Channel4Msg
-		}
-
-		if m.Is(Channel5Msg) {
-			clCh = Channel5Msg
-		}
-
-		if m.Is(Channel6Msg) {
-			clCh = Channel6Msg
-		}
-
-		if m.Is(Channel7Msg) {
-			clCh = Channel7Msg
-		}
-
-		if m.Is(Channel8Msg) {
-			clCh = Channel8Msg
-		}
-
-		if m.Is(Channel9Msg) {
-			clCh = Channel9Msg
-		}
-
-		if m.Is(Channel10Msg) {
-			clCh = Channel10Msg
-		}
-
-		if m.Is(Channel11Msg) {
-			clCh = Channel11Msg
-		}
-
-		if m.Is(Channel12Msg) {
-			clCh = Channel12Msg
-		}
-
-		if m.Is(Channel13Msg) {
-			clCh = Channel13Msg
-		}
-
-		if m.Is(Channel14Msg) {
-			clCh = Channel14Msg
-		}
-
-		if m.Is(Channel15Msg) {
-			clCh = Channel15Msg
-		}
-
-		return msgTypeString[clCh] + " & " + msgTypeString[m.Clear(ChannelMsg).Clear(clCh)]
-	}
-
-	return "Unknown"
 }
 
 // Key returns the MIDI key - a number from 0 to 127 or
 // -1, if it is no noteOn / noteOff / PolyAfterTouch message or an invalid key
 func (m Message) Key() int8 {
-	if m.Type.IsOneOf(NoteOnMsg, NoteOffMsg, PolyAfterTouchMsg) {
+	if m.MsgType.IsOneOf(NoteOnMsg, NoteOffMsg, PolyAfterTouchMsg) {
 		k, _ := utils.ParseTwoUint7(m.Data[1], m.Data[2])
 		return int8(k)
 	}
@@ -297,15 +48,11 @@ func (m Message) IsNoteEnd() bool {
 	return false
 }
 
-func (m Message) Is(t MessageType) bool {
-	return m.Type.Is(t)
-}
-
 func (m Message) String() string {
 	switch {
 	case m.Is(ChannelMsg):
 		var bf bytes.Buffer
-		fmt.Fprintf(&bf, m.Type.String())
+		fmt.Fprintf(&bf, m.MsgType.String())
 		//fmt.Fprintf(&bf, " channel: %v ", m.Channel())
 		switch {
 		case m.Is(NoteOnMsg):
@@ -329,24 +76,24 @@ func (m Message) String() string {
 	case m.Is(MetaMsg):
 		switch {
 		case m.Is(MetaTempoMsg):
-			return fmt.Sprintf("%s bpm: %v", m.Type.String(), m.BPM())
+			return fmt.Sprintf("%s bpm: %v", m.MsgType.String(), m.BPM())
 		case m.Is(MetaTimeSigMsg):
 			num, denom := m.Meter()
-			return fmt.Sprintf("%s meter: %v/%v", m.Type.String(), num, denom)
+			return fmt.Sprintf("%s meter: %v/%v", m.MsgType.String(), num, denom)
 		case m.IsOneOf(MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg):
-			return fmt.Sprintf("%s text: %q", m.Type.String(), m.Text())
+			return fmt.Sprintf("%s text: %q", m.MsgType.String(), m.Text())
 		default:
-			return m.Type.String()
+			return m.MsgType.String()
 		}
 	case m.Is(SysExMsg):
-		return m.Type.String()
+		return m.MsgType.String()
 	case m.Is(SysCommonMsg):
-		return m.Type.String()
+		return m.MsgType.String()
 	case m.Is(RealTimeMsg):
-		return m.Type.String()
+		return m.MsgType.String()
 	}
 
-	return m.Type.String()
+	return m.MsgType.String()
 }
 
 func (m Message) Meter() (num, denom uint8) {
@@ -384,45 +131,12 @@ func (m Message) TimeSig() (numerator, denominator, clocksPerClick, demiSemiQuav
 	return
 }
 
-func (m Message) IsNot(t MessageType) bool {
-	return m.Type.IsNot(t)
-}
-func (m Message) IsOneOf(ts ...MessageType) bool {
-	return m.Type.IsOneOf(ts...)
-}
-func (m Message) IsAllOf(ts ...MessageType) bool {
-	return m.Type.IsAllOf(ts...)
-}
-
-func (b MessageType) Set(flag MessageType) MessageType    { return b | flag }
-func (b MessageType) Clear(flag MessageType) MessageType  { return b &^ flag }
-func (b MessageType) Toggle(flag MessageType) MessageType { return b ^ flag }
-
-func (b MessageType) Is(flag MessageType) bool    { return b&flag != 0 }
-func (b MessageType) IsNot(flag MessageType) bool { return b&flag == 0 }
-func (b MessageType) IsOneOf(flags ...MessageType) bool {
-	for _, fl := range flags {
-		if b&fl != 0 {
-			return true
-		}
-	}
-	return false
-}
-func (b MessageType) IsAllOf(flags ...MessageType) bool {
-	for _, fl := range flags {
-		if b&fl == 0 {
-			return false
-		}
-	}
-	return true
-}
-
-func (msg Message) Pitch() (relative int16, absolute int16) {
-	if msg.Type.IsNot(PitchBendMsg) {
+func (m Message) Pitch() (relative int16, absolute int16) {
+	if m.MsgType.IsNot(PitchBendMsg) {
 		return -1, -1
 	}
 
-	rel, abs := utils.ParsePitchWheelVals(msg.Data[1], msg.Data[2])
+	rel, abs := utils.ParsePitchWheelVals(m.Data[1], m.Data[2])
 	return rel, int16(abs)
 }
 
@@ -439,8 +153,8 @@ Program
 Text
 TrackSequenceName
 */
-func (msg Message) Text() string {
-	rd := bytes.NewReader(msg.Data[2:])
+func (m Message) Text() string {
+	rd := bytes.NewReader(m.Data[2:])
 	text, _ := utils.ReadText(rd)
 	return text
 }
@@ -464,26 +178,26 @@ RealTimeMsg
 SysCommonMsg
 */
 
-func (msg Message) Pressure() int8 {
-	t := msg.Type
+func (m Message) Pressure() int8 {
+	t := m.MsgType
 
 	if t.Is(PolyAfterTouchMsg) {
-		_, v := utils.ParseTwoUint7(msg.Data[1], msg.Data[2])
+		_, v := utils.ParseTwoUint7(m.Data[1], m.Data[2])
 		return int8(v)
 	}
 
 	if t.Is(AfterTouchMsg) {
-		return int8(utils.ParseUint7(msg.Data[1]))
+		return int8(utils.ParseUint7(m.Data[1]))
 	}
 
 	return -1
 }
 
-func (msg Message) Program() int8 {
-	t := msg.Type
+func (m Message) Program() int8 {
+	t := m.MsgType
 
 	if t.Is(ProgramChangeMsg) {
-		return int8(utils.ParseUint7(msg.Data[1]))
+		return int8(utils.ParseUint7(m.Data[1]))
 	}
 
 	return -1
@@ -491,9 +205,9 @@ func (msg Message) Program() int8 {
 
 // Change returns the MIDI controllchange a number from 0 to 127 or
 // -1, if it is no controller message
-func (msg Message) Change() int8 {
-	if msg.Type.Is(ControlChangeMsg) {
-		_, v := utils.ParseTwoUint7(msg.Data[1], msg.Data[2])
+func (m Message) Change() int8 {
+	if m.MsgType.Is(ControlChangeMsg) {
+		_, v := utils.ParseTwoUint7(m.Data[1], m.Data[2])
 		return int8(v)
 	}
 
@@ -502,20 +216,20 @@ func (msg Message) Change() int8 {
 
 // Channel returns the MIDI channel - a number from 0 to 15 or
 // -1, if it is no channel message or an invalid channel number
-func (msg Message) Channel() int8 {
-	if msg.Type.IsNot(ChannelMsg) {
+func (m Message) Channel() int8 {
+	if m.MsgType.IsNot(ChannelMsg) {
 		return -1
 	}
 
-	_, ch := utils.ParseStatus(msg.Data[0])
+	_, ch := utils.ParseStatus(m.Data[0])
 	return int8(ch)
 }
 
 // Velocity returns the MIDI velocity - a number from 0 to 127 or
 // -1, if it is no channel / noteOn / noteOff message or an invalid velocity
-func (msg Message) Velocity() int8 {
-	if msg.Type.IsOneOf(NoteOnMsg, NoteOffMsg) {
-		_, v := utils.ParseTwoUint7(msg.Data[1], msg.Data[2])
+func (m Message) Velocity() int8 {
+	if m.MsgType.IsOneOf(NoteOnMsg, NoteOffMsg) {
+		_, v := utils.ParseTwoUint7(m.Data[1], m.Data[2])
 		return int8(v)
 	}
 
@@ -524,100 +238,15 @@ func (msg Message) Velocity() int8 {
 
 // Controller returns the MIDI controller - a number from 0 to 127 or
 // -1, if it is no controller message
-func (msg Message) Controller() int8 {
-	if msg.Type.Is(ControlChangeMsg) {
-		c, _ := utils.ParseTwoUint7(msg.Data[1], msg.Data[2])
+func (m Message) Controller() int8 {
+	if m.MsgType.Is(ControlChangeMsg) {
+		c, _ := utils.ParseTwoUint7(m.Data[1], m.Data[2])
 		return int8(c)
 	}
 
 	return -1
 }
 
-func GetMessageType(msg []byte) (mType MessageType) {
-	if len(msg) == 0 {
-		return UnknownMsg
-	}
-
-	var canary = msg[0]
-
-	// channel/Voice Category Status
-	if canary >= 0x80 && canary <= 0xEF {
-		var sType MessageType
-		//r.status = canary
-		tp, ch := utils.ParseStatus(canary)
-		mType = mType.Set(ChannelMsg)
-		var ctype MessageType
-
-		switch ch {
-		case 0:
-			ctype = Channel0Msg
-		case 1:
-			ctype = Channel1Msg
-		case 2:
-			ctype = Channel2Msg
-		case 3:
-			ctype = Channel3Msg
-		case 4:
-			ctype = Channel4Msg
-		case 5:
-			ctype = Channel5Msg
-		case 6:
-			ctype = Channel6Msg
-		case 7:
-			ctype = Channel7Msg
-		case 8:
-			ctype = Channel8Msg
-		case 9:
-			ctype = Channel9Msg
-		case 10:
-			ctype = Channel10Msg
-		case 11:
-			ctype = Channel11Msg
-		case 12:
-			ctype = Channel12Msg
-		case 13:
-			ctype = Channel13Msg
-		case 14:
-			ctype = Channel14Msg
-		case 15:
-			ctype = Channel15Msg
-		}
-
-		mType = mType.Set(ctype)
-
-		switch tp {
-		case 0xC:
-			sType = ProgramChangeMsg
-		case 0xD:
-			sType = AfterTouchMsg
-		case 0x8:
-			sType = NoteOffMsg
-		case 0x9:
-			sType = NoteOnMsg
-		case 0xA:
-			sType = PolyAfterTouchMsg
-		case 0xB:
-			sType = ControlChangeMsg
-		case 0xE:
-			sType = PitchBendMsg
-		default:
-			return UnknownMsg
-		}
-		mType = mType.Set(sType)
-		return mType
-	} else {
-		switch canary {
-		case 0xF0, 0xF7:
-			return SysExMsg
-		// meta event
-		case 0xFF:
-			return GetMetaMessage(msg[1])
-		default:
-			return UnknownMsg
-		}
-	}
-}
-
-func GetMetaMessage(b byte) MessageType {
+func GetMetaMessage(b byte) MsgType {
 	return metaMessages[b]
 }
