@@ -17,43 +17,9 @@ const (
 	bytePitchWheel            = 0xE
 )
 
-// ReadNBytes reads n bytes from the reader
-func ReadNBytes(n int, rd io.Reader) ([]byte, error) {
-	var b []byte = make([]byte, n)
-	num, err := rd.Read(b)
-
-	// if num is correct, we are not interested in io.EOF errors
-	if num == n {
-		err = nil
-	}
-
-	return b, err
-}
-
-// ReadByte reads a byte from the reader
-func ReadByte(rd io.Reader) (byte, error) {
-	b, err := ReadNBytes(1, rd)
-
-	if err != nil {
-		return 0, err
-	}
-
-	return b[0], nil
-}
-
-// ParseStatus parses the status byte and returns type and channel
-//
-// This is a slightly modified variant of the readStatusByte function
-// from Joe Wass. See the file midi_functions.go for the original.
-func ParseStatus(b byte) (messageType uint8, messageChannel uint8) {
-	messageType = (b & 0xF0) >> 4
-	messageChannel = b & 0x0F
-	return
-}
-
 // Read reads a channel message
 func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err error) {
-	typ, channel := ParseStatus(status)
+	typ, channel := utils.ParseStatus(status)
 
 	// fmt.Printf("typ: %v channel: %v\n", typ, channel)
 
@@ -72,7 +38,7 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 	// two Arguments needed
 	default:
 		var arg2 byte
-		arg2, err = ReadByte(rd)
+		arg2, err = utils.ReadByte(rd)
 
 		if err != nil {
 			return
