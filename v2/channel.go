@@ -49,7 +49,7 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 }
 
 func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
-	m.Type = Set(ChannelMsg, ChannelType[channel])
+	m.Type = Set(ChannelMsg, channelType[channel])
 	//m.Data = []byte{channel, arg}
 	m.Data = channelMessage1(channel, typ, arg)
 
@@ -66,7 +66,7 @@ func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
 }
 
 func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Message) {
-	msg.Type = Set(ChannelMsg, ChannelType[channel])
+	msg.Type = Set(ChannelMsg, channelType[channel])
 	//msg.Data = []byte{channel, arg1, arg2}
 	msg.Data = channelMessage2(channel, typ, arg1, arg2)
 

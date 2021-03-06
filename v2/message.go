@@ -89,7 +89,7 @@ const (
 	Channel15Msg
 )
 
-var ChannelType = map[uint8]MessageType{
+var channelType = map[uint8]MessageType{
 	0:  Channel0Msg,
 	1:  Channel1Msg,
 	2:  Channel2Msg,
