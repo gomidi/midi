@@ -188,6 +188,40 @@ func ParsePitchWheelVals(b1 byte, b2 byte) (relative int16, absolute uint16) {
 	return relative, val
 }
 
+// MsbLsbSigned returns the uint16 for a signed MSB LSB message combination
+func MsbLsbSigned(n int16) uint16 {
+
+	//		if n > 8191 {
+	//			panic("n must not overflow 14bits (max 8191)")
+	//		}
+	//		if n < -8191 {
+	//			panic("n must not overflow 14bits (min -8191)")
+	//		}
+
+	return MsbLsbUnsigned(uint16(n + 8192))
+}
+
+// takes a 14bit uint and pads it to 16 bit like in the specs for e.g. pitchbend
+func MsbLsbUnsigned(n uint16) uint16 {
+	if n > 16383 {
+		panic("n must not overflow 14bits (max 16383)")
+	}
+
+	lsb := n << 8
+	lsb = clearBitU16(lsb, 15)
+	lsb = clearBitU16(lsb, 7)
+
+	// 0x7f = 127 = 0000000001111111
+	msb := 0x7f & (n >> 7)
+	return lsb | msb
+}
+
+func clearBitU16(n uint16, pos uint16) uint16 {
+	mask := ^(uint16(1) << pos)
+	n &= mask
+	return n
+}
+
 /*
 func ParseStatus(b byte) (messageType uint8, messageChannel uint8) {
 	messageType = (b & 0xF0) >> 4

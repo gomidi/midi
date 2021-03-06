@@ -1,6 +1,7 @@
 package midi
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io"
 
@@ -96,20 +97,49 @@ func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Message) {
 
 type Channel uint8
 
+func (ch Channel) Index() uint8 {
+	return uint8(ch)
+}
+
 func (ch Channel) NoteOn(key, velocity uint8) []byte {
-	return channelMessage2(uint8(ch), 9, key, velocity)
+	return channelMessage2(ch.Index(), 9, key, velocity)
 }
 
 func (ch Channel) NoteOffVelocity(key, velocity uint8) []byte {
-	return channelMessage2(uint8(ch), 8, key, velocity)
+	return channelMessage2(ch.Index(), 8, key, velocity)
 }
 
 func (ch Channel) NoteOff(key uint8) []byte {
-	return channelMessage2(uint8(ch), 9, key, 0)
+	return channelMessage2(ch.Index(), 9, key, 0)
 }
 
 func (ch Channel) ProgramChange(program uint8) []byte {
-	return channelMessage1(uint8(ch), 12, program)
+	return channelMessage1(ch.Index(), 12, program)
+}
+
+// Aftertouch returns the bytes of an aftertouch message.
+func (ch Channel) Aftertouch(pressure uint8) []byte {
+	return channelMessage1(ch.Index(), 13, pressure)
+}
+
+// ControlChange returns the bytes of an control change message.
+func (ch Channel) ControlChange(controller, value uint8) []byte {
+	return channelMessage2(ch.Index(), 11, controller, value)
+}
+
+// Pitchbend returns the raw bytes for the message
+func (ch Channel) Pitchbend(value int16) []byte {
+	r := utils.MsbLsbSigned(value)
+
+	var b = make([]byte, 2)
+
+	binary.BigEndian.PutUint16(b, r)
+	return channelMessage2(ch.Index(), 14, b[0], b[1])
+}
+
+// PolyAftertouch returns the raw bytes of the polyphonic aftertouch message.
+func (ch Channel) PolyAftertouch(key, pressure uint8) []byte {
+	return channelMessage2(ch.Index(), 10, key, pressure)
 }
 
 func channelMessage1(c uint8, status, msg byte) []byte {
