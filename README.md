@@ -30,11 +30,11 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 
 For "cable" communication you need a `Driver`to connect with the MIDI system of your OS.
 Currently the following drivers available  (all multi-platform):
-- package `gitlab.com/gomidi/rtmididrv` based on rtmidi
-- package `gitlab.com/gomidi/portmididrv` based on portmidi
-- package `gitlab.com/gomidi/webmididrv` based on the Web MIDI standard
-- package `gitlab.com/gomidi/midicatdrv` based on the midicat binaries via piping (stdin / stdout)
-- package `gitlab.com/gomidi/midi/testdrv` for testing
+- package `gitlab.com/gomidi/rtmididrv` based on rtmidi (requires CGO)
+- package `gitlab.com/gomidi/portmididrv` based on portmidi (requires CGO)
+- package `gitlab.com/gomidi/webmididrv` based on the Web MIDI standard (produces on webassembly)
+- package `gitlab.com/gomidi/midicatdrv` based on the midicat binaries via piping (stdin / stdout) (no CGO needed)
+- package `gitlab.com/gomidi/midi/testdrv` for testing (no CGO needed)
 
 ## Projects using this library
 
