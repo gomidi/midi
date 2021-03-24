@@ -159,7 +159,8 @@ func (r *reader) readMsg(canary byte) (m midi.Message, err error) {
 
 		case 0xF7:
 			// we should never have a 0xF7 since sysex must already have consumed it
-			panic("unreachable")
+			// be friendly and just ignore it, see https://gitlab.com/gomidi/midi/-/issues/22
+			//panic("unreachable")
 
 		default:
 			// must be a system common message, but no sysex (0xF0 < canary < 0xF7)
