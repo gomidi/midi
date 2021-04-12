@@ -75,6 +75,8 @@ const (
 	Channel15Msg
 )
 
+const NoteMsg = NoteOnMsg | NoteOffMsg
+
 var channelType = map[uint8]MsgType{
 	0:  Channel0Msg,
 	1:  Channel1Msg,
