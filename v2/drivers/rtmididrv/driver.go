@@ -9,7 +9,6 @@ import (
 	"gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi"
 )
 
-/*
 func init() {
 	drv, err := New()
 	if err != nil {
@@ -17,7 +16,6 @@ func init() {
 	}
 	midi.RegisterDriver(drv)
 }
-*/
 
 type Driver struct {
 	opened []midi.Port

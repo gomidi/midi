@@ -1,9 +1,49 @@
-// package midi
 package midi
 
 import (
 	"fmt"
 )
+
+var DRIVERS = map[string]Driver{}
+var firstDriver string
+
+// RegisterDriver register a driver
+func RegisterDriver(d Driver) {
+	DRIVERS[d.String()] = d
+	if len(DRIVERS) == 0 {
+		firstDriver = d.String()
+	}
+}
+
+func GetDriver() Driver {
+	if len(DRIVERS) == 0 {
+		return nil
+	}
+	return DRIVERS[firstDriver]
+}
+
+func CloseDriver() {
+	d := GetDriver()
+	if d != nil {
+		d.Close()
+	}
+}
+
+func Ins() ([]In, error) {
+	d := GetDriver()
+	if d == nil {
+		return nil, fmt.Errorf("no driver registered")
+	}
+	return d.Ins()
+}
+
+func Outs() ([]Out, error) {
+	d := GetDriver()
+	if d == nil {
+		return nil, fmt.Errorf("no driver registered")
+	}
+	return d.Outs()
+}
 
 // Driver is a driver for MIDI connections.
 type Driver interface {
@@ -71,29 +111,111 @@ type Out interface {
 // ErrPortClosed should be returned from a driver when trying to write to a closed port.
 var ErrPortClosed = fmt.Errorf("ERROR: port is closed")
 
-// TODO change signature to OpenIn(connstr string) (in In, err error)
-// where connstr has syntax like:
-// "rtmidi:my-device" (takes rtmidi driver)
-// or
-// "my-device" (takes first available driver)
-// or
-// "/device[0-9]/" (takes first device matching regular expression
-// or
-// "rtmidi:1"  (takes second device of rtmidi driver)
-// or
-// "rtmidi" (takes first device of rtmidi driver)
-// or
-// "1" (takes second device of first available driver)
-// or
-// "" (takes first device of first available driver)
-// the drivers will register themselves into the midi library
-// if a driver has to be initialized with options, it must be registered "by hand"
-// drivers are only opened, when they are used the first time
+type listener struct {
+	err              error
+	in               In
+	filter           Filter
+	realtimeCallback func(msg Message, deltamicrosec int64)
+}
 
-// OpenIn opens a MIDI input port with the help of the given driver.
+func (l *listener) Error() error {
+	return l.err
+}
+
+func Listen(portName string) *listener {
+	l := &listener{}
+	l.in, l.err = InByName(portName)
+	return l
+}
+
+func (l *listener) Only(mtypes ...MsgType) *listener {
+	if len(mtypes) > 0 {
+		l.filter = Filter(mtypes)
+	}
+	return l
+}
+
+func (l *listener) RealTime(realtimeMsgCallback func(msg Message, deltamicrosec int64)) *listener {
+	l.realtimeCallback = realtimeMsgCallback
+	return l
+}
+
+func (l *listener) Do(fn func(msg Message, deltamicroSec int64)) (In, error) {
+	if l.err != nil {
+		return l.in, l.err
+	}
+
+	var rec Receiver
+
+	if l.filter == nil {
+		rec = NewReceiver(fn, l.realtimeCallback)
+	} else {
+		var fun = func(m Message, delta int64) {
+			//m := NewMessage(msg)
+
+			if m.MsgType.IsOneOf(l.filter...) {
+				fn(m, delta)
+			}
+		}
+
+		var funrt func(m Message, delta int64)
+		if l.realtimeCallback != nil {
+			funrt = func(m Message, delta int64) {
+				//m := NewMessage(msg)
+
+				if m.MsgType.IsOneOf(l.filter...) {
+					l.realtimeCallback(m, delta)
+				}
+			}
+		}
+
+		rec = NewReceiver(fun, funrt)
+	}
+
+	l.in.SendTo(rec)
+	return l.in, nil
+}
+
+// InByName opens the first midi in port that contains the given name
+func InByName(portName string) (in In, err error) {
+	drv := GetDriver()
+	if drv == nil {
+		return nil, fmt.Errorf("no driver registered")
+	}
+	return openIn(drv, -1, portName)
+}
+
+// InByNumber opens the midi in port with the given number
+func InByNumber(portNumber int) (in In, err error) {
+	drv := GetDriver()
+	if drv == nil {
+		return nil, fmt.Errorf("no driver registered")
+	}
+	return openIn(drv, portNumber, "")
+}
+
+// OutByName opens the first midi out port that contains the given name
+func OutByName(portName string) (out Out, err error) {
+	drv := GetDriver()
+	if drv == nil {
+		return nil, fmt.Errorf("no driver registered")
+	}
+	return openOut(drv, -1, portName)
+}
+
+// OutByNumber opens the midi out port with the given number
+func OutByNumber(portNumber int) (out Out, err error) {
+	drv := GetDriver()
+	if drv == nil {
+		return nil, fmt.Errorf("no driver registered")
+	}
+	return openOut(drv, portNumber, "")
+}
+
+// openIn opens a MIDI input port with the help of the given driver.
 // To find the port by port number, pass a number >= 0.
 // To find the port by port name, pass a number < 0 and a non empty string.
-func OpenIn(d Driver, number int, name string) (in In, err error) {
+func openIn(d Driver, number int, name string) (in In, err error) {
 	ins, err := d.Ins()
 	if err != nil {
 		return nil, fmt.Errorf("can't find MIDI input ports: %v", err)
@@ -132,29 +254,10 @@ func OpenIn(d Driver, number int, name string) (in In, err error) {
 	return
 }
 
-// TODO change signature to OpenOut(connstr string) (out Out, err error)
-// where connstr has syntax like:
-// "rtmidi:my-device" (takes rtmidi driver)
-// or
-// "my-device" (takes first available driver)
-// or
-// "/device[0-9]/" (takes first device matching regular expression
-// or
-// "rtmidi:1"  (takes second device of rtmidi driver)
-// or
-// "rtmidi" (takes first device of rtmidi driver)
-// or
-// "1" (takes second device of first available driver)
-// or
-// "" (takes first device of first available driver)
-// the drivers will register themselves into the midi library
-// if a driver has to be initialized with options, it must be registered "by hand"
-// drivers are only opened, when they are used the first time
-
-// OpenOut opens a MIDI output port with the help of the given driver.
+// openOut opens a MIDI output port with the help of the given driver.
 // To find the port by port number, pass a number >= 0.
 // To find the port by port name, pass a number < 0 and a non empty string.
-func OpenOut(d Driver, number int, name string) (out Out, err error) {
+func openOut(d Driver, number int, name string) (out Out, err error) {
 	outs, err := d.Outs()
 	if err != nil {
 		return nil, fmt.Errorf("can't find MIDI output ports: %v", err)

@@ -1,0 +1,15 @@
+language: go
+go:
+  - "1.11.x"
+  - tip
+
+sudo: false
+#before_install:
+#  - go get github.com/mattn/goveralls
+#script:
+#  - $HOME/gopath/bin/goveralls -service=travis-ci
+
+before_install:
+  - sudo apt-get install libasound2-dev
+env:
+  - GO111MODULE=on
