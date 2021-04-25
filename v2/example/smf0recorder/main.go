@@ -28,7 +28,7 @@ func run() error {
 
 	// single track recording, for multitrack we would have to collect the messages first (separated by port / midi channel)
 	// and the write them after the recording on the different tracks
-	in, err := midi.Listen("port-description").
+	in, err := midi.NewListener("port-description").
 		Only(midi.Channel1Msg & midi.NoteMsg).
 		Do(
 			func(msg midi.Message, deltamicroSec int64) {

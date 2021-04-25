@@ -339,7 +339,7 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 			if err != nil {
 				return m, err
 			}
-			m.MsgType = midi.GetMetaMessage(typ)
+			m.MsgType = midi.GetMetaMsgType(typ)
 			//m.Data = bt
 			m.Data = midi.MetaMessage(typ, bt)
 

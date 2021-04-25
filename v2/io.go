@@ -1,6 +1,5 @@
 package midi
 
-
 // Sender sends MIDI messages.
 type Sender interface {
 	// Send sends the given MIDI message and returns any error.
@@ -16,9 +15,13 @@ type SenderTo interface {
 // Receiver receives MIDI messages.
 type Receiver interface {
 	// Receive receives a MIDI message. deltamicrosec is the delta to the previous note in microseconds (^-6)
+	// println(big.NewRat(math.MaxInt64,1000 /* milliseonds */ *1000 /* seconds */ *60 /* minutes */ *60 /* hours */ *24 /* days */ *365 /* years */).FloatString(0))
+	// output: 292471
+	// => a ascending timestamp based on microseconds would wrap after 292471 years
 	Receive(msg []byte, deltamicrosec int64)
 }
 
+// receiver implements the Receiver interface
 type receiver struct {
 	realtimeMsgCallback func(msg Message, deltamicrosec int64)
 	otherMsgCallback    func(msg Message, deltamicrosec int64)
@@ -32,8 +35,6 @@ func NewReceiver(otherMsgCallback func(msg Message, deltamicrosec int64), realti
 }
 
 func (r *receiver) Receive(msg []byte, deltamicrosec int64) {
-	// TODO find out if there is a realtime message
-
 	m := NewMessage(msg)
 
 	if m.IsOneOf(RealTimeMsg, SysCommonMsg) && r.realtimeMsgCallback != nil {

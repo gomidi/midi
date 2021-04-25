@@ -108,7 +108,7 @@ func (m Message) metaDataWithoutVarlength() []byte {
 }
 
 func (m Message) TimeSig() (numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) {
-	if m.IsNot(MetaTimeSigMsg) {
+	if !m.Is(MetaTimeSigMsg) {
 		//fmt.Println("not timesig message")
 		return 0, 0, 0, 0
 	}
@@ -132,7 +132,7 @@ func (m Message) TimeSig() (numerator, denominator, clocksPerClick, demiSemiQuav
 }
 
 func (m Message) Pitch() (relative int16, absolute int16) {
-	if m.MsgType.IsNot(PitchBendMsg) {
+	if !m.MsgType.Is(PitchBendMsg) {
 		return -1, -1
 	}
 
@@ -158,25 +158,6 @@ func (m Message) Text() string {
 	text, _ := utils.ReadText(rd)
 	return text
 }
-
-/*
-missing meta messages:
-func Channel(ch uint8) Message {
-func Port(p uint8) Message {
-func SequenceNo(no uint16) Message {
-func SequencerData(data []byte) Message {
-func SMPTE(hour, minute, second, frame, fractionalFrame byte) Message {
-func Tempo(bpm float64) Message {
-func Undefined(typ byte, data []byte) Message {
-*/
-
-/*
-also TODO
-SysExMsg
-Type parsing of
-RealTimeMsg
-SysCommonMsg
-*/
 
 func (m Message) Pressure() int8 {
 	t := m.MsgType
@@ -217,7 +198,7 @@ func (m Message) Change() int8 {
 // Channel returns the MIDI channel - a number from 0 to 15 or
 // -1, if it is no channel message or an invalid channel number
 func (m Message) Channel() int8 {
-	if m.MsgType.IsNot(ChannelMsg) {
+	if !m.MsgType.Is(ChannelMsg) {
 		return -1
 	}
 
@@ -247,6 +228,6 @@ func (m Message) Controller() int8 {
 	return -1
 }
 
-func GetMetaMessage(b byte) MsgType {
+func GetMetaMsgType(b byte) MsgType {
 	return metaMessages[b]
 }
