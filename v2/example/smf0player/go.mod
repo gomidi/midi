@@ -3,7 +3,7 @@ module gitlab.com/gomidi/midi/v2/example/smf0player
 go 1.14
 
 require (
-	gitlab.com/gomidi/midi/v2 v2.0.0-alpha.12
+	gitlab.com/gomidi/midi/v2 v2.0.0-alpha.13
 	gitlab.com/gomidi/midi/v2/drivers/rtmididrv v0.0.0-20210412062545-442b1d8545e9 // indirect
 )
 
