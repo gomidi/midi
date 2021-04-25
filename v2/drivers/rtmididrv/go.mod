@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	gitlab.com/gomidi/midi/v2 v2.0.0-alpha.8
+	gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210425073027-dcb5d7eb9e83 // indirect
 )
 
 replace (

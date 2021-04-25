@@ -7,19 +7,26 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
+// Message represents a MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
 type Message struct {
+
+	// MsgType represents the message type of the MIDI message
 	MsgType
+
+	// Data contains the bytes of the MiDI message
 	Data []byte
 }
 
+// NewMessage returns a new Message from the bytes of the message, by finding the correct type.
+// If the type could not be found, the MsgType of the Message is UnknownMsg.
 func NewMessage(data []byte) (m Message) {
 	m.MsgType = GetMsgType(data)
 	m.Data = data
 	return
 }
 
-// Key returns the MIDI key - a number from 0 to 127 or
-// -1, if it is no noteOn / noteOff / PolyAfterTouch message or an invalid key
+// Key returns the MIDI key - a number from 0 to 127 for NoteOnMsg, NoteOffMsg and PolyAfterTouchMsg.
+// For other messages, it returns -1.
 func (m Message) Key() int8 {
 	if m.MsgType.IsOneOf(NoteOnMsg, NoteOffMsg, PolyAfterTouchMsg) {
 		k, _ := utils.ParseTwoUint7(m.Data[1], m.Data[2])
@@ -48,6 +55,7 @@ func (m Message) IsNoteEnd() bool {
 	return false
 }
 
+// String represents the Message as a string that contains the MsgType and its properties.
 func (m Message) String() string {
 	switch {
 	case m.Is(ChannelMsg):
@@ -86,16 +94,20 @@ func (m Message) String() string {
 			return m.MsgType.String()
 		}
 	case m.Is(SysExMsg):
+		// TODO print the length in bytes
 		return m.MsgType.String()
 	case m.Is(SysCommonMsg):
+		// TODO print the data depending of the type
 		return m.MsgType.String()
 	case m.Is(RealTimeMsg):
 		return m.MsgType.String()
+	default:
+		return m.MsgType.String()
 	}
-
-	return m.MsgType.String()
 }
 
+// Meter returns the meter of a MetaTimeSigMsg.
+// For other messages, it returns 0,0.
 func (m Message) Meter() (num, denom uint8) {
 	num, denom, _, _ = m.TimeSig()
 	return
@@ -107,6 +119,8 @@ func (m Message) metaDataWithoutVarlength() []byte {
 	return m.Data[3:]
 }
 
+// TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
+// MetaTimeSigMsg. For other messages, it returns 0,0,0,0.
 func (m Message) TimeSig() (numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) {
 	if !m.Is(MetaTimeSigMsg) {
 		//fmt.Println("not timesig message")
@@ -131,6 +145,24 @@ func (m Message) TimeSig() (numerator, denominator, clocksPerClick, demiSemiQuav
 	return
 }
 
+func (m Message) BPM() float64 {
+	if !m.MsgType.Is(MetaTempoMsg) {
+		//fmt.Println("not tempo message")
+		return -1
+	}
+
+	rd := bytes.NewReader(m.metaDataWithoutVarlength())
+	microsecondsPerCrotchet, err := utils.ReadUint24(rd)
+	if err != nil {
+		//fmt.Println("cant read")
+		return -1
+	}
+
+	return float64(60000000) / float64(microsecondsPerCrotchet)
+}
+
+// Pitch returns the relative and absolute pitch of a PitchBendMsg.
+// For other messages it returns -1,-1.
 func (m Message) Pitch() (relative int16, absolute int16) {
 	if !m.MsgType.Is(PitchBendMsg) {
 		return -1, -1
@@ -140,25 +172,19 @@ func (m Message) Pitch() (relative int16, absolute int16) {
 	return rel, int16(abs)
 }
 
-/*
-Text returns the text for the meta messages
-
-Lyric
-Copyright
-Cuepoint
-Device
-Instrument
-Marker
-Program
-Text
-TrackSequenceName
-*/
+// Text returns the text for MetaLyricMsg, MetaCopyrightMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaMarkerMsg, MetaProgramNameMsg, MetaTextMsg and MetaTrackNameMsg.
+// For other messages, it returns "".
 func (m Message) Text() string {
+	if !m.IsOneOf(MetaLyricMsg, MetaCopyrightMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaMarkerMsg, MetaProgramNameMsg, MetaTextMsg, MetaTrackNameMsg) {
+		return ""
+	}
 	rd := bytes.NewReader(m.Data[2:])
 	text, _ := utils.ReadText(rd)
 	return text
 }
 
+// Pressure returns the pressure of a PolyAfterTouchMsg or an AfterTouchMsg.
+// For other messages, it returns -1.
 func (m Message) Pressure() int8 {
 	t := m.MsgType
 
@@ -174,6 +200,8 @@ func (m Message) Pressure() int8 {
 	return -1
 }
 
+// Program returns the program number for a ProgramChangeMsg.
+// For other messages, it returns -1.
 func (m Message) Program() int8 {
 	t := m.MsgType
 
@@ -184,8 +212,8 @@ func (m Message) Program() int8 {
 	return -1
 }
 
-// Change returns the MIDI controllchange a number from 0 to 127 or
-// -1, if it is no controller message
+// Change returns the MIDI controllchange (a number from 0 to 127) of a ControlChangeMsg.
+// For other messages, it returns -1.
 func (m Message) Change() int8 {
 	if m.MsgType.Is(ControlChangeMsg) {
 		_, v := utils.ParseTwoUint7(m.Data[1], m.Data[2])
@@ -195,8 +223,8 @@ func (m Message) Change() int8 {
 	return -1
 }
 
-// Channel returns the MIDI channel - a number from 0 to 15 or
-// -1, if it is no channel message or an invalid channel number
+// Channel returns the MIDI channel (a number from 0 to 15) of a ChannelMsg.
+// For other messages, or an invalid channel number, it returns -1.
 func (m Message) Channel() int8 {
 	if !m.MsgType.Is(ChannelMsg) {
 		return -1
@@ -206,8 +234,8 @@ func (m Message) Channel() int8 {
 	return int8(ch)
 }
 
-// Velocity returns the MIDI velocity - a number from 0 to 127 or
-// -1, if it is no channel / noteOn / noteOff message or an invalid velocity
+// Velocity returns the MIDI velocity (a number from 0 to 127) of a NoteOnMsg or a NoteOffMsg.
+// For other messages, or an invalid velocity number, it returns -1.
 func (m Message) Velocity() int8 {
 	if m.MsgType.IsOneOf(NoteOnMsg, NoteOffMsg) {
 		_, v := utils.ParseTwoUint7(m.Data[1], m.Data[2])
@@ -217,8 +245,8 @@ func (m Message) Velocity() int8 {
 	return -1
 }
 
-// Controller returns the MIDI controller - a number from 0 to 127 or
-// -1, if it is no controller message
+// Controller returns the MIDI controller number (a number from 0 to 127) of a ControlChangeMsg.
+// For other messages, or an invalid controller number, it returns -1.
 func (m Message) Controller() int8 {
 	if m.MsgType.Is(ControlChangeMsg) {
 		c, _ := utils.ParseTwoUint7(m.Data[1], m.Data[2])
@@ -226,8 +254,4 @@ func (m Message) Controller() int8 {
 	}
 
 	return -1
-}
-
-func GetMetaMsgType(b byte) MsgType {
-	return metaMessages[b]
 }

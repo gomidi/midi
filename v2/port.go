@@ -1,6 +1,9 @@
 package midi
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Port is an interface for a MIDI port.
 type Port interface {
@@ -121,7 +124,7 @@ func openIn(d Driver, number int, name string) (in In, err error) {
 	} else {
 		if name != "" {
 			for _, port := range ins {
-				if name == port.String() {
+				if strings.Contains(port.String(), name) {
 					in = port
 					break
 				}
@@ -163,7 +166,7 @@ func openOut(d Driver, number int, name string) (out Out, err error) {
 	} else {
 		if name != "" {
 			for _, port := range outs {
-				if name == port.String() {
+				if strings.Contains(port.String(), name) {
 					out = port
 					break
 				}

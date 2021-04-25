@@ -89,7 +89,7 @@ func (s SMF) Format() uint16 {
 type tracksReader struct {
 	smf    *SMF
 	tracks map[int]bool
-	filter midi.Filter
+	filter []midi.MsgType
 	err    error
 }
 
@@ -116,7 +116,7 @@ func ReadTracks(filepath string, tracks ...int) *tracksReader {
 }
 
 func (t *tracksReader) Only(mtypes ...midi.MsgType) *tracksReader {
-	t.filter = midi.Filter(mtypes)
+	t.filter = mtypes
 	return t
 }
 

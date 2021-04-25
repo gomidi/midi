@@ -11,7 +11,7 @@ func NewListener(portName string) *Listener {
 type Listener struct {
 	err              error
 	in               In
-	filter           Filter
+	filter           []MsgType
 	realtimeCallback func(msg Message, deltamicrosec int64)
 }
 
@@ -21,7 +21,7 @@ func (l *Listener) Error() error {
 
 func (l *Listener) Only(mtypes ...MsgType) *Listener {
 	if len(mtypes) > 0 {
-		l.filter = Filter(mtypes)
+		l.filter = mtypes
 	}
 	return l
 }

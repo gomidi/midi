@@ -10,7 +10,7 @@ import (
 )
 
 func run() error {
-	out, err := midi.OutByName("port-description")
+	out, err := midi.OutByName("FLUID Synth")
 	if err != nil {
 		return err
 	}
@@ -19,10 +19,11 @@ func run() error {
 
 	// single track playing
 	// for multitrack we would have to collect the tracks events first and properly synchronize playback
-	_, err = smf.ReadTracks("myfile.mid", 0).
-		Only(midi.Channel1Msg & midi.NoteMsg).
+	_, err = smf.ReadTracks("Prelude4.mid", 1).
+		Only(midi.Channel0Msg).
 		Do(
 			func(trackNo int, msg midi.Message, delta int64, deltamicroSec int64) {
+				fmt.Printf("%s\n", msg.String())
 				time.Sleep(time.Microsecond * time.Duration(deltamicroSec))
 				out.Send(msg.Data)
 			},

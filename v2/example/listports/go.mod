@@ -1,4 +1,4 @@
-module gitlab.com/gomidi/midi/v2/example/smf0player
+module gitlab.com/gomidi/midi/v2/example/listports
 
 go 1.14
 
