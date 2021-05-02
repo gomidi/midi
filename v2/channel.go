@@ -62,7 +62,7 @@ func (ch Channel) NoteOffVelocity(key, velocity uint8) []byte {
 
 // NoteOff returns the bytes of a note off message on the MIDI channel.
 func (ch Channel) NoteOff(key uint8) []byte {
-	return channelMessage2(ch.Index(), 9, key, 0)
+	return channelMessage2(ch.Index(), 8, key, 0)
 }
 
 // ProgramChange returns the bytes of a program change message on the MIDI channel.

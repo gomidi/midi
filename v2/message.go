@@ -145,6 +145,7 @@ func (m Message) TimeSig() (numerator, denominator, clocksPerClick, demiSemiQuav
 	return
 }
 
+// BPM returns the tempo in beats per minute of a meta tempo message.
 func (m Message) BPM() float64 {
 	if !m.MsgType.Is(MetaTempoMsg) {
 		//fmt.Println("not tempo message")

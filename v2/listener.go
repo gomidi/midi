@@ -1,24 +1,33 @@
 package midi
 
-// NewListener returns a new Listener
-func NewListener(portName string) *Listener {
-	l := &Listener{}
-	l.in, l.err = InByName(portName)
-	return l
+import "fmt"
+
+// NewListener returns a new Listener that listens on the given MIDI in port by calling the given
+// msgCallback, when the StartListening method is called.
+// Before that, a message filter can be set via the Only method and a callback for realtime
+// messages can be set via the RealTime method.
+func NewListener(inPortName string, msgCallback func(msg Message, deltamicroSec int64)) (l *Listener, err error) {
+	if msgCallback == nil {
+		return nil, fmt.Errorf("msgCallback must not be nil")
+	}
+	l = &Listener{}
+	l.In, err = InByName(inPortName)
+	if err != nil {
+		return nil, err
+	}
+	return l, nil
 }
 
 // Listener is an utility struct to make listening on a MIDI port for (filtered) messages easy.
 type Listener struct {
-	err              error
-	in               In
+	In               In
 	filter           []MsgType
+	msgCallback      func(msg Message, deltamicroSec int64)
 	realtimeCallback func(msg Message, deltamicrosec int64)
 }
 
-func (l *Listener) Error() error {
-	return l.err
-}
-
+// Only sets the message types that should be listened on.
+// I.e. any of the given MsgTypes will be passed to the given callback(s).
 func (l *Listener) Only(mtypes ...MsgType) *Listener {
 	if len(mtypes) > 0 {
 		l.filter = mtypes
@@ -26,26 +35,24 @@ func (l *Listener) Only(mtypes ...MsgType) *Listener {
 	return l
 }
 
+// RealTime sets a callback for realtime messages.
 func (l *Listener) RealTime(realtimeMsgCallback func(msg Message, deltamicrosec int64)) *Listener {
 	l.realtimeCallback = realtimeMsgCallback
 	return l
 }
 
-func (l *Listener) Do(fn func(msg Message, deltamicroSec int64)) (In, error) {
-	if l.err != nil {
-		return l.in, l.err
-	}
-
+// StartListening starts the listening.
+func (l *Listener) StartListening() {
 	var rec Receiver
 
 	if l.filter == nil {
-		rec = NewReceiver(fn, l.realtimeCallback)
+		rec = NewReceiver(l.msgCallback, l.realtimeCallback)
 	} else {
 		var fun = func(m Message, delta int64) {
 			//m := NewMessage(msg)
 
 			if m.MsgType.IsOneOf(l.filter...) {
-				fn(m, delta)
+				l.msgCallback(m, delta)
 			}
 		}
 
@@ -63,6 +70,15 @@ func (l *Listener) Do(fn func(msg Message, deltamicroSec int64)) (In, error) {
 		rec = NewReceiver(fun, funrt)
 	}
 
-	l.in.SendTo(rec)
-	return l.in, nil
+	l.In.SendTo(rec)
+}
+
+// StopListening stops the listening
+func (l *Listener) StopListening() {
+	l.In.StopListening()
+}
+
+// Close closes the underlying MIDI In port.
+func (l *Listener) Close() {
+	l.In.StopListening()
 }

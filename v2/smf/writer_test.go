@@ -215,20 +215,20 @@ func TestWriteSMF1(t *testing.T) {
 	track = NewTrack()
 	track.Add(0, ch0.ProgramChange(5))
 	track.Add(beat*2, ch0.NoteOn(76, 32))
-	track.Add(beat*2, ch0.NoteOff(76))
+	track.Add(beat*2, ch0.NoteOn(76, 0))
 	smf.AddAndClose(0, track)
 
 	track = NewTrack()
 	track.Add(0, ch1.ProgramChange(46))
 	track.Add(beat, ch1.NoteOn(67, 64))
-	track.Add(beat*3, ch1.NoteOff(67))
+	track.Add(beat*3, ch1.NoteOn(67, 0))
 	smf.AddAndClose(0, track)
 
 	track = NewTrack()
 	track.Add(0, ch2.ProgramChange(70))
 	track.Add(0, ch2.NoteOn(48, 96))
 	track.Add(0, ch2.NoteOn(60, 96))
-	track.Add(beat*4, ch2.NoteOff(48), ch2.NoteOff(60))
+	track.Add(beat*4, ch2.NoteOn(48, 0), ch2.NoteOn(60, 0))
 	smf.AddAndClose(0, track)
 
 	err := smf.WriteTo(&bf)
