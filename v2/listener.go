@@ -6,12 +6,14 @@ import "fmt"
 // msgCallback, when the StartListening method is called.
 // Before that, a message filter can be set via the Only method and a callback for realtime
 // messages can be set via the RealTime method.
-func NewListener(inPortName string, msgCallback func(msg Message, deltamicroSec int64)) (l *Listener, err error) {
+func NewListener(in In, msgCallback func(msg Message, deltamicroSec int64)) (l *Listener, err error) {
 	if msgCallback == nil {
 		return nil, fmt.Errorf("msgCallback must not be nil")
 	}
 	l = &Listener{}
-	l.In, err = InByName(inPortName)
+	l.msgCallback = msgCallback
+	l.In = in
+	err = l.In.Open()
 	if err != nil {
 		return nil, err
 	}

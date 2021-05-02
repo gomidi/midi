@@ -10,12 +10,16 @@ package testdrv
 
 import (
 	"io"
-
 	"sync"
 	"time"
 
 	"gitlab.com/gomidi/midi/v2"
 )
+
+func init() {
+	drv := New("testdrv")
+	midi.RegisterDriver(drv)
+}
 
 type Driver struct {
 	in       *in

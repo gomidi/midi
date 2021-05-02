@@ -28,19 +28,21 @@ func run() error {
 
 	// single track recording, for multitrack we would have to collect the messages first (separated by port / midi channel)
 	// and the write them after the recording to the different tracks
-	in, err := midi.NewListener("VMPK").
-		Only(midi.ChannelMsg).
-		Do(
-			func(msg midi.Message, deltamicroSec int64) {
-				fmt.Printf("[%v] %s\n", deltamicroSec, msg.String())
-				delta := ticks.Ticks(bpm, time.Duration(deltamicroSec)*time.Microsecond)
-				tr.Add(delta, msg.Data)
-			},
-		)
+	listener, err := midi.NewListener("VMPK", func(msg midi.Message, deltamicroSec int64) {
+		fmt.Printf("[%v] %s\n", deltamicroSec, msg.String())
+		delta := ticks.Ticks(bpm, time.Duration(deltamicroSec)*time.Microsecond)
+		tr.Add(delta, msg.Data)
+	})
+
+	if err != nil {
+		return err
+	}
+	listener.Only(midi.ChannelMsg).StartListening()
 
 	time.Sleep(5 * time.Second)
 
-	in.Close()
+	listener.StopListening()
+	listener.Close()
 
 	file.AddAndClose(0, tr)
 

@@ -1,4 +1,4 @@
-module gitlab.com/gomidi/midi/v2/portmididrv
+module gitlab.com/gomidi/midi/v2/drivers/portmididrv
 
 go 1.14
 
