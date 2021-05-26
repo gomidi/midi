@@ -9,6 +9,7 @@ Package testdrv provides a gomidi/midi.Driver for testing.
 package testdrv
 
 import (
+	"fmt"
 	"io"
 
 	"sync"
@@ -24,13 +25,15 @@ type Driver struct {
 	name     string
 	last     time.Time
 	mx       sync.Mutex
+	Connect  bool
 }
 
-func New(name string) midi.Driver {
+func New(name string) *Driver {
 	d := &Driver{name: name}
 	d.in = &in{name: name + "-in", driver: d, number: 0}
 	d.out = &out{name: name + "-out", driver: d, number: 0}
 	d.last = time.Now()
+	d.Connect = true
 	return d
 }
 
@@ -116,14 +119,21 @@ func (f *out) Write(b []byte) (int, error) {
 		f.driver.mx.Unlock()
 		return 0, midi.ErrPortClosed
 	}
+
+	now := time.Now()
+	dur := now.Sub(f.driver.last)
+	f.driver.last = now
+
+	if !f.driver.Connect {
+		fmt.Printf("writing % X\n", b)
+		f.driver.mx.Unlock()
+		return len(b), nil
+	}
 	if f.driver.listener == nil {
 		f.driver.mx.Unlock()
 		return 0, io.EOF
 	}
 
-	now := time.Now()
-	dur := now.Sub(f.driver.last)
-	f.driver.last = now
 	f.driver.listener(b, dur.Microseconds())
 	f.driver.mx.Unlock()
 	return len(b), nil

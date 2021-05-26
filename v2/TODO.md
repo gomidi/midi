@@ -8,6 +8,12 @@
 
 # Pipelines / Builders
 
+# Test SMPTE in smf
+
+# Test midi clock etc. realtime and syscommon messages
+
+# Test sysex
+
 
 ```go
 package main
