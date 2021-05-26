@@ -2,6 +2,7 @@ package midi
 
 import (
 	"fmt"
+	"strings"
 )
 
 var drivers = map[string]Driver{}
