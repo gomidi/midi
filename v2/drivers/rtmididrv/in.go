@@ -81,9 +81,8 @@ func (i *in) Open() (err error) {
 		return fmt.Errorf("can't open MIDI in port %v (%s): %v", i.number, i, err)
 	}
 
-	i.midiIn.IgnoreTypes(false, false, false)
-
 	i.driver.Lock()
+	i.midiIn.IgnoreTypes(i.driver.ignoreSysex, i.driver.ignoreTimeCode, i.driver.ignoreActiveSense)
 	i.driver.opened = append(i.driver.opened, i)
 	i.driver.Unlock()
 
@@ -107,7 +106,9 @@ func (i *in) SendTo(recv midi.Receiver) error {
 	i.RUnlock()
 	i.Lock()
 	i.listenerSet = true
-	i.midiIn.IgnoreTypes(false, false, false)
+	i.driver.RLock()
+	i.midiIn.IgnoreTypes(i.driver.ignoreSysex, i.driver.ignoreTimeCode, i.driver.ignoreActiveSense)
+	i.driver.RUnlock()
 	i.Unlock()
 
 	// since i.midiIn.SetCallback is blocking on success, there is no meaningful way to get an error

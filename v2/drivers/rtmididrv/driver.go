@@ -18,7 +18,10 @@ func init() {
 }
 
 type Driver struct {
-	opened []midi.Port
+	opened            []midi.Port
+	ignoreSysex       bool
+	ignoreTimeCode    bool
+	ignoreActiveSense bool
 	sync.RWMutex
 }
 
@@ -47,9 +50,35 @@ func (d *Driver) Close() (err error) {
 	return e
 }
 
+type Option func(*Driver)
+
+func IgnoreSysex() Option {
+	return func(d *Driver) {
+		d.ignoreSysex = true
+	}
+}
+
+func IgnoreTimeCode() Option {
+	return func(d *Driver) {
+		d.ignoreTimeCode = true
+	}
+}
+
+func IgnoreActiveSense() Option {
+	return func(d *Driver) {
+		d.ignoreActiveSense = true
+	}
+}
+
 // New returns a driver based on the default rtmidi in and out
-func New() (*Driver, error) {
-	return &Driver{}, nil
+func New(options ...Option) (*Driver, error) {
+	d := &Driver{}
+
+	for _, opt := range options {
+		opt(d)
+	}
+
+	return d, nil
 }
 
 // OpenVirtualIn opens and returns a virtual MIDI in. We can't get the port number, so set it to -1.
