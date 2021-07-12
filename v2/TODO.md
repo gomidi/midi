@@ -1,4 +1,4 @@
-# make helper functions (methods on *Message) for the data of the syscommon messages
+# make tests for midi channel messages
 
 # make transparent running status to explicit status reader; make it the default in listener, let it start listening at the first explicit status
 

@@ -360,7 +360,10 @@ func GetMsgType(msg []byte) (mType MsgType) {
 		// TODO what about sysex start stop etc.
 		return SysExMsg
 	case canary == 0xFF:
-		return GetMetaMsgType(msg[1])
+		if len(msg) > 1 {
+			return GetMetaMsgType(msg[1])
+		}
+		return GetRealtimeMsgType(canary)
 	case canary < 0xF7:
 		return GetSysCommonMsgType(canary)
 	case canary > 0xF7:

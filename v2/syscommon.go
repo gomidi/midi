@@ -19,7 +19,7 @@ const (
 )
 
 var syscommMessages = map[byte]MsgType{
-	byteMIDITimingCodeMessage:  SysCommonMsg.Set(TimingClockMsg),
+	byteMIDITimingCodeMessage:  SysCommonMsg.Set(MTCMsg),
 	byteSysSongPositionPointer: SysCommonMsg.Set(SPPMsg),
 	byteSysSongSelect:          SysCommonMsg.Set(SongSelectMsg),
 	byteSysTuneRequest:         SysCommonMsg.Set(TuneMsg),

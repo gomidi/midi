@@ -97,8 +97,17 @@ func (m Message) String() string {
 		// TODO print the length in bytes
 		return m.MsgType.String()
 	case m.Is(SysCommonMsg):
-		// TODO print the data depending of the type
-		return m.MsgType.String()
+		switch {
+		case m.Is(MTCMsg):
+			return fmt.Sprintf("%s mtc: %v", m.MsgType.String(), m.MTC())
+		case m.Is(SPPMsg):
+			return fmt.Sprintf("%s spp: %v", m.MsgType.String(), m.SPP())
+		case m.Is(SongSelectMsg):
+			return fmt.Sprintf("%s song: %v", m.MsgType.String(), m.Song())
+		default:
+			return m.MsgType.String()
+		}
+
 	case m.Is(RealTimeMsg):
 		return m.MsgType.String()
 	default:
@@ -255,4 +264,56 @@ func (m Message) Controller() int8 {
 	}
 
 	return -1
+}
+
+/*
+MTC Quarter Frame
+
+These are the MTC (i.e. SMPTE based) equivalent of the F8 Timing Clock messages,
+though offer much higher resolution, as they are sent at a rate of 96 to 120 times
+a second (depending on the SMPTE frame rate). Each Quarter Frame message provides
+partial timecode information, 8 sequential messages being required to fully
+describe a timecode instant. The reconstituted timecode refers to when the first
+partial was received. The most significant nibble of the data byte indicates the
+partial (aka Message Type).
+
+Partial	Data byte	Usage
+1	0000 bcde	Frame number LSBs 	abcde = Frame number (0 to frameRate-1)
+2	0001 000a	Frame number MSB
+3	0010 cdef	Seconds LSBs 	abcdef = Seconds (0-59)
+4	0011 00ab	Seconds MSBs
+5	0100 cdef	Minutes LSBs 	abcdef = Minutes (0-59)
+6	0101 00ab	Minutes MSBs
+7	0110 defg	Hours LSBs 	ab = Frame Rate (00 = 24, 01 = 25, 10 = 30drop, 11 = 30nondrop)
+cdefg = Hours (0-23)
+8	0111 0abc	Frame Rate, and Hours MSB
+*/
+
+// MTC represents a MIDI timing code message (quarter frame)
+func (m Message) MTC() int8 {
+	if !m.MsgType.Is(MTCMsg) {
+		return -1
+	}
+
+	return int8(utils.ParseUint7(m.Data[1]))
+}
+
+// Song returns the song number of a MIDI song select system message
+func (m Message) Song() int8 {
+	if !m.MsgType.Is(SongSelectMsg) {
+		return -1
+	}
+
+	return int8(utils.ParseUint7(m.Data[1]))
+}
+
+// SPP returns the song position pointer of a MIDI song position pointer system message
+// For other messages it returns -1,-1.
+func (m Message) SPP() (spp int16) {
+	if !m.MsgType.Is(SPPMsg) {
+		return -1
+	}
+
+	_, abs := utils.ParsePitchWheelVals(m.Data[2], m.Data[1])
+	return int16(abs)
 }
