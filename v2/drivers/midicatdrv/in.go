@@ -7,34 +7,8 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2"
+        "gitlab.com/gomidi/midicat/lib"
 )
-
-/*
-TODO
-
-opening means:
-  - create the process of an midireader
-  - and start reading from it (throw away the bytes)
-
-setListener means:
-  - don't throw away the bytes but pass them to the listener instead
-
-stopListening means:
-  - throw the bytes away, again
-
-close mean:
-  - kill the process
-
-IMPORTANT:
-we need to keep track of all open ports inside the driver, since for each port there could be
-a process and we want to make sure that no port is opened twice.
-All open ports (processes) must be closed when closing the driver.
-Since each process must run in its own gorouting, we need channes to communicate:
-- should stop reading
-- has stopped reading
-- should kill
-- was killed
-*/
 
 type in struct {
 	number int
@@ -60,25 +34,49 @@ func (o *in) fireCmd() error {
 	o.shouldKill = make(chan bool, 1)
 	o.wasKilled = make(chan bool, 1)
 	o.hasProc = true
+	cmd := midiCatInCmd(o.number)
+	rd, wr := io.Pipe()
+	cmd.Stdout = wr
+	err := cmd.Start()
+	if err != nil {
+		o.Lock()
+		o.hasProc = false
+		o.Unlock()
+		return err
+	}
 	o.Unlock()
-	go func(shouldStopListening <-chan bool, didStopListening chan<- bool, shouldKill <-chan bool, wasKilled chan<- bool) {
-		cmd := midiCatInCmd(o.number)
-		//cmd := midiCatCmd(fmt.Sprintf("in --index=%v --name='%s'", o.number, o.name))
-		rd, wr := io.Pipe()
-		cmd.Stdout = wr
-		err := cmd.Start()
-		if err != nil {
-			o.Lock()
-			o.hasProc = false
-			o.Unlock()
-			return
+	go func() {
+		for {
+			data, err := lib.ReadAndConvert(rd)
+			if err != nil {
+				return
+			}
+			o.RLock()
+			if !o.hasProc {
+				o.RUnlock()
+				return
+			}
+
+			if o.listener != nil {
+				o.listener(data, -1)
+			}
+			o.RUnlock()
+			runtime.Gosched()
 		}
+	}()
+
+	go func(shouldStopListening <-chan bool, didStopListening chan<- bool, shouldKill <-chan bool, wasKilled chan<- bool) {
+		defer rd.Close()
+		defer wr.Close()
+
 		for {
 			select {
 			case <-shouldKill:
 				if cmd.Process != nil {
-					rd.Close()
+					/*
+                                        rd.Close()
 					wr.Close()
+                                        */
 					cmd.Process.Kill()
 				}
 				o.Lock()
@@ -92,25 +90,11 @@ func (o *in) fireCmd() error {
 				o.Unlock()
 				didStopListening <- true
 			default:
-				for {
-					var data = make([]byte, 3)
-					_, err := rd.Read(data)
-					if err != nil {
-						o.Lock()
-						o.hasProc = false
-						o.Unlock()
-						return
-					}
-					o.Lock()
-					if o.listener != nil {
-						o.listener(data, -1)
-					}
-					o.Unlock()
-					runtime.Gosched()
-				}
+				runtime.Gosched()
 			}
 		}
 	}(o.shouldStopListening, o.didStopListening, o.shouldKill, o.wasKilled)
+
 	return nil
 }
 
@@ -146,7 +130,9 @@ func (i *in) Close() (err error) {
 	}
 
 	//i.shouldStopReading
-	i.shouldStopListening <- true
+	go func() {
+		i.shouldStopListening <- true
+	}()
 	<-i.didStopListening
 
 	i.shouldKill <- true
@@ -195,27 +181,6 @@ func (i *in) SendTo(recv midi.Receiver) (err error) {
 
 	return nil
 }
-
-/*
-// SetListener makes the listener listen to the in port
-func (i *in) SetListener(listener func(data []byte, deltaMicroseconds int64)) (err error) {
-	if !i.IsOpen() {
-		return midi.ErrPortClosed
-	}
-
-	i.RLock()
-	if i.listener != nil {
-		i.RUnlock()
-		return fmt.Errorf("listener already set")
-	}
-	i.RUnlock()
-	i.Lock()
-	i.listener = listener
-	i.Unlock()
-
-	return nil
-}
-*/
 
 // StopListening cancels the listening
 func (i *in) StopListening() (err error) {

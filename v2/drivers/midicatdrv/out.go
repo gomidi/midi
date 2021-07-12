@@ -30,15 +30,16 @@ func (o *out) fireCmd() error {
 	if o.cmd != nil {
 		return fmt.Errorf("already running")
 	}
-	//o.cmd = midiCatCmd(fmt.Sprintf("out --index=%v --name=%q", o.number, o.name))
 
 	o.cmd = midiCatOutCmd(o.number)
-	//o.cmd = midiCatCmd(fmt.Sprintf("out --index=%v", o.number))
 	o.rd, o.wr = io.Pipe()
 	o.cmd.Stdin = o.rd
 
 	err := o.cmd.Start()
 	if err != nil {
+		o.rd = nil
+		o.wr = nil
+		o.cmd = nil
 		return err
 	}
 
@@ -57,12 +58,15 @@ func (o *out) IsOpen() (open bool) {
 // If the output port is closed, it returns midi.ErrClosed
 func (o *out) Send(b []byte) error {
 	o.Lock()
+	defer o.Unlock()
 	if o.cmd == nil {
-		o.Unlock()
 		return midi.ErrPortClosed
 	}
-	o.wr.Write(b)
-	o.Unlock()
+
+	_, err := fmt.Fprintf(o.wr, "%X\n", b)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -92,9 +96,11 @@ func (o *out) Close() (err error) {
 	o.Lock()
 	defer o.Unlock()
 	o.wr.Close()
-	o.rd.Close()
 	err = o.cmd.Process.Kill()
 	o.cmd = nil
+	o.rd.Close()
+	o.wr = nil
+	o.rd = nil
 	return err
 }
 

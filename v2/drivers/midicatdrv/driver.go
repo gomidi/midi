@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/metakeule/config"
 )
 
 /*
@@ -43,6 +45,8 @@ func (d *Driver) Close() (err error) {
 		}
 	}
 
+	d.opened = nil
+
 	d.Unlock()
 
 	if len(e) == 0 {
@@ -52,8 +56,78 @@ func (d *Driver) Close() (err error) {
 	return e
 }
 
+const midicatVersion = "0.3.6"
+const midicatDownloadURL = "https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip"
+
+func barkTo(wr io.Writer) {
+	fmt.Fprintf(wr, "can't find midicat binary version >= %s in your PATH, please download from: %s\n", midicatVersion, midicatDownloadURL)
+}
+
+func isVersionLess(a, b *config.Version) bool {
+	if a.Major != b.Major {
+		return a.Major < b.Major
+	}
+
+	if a.Minor != b.Minor {
+		return a.Minor < b.Minor
+	}
+
+	return a.Patch < b.Patch
+}
+
+func CheckMIDICatBinary(barkTarget io.Writer) error {
+	//
+	b, err := midiCatVersionCmd().Output()
+
+	if err != nil {
+		if barkTarget != nil {
+			barkTo(barkTarget)
+		}
+		return fmt.Errorf("missing binary 'midicat'")
+	}
+
+	s := string(b)
+
+	idx := strings.LastIndex(s, " ")
+
+	if idx < 4 {
+		return fmt.Errorf("wrong version string of 'midicat'")
+	}
+
+	ver := strings.TrimSpace(s[idx:])
+
+	vsGot, err := config.ParseVersion(ver)
+
+	if err != nil {
+		if barkTarget != nil {
+			barkTo(barkTarget)
+		}
+		return fmt.Errorf("wrong version string of 'midicat'")
+	}
+
+	vsWant, err2 := config.ParseVersion(midicatVersion)
+
+	if err2 != nil {
+		panic(err2.Error())
+	}
+
+	if isVersionLess(vsGot, vsWant) {
+		if barkTarget != nil {
+			barkTo(barkTarget)
+		}
+		return fmt.Errorf("wrong version of 'midicat' (got %s required >= %s)", ver, midicatVersion)
+	}
+
+	return nil
+}
+
 // New returns a driver based on the default rtmidi in and out
 func New() (*Driver, error) {
+	err := CheckMIDICatBinary(nil)
+	if err != nil {
+
+		return nil, err
+	}
 	return &Driver{}, nil
 }
 

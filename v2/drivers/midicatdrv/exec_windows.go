@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"syscall"
 )
 
 /*
@@ -18,17 +19,33 @@ func execCommand(c string) *exec.Cmd {
 */
 
 func midiCatOutCmd(index int) *exec.Cmd {
-	return exec.Command("midicat.exe", "out", fmt.Sprintf("--index=%v", index))
+	cmd := exec.Command("midicat.exe", "out", fmt.Sprintf("--index=%v", index))
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CreationFlags: syscall.CREATE_NEW_PROCESS_GROUP,
+		// CREATE_NEW_CONSOLE
+	}
+	return cmd
+}
+
+func midiCatVersionCmd() *exec.Cmd {
+	return exec.Command("midicat.exe", "--version")
 }
 
 func midiCatInCmd(index int) *exec.Cmd {
-	return exec.Command("midicat.exe", "in", fmt.Sprintf("--index=%v", index))
+	cmd := exec.Command("midicat.exe", "in", fmt.Sprintf("--index=%v", index))
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CreationFlags: syscall.CREATE_NEW_PROCESS_GROUP,
+	}
+	return cmd
 }
 
 func midiCatCmd(args string) *exec.Cmd {
 	//return execCommand("midicat.exe " + args)
 	//fmt.Println("midicat.exe " + args)
 	a := strings.Split(args, " ")
-	return exec.Command("midicat.exe", a...)
-
+	cmd := exec.Command("midicat.exe", a...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CreationFlags: syscall.CREATE_NEW_PROCESS_GROUP,
+	}
+	return cmd
 }
