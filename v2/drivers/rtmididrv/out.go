@@ -48,27 +48,6 @@ func (o *out) Send(m []byte) error {
 	return nil
 }
 
-/*
-// Write writes a MIDI message to the MIDI output port
-// If the output port is closed, it returns midi.ErrClosed
-func (o *out) Write(b []byte) (int, error) {
-	//o.RLock()
-	o.Lock()
-	defer o.Unlock()
-	if o.midiOut == nil {
-		//o.RUnlock()
-		return 0, midi.ErrPortClosed
-	}
-	//	o.RUnlock()
-
-	err := o.midiOut.SendMessage(b)
-	if err != nil {
-		return 0, fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.number, o, err)
-	}
-	return len(b), nil
-}
-*/
-
 // Underlying returns the underlying rtmidi.MIDIOut. Use it with type casting:
 //   rtOut := o.Underlying().(rtmidi.MIDIOut)
 func (o *out) Underlying() interface{} {

@@ -107,6 +107,7 @@ func (i *in) SendTo(recv midi.Receiver) error {
 	i.RUnlock()
 	i.Lock()
 	i.listenerSet = true
+	i.midiIn.IgnoreTypes(false, false, false)
 	i.Unlock()
 
 	// since i.midiIn.SetCallback is blocking on success, there is no meaningful way to get an error
@@ -125,34 +126,6 @@ func (i *in) SendTo(recv midi.Receiver) error {
 	*/
 	return nil
 }
-
-/*
-// SetListener makes the listener listen to the in port
-func (i *in) SetListener(listener func(data []byte, deltaMicroseconds int64)) (err error) {
-	if !i.IsOpen() {
-		return midi.ErrPortClosed
-	}
-
-	i.RLock()
-	if i.listenerSet {
-		i.RUnlock()
-		return fmt.Errorf("listener already set")
-	}
-	i.RUnlock()
-	i.Lock()
-	i.listenerSet = true
-	i.Unlock()
-
-	// since i.midiIn.SetCallback is blocking on success, there is no meaningful way to get an error
-	// and set the callback non blocking
-	go i.midiIn.SetCallback(func(_ rtmidi.MIDIIn, bt []byte, deltaSeconds float64) {
-		// we want deltaMicroseconds as int64
-		listener(bt, int64(math.Round(deltaSeconds*1000000)))
-	})
-
-	return nil
-}
-*/
 
 // StopListening cancels the listening
 func (i *in) StopListening() (err error) {
