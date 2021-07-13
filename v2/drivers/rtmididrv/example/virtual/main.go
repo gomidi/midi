@@ -48,9 +48,9 @@ func main() {
 	must(err)
 
 	// listen for MIDI
-	recv := midi.NewReceiver(func(msg midi.Message, deltamicrosec int64) {
-		out.Send(msg.Data)
-	}, nil)
+	recv := midi.ReceiverFunc(func(msg midi.Message, deltamicrosec int64) {
+		out.Send(msg)
+	})
 
 	// example to write received messages from the virtual in port to the virtual out port
 	c := make(chan int, 10)

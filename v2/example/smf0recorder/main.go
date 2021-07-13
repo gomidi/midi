@@ -26,13 +26,23 @@ func run() error {
 	tr := smf.NewTrack()
 	tr.Add(0, midi.MetaTempo(bpm))
 
+	in, err := midi.InByName("VMPK")
+
+	if err != nil {
+		return err
+	}
+
+	var absMicroSec int64
+
 	// single track recording, for multitrack we would have to collect the messages first (separated by port / midi channel)
 	// and the write them after the recording to the different tracks
-	listener, err := midi.NewListener("VMPK", func(msg midi.Message, deltamicroSec int64) {
+	listener, err := midi.NewListener(in, midi.ReceiverFunc(func(msg midi.Message, absmSec int64) {
+		deltamicroSec := absmSec - absMicroSec
+		absMicroSec = absmSec
 		fmt.Printf("[%v] %s\n", deltamicroSec, msg.String())
 		delta := ticks.Ticks(bpm, time.Duration(deltamicroSec)*time.Microsecond)
-		tr.Add(delta, msg.Data)
-	})
+		tr.Add(delta, msg)
+	}))
 
 	if err != nil {
 		return err

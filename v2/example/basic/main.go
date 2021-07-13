@@ -16,6 +16,29 @@ import (
 	//_ gitlab.com/gomidi/midi/v2/drivers/portmididrv
 )
 
+func rec(msg midi.Message, timestamp int64) {
+
+	var channel, key, velocity, program, pressure uint8
+	var pitch int16
+
+	switch {
+	case msg.NoteOn(&channel, &key, &velocity):
+		fmt.Printf("Channel: %v key: %v %s\n", channel, key, msg)
+	case msg.NoteOff(&channel, &key, &velocity):
+		fmt.Printf("Channel: %v key: %v %s\n", channel, key, msg)
+	case msg.AfterTouch(&channel, &pressure):
+		fmt.Printf("Channel: %v Pressure: %v %s\n", channel, pressure, msg)
+	case msg.ProgramChange(&channel, &program):
+		fmt.Printf("Channel: %v Program: %v %s\n", channel, program, msg)
+	case msg.PitchBend(&channel, &pitch, nil):
+		fmt.Printf("Channel: %v Pitch: %v %s\n", channel, pitch, msg)
+	case msg.Channel(&channel):
+		fmt.Printf("Channel: %v %s\n", channel, msg)
+	default:
+		fmt.Printf("%s\n", msg)
+	}
+}
+
 func main() {
 
 	defer midi.CloseDriver()
@@ -36,24 +59,13 @@ func main() {
 	in, err := midi.InByNumber(0)
 	must(err)
 
-	listener, err := midi.NewListener(in, func(msg midi.Message, deltamicrosec int64) {
-		switch {
-		case msg.Is(midi.NoteMsg):
-			fmt.Printf("Channel: %v key: %v %s\n", msg.Channel(), msg.Key(), msg)
-		case msg.IsOneOf(midi.AfterTouchMsg, midi.PolyAfterTouchMsg):
-			fmt.Printf("Channel: %v Pressure: %v %s\n", msg.Channel(), msg.Pressure(), msg)
-		case msg.Is(midi.ProgramChangeMsg):
-			fmt.Printf("Channel: %v Program: %v\n", msg.Channel(), msg.Program())
-		case msg.Is(midi.PitchBendMsg):
-			rel, _ := msg.Pitch()
-			fmt.Printf("Channel: %v Pitch: %v\n", msg.Channel(), rel)
-		default:
-			fmt.Printf("Channel: %v %s\n", msg.Channel(), msg)
-		}
-	})
+	err = in.SendTo(midi.ReceiverFunc(rec))
+
+	//listener, err := midi.NewListener(in, midi.ReceiverFunc(rec))
 
 	must(err)
-	listener.Only(midi.ChannelMsg).StartListening()
+
+	//listener.Only(midi.ChannelMsg).StartListening()
 
 	{ // write somehow MIDI
 		ch := midi.Channel(0)

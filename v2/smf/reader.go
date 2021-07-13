@@ -157,13 +157,14 @@ func (r *Reader) ReadTracks() (err error) {
 		if m.Is(midi.MetaTempoMsg) {
 			tc := TempoChange{
 				AbsDelta: absDelta,
-				BPM:      m.BPM(),
 			}
+
+			m.Tempo(&tc.BPM)
 			r.SMF.tempoChanges = append(r.SMF.tempoChanges, tc)
 		}
 
 		r.log("add message %v to track %v", m, tr)
-		r.tracks[tr].Add(r.deltatime, m.Data)
+		r.tracks[tr].Add(r.deltatime, m)
 	}
 
 	sort.Sort(r.SMF.tempoChanges)
@@ -316,9 +317,7 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 			if err != nil {
 				return m, err
 			}
-			m.Data = midi.SysEx(bt)
-			m.MsgType = midi.MetaMsg.Set(midi.SysExMsg)
-			return m, nil
+			return midi.SysEx(bt), nil
 		// meta event
 		case 0xFF:
 			var typ byte
@@ -339,9 +338,8 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 			if err != nil {
 				return m, err
 			}
-			m.MsgType = midi.GetMetaMsgType(typ)
 			//m.Data = bt
-			m.Data = midi.MetaMessage(typ, bt)
+			m = midi.MetaMessage(typ, bt)
 
 			// since System Common messages are not allowed within smf files, there could only be meta messages
 			// all (event unknown) meta messages must be handled by the meta dispatcher

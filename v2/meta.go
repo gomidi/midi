@@ -61,37 +61,37 @@ var metaMessages = map[byte]MsgType{
 
 const bpmFac = 60000000
 
-func MetaMessage(typ byte, data []byte) []byte {
+func MetaMessage(typ byte, data []byte) Message {
 	b := []byte{byte(0xFF), typ}
 	b = append(b, utils.VlqEncode(uint32(len(data)))...)
 	if len(data) != 0 {
 		b = append(b, data...)
 	}
-	return b
+	return NewMessage(b)
 }
 
 // MetaLyric returns the bytes of a lyric meta message
-func MetaLyric(text string) []byte {
+func MetaLyric(text string) Message {
 	return MetaMessage(byteLyric, []byte(text))
 }
 
 // MetaCopyright returns the bytes of a copyright meta message
-func MetaCopyright(text string) []byte {
+func MetaCopyright(text string) Message {
 	return MetaMessage(byteCopyright, []byte(text))
 }
 
 // MetaChannel returns the bytes of a channel meta message
-func MetaChannel(ch uint8) []byte {
+func MetaChannel(ch uint8) Message {
 	return MetaMessage(byteMIDIChannel, []byte{byte(ch)})
 }
 
 // MetaCuepoint returns the bytes of a cuepoint meta message
-func MetaCuepoint(text string) []byte {
+func MetaCuepoint(text string) Message {
 	return MetaMessage(byteCuepoint, []byte(text))
 }
 
 // MetaDevice returns the bytes of a device meta message
-func MetaDevice(text string) []byte {
+func MetaDevice(text string) Message {
 	return MetaMessage(byteDevicePort, []byte(text))
 }
 
@@ -99,44 +99,44 @@ func MetaDevice(text string) []byte {
 var EOT = MetaMessage(byteEndOfTrack, nil)
 
 // MetaInstrument returns the bytes of a instrument meta message
-func MetaInstrument(text string) []byte {
+func MetaInstrument(text string) Message {
 	return MetaMessage(byteInstrument, []byte(text))
 }
 
 // MetaMarker returns the bytes of a marker meta message
-func MetaMarker(text string) []byte {
+func MetaMarker(text string) Message {
 	return MetaMessage(byteMarker, []byte(text))
 }
 
 // MetaPort returns the bytes of a port meta message
-func MetaPort(p uint8) []byte {
+func MetaPort(p uint8) Message {
 	return MetaMessage(byteMIDIPort, []byte{byte(p)})
 }
 
 // MetaProgram returns the bytes of a program meta message
-func MetaProgram(text string) []byte {
+func MetaProgram(text string) Message {
 	return MetaMessage(byteProgramName, []byte(text))
 }
 
 // MetaSequenceNo returns the bytes of a sequence number meta message
-func MetaSequenceNo(no uint16) []byte {
+func MetaSequenceNo(no uint16) Message {
 	var bf bytes.Buffer
 	binary.Write(&bf, binary.BigEndian, no)
 	return MetaMessage(byteSequenceNumber, bf.Bytes())
 }
 
 // MetaSequencerData returns the bytes of a sequencer data meta message
-func MetaSequencerData(data []byte) []byte {
+func MetaSequencerData(data []byte) Message {
 	return MetaMessage(byteSequencerSpecific, data)
 }
 
 // MetaSMPTE returns the bytes of a SMPTE meta message
-func MetaSMPTE(hour, minute, second, frame, fractionalFrame byte) []byte {
+func MetaSMPTE(hour, minute, second, frame, fractionalFrame byte) Message {
 	return MetaMessage(byteSMPTEOffset, []byte{hour, minute, second, frame, fractionalFrame})
 }
 
 // MetaTempo returns the bytes of a tempo meta message for the given beats per minute.
-func MetaTempo(bpm float64) []byte {
+func MetaTempo(bpm float64) Message {
 	r := uint32(math.Round(bpmFac / bpm))
 	if r > 0x0FFFFFFF {
 		r = 0x0FFFFFFF
@@ -162,17 +162,17 @@ func MetaTempo(bpm float64) []byte {
 }
 
 // MetaText returns the bytes of a text meta message.
-func MetaText(text string) []byte {
+func MetaText(text string) Message {
 	return MetaMessage(byteText, []byte(text))
 }
 
 // MetaTrackSequenceName returns the bytes of a track sequence name meta message.
-func MetaTrackSequenceName(text string) []byte {
+func MetaTrackSequenceName(text string) Message {
 	return MetaMessage(byteTrackSequenceName, []byte(text))
 }
 
 // MetaUndefined returns the bytes of an undefined meta message.
-func MetaUndefined(typ byte, data []byte) []byte {
+func MetaUndefined(typ byte, data []byte) Message {
 	return MetaMessage(typ, data)
 }
 
@@ -204,7 +204,7 @@ const (
 )
 
 // MetaKey returns the bytes of a key meta message.
-func MetaKey(key uint8, isMajor bool, num uint8, isFlat bool) []byte {
+func MetaKey(key uint8, isMajor bool, num uint8, isFlat bool) Message {
 	mi := int8(0)
 	if !isMajor {
 		mi = 1
@@ -219,7 +219,7 @@ func MetaKey(key uint8, isMajor bool, num uint8, isFlat bool) []byte {
 }
 
 // MetaMeter returns the bytes of a time signature meta message.
-func MetaMeter(num, denom uint8) []byte {
+func MetaMeter(num, denom uint8) Message {
 	if denom == 0 {
 		denom = 1
 	}
@@ -228,7 +228,7 @@ func MetaMeter(num, denom uint8) []byte {
 }
 
 // MetaTimeSig returns the bytes of a time signature meta message.
-func MetaTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) []byte {
+func MetaTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter uint8) Message {
 	cpcl := clocksPerClick
 	if cpcl == 0 {
 		cpcl = byte(8)

@@ -2,110 +2,152 @@ package main
 
 import (
 	"fmt"
+	"strings"
+	"sync"
 	"time"
 
-	"gitlab.com/gomidi/midi"
-	_ "gitlab.com/gomidi/midi/reader"
-	"gitlab.com/gomidi/midi/writer"
-	driver "gitlab.com/gomidi/midicatdrv"
-	// when using portmidi, replace the line above with
-	// driver gitlab.com/gomidi/portmididrv
+	"gitlab.com/gomidi/midi/v2"
+	driver "gitlab.com/gomidi/midi/v2/drivers/midicatdrv"
 )
 
-func must(err error) {
+/*
+a better way would be:
+*/
+
+type receiver struct {
+}
+
+func (r *receiver) Receive(msg midi.Message, deltamicro int64) {
+	// do something
+}
+
+func (r *receiver) ReceiveSysEx(data []byte) {
+	// do something
+}
+
+func (r *receiver) ReceiveSysCommon(msg midi.Message, deltamicro int64) {
+	// do something
+}
+
+func (r *receiver) ReceiveRealTime(typ midi.MsgType, deltamicro int64) {
+	// do something
+}
+
+/*
+and then in.SendTo(recv)
+*/
+
+var _ midi.Receiver = &receiver{}
+var _ midi.SysExReceiver = &receiver{}
+var _ midi.SysCommonReceiver = &receiver{}
+var _ midi.RealtimeReceiver = &receiver{}
+
+var (
+	portsMx sync.Mutex
+	drv     midi.Driver
+
+	inPorts  = map[int]midi.In{}
+	outPorts = map[int]midi.Out{}
+)
+
+func init() {
+	var err error
+	drv, err = driver.New()
 	if err != nil {
-		panic(err.Error())
+		panic("can't initialize driver")
 	}
 }
 
-// This example expects the first input and output port to be connected
-// somehow (are either virtual MIDI through ports or physically connected).
-// We write to the out port and listen to the in port.
 func main() {
-	drv, err := driver.New()
-	must(err)
-
 	// make sure to close all open ports at the end
 	defer drv.Close()
 
-	outs, err := drv.Outs()
-	must(err)
+	var ww = make(chan int, 10)
 
-	printOutPorts(outs)
-	//fmt.Printf("%#v\n", outs)
-
-	/*
-		ins, err := drv.Ins()
-		must(err)
-
-		outs, err := drv.Outs()
-		must(err)
-
-		if len(os.Args) == 2 && os.Args[1] == "list" {
-			printInPorts(ins)
-			printOutPorts(outs)
-			return
-		}
-	*/
-
-	out := outs[1]
-	err = out.Open()
-	must(err)
-
-	wr := writer.New(outs[1])
-
-	writer.NoteOn(wr, 60, 120)
-	time.Sleep(time.Second)
-	writer.NoteOff(wr, 60)
-	time.Sleep(time.Second)
-
-	/*
-		in, out := ins[0], outs[0]
-
-		must(in.Open())
-		must(out.Open())
-
-		wr := writer.New(out)
-
-		// listen for MIDI
-		rd := reader.New(nil)
-		go rd.ListenTo(in)
-
-		{ // write MIDI to out that passes it to in on which we listen.
-			err := writer.NoteOn(wr, 60, 100)
-			if err != nil {
-				panic(err)
-			}
-			time.Sleep(time.Nanosecond)
-			writer.NoteOff(wr, 60)
-			time.Sleep(time.Nanosecond)
-
-			wr.SetChannel(1)
-
-			writer.NoteOn(wr, 70, 100)
-			time.Sleep(time.Nanosecond)
-			writer.NoteOff(wr, 70)
+	go func() {
+		for {
+			go checkPorts()
 			time.Sleep(time.Second * 1)
 		}
-	*/
+	}()
+
+	// interrupt with ctrl+c
+	<-ww
 }
 
-func printPort(port midi.Port) {
-	fmt.Printf("[%v] %s\n", port.Number(), port.String())
+func greet(out midi.Out) {
+	out.Open()
+	ch := midi.Channel(0)
+	//wr := writer.New(out)
+	time.Sleep(time.Millisecond * 200)
+	out.Send(ch.NoteOn(60, 100))
+	time.Sleep(time.Nanosecond)
+	out.Send(ch.NoteOff(60))
+	time.Sleep(time.Nanosecond)
+	ch = midi.Channel(1)
+	out.Send(ch.NoteOn(70, 100))
+	time.Sleep(time.Nanosecond)
+	out.Send(ch.NoteOff(70))
+	time.Sleep(time.Second * 1)
 }
 
-func printInPorts(ports []midi.In) {
-	fmt.Printf("MIDI IN Ports\n")
-	for _, port := range ports {
-		printPort(port)
+func listen(in midi.In) {
+	in.Open()
+	recv := midi.ReceiverFunc(func(msg midi.Message, deltatime int64) {
+		fmt.Printf("got message %s from in port %s\n", msg.String(), in.String())
+	})
+	in.SendTo(recv)
+	//rd.ListenTo(in)
+}
+
+func checkPorts() {
+	//fmt.Println("...")
+	portsMx.Lock()
+	ins, _ := drv.Ins()
+
+	for _, in := range ins {
+		if strings.Contains(in.String(), "Client") {
+			continue
+		}
+		if inPorts[in.Number()] != nil {
+			if inPorts[in.Number()].String() != in.String() {
+				inPorts[in.Number()].StopListening()
+				inPorts[in.Number()].Close()
+				fmt.Printf("closing in port: [%v] %s\n", in.Number(), inPorts[in.Number()].String())
+				inPorts[in.Number()] = in
+				fmt.Printf("new in port: [%v] %s\n", in.Number(), in.String())
+				go listen(in)
+			} else {
+				continue
+			}
+		} else {
+			inPorts[in.Number()] = in
+			fmt.Printf("new in port: [%v] %s\n", in.Number(), in.String())
+			go listen(in)
+		}
 	}
-	fmt.Printf("\n\n")
-}
 
-func printOutPorts(ports []midi.Out) {
-	fmt.Printf("MIDI OUT Ports\n")
-	for _, port := range ports {
-		printPort(port)
+	outs, _ := drv.Outs()
+
+	for _, out := range outs {
+		if strings.Contains(out.String(), "Client") {
+			continue
+		}
+		if outPorts[out.Number()] != nil {
+			if outPorts[out.Number()].String() != out.String() {
+				outPorts[out.Number()].Close()
+				fmt.Printf("closing out port: [%v] %s\n", out.Number(), outPorts[out.Number()].String())
+				outPorts[out.Number()] = out
+				fmt.Printf("new out port: [%v] %s\n", out.Number(), out.String())
+				go greet(out)
+			} else {
+				continue
+			}
+		} else {
+			fmt.Printf("new out port: [%v] %s\n", out.Number(), out.String())
+			outPorts[out.Number()] = out
+			go greet(out)
+		}
 	}
-	fmt.Printf("\n\n")
+	portsMx.Unlock()
 }

@@ -2,16 +2,23 @@ package midi
 
 import "fmt"
 
+/*
+TODO
+
+merge with NewWrapper, i.e. add In and filter to wrapperreceiver and rename it and delete this
+*/
+
 // NewListener returns a new Listener that listens on the given MIDI in port by calling the given
 // msgCallback, when the StartListening method is called.
 // Before that, a message filter can be set via the Only method and a callback for realtime
 // messages can be set via the RealTime method.
-func NewListener(in In, msgCallback func(msg Message, deltamicroSec int64)) (l *Listener, err error) {
-	if msgCallback == nil {
-		return nil, fmt.Errorf("msgCallback must not be nil")
+func NewListener(in In, rec Receiver) (l *Listener, err error) {
+	if rec == nil {
+		return nil, fmt.Errorf("rec must not be nil")
 	}
 	l = &Listener{}
-	l.msgCallback = msgCallback
+	//l.msgCallback = msgCallback
+	l.rec = NewWrapReceiver(rec)
 	l.In = in
 	err = l.In.Open()
 	if err != nil {
@@ -22,10 +29,11 @@ func NewListener(in In, msgCallback func(msg Message, deltamicroSec int64)) (l *
 
 // Listener is an utility struct to make listening on a MIDI port for (filtered) messages easy.
 type Listener struct {
-	In               In
-	filter           []MsgType
-	msgCallback      func(msg Message, deltamicroSec int64)
-	realtimeCallback func(msg Message, deltamicrosec int64)
+	In     In
+	rec    *wrapreceiver
+	filter []MsgType
+	//msgCallback      func(msg Message, deltamicroSec int64)
+	//realtimeCallback func(msg Message, deltamicrosec int64)
 }
 
 // Only sets the message types that should be listened on.
@@ -37,42 +45,34 @@ func (l *Listener) Only(mtypes ...MsgType) *Listener {
 	return l
 }
 
-// RealTime sets a callback for realtime messages.
-func (l *Listener) RealTime(realtimeMsgCallback func(msg Message, deltamicrosec int64)) *Listener {
-	l.realtimeCallback = realtimeMsgCallback
-	return l
-}
-
 // StartListening starts the listening.
 func (l *Listener) StartListening() {
-	var rec Receiver
-
 	if l.filter == nil {
-		rec = NewReceiver(l.msgCallback, l.realtimeCallback)
+		//rec = NewReceiver(l.msgCallback, l.realtimeCallback)
 	} else {
-		var fun = func(m Message, delta int64) {
-			//m := NewMessage(msg)
+		var inner = l.rec.channelCallback
+		var fun = func(m Message, abs int64) {
 
 			if m.MsgType.IsOneOf(l.filter...) {
-				l.msgCallback(m, delta)
+				inner(m, abs)
 			}
 		}
 
-		var funrt func(m Message, delta int64)
-		if l.realtimeCallback != nil {
-			funrt = func(m Message, delta int64) {
-				//m := NewMessage(msg)
+		l.rec.channelCallback = fun
 
-				if m.MsgType.IsOneOf(l.filter...) {
-					l.realtimeCallback(m, delta)
-				}
+		var innerRT = l.rec.realtimeCallback
+		var funrt func(mtype MsgType, abs int64)
+		funrt = func(mtype MsgType, abs int64) {
+
+			if mtype.IsOneOf(l.filter...) {
+				innerRT(mtype, abs)
 			}
 		}
 
-		rec = NewReceiver(fun, funrt)
+		l.rec.realtimeCallback = funrt
 	}
 
-	l.In.SendTo(rec)
+	l.In.SendTo(l.rec)
 }
 
 // StopListening stops the listening

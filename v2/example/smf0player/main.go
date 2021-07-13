@@ -25,7 +25,7 @@ func run() error {
 			func(trackNo int, msg midi.Message, delta int64, deltamicroSec int64) {
 				fmt.Printf("%s\n", msg.String())
 				time.Sleep(time.Microsecond * time.Duration(deltamicroSec))
-				out.Send(msg.Data)
+				out.Send(msg)
 			},
 		)
 	return err

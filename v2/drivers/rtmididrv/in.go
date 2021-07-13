@@ -113,12 +113,16 @@ func (i *in) SendTo(recv midi.Receiver) error {
 
 	// since i.midiIn.SetCallback is blocking on success, there is no meaningful way to get an error
 	// and set the callback non blocking
-	go i.midiIn.SetCallback(func(_ rtmidi.MIDIIn, bt []byte, deltaSeconds float64) {
-		// we want deltaMicroseconds as int64
-		recv.Receive(bt, int64(math.Round(deltaSeconds*1000000)))
+	go func() {
+		var absMicro int64
+		i.midiIn.SetCallback(func(_ rtmidi.MIDIIn, bt []byte, deltaSeconds float64) {
+			// we want deltaMicroseconds as int64
+			absMicro += int64(math.Round(deltaSeconds * 1000000))
+			recv.Receive(midi.NewMessage(bt), absMicro)
 
-		//listener(bt, int64(math.Round(deltaSeconds*1000000)))
-	})
+			//listener(bt, int64(math.Round(deltaSeconds*1000000)))
+		})
+	}()
 
 	/*
 		if err != nil {

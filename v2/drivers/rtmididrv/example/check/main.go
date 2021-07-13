@@ -12,6 +12,38 @@ import (
 	driver "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 )
 
+/*
+a better way would be:
+*/
+
+type receiver struct {
+}
+
+func (r *receiver) Receive(msg midi.Message, deltamicro int64) {
+	// do something
+}
+
+func (r *receiver) ReceiveSysEx(data []byte) {
+	// do something
+}
+
+func (r *receiver) ReceiveSysCommon(msg midi.Message, deltamicro int64) {
+	// do something
+}
+
+func (r *receiver) ReceiveRealTime(typ midi.MsgType, deltamicro int64) {
+	// do something
+}
+
+/*
+and then in.SendTo(recv)
+*/
+
+var _ midi.Receiver = &receiver{}
+var _ midi.SysExReceiver = &receiver{}
+var _ midi.SysCommonReceiver = &receiver{}
+var _ midi.RealtimeReceiver = &receiver{}
+
 var (
 	portsMx sync.Mutex
 	drv     midi.Driver
@@ -63,9 +95,9 @@ func greet(out midi.Out) {
 
 func listen(in midi.In) {
 	in.Open()
-	recv := midi.NewReceiver(func(msg midi.Message, deltatime int64) {
+	recv := midi.ReceiverFunc(func(msg midi.Message, deltatime int64) {
 		fmt.Printf("got message %s from in port %s\n", msg.String(), in.String())
-	}, nil)
+	})
 	in.SendTo(recv)
 	//rd.ListenTo(in)
 }

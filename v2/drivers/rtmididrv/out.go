@@ -31,7 +31,7 @@ func (o *out) IsOpen() (open bool) {
 
 // Send writes a MIDI message to the MIDI output port
 // If the output port is closed, it returns midi.ErrClosed
-func (o *out) Send(m []byte) error {
+func (o *out) Send(m midi.Message) error {
 	//o.RLock()
 	o.Lock()
 	defer o.Unlock()
@@ -41,7 +41,7 @@ func (o *out) Send(m []byte) error {
 	}
 	//	o.RUnlock()
 
-	err := o.midiOut.SendMessage(m)
+	err := o.midiOut.SendMessage(m.Data)
 	if err != nil {
 		return fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.number, o, err)
 	}

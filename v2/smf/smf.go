@@ -26,16 +26,16 @@ func (t *Track) Close(deltaticks uint32) {
 	if t.Closed {
 		return
 	}
-	t.Events = append(t.Events, Event{Delta: deltaticks, Data: midi.EOT})
+	t.Events = append(t.Events, Event{Delta: deltaticks, Data: midi.EOT.Data})
 	t.Closed = true
 }
 
-func (t *Track) Add(deltaticks uint32, msgs ...[]byte) {
+func (t *Track) Add(deltaticks uint32, msgs ...midi.Message) {
 	if t.Closed {
 		return
 	}
 	for _, msg := range msgs {
-		t.Events = append(t.Events, Event{Delta: deltaticks, Data: msg})
+		t.Events = append(t.Events, Event{Delta: deltaticks, Data: msg.Data})
 		deltaticks = 0
 	}
 }
@@ -46,7 +46,7 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 	for _, ev := range t.Events {
 		absDelta += int64(ev.Delta)
 		ms := resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds()
-		receiver.Receive(ev.Data, ms)
+		receiver.Receive(ev.Message(), ms)
 	}
 }
 

@@ -110,7 +110,7 @@ func TestMessagesString(t *testing.T) {
 func TestMessagesText(t *testing.T) {
 
 	tests := []struct {
-		input    []byte
+		input    Message
 		expected string
 	}{
 		{
@@ -152,8 +152,11 @@ func TestMessagesText(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		var got string
 
-		if got, want := NewMessage(test.input).Text(), test.expected; got != want {
+		test.input.text(&got)
+
+		if want := test.expected; got != want {
 			t.Errorf("got: %#v; wanted %#v", got, want)
 		}
 	}
@@ -163,7 +166,7 @@ func TestMessagesText(t *testing.T) {
 func TestMessagesRaw(t *testing.T) {
 
 	tests := []struct {
-		input    []byte
+		input    Message
 		expected string
 	}{
 		{
@@ -250,7 +253,7 @@ func TestMessagesRaw(t *testing.T) {
 
 		var bf bytes.Buffer
 
-		bf.Write(test.input)
+		bf.Write(test.input.Data)
 
 		if got, want := fmt.Sprintf("% X", bf.Bytes()), test.expected; got != want {
 			t.Errorf("got: %#v; wanted %#v", got, want)

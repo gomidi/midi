@@ -65,7 +65,7 @@ SMF0
 1 Track(s)
 TimeFormat: 96 MetricTicks
 Track 0@0 MetaTimeSigMsg meter: 4/4
-Track 0@0 MetaTempoMsg bpm: 120
+Track 0@0 MetaTempoMsg bpm: 120.00
 Track 0@0 Channel0Msg & ProgramChangeMsg program: 5
 Track 0@0 Channel1Msg & ProgramChangeMsg program: 46
 Track 0@0 Channel2Msg & ProgramChangeMsg program: 70
@@ -111,7 +111,7 @@ SMF1
 4 Track(s)
 TimeFormat: 96 MetricTicks
 Track 0@0 MetaTimeSigMsg meter: 4/4
-Track 0@0 MetaTempoMsg bpm: 120
+Track 0@0 MetaTempoMsg bpm: 120.00
 Track 0@384 MetaEndOfTrackMsg
 Track 1@0 Channel0Msg & ProgramChangeMsg program: 5
 Track 1@192 Channel0Msg & NoteOnMsg key: 76 velocity: 32

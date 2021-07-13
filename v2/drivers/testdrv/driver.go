@@ -24,9 +24,10 @@ func init() {
 type Driver struct {
 	in       *in
 	out      *out
-	listener func([]byte, int64)
+	listener func(midi.Message, int64)
 	name     string
 	last     time.Time
+	absMicro int64
 	mx       sync.Mutex
 }
 
@@ -63,6 +64,8 @@ func (f *in) Underlying() interface{} { return nil }
 
 func (f *in) SendTo(recv midi.Receiver) error {
 	f.driver.mx.Lock()
+	f.driver.absMicro = 0
+	f.driver.last = time.Now()
 	f.driver.listener = recv.Receive
 	f.driver.mx.Unlock()
 	return nil
@@ -124,7 +127,7 @@ func (f *out) Close() error {
 	f.driver.mx.Unlock()
 	return nil
 }
-func (f *out) Send(b []byte) error {
+func (f *out) Send(m midi.Message) error {
 	f.driver.mx.Lock()
 	if !f.isOpen {
 		f.driver.mx.Unlock()
@@ -138,7 +141,8 @@ func (f *out) Send(b []byte) error {
 	now := time.Now()
 	dur := now.Sub(f.driver.last)
 	f.driver.last = now
-	f.driver.listener(b, dur.Microseconds())
+	f.driver.absMicro += dur.Microseconds()
+	f.driver.listener(m, f.driver.absMicro)
 	f.driver.mx.Unlock()
 	return nil
 }

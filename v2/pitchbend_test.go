@@ -8,7 +8,7 @@ func TestPitchbend(t *testing.T) {
 
 	tests := []struct {
 		in       int16
-		expected int16
+		expected uint16
 	}{
 		{
 			in:       0,
@@ -33,11 +33,11 @@ func TestPitchbend(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		m := NewMessage(Channel(0).Pitchbend(test.in))
+		m := Channel(0).Pitchbend(test.in)
 
-		_, abs := m.Pitch()
-
-		got := abs
+		var got uint16
+		var ch uint8
+		m.PitchBend(&ch, nil, &got)
 
 		if got != test.expected {
 			t.Errorf("Pitchbend(%v).absValue = %v; wanted %v", test.in, got, test.expected)

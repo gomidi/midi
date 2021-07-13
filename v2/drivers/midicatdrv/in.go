@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2"
-        "gitlab.com/gomidi/midicat/lib"
+	"gitlab.com/gomidi/midicat/lib"
 )
 
 type in struct {
@@ -20,7 +20,7 @@ type in struct {
 	shouldKill          chan bool
 	wasKilled           chan bool
 	hasProc             bool
-	listener            func(data []byte, deltaMicroseconds int64)
+	listener            func(data midi.Message, absMicrosecs int64)
 }
 
 func (o *in) fireCmd() error {
@@ -58,7 +58,7 @@ func (o *in) fireCmd() error {
 			}
 
 			if o.listener != nil {
-				o.listener(data, -1)
+				o.listener(midi.NewMessage(data), -1)
 			}
 			o.RUnlock()
 			runtime.Gosched()
@@ -74,9 +74,9 @@ func (o *in) fireCmd() error {
 			case <-shouldKill:
 				if cmd.Process != nil {
 					/*
-                                        rd.Close()
-					wr.Close()
-                                        */
+						                                        rd.Close()
+											wr.Close()
+					*/
 					cmd.Process.Kill()
 				}
 				o.Lock()

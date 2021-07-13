@@ -1,10 +1,10 @@
 package midi
 
-func SysEx(msg []byte) []byte {
+func SysEx(msg []byte) Message {
 	var b = []byte{0xF0}
 	b = append(b, []byte(msg)...)
 	b = append(b, 0xF7)
-	return b
+	return NewMessage(b)
 }
 
 /*

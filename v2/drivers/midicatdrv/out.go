@@ -56,14 +56,14 @@ func (o *out) IsOpen() (open bool) {
 
 // Send sends a MIDI message to the MIDI output port
 // If the output port is closed, it returns midi.ErrClosed
-func (o *out) Send(b []byte) error {
+func (o *out) Send(b midi.Message) error {
 	o.Lock()
 	defer o.Unlock()
 	if o.cmd == nil {
 		return midi.ErrPortClosed
 	}
 
-	_, err := fmt.Fprintf(o.wr, "%X\n", b)
+	_, err := fmt.Fprintf(o.wr, "%X\n", b.Data)
 	if err != nil {
 		return err
 	}
