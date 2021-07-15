@@ -2,150 +2,37 @@ package smf
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
-	"os"
 
 	"gitlab.com/gomidi/midi/v2/internal/runningstatus"
 	vlq "gitlab.com/gomidi/midi/v2/internal/utils"
-
-	"encoding/binary"
-	//	"gitlab.com/gomidi/midi/midimessage/meta"
-	//"gitlab.com/gomidi/midi/smf"
 )
 
-// WriteFile creates file, calls callback with a writer and closes file.
-//
-// WriteFile makes sure that the data of the last track is written by sending
-// an meta.EndOfTrack message after callback has been run.
-//
-// For single track (SMF0) files this makes sense since no meta.EndOfTrack message
-// must then be send from callback (although it does not harm).
-//
-// For multitrack files however there must be sending of meta.EndOfTrack anyway,
-// so it is better practise to send it after each track (including the last one).
-// The options and their defaults are the same as for New and they are documented
-// at the corresponding option.
-// The callback may call the given writer to write messages. If any of this write
-// results in an error, the file won't be written and the error is returned.
-// Only a successful write will manifest itself in the file being created.
-//func (s *SMF) WriteFile(file string, options ...Option) error {
+func newWriter(s *SMF, output io.Writer) *writer {
+	// setup
+	wr := &writer{}
+	wr.SMF = s
+	wr.output = output
+	wr.currentChunk.SetType([4]byte{byte('M'), byte('T'), byte('r'), byte('k')})
 
-//var s io.WriterTo = &smf{}
-
-func (s *SMF) WriteFile(file string) error {
-	f, err := os.Create(file)
-
-	if err != nil {
-		return fmt.Errorf("writing midi file failed: could not create file %#v", file)
+	if !wr.SMF.NoRunningStatus {
+		wr.runningWriter = runningstatus.NewSMFWriter()
 	}
-
-	//err = s.WriteTo(f)
-	err = s.WriteTo(f)
-	f.Close()
-
-	if err != nil {
-		os.Remove(file)
-		return fmt.Errorf("writing to midi file %#v failed: %v", file, err)
-	}
-
-	return nil
-}
-
-func (s *SMF) WriteTo(f io.Writer) (err error) {
-	s.numTracks = uint16(len(s.tracks))
-	if s.numTracks == 0 {
-		return fmt.Errorf("no track added")
-	}
-	if s.numTracks > 1 && s.format == 0 {
-		s.format = 1
-	}
-	//wr := newWriter(f, options...)
-	//fmt.Printf("numtracks: %v\n", s.numTracks)
-	wr := newWriter(s, f)
-	err = wr.WriteHeader()
-	if err != nil {
-		return fmt.Errorf("could not write header: %v", err)
-	}
-
-	for _, t := range s.tracks {
-		t.Close(0) // just to be sure
-		for _, ev := range t.Events {
-			//fmt.Printf("written ev: %v\n ", ev)
-			wr.SetDelta(ev.Delta)
-			err = wr.Write(ev.Data)
-			if err != nil {
-				break
-			}
-		}
-
-		err = wr.writeTrackTo(wr.output)
-
-		if err != nil {
-			break
-		}
-	}
-
-	return
-}
-
-/*
-// New returns a Writer
-//
-// The writer just uses an io.Writer. It is the responsibility of the caller to open and close any file where appropriate.
-//
-// For the documentation of the Write and the SetDelta method, consult the documentation for smf.Writer.
-//
-// The options and their defaults are documented at the corresponding option.
-// When New returns, the header has already been written to dest.
-// Any error that happened during the header writing is returned. In this case writer is nil.
-func New(dest io.Writer, opts ...Option) smf.Writer {
-	return newWriter(dest, opts...)
-}
-*/
-
-func newSMF(format uint16) *SMF {
-	s := &SMF{
-		format: format,
-	}
-	s.TimeFormat = MetricTicks(960)
-	return s
-}
-
-// AddAndClose closes the given track at deltatime and adds it to the smf
-func (s *SMF) AddAndClose(deltatime uint32, t *Track) {
-	t.Close(deltatime)
-	s.tracks = append(s.tracks, t)
-}
-
-// New returns a SMF file of format type 0 (single track), that becomes type 1 (multi track), if you add tracks
-func New() *SMF {
-	return newSMF(0)
-}
-
-// NewSMF1 returns a SMF file of format type 1 (multi track)
-func NewSMF1() *SMF {
-	return newSMF(1)
-}
-
-// NewSMF2 returns a SMF file of format type 2 (multi sequence)
-func NewSMF2() *SMF {
-	return newSMF(2)
+	return wr
 }
 
 type writer struct {
 	*SMF
-	//header          smf.Header
-	track           chunk
+	currentChunk    chunk
 	output          io.Writer
 	headerWritten   bool
 	tracksProcessed uint16
 	deltatime       uint32
 	absPos          uint64
-	//noRunningStatus bool
-	error error
-	//logger          logger
-	runningWriter runningstatus.SMFWriter
+	error           error
+	runningWriter   runningstatus.SMFWriter
 }
 
 func (w *writer) printf(format string, vals ...interface{}) {
@@ -178,38 +65,6 @@ func (w *writer) WriteHeader() error {
 	return err
 }
 
-//
-//func newWriter(s *SMF, output io.Writer, opts ...Option) *writer {
-func newWriter(s *SMF, output io.Writer) *writer {
-
-	// setup
-	wr := &writer{}
-	wr.SMF = s
-	wr.output = output
-	wr.track.SetType([4]byte{byte('M'), byte('T'), byte('r'), byte('k')})
-
-	// defaults
-	/*
-		wr.header.TimeFormat = smf.MetricTicks(0) // take the default, based on smf package (should be 960)
-		wr.header.NumTracks = 1
-		wr.header.Format = smf.SMF0
-	*/
-
-	// overrides with options
-
-	/*
-		for _, opt := range opts {
-			opt(wr)
-		}
-	*/
-
-	if !wr.SMF.NoRunningStatus {
-		wr.runningWriter = runningstatus.NewSMFWriter()
-	}
-
-	return wr
-}
-
 func (w *writer) Position() uint64 {
 	return w.absPos
 }
@@ -218,13 +73,6 @@ func (w *writer) Position() uint64 {
 func (w *writer) SetDelta(deltatime uint32) {
 	w.deltatime = deltatime
 }
-
-/*
-// Header returns the smf.Header of the file
-func (w *writer) Header() smf.Header {
-	return w.header
-}
-*/
 
 // Write writes the message and returns the bytes that have been physically written.
 // If a write fails with an error, every following attempt to write will return this first error,
@@ -245,22 +93,6 @@ func (w *writer) Write(m []byte) (err error) {
 		w.deltatime = 0
 	}()
 
-	/*
-		if w.numTracks == w.tracksProcessed {
-			w.printf("last track written, finished")
-			w.error = ErrFinished
-			return w.error
-		}
-
-		if midi2.GetMessageType(m) == midi2.MetaEndOfTrackMsg {
-			w.addMessage(w.deltatime, m)
-			err = w.writeTrackTo(w.output)
-			if err != nil {
-				w.error = err
-			}
-			return
-		}
-	*/
 	w.addMessage(w.deltatime, m)
 	return
 }
@@ -348,8 +180,8 @@ func (w *writer) writeHeader(wr io.Writer) error {
 }
 
 // <Track Chunk> = <chunk type><length><MTrk event>+
-func (w *writer) writeTrackTo(wr io.Writer) (err error) {
-	_, err = w.track.WriteTo(wr)
+func (w *writer) writeChunkTo(wr io.Writer) (err error) {
+	_, err = w.currentChunk.WriteTo(wr)
 
 	if err != nil {
 		w.printf("ERROR: could not write track %v: %v", w.tracksProcessed+1, err)
@@ -363,7 +195,7 @@ func (w *writer) writeTrackTo(wr io.Writer) (err error) {
 	}
 
 	// remove the data for the next track
-	w.track.Clear()
+	w.currentChunk.Clear()
 	w.deltatime = 0
 
 	w.tracksProcessed++
@@ -376,20 +208,18 @@ func (w *writer) writeTrackTo(wr io.Writer) (err error) {
 }
 
 func (w *writer) appendToChunk(deltaTime uint32, b []byte) {
-	w.track.Write(append(vlq.VlqEncode(deltaTime), b...))
-	//t.track.data = append(t.track.data, append(vlq.Encode(deltaTime), b...)...)
+	w.currentChunk.Write(append(vlq.VlqEncode(deltaTime), b...))
 }
 
 // delta is distance in time to last event in this track (independent of the channel)
-//func (w *writer) addMessage(deltaTime uint32, msg midi.Message) {
 func (w *writer) addMessage(deltaTime uint32, raw []byte) {
-	//w.printf("adding message deltaTime %v and message %s", deltaTime, msg)
 	w.absPos += uint64(deltaTime)
-	// we have some sort of sysex, so we need to
-	// calculate the length of msg[1:]
-	// set msg to msg[0] + length of msg[1:] + msg[1:]
-	//raw := msg.Raw()
-	if raw[0] == 0xF0 || raw[0] == 0xF7 {
+
+	isSysEx := raw[0] == 0xF0 || raw[0] == 0xF7
+	if isSysEx {
+		// we have some sort of sysex, so we need to
+		// calculate the length of msg[1:]
+		// set msg to msg[0] + length of msg[1:] + msg[1:]
 		if w.runningWriter != nil {
 			w.runningWriter.ResetStatus()
 		}

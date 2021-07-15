@@ -13,25 +13,26 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
 func init() {
 	drv := New("testdrv")
-	midi.RegisterDriver(drv)
+	drivers.Register(drv)
 }
 
 type Driver struct {
-	in       *in
-	out      *out
-	listener func(midi.Message, int64)
+	in  *in
+	out *out
+	//reader   *drivers.DeviceReader
+	callback func([]byte, int64)
 	name     string
 	last     time.Time
 	absMicro int64
 	mx       sync.Mutex
 }
 
-func New(name string) midi.Driver {
+func New(name string) drivers.Driver {
 	d := &Driver{name: name}
 	d.in = &in{name: name + "-in", driver: d, number: 0}
 	d.out = &out{name: name + "-out", driver: d, number: 0}
@@ -39,10 +40,10 @@ func New(name string) midi.Driver {
 	return d
 }
 
-func (f *Driver) String() string            { return f.name }
-func (f *Driver) Close() error              { return nil }
-func (f *Driver) Ins() ([]midi.In, error)   { return []midi.In{f.in}, nil }
-func (f *Driver) Outs() ([]midi.Out, error) { return []midi.Out{f.out}, nil }
+func (f *Driver) String() string               { return f.name }
+func (f *Driver) Close() error                 { return nil }
+func (f *Driver) Ins() ([]drivers.In, error)   { return []drivers.In{f.in}, nil }
+func (f *Driver) Outs() ([]drivers.Out, error) { return []drivers.Out{f.out}, nil }
 
 type in struct {
 	number int
@@ -53,7 +54,7 @@ type in struct {
 
 func (f *in) StopListening() error {
 	f.driver.mx.Lock()
-	f.driver.listener = nil
+	f.driver.callback = nil
 	f.driver.mx.Unlock()
 	return nil
 }
@@ -62,11 +63,12 @@ func (f *in) Number() int             { return f.number }
 func (f *in) IsOpen() bool            { return f.isOpen }
 func (f *in) Underlying() interface{} { return nil }
 
-func (f *in) SendTo(recv midi.Receiver) error {
+func (f *in) StartListening(cb func([]byte, int64)) error {
 	f.driver.mx.Lock()
 	f.driver.absMicro = 0
 	f.driver.last = time.Now()
-	f.driver.listener = recv.Receive
+	//f.driver.reader = drivers.NewDeviceReader(recv)
+	f.driver.callback = cb
 	f.driver.mx.Unlock()
 	return nil
 }
@@ -127,13 +129,13 @@ func (f *out) Close() error {
 	f.driver.mx.Unlock()
 	return nil
 }
-func (f *out) Send(m midi.Message) error {
+func (f *out) Send(data []byte) error {
 	f.driver.mx.Lock()
 	if !f.isOpen {
 		f.driver.mx.Unlock()
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
-	if f.driver.listener == nil {
+	if f.driver.callback == nil {
 		f.driver.mx.Unlock()
 		return io.EOF
 	}
@@ -142,7 +144,7 @@ func (f *out) Send(m midi.Message) error {
 	dur := now.Sub(f.driver.last)
 	f.driver.last = now
 	f.driver.absMicro += dur.Microseconds()
-	f.driver.listener(m, f.driver.absMicro)
+	f.driver.callback(data, f.driver.absMicro)
 	f.driver.mx.Unlock()
 	return nil
 }

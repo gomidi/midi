@@ -1,8 +1,18 @@
 # make tests for midi channel messages
 
+
+
 # make transparent running status to explicit status reader; make it the default in listener, let it start listening at the first explicit status
 
 # make transparent running status writer
+
+# here is the question if it is not better to have some midi.Buffer that tracks status bytes for reading and writing.
+such a buffer could be used to convert to explicit status codes (which would be done inside a smf reader and a driver in port)
+or to compress with the help of running status (which would be done inside a smf writer and a driver out port)
+
+we need an interface with optional methods (=callbacks) for sysex messages (with are buffered by the drivers),
+realtime messages (with are send immediatly) and system common messages (which are also send immediatly).
+the default method receives channel messages (or could possibly receive any kind of message)
 
 # improve sysex
 

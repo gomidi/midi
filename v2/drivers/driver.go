@@ -1,39 +1,37 @@
-package midi
+package drivers
 
 var (
 	firstDriver string
 
-	// DRIVERS is the registry for MIDI drivers
-	DRIVERS = map[string]Driver{}
+	// REGISTRY is the registry for MIDI drivers
+	REGISTRY = map[string]Driver{}
 )
 
 // RegisterDriver register a driver
-func RegisterDriver(d Driver) {
-	if len(DRIVERS) == 0 {
+func Register(d Driver) {
+	if len(REGISTRY) == 0 {
 		firstDriver = d.String()
 	}
-	DRIVERS[d.String()] = d
+	REGISTRY[d.String()] = d
 }
 
-// GetDriver returns the first available driver
-func GetDriver() Driver {
-	if len(DRIVERS) == 0 {
+// Get returns the first available driver
+func Get() Driver {
+	if len(REGISTRY) == 0 {
 		return nil
 	}
-	return DRIVERS[firstDriver]
+	return REGISTRY[firstDriver]
 }
 
-// CloseDriver closes the first available driver
-func CloseDriver() {
-	d := GetDriver()
+// Close closes the first available driver
+func Close() {
+	d := Get()
 	if d != nil {
 		d.Close()
 	}
 }
 
 // Driver is a driver for MIDI connections.
-// Apart from system exclusive data the MIDI bytes must be provided in complete messages.
-// However for channel messages the status from a `running status`.
 // It may provide the timing delta to the previous message in micro seconds.
 // It must send the given MIDI data immediately.
 type Driver interface {

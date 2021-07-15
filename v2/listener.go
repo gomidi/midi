@@ -1,13 +1,12 @@
 package midi
 
-import "fmt"
-
 /*
 TODO
 
 merge with NewWrapper, i.e. add In and filter to wrapperreceiver and rename it and delete this
 */
 
+/*
 // NewListener returns a new Listener that listens on the given MIDI in port by calling the given
 // msgCallback, when the StartListening method is called.
 // Before that, a message filter can be set via the Only method and a callback for realtime
@@ -84,3 +83,4 @@ func (l *Listener) StopListening() {
 func (l *Listener) Close() {
 	l.In.StopListening()
 }
+*/

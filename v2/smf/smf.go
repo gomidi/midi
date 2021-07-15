@@ -1,171 +1,33 @@
 package smf
 
 import (
-	"gitlab.com/gomidi/midi/v2"
+	"fmt"
+	"io"
+	"os"
 )
 
-//var ErrFinished = errors.New("SMF action finished successfully")
-
-type Track struct {
-	Events []Event
-	Closed bool
+// New returns a SMF file of format type 0 (single track), that becomes type 1 (multi track), if you add tracks
+func New() *SMF {
+	return newSMF(0)
 }
 
-func NewTrack() *Track {
-	return &Track{}
+// NewSMF1 returns a SMF file of format type 1 (multi track)
+func NewSMF1() *SMF {
+	return newSMF(1)
 }
 
-func (t *Track) IsEmpty() bool {
-	if t.Closed {
-		return len(t.Events) == 0 || len(t.Events) == 1
+// NewSMF2 returns a SMF file of format type 2 (multi sequence)
+func NewSMF2() *SMF {
+	return newSMF(2)
+}
+
+func newSMF(format uint16) *SMF {
+	s := &SMF{
+		format: format,
 	}
-	return len(t.Events) == 0
+	s.TimeFormat = MetricTicks(960)
+	return s
 }
-
-func (t *Track) Close(deltaticks uint32) {
-	if t.Closed {
-		return
-	}
-	t.Events = append(t.Events, Event{Delta: deltaticks, Data: midi.EOT.Data})
-	t.Closed = true
-}
-
-func (t *Track) Add(deltaticks uint32, msgs ...midi.Message) {
-	if t.Closed {
-		return
-	}
-	for _, msg := range msgs {
-		t.Events = append(t.Events, Event{Delta: deltaticks, Data: msg.Data})
-		deltaticks = 0
-	}
-}
-
-func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Receiver) {
-	var absDelta int64
-
-	for _, ev := range t.Events {
-		absDelta += int64(ev.Delta)
-		ms := resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds()
-		receiver.Receive(ev.Message(), ms)
-	}
-}
-
-type Event struct {
-	Delta uint32
-	Data  []byte
-}
-
-func (e Event) Message() midi.Message {
-	return midi.NewMessage(e.Data)
-}
-
-func (e *Event) MsgType() midi.MsgType {
-	return midi.GetMsgType(e.Data)
-}
-
-type TempoChange struct {
-	AbsDelta int64
-	BPM      float64
-}
-
-type TempoChanges []TempoChange
-
-func (t TempoChanges) Swap(a, b int) {
-	t[a], t[b] = t[b], t[a]
-}
-
-func (t TempoChanges) Len() int {
-	return len(t)
-}
-
-func (t TempoChanges) Less(a, b int) bool {
-	return t[a].AbsDelta < t[b].AbsDelta
-}
-
-func (s SMF) Format() uint16 {
-	return s.format
-}
-
-type tracksReader struct {
-	smf    *SMF
-	tracks map[int]bool
-	filter []midi.MsgType
-	err    error
-}
-
-func (t *tracksReader) Error() error {
-	return t.err
-}
-
-func (t *tracksReader) doTrack(tr int) bool {
-	if len(t.tracks) == 0 {
-		return true
-	}
-
-	return t.tracks[tr]
-}
-
-func ReadTracks(filepath string, tracks ...int) *tracksReader {
-	t := &tracksReader{}
-	t.tracks = map[int]bool{}
-	for _, tr := range tracks {
-		t.tracks[tr] = true
-	}
-	t.smf, t.err = ReadFile(filepath)
-	return t
-}
-
-func (t *tracksReader) Only(mtypes ...midi.MsgType) *tracksReader {
-	t.filter = mtypes
-	return t
-}
-
-func (t *tracksReader) Do(fn func(trackNo int, msg midi.Message, delta int64, deltamicroSec int64)) (*SMF, error) {
-	tracks := t.smf.Tracks()
-
-	ticks := t.smf.TimeFormat.(MetricTicks)
-	tc := t.smf.TempoChanges()
-
-	for no, tr := range tracks {
-		var absTicks int64
-		if t.doTrack(no) {
-			for _, ev := range tr.Events {
-				bpm := tc.TempoAt(absTicks)
-				dmsec := ticks.Duration(bpm, ev.Delta).Microseconds()
-				d := int64(ev.Delta)
-				if t.filter == nil {
-					fn(no, ev.Message(), d, dmsec)
-				} else {
-					if ev.MsgType().IsOneOf(t.filter...) {
-						fn(no, ev.Message(), d, dmsec)
-					}
-				}
-				absTicks += d
-			}
-		}
-	}
-
-	return t.smf, t.err
-}
-
-/*
-smf.ReadTracks("midifile.mid", 3).
-	   Only(midi.Channel1Msg & midi.NoteMsg).
-	   Do(func (trackNo int, msg midi.Message, delta int64) {
-		msec := smf.DeltaToMicroSec(delta)
-		time.Sleep(time.Microseconds(msec))
-		out.Write(msg)
-	})
-*/
-
-/*
-type Config struct {
-	NoRunningStatus bool
-	Logger          Logger
-	TimeFormat      TimeFormat
-	//Format          uint16 // only valid: 0,1 and 2
-}
-*/
 
 type SMF struct {
 	//Header       SMFHeader
@@ -205,55 +67,88 @@ func (s *SMF) NumTracks() uint16 {
 	return uint16(len(s.tracks))
 }
 
-/*
-func (s *SMF) TimeFormat() TimeFormat {
-	return s.timeFormat
-}
+// WriteFile creates file, calls callback with a writer and closes file.
+//
+// WriteFile makes sure that the data of the last track is written by sending
+// an meta.EndOfTrack message after callback has been run.
+//
+// For single track (SMF0) files this makes sense since no meta.EndOfTrack message
+// must then be send from callback (although it does not harm).
+//
+// For multitrack files however there must be sending of meta.EndOfTrack anyway,
+// so it is better practise to send it after each track (including the last one).
+// The options and their defaults are the same as for New and they are documented
+// at the corresponding option.
+// The callback may call the given writer to write messages. If any of this write
+// results in an error, the file won't be written and the error is returned.
+// Only a successful write will manifest itself in the file being created.
+//func (s *SMF) WriteFile(file string, options ...Option) error {
 
-type Option func(*writer)
+//var s io.WriterTo = &smf{}
+func (s *SMF) WriteFile(file string) error {
+	f, err := os.Create(file)
 
-func OptionTimeFormat(tf TimeFormat) Option {
-	return func(s *writer) {
-		s.SMF.timeFormat = tf
+	if err != nil {
+		return fmt.Errorf("writing midi file failed: could not create file %#v", file)
 	}
-}
-*/
 
-/*
-func (s smf) NumTracks() uint16 {
-	return s.numTracks
-}
-*/
+	//err = s.WriteTo(f)
+	err = s.WriteTo(f)
+	f.Close()
 
-/*
-func (s *smf) TempoAt(absDelta int64) (bpm float64) {
-	bpm = 120.00
-	for _, tc := range s.TempoChanges {
-		if tc.AbsDelta > absDelta {
+	if err != nil {
+		os.Remove(file)
+		return fmt.Errorf("writing to midi file %#v failed: %v", file, err)
+	}
+
+	return nil
+}
+
+func (s *SMF) WriteTo(f io.Writer) (err error) {
+	s.numTracks = uint16(len(s.tracks))
+	if s.numTracks == 0 {
+		return fmt.Errorf("no track added")
+	}
+	if s.numTracks > 1 && s.format == 0 {
+		s.format = 1
+	}
+	//wr := newWriter(f, options...)
+	//fmt.Printf("numtracks: %v\n", s.numTracks)
+	wr := newWriter(s, f)
+	err = wr.WriteHeader()
+	if err != nil {
+		return fmt.Errorf("could not write header: %v", err)
+	}
+
+	for _, t := range s.tracks {
+		t.Close(0) // just to be sure
+		for _, ev := range t.Events {
+			//fmt.Printf("written ev: %v\n ", ev)
+			wr.SetDelta(ev.Delta)
+			err = wr.Write(ev.Data)
+			if err != nil {
+				break
+			}
+		}
+
+		err = wr.writeChunkTo(wr.output)
+
+		if err != nil {
 			break
 		}
-		bpm = tc.BPM
 	}
-	return
-}
-*/
 
-func (t TempoChanges) TempoAt(absDelta int64) (bpm float64) {
-	bpm = 120.00
-	for _, tc := range t {
-		if tc.AbsDelta > absDelta {
-			break
-		}
-		bpm = tc.BPM
-	}
 	return
 }
 
-/*
-func (s *SMF) WriteToTrack(trackNo int16, data []byte, deltaticks uint32) {
-	s.Tracks[int(trackNo)].Write(deltaticks) = append(s.Tracks[int(trackNo)], event{
-		Delta: deltaticks,
-		Data:  data,
-	})
+// AddAndClose closes the given track at deltatime and adds it to the smf
+func (s *SMF) AddAndClose(deltatime uint32, t *Track) {
+	t.Close(deltatime)
+	s.tracks = append(s.tracks, t)
 }
-*/
+
+//var ErrFinished = errors.New("SMF action finished successfully")
+
+func (s SMF) Format() uint16 {
+	return s.format
+}

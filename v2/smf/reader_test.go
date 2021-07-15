@@ -12,7 +12,7 @@ import (
 func testRead(t *testing.T, input []byte) string {
 	var out bytes.Buffer
 	out.WriteString("\n")
-	smf, err := ReadAll(bytes.NewReader(input))
+	smf, err := ReadFrom(bytes.NewReader(input))
 	if err != nil {
 		t.Fatalf("can't read: %v", err)
 	}

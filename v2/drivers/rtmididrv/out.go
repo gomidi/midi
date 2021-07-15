@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"sync"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 	"gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi"
 )
 
-func newOut(driver *Driver, number int, name string) midi.Out {
+func newOut(driver *Driver, number int, name string) drivers.Out {
 	o := &out{driver: driver, number: number, name: name}
 	return o
 }
@@ -31,17 +31,18 @@ func (o *out) IsOpen() (open bool) {
 
 // Send writes a MIDI message to the MIDI output port
 // If the output port is closed, it returns midi.ErrClosed
-func (o *out) Send(m midi.Message) error {
+func (o *out) Send(bt []byte) error {
 	//o.RLock()
 	o.Lock()
 	defer o.Unlock()
 	if o.midiOut == nil {
 		//o.RUnlock()
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 	//	o.RUnlock()
 
-	err := o.midiOut.SendMessage(m.Data)
+	//fmt.Printf("send % X\n", m.Data)
+	err := o.midiOut.SendMessage(bt)
 	if err != nil {
 		return fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.number, o, err)
 	}

@@ -28,13 +28,13 @@ func ReadFile(file string) (*SMF, error) {
 		f.Close()
 	}()
 
-	return ReadAll(f)
+	return ReadFrom(f)
 }
 
-// ReadAll
-func ReadAll(f io.Reader) (*SMF, error) {
+// Read reads a SMF from the given io.Reader
+func ReadFrom(f io.Reader) (*SMF, error) {
 
-	rd := NewReader(f)
+	rd := newReader(f)
 
 	err := rd.ReadHeader()
 
@@ -61,8 +61,8 @@ func ReadAll(f io.Reader) (*SMF, error) {
 }
 
 // New returns a smf.Reader
-func NewReader(src io.Reader) *Reader {
-	rd := &Reader{
+func newReader(src io.Reader) *reader {
+	rd := &reader{
 		input:           src,
 		processedTracks: -1,
 		runningStatus:   runningstatus.NewSMFReader(),
@@ -73,14 +73,14 @@ func NewReader(src io.Reader) *Reader {
 }
 
 // Close closes the internal reader if it is an io.ReadCloser
-func (r *Reader) Close() error {
+func (r *reader) Close() error {
 	if cl, is := r.input.(io.ReadCloser); is {
 		return cl.Close()
 	}
 	return nil
 }
 
-func (r *Reader) ReadHeader() error {
+func (r *reader) ReadHeader() error {
 	if r.input == nil {
 		return fmt.Errorf("no input defined")
 	}
@@ -101,7 +101,7 @@ func (r *Reader) ReadHeader() error {
 	return r.error
 }
 
-type Reader struct {
+type reader struct {
 	*SMF
 	Logger Logger
 
@@ -117,22 +117,22 @@ type Reader struct {
 }
 
 // Delta returns the delta time in ticks for the last MIDI message
-func (r *Reader) Delta() uint32 {
+func (r *reader) Delta() uint32 {
 	return r.deltatime
 }
 
 // Track returns the track for the last MIDI message
-func (r *Reader) Track() int16 {
+func (r *reader) Track() int16 {
 	return r.processedTracks
 }
 
-func (r *Reader) tracksMissing() bool {
+func (r *reader) tracksMissing() bool {
 	// allow the last track to skip the endoftrack message
 	//return r.processedTracks+1 < int16(r.numTracks)
 	return int(r.numTracks) > int(r.processedTracks)+1
 }
 
-func (r *Reader) ReadTracks() (err error) {
+func (r *reader) ReadTracks() (err error) {
 	var m midi.Message
 	var absDelta int64
 
@@ -174,7 +174,7 @@ func (r *Reader) ReadTracks() (err error) {
 
 // Read reads the next midi message
 // If the file has been read completely, ErrFinished is returned as error.
-func (r *Reader) Read() (m midi.Message, err error) {
+func (r *reader) Read() (m midi.Message, err error) {
 	msg, err := r.read()
 	if err == io.EOF && r.tracksMissing() {
 		return m, ErrMissing
@@ -182,7 +182,7 @@ func (r *Reader) Read() (m midi.Message, err error) {
 	return msg, err
 }
 
-func (r *Reader) read() (m midi.Message, err error) {
+func (r *reader) read() (m midi.Message, err error) {
 	if r.isDone {
 		return m, ErrFinished
 	}
@@ -211,13 +211,13 @@ func (r *Reader) read() (m midi.Message, err error) {
 	return m, r.error
 }
 
-func (r *Reader) log(format string, vals ...interface{}) {
+func (r *reader) log(format string, vals ...interface{}) {
 	if r.Logger != nil {
 		r.Logger.Printf(format+"\n", vals...)
 	}
 }
 
-func (r *Reader) readMThd() (err error) {
+func (r *reader) readMThd() (err error) {
 
 	// after the header a chunk should come
 	r.expectChunk = true
@@ -243,7 +243,7 @@ func (r *Reader) readMThd() (err error) {
 	return // leave at the end
 }
 
-func (r *Reader) readChunk() {
+func (r *reader) readChunk() {
 
 	if r.error != nil {
 		return
@@ -293,7 +293,7 @@ func (r *Reader) readChunk() {
 	r.expectChunk = true
 }
 
-func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
+func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	r.log("_readEvent, canary: % X", canary)
 	m.MsgType = midi.UnknownMsg
 
@@ -404,7 +404,7 @@ func (r *Reader) _readEvent(canary byte) (m midi.Message, err error) {
 	return m, nil
 }
 
-func (r *Reader) readEvent() (m midi.Message, err error) {
+func (r *reader) readEvent() (m midi.Message, err error) {
 	if r.error != nil {
 		return m, r.error
 	}
@@ -436,7 +436,7 @@ func (r *Reader) readEvent() (m midi.Message, err error) {
 }
 
 // parseHeaderData parses SMF-header chunk header data.
-func (r *Reader) parseHeaderData(reader io.Reader) error {
+func (r *reader) parseHeaderData(reader io.Reader) error {
 
 	format, err := utils.ReadUint16(reader)
 

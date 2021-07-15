@@ -10,6 +10,21 @@ const (
 	vlqMask     = 127
 )
 
+func hasBitU8(n uint8, pos uint8) bool {
+	val := n & (1 << pos)
+	return (val > 0)
+}
+
+// IsChannelMessage returns if the given byte is a channel message
+func IsChannelMessage(b uint8) bool {
+	return !hasBitU8(b, 6)
+}
+
+// IsStatusByte returns if the given byte is a status byte
+func IsStatusByte(b uint8) bool {
+	return hasBitU8(b, 7)
+}
+
 /*
 // ReadByte reads a byte from the reader
 func ReadByte(rd io.Reader) (byte, error) {
