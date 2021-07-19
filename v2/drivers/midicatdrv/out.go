@@ -6,10 +6,10 @@ import (
 	"os/exec"
 	"sync"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
-func newOut(driver *Driver, number int, name string) midi.Out {
+func newOut(driver *Driver, number int, name string) drivers.Out {
 	o := &out{driver: driver, number: number, name: name}
 	return o
 }
@@ -56,14 +56,14 @@ func (o *out) IsOpen() (open bool) {
 
 // Send sends a MIDI message to the MIDI output port
 // If the output port is closed, it returns midi.ErrClosed
-func (o *out) Send(b midi.Message) error {
+func (o *out) Send(b []byte) error {
 	o.Lock()
 	defer o.Unlock()
 	if o.cmd == nil {
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 
-	_, err := fmt.Fprintf(o.wr, "%X\n", b.Data)
+	_, err := fmt.Fprintf(o.wr, "%X\n", b)
 	if err != nil {
 		return err
 	}

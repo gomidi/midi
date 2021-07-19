@@ -1,0 +1,20 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+_example/.gometalinter-7nr5cj/main.go
+_example/example
+_example/_example
+example/example
+imported/portmedia-code-r234
+portmedia-code-r234.zip
+libportmidisrc

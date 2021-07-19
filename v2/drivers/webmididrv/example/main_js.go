@@ -9,10 +9,7 @@ import (
 	"time"
 
 	"gitlab.com/gomidi/midi/v2"
-	//"gitlab.com/gomidi/midi/midiwriter"
-	//"gitlab.com/gomidi/midi/reader"
-	//"gitlab.com/gomidi/midi/writer"
-	driver "gitlab.com/gomidi/midi/v2/drivers/webmididrv"
+	_ "gitlab.com/gomidi/midi/v2/drivers/webmididrv"
 )
 
 /*
@@ -29,44 +26,34 @@ func printMessage(message string) {
 }
 
 func main() {
-	drv, err := driver.New()
-	must(err)
+	defer midi.CloseDriver()
 
-	defer drv.Close()
-
-	ins, err := drv.Ins()
-	must(err)
-
+	ins := midi.InPorts()
 	var bf bytes.Buffer
 
-	for _, in := range ins {
-		fmt.Fprintf(&bf, "found MIDI in port: %v: %s<br />", in.Number(), in.String())
+	for i, in := range ins {
+		fmt.Fprintf(&bf, "found MIDI in port: %v: %s<br />", i, in)
 	}
 
 	printMessage(bf.String())
 
-	outs, err := drv.Outs()
-	must(err)
+	outs := midi.OutPorts()
 
 	bf.Reset()
 
-	for _, out := range outs {
-		fmt.Fprintf(&bf, "found MIDI out port: %v: %s<br />", out.Number(), out.String())
+	for i, out := range outs {
+		fmt.Fprintf(&bf, "found MIDI out port: %v: %s<br />", i, out)
 	}
 
 	printMessage(bf.String())
 
-	in := ins[0]
-	err = in.Open()
+	s, err := midi.SenderToPort(0)
 	must(err)
 
-	out := outs[0]
-	err = out.Open()
-	must(err)
-
-	recv := midi.NewReceiver(func(msg midi.Message, deltamicrosecs int64) {
+	err = midi.ListenToPort(0, midi.ReceiverFunc(func(msg midi.Message, timestamp int32) {
 		printMessage(fmt.Sprintf("got: %s<br />", msg))
-	}, nil)
+	}))
+	must(err)
 
 	/*
 		rd := reader.New(
@@ -78,7 +65,7 @@ func main() {
 
 		rd.ListenTo(in)
 	*/
-	in.SendTo(recv)
+	//in.SendTo(recv)
 
 	// Running status is not allowed according to the specs.
 	//wr := writer.New(out, midiwriter.NoRunningStatus())
@@ -93,11 +80,11 @@ func main() {
 	// this messages in the browser window
 	//wr.SetChannel(channel)
 	//writer.NoteOn(wr, key, velocity)
-	out.Send(channel.NoteOn(key, velocity))
+	s.Send(channel.NoteOn(key, velocity))
 	time.Sleep(time.Second)
 	printMessage(fmt.Sprintf("send: NoteOff key: %v on channel %v<br />", key, channel))
 	//writer.NoteOff(wr, key)
-	out.Send(channel.NoteOff(key))
+	s.Send(channel.NoteOff(key))
 
 	// stay alive
 	ch := make(chan bool)

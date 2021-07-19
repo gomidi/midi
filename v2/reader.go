@@ -2,6 +2,7 @@ package midi
 
 import (
 	"bytes"
+	//"fmt"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
 	midilib "gitlab.com/gomidi/midi/v2/internal/utils"
@@ -24,9 +25,22 @@ func ListenToPort(portnumber int, recv Receiver) error {
 		return err
 	}
 
-	return in.StartListening(func(data []byte, timestamp int64) {
-		rd.Write(data, timestamp)
+	var absdecimillisec int32
+
+	if sysrc, has := recv.(SysExReceiver); has {
+		if sysl, is := in.(drivers.SysExListener); is {
+			sysl.StartListeningForSysEx(func(data []byte) {
+				sysrc.ReceiveSysEx(data)
+			})
+		}
+	}
+
+	in.StartListening(func(data []byte, deltadecimillisec int32) {
+		absdecimillisec += deltadecimillisec
+		rd.Write(data, absdecimillisec)
 	})
+
+	return nil
 }
 
 func newReader(receiver Receiver) *reader {
@@ -56,13 +70,13 @@ type reader struct {
 	//bf              bytes.Buffer
 	bf              [2]byte // first: is set, second: the byte
 	state           readerState
-	rtHandler       func(MsgType, int64)
-	sysexHandler    func([]byte)
-	syscommonHander func(Message, int64)
+	rtHandler       func(MsgType, int32)
+	sysexHandler    func([]byte, int32)
+	syscommonHander func(Message, int32)
 	statusByte      uint8
 	channel         uint8
 	typ             uint8
-	timestamp       int64
+	timestamp       int32
 }
 
 func (p *reader) setBf(b byte) {
@@ -82,24 +96,25 @@ func (p *reader) getBf() (b byte) {
 	return p.bf[1]
 }
 
-func (p *reader) Write(bt []byte, timestamp int64) {
+func (p *reader) Write(bt []byte, absdecimillisec int32) {
 	//fmt.Printf("% X\n", bt)
 	for _, b := range bt {
-		p.put(b, timestamp)
+		p.put(b, absdecimillisec)
 	}
 }
 
-func (p *reader) put(b byte, timestamp int64) {
+func (p *reader) put(b byte, absdecimillisec int32) {
 
 	// => realtime message
 	if b >= 0xF8 {
+		//fmt.Printf("%s\n", NewMessage([]byte{b}).MsgType)
 		if p.rtHandler != nil {
-			p.rtHandler(NewMessage([]byte{b}).MsgType, timestamp)
+			p.rtHandler(NewMessage([]byte{b}).MsgType, absdecimillisec)
 		}
 		return
 	}
 
-	p.timestamp = timestamp
+	p.timestamp = absdecimillisec
 
 	//fmt.Printf("state: %v\n", p.state)
 
@@ -120,13 +135,26 @@ func (p *reader) put(b byte, timestamp int64) {
 }
 
 func (p *reader) inSysEx(b byte) {
-	/*
 
-	 */
+	/* interrupted sysex, discard old data */
+	if b == 0xF0 {
+		p.statusByte = 0
+		p.sysexBf.Reset()
+		p.sysexBf.WriteByte(b)
+		return
+	}
+
 	if b == 0xF7 {
 		if p.sysexHandler != nil {
-			p.sysexHandler(p.sysexBf.Bytes())
+			p.sysexBf.WriteByte(b)
+			bt := p.sysexBf.Bytes()
 			p.sysexBf.Reset()
+			p.sysexHandler(bt, p.timestamp)
+			/*
+				go func(data []byte) {
+					p.sysexHandler(data, p.timestamp)
+				}(bt)
+			*/
 		}
 		p.state = readerStateClean
 		return
@@ -151,7 +179,9 @@ func (p *reader) cleanState(b byte) {
 	case b == 0xF0:
 		p.statusByte = 0
 		p.sysexBf.Reset()
+		p.sysexBf.WriteByte(b)
 		p.state = readerStateInSysEx
+		//fmt.Printf("sysex started\n")
 	// end sysex
 	case b == 0xF7:
 		p.sysexBf.Reset()
@@ -161,6 +191,7 @@ func (p *reader) cleanState(b byte) {
 	case b > 0xF0 && b < 0xF7:
 		p.statusByte = 0
 		p.resetBf()
+		//fmt.Printf("sys common msg started\n")
 		switch b {
 		case byteMIDITimingCodeMessage, byteSysSongPositionPointer, byteSysSongSelect:
 			p.state = readerStateWithinSysCommon

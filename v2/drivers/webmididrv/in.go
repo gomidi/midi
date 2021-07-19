@@ -6,7 +6,7 @@ import (
 	"sync"
 	"syscall/js"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
 type in struct {
@@ -16,7 +16,7 @@ type in struct {
 	name     string
 	isOpen   bool
 	jsport   js.Value
-	listener func(data []byte, deltaMicroseconds int64)
+	listener func(data []byte, timestamp int32)
 }
 
 // IsOpen returns wether the MIDI in port is open
@@ -74,14 +74,14 @@ func (i *in) Open() (err error) {
 	return nil
 }
 
-func newIn(driver *Driver, number int, name string, jsport js.Value) midi.In {
+func newIn(driver *Driver, number int, name string, jsport js.Value) drivers.In {
 	return &in{driver: driver, number: number, name: name, jsport: jsport}
 }
 
 // SendTo
-func (i *in) SendTo(recv midi.Receiver) (err error) {
+func (i *in) StartListening(cb func(data []byte, timestamp int32)) (err error) {
 	if !i.IsOpen() {
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 
 	i.RLock()
@@ -91,7 +91,7 @@ func (i *in) SendTo(recv midi.Receiver) (err error) {
 	}
 	i.RUnlock()
 	i.Lock()
-	i.listener = recv.Receive
+	//i.listener = recv.Receive
 
 	jsCallback := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		jsdata := args[0].Get("data")
@@ -101,11 +101,13 @@ func (i *in) SendTo(recv midi.Receiver) (err error) {
 		data[0] = byte(jsdata.Index(0).Int())
 		data[1] = byte(jsdata.Index(1).Int())
 		data[2] = byte(jsdata.Index(2).Int())
-		var t = int64(-1)
+		var t = int32(-1)
 		if jstime.Truthy() {
-			t = int64(math.Round(jstime.Float() * 1000))
+			// round to milliseconds
+			t = int32(math.Round(jstime.Float()))
 		}
-		i.listener(data, t)
+		//i.listener(data, t)
+		cb(data, t)
 		return nil
 	})
 
@@ -114,50 +116,11 @@ func (i *in) SendTo(recv midi.Receiver) (err error) {
 
 	return nil
 }
-
-/*
-// SetListener makes the listener listen to the in port
-func (i *in) SetListener(listener func(data []byte, deltaMicroseconds int64)) (err error) {
-	if !i.IsOpen() {
-		return midi.ErrPortClosed
-	}
-
-	i.RLock()
-	if i.listener != nil {
-		i.RUnlock()
-		return fmt.Errorf("listener already set")
-	}
-	i.RUnlock()
-	i.Lock()
-	i.listener = listener
-
-	jsCallback := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		jsdata := args[0].Get("data")
-		jstime := args[0].Get("receivedTime")
-
-		var data = make([]byte, 3)
-		data[0] = byte(jsdata.Index(0).Int())
-		data[1] = byte(jsdata.Index(1).Int())
-		data[2] = byte(jsdata.Index(2).Int())
-		var t = int64(-1)
-		if jstime.Truthy() {
-			t = int64(math.Round(jstime.Float() * 1000))
-		}
-		i.listener(data, t)
-		return nil
-	})
-
-	i.jsport.Call("addEventListener", "midimessage", jsCallback)
-	i.Unlock()
-
-	return nil
-}
-*/
 
 // StopListening cancels the listening
 func (i *in) StopListening() (err error) {
 	if !i.IsOpen() {
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 
 	// TODO

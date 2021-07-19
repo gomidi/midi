@@ -1,10 +1,10 @@
 package midicatdrv
 
 import (
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
-type inPorts []midi.In
+type inPorts []drivers.In
 
 func (i inPorts) Len() int {
 	return len(i)
@@ -18,7 +18,7 @@ func (i inPorts) Less(a, b int) bool {
 	return i[a].Number() < i[b].Number()
 }
 
-type outPorts []midi.Out
+type outPorts []drivers.Out
 
 func (i outPorts) Len() int {
 	return len(i)

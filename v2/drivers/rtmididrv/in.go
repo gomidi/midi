@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sync"
+	"time"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
 	"gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi"
@@ -93,7 +94,7 @@ func newIn(driver *Driver, number int, name string) drivers.In {
 	return &in{driver: driver, number: number, name: name}
 }
 
-func (i *in) StartListening(callback func(data []byte, timestamp int64)) error {
+func (i *in) StartListening(callback func(data []byte, deltadecimilliseconds int32)) error {
 	if !i.IsOpen() {
 		//fmt.Printf("post closed\n")
 		return drivers.ErrPortClosed
@@ -104,53 +105,27 @@ func (i *in) StartListening(callback func(data []byte, timestamp int64)) error {
 		i.RUnlock()
 		return fmt.Errorf("listener already set")
 	}
-	//pt := drivers.NewDeviceReader(recv)
 	i.RUnlock()
 	//fmt.Println("pre lock")
 	i.Lock()
 	i.listenerSet = true
 	i.driver.Lock()
-	/*
-		if !pt.HasRealTimeHandler() {
-			i.driver.ignoreActiveSense = true
-		}
-
-		if !pt.HasSysExHandler() {
-			i.driver.ignoreSysex = true
-		}
-
-		if !pt.HasSysCommonHandler() {
-			i.driver.ignoreTimeCode = true
-		}
-	*/
-
 	i.midiIn.IgnoreTypes(i.driver.ignoreSysex, i.driver.ignoreTimeCode, i.driver.ignoreActiveSense)
 	i.driver.Unlock()
 	i.Unlock()
-	//fmt.Printf("i.driver.ignoreSysex: %v\n", i.driver.ignoreSysex)
+
+	var tsdecimilliseconds int32
+
 	// since i.midiIn.SetCallback is blocking on success, there is no meaningful way to get an error
 	// and set the callback non blocking
-
 	go i.midiIn.SetCallback(func(_ rtmidi.MIDIIn, bt []byte, deltaSeconds float64) {
-		var absMicro int64
-		// we want deltaMicroseconds as int64
-		absMicro += int64(math.Round(deltaSeconds * 1000000))
-		//fmt.Printf("sending % X at %v\n", bt, absMicro)
-
-		//pt.Write(bt, absMicro)
-		callback(bt, absMicro)
-
-		//recv.Receive(midi.NewMessage(bt), absMicro)
-
-		//listener(bt, int64(math.Round(deltaSeconds*1000000)))
+		// convert to milliseconds (10^-5)
+		tsdecimilliseconds += int32(math.Round(deltaSeconds * 1000))
+		callback(bt, tsdecimilliseconds)
 	})
 
-	//	fmt.Println("post callback setting")
-	/*
-		if err != nil {
-			fmt.Errorf("can't set listener for MIDI in port %v (%s): %v", i.number, i, err)
-		}
-	*/
+	time.Sleep(time.Millisecond * 10)
+
 	return nil
 }
 

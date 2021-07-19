@@ -10,21 +10,26 @@ type testreceiver struct {
 	bf bytes.Buffer
 }
 
-func (r *testreceiver) Receive(msg Message, timestamp int64) {
+func (r *testreceiver) Receive(msg Message, timestamp int32) {
 	fmt.Fprintf(&r.bf, "|%s|", msg)
 }
 
-func (r *testreceiver) ReceiveSysEx(b []byte) {
+func (r *testreceiver) ReceiveSysEx(b []byte, timestamp int32) {
 	fmt.Fprintf(&r.bf, "{% X}", b)
 }
 
-func (r *testreceiver) ReceiveSysCommon(msg Message, timestamp int64) {
+func (r *testreceiver) ReceiveSysCommon(msg Message, timestamp int32) {
 	fmt.Fprintf(&r.bf, "/%s/", msg)
 }
 
-func (r *testreceiver) ReceiveRealTime(mtype MsgType, timestamp int64) {
+func (r *testreceiver) ReceiveRealtime(mtype MsgType, timestamp int32) {
 	fmt.Fprintf(&r.bf, "[%s]", mtype)
 }
+
+var _ Receiver = &testreceiver{}
+var _ SysExReceiver = &testreceiver{}
+var _ SysCommonReceiver = &testreceiver{}
+var _ RealtimeReceiver = &testreceiver{}
 
 func combine(a ...[]byte) []byte {
 	var bf bytes.Buffer
@@ -61,7 +66,7 @@ func TestReader(t *testing.T) {
 		{
 			"complete sysex message",
 			SysEx([]byte{0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41}).Data,
-			"{41 10 42 12 40 00 7F 00 41}",
+			"{F0 41 10 42 12 40 00 7F 00 41 F7}",
 		},
 		{
 			"complete noteon message",
@@ -86,7 +91,7 @@ func TestReader(t *testing.T) {
 				Activesense().Data,
 				SongSelect(3).Data,
 			),
-			"{41 10 42 12 40 00 7F 00 41}|Channel2Msg & NoteOnMsg key: 23 velocity: 109|[ActiveSenseMsg]/SongSelectMsg song: 3/",
+			"{F0 41 10 42 12 40 00 7F 00 41 F7}|Channel2Msg & NoteOnMsg key: 23 velocity: 109|[ActiveSenseMsg]/SongSelectMsg song: 3/",
 		},
 		{
 			"running status (the second message will be 'converted from channel4 noteoff to channel2 noteon, since we cut the status byte)",
@@ -131,7 +136,7 @@ func TestReader(t *testing.T) {
 		{
 			"complete sysex message with injected realtime message",
 			inject(SysEx([]byte{0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41}).Data, 3, Activesense().Data),
-			"[ActiveSenseMsg]{41 10 42 12 40 00 7F 00 41}",
+			"[ActiveSenseMsg]{F0 41 10 42 12 40 00 7F 00 41 F7}",
 		},
 		{
 			"complete channel message with injected realtime message",
@@ -178,7 +183,7 @@ func TestReader(t *testing.T) {
 				SysEx([]byte{0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41}).Data,
 				Channel(4).NoteOffVelocity(25, 20).Data[1:],
 			),
-			"|Channel2Msg & NoteOnMsg key: 23 velocity: 109|{41 10 42 12 40 00 7F 00 41}",
+			"|Channel2Msg & NoteOnMsg key: 23 velocity: 109|{F0 41 10 42 12 40 00 7F 00 41 F7}",
 		},
 		{
 			"sequence with undefined status message",
@@ -223,8 +228,9 @@ func TestReader(t *testing.T) {
 
 	for i, test := range tests {
 		rec.bf.Reset()
-
 		pt.Write(test.input, 0)
+
+		//time.Sleep(time.Millisecond * 100)
 
 		if got, expected := rec.bf.String(), test.expected; got != expected {
 			t.Errorf("\n\n[%v] // %s\n\n\tbytes:\n\t\t\"% X\"\n\tgot: \n\t\t%q\n\texpected: \n\t\t%q\n\n", i, test.comment, test.input, got, expected)

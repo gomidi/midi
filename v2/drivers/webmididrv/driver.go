@@ -6,21 +6,19 @@ import (
 	"sync"
 	"syscall/js"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
-/*
 func init() {
 	drv, err := New()
 	if err != nil {
 		panic(fmt.Sprintf("could not register webmididrv: %s", err.Error()))
 	}
-	midi.RegisterDriver(drv)
+	drivers.Register(drv)
 }
-*/
 
 type Driver struct {
-	opened []midi.Port
+	opened []drivers.Port
 	sync.RWMutex
 	inputsJS  js.Value
 	outputsJS js.Value
@@ -101,7 +99,7 @@ func (d *Driver) onMIDIFailure() js.Func {
 }
 
 // Ins returns the available MIDI input ports
-func (d *Driver) Ins() (ins []midi.In, err error) {
+func (d *Driver) Ins() (ins []drivers.In, err error) {
 	if d.Err != nil {
 		return nil, err
 	}
@@ -125,7 +123,7 @@ func (d *Driver) Ins() (ins []midi.In, err error) {
 }
 
 // Outs returns the available MIDI output ports
-func (d *Driver) Outs() (outs []midi.Out, err error) {
+func (d *Driver) Outs() (outs []drivers.Out, err error) {
 	if d.Err != nil {
 		return nil, err
 	}

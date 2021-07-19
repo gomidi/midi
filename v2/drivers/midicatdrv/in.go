@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"sync"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 	"gitlab.com/gomidi/midicat/lib"
 )
 
@@ -20,7 +20,7 @@ type in struct {
 	shouldKill          chan bool
 	wasKilled           chan bool
 	hasProc             bool
-	listener            func(data midi.Message, absMicrosecs int64)
+	listener            func(data []byte, deltadecimilli int32)
 }
 
 func (o *in) fireCmd() error {
@@ -58,7 +58,7 @@ func (o *in) fireCmd() error {
 			}
 
 			if o.listener != nil {
-				o.listener(midi.NewMessage(data), -1)
+				o.listener(data, -1)
 			}
 			o.RUnlock()
 			runtime.Gosched()
@@ -159,14 +159,14 @@ func (i *in) Open() (err error) {
 	return nil
 }
 
-func newIn(driver *Driver, number int, name string) midi.In {
+func newIn(driver *Driver, number int, name string) drivers.In {
 	return &in{driver: driver, number: number, name: name}
 }
 
 // SendTo makes the listener listen to the in port
-func (i *in) SendTo(recv midi.Receiver) (err error) {
+func (i *in) StartListening(cb func([]byte, int32)) (err error) {
 	if !i.IsOpen() {
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 
 	i.RLock()
@@ -176,7 +176,7 @@ func (i *in) SendTo(recv midi.Receiver) (err error) {
 	}
 	i.RUnlock()
 	i.Lock()
-	i.listener = recv.Receive
+	i.listener = cb
 	i.Unlock()
 
 	return nil
@@ -185,7 +185,7 @@ func (i *in) SendTo(recv midi.Receiver) (err error) {
 // StopListening cancels the listening
 func (i *in) StopListening() (err error) {
 	if !i.IsOpen() {
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 
 	i.shouldStopListening <- true

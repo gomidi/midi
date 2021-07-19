@@ -25,11 +25,11 @@ type Driver struct {
 	in  *in
 	out *out
 	//reader   *drivers.DeviceReader
-	callback func([]byte, int64)
-	name     string
-	last     time.Time
-	absMicro int64
-	mx       sync.Mutex
+	callback        func([]byte, int32)
+	name            string
+	last            time.Time
+	absdecimillisec int32
+	mx              sync.Mutex
 }
 
 func New(name string) drivers.Driver {
@@ -63,9 +63,9 @@ func (f *in) Number() int             { return f.number }
 func (f *in) IsOpen() bool            { return f.isOpen }
 func (f *in) Underlying() interface{} { return nil }
 
-func (f *in) StartListening(cb func([]byte, int64)) error {
+func (f *in) StartListening(cb func([]byte, int32)) error {
 	f.driver.mx.Lock()
-	f.driver.absMicro = 0
+	f.driver.absdecimillisec = 0
 	f.driver.last = time.Now()
 	//f.driver.reader = drivers.NewDeviceReader(recv)
 	f.driver.callback = cb
@@ -142,9 +142,9 @@ func (f *out) Send(data []byte) error {
 
 	now := time.Now()
 	dur := now.Sub(f.driver.last)
-	f.driver.last = now
-	f.driver.absMicro += dur.Microseconds()
-	f.driver.callback(data, f.driver.absMicro)
+	//f.driver.last = now
+	f.driver.absdecimillisec = int32(dur.Milliseconds())
+	f.driver.callback(data, f.driver.absdecimillisec)
 	f.driver.mx.Unlock()
 	return nil
 }

@@ -4,10 +4,10 @@ import (
 	"sync"
 	"syscall/js"
 
-	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
-func newOut(driver *Driver, number int, name string, jsport js.Value) midi.Out {
+func newOut(driver *Driver, number int, name string, jsport js.Value) drivers.Out {
 	o := &out{driver: driver, number: number, name: name, jsport: jsport}
 	return o
 }
@@ -35,7 +35,7 @@ func (o *out) Send(b []byte) error {
 	o.RLock()
 	if !o.isOpen {
 		o.RUnlock()
-		return midi.ErrPortClosed
+		return drivers.ErrPortClosed
 	}
 	o.RUnlock()
 

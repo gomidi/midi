@@ -16,7 +16,7 @@ import (
 	//_ gitlab.com/gomidi/midi/v2/drivers/portmididrv
 )
 
-func rec(msg midi.Message, timestamp int64) {
+func rec(msg midi.Message, timestamp int32) {
 
 	var channel, key, velocity, program, pressure uint8
 	var pitch int16
@@ -51,15 +51,11 @@ func main() {
 	}
 
 	// here we take first out, for real drivers midi.OutByName should be more helpful
-	out, err := midi.OutByNumber(0)
+	s, err := midi.SenderToPort(0)
 	must(err)
-	out.Open()
 
 	// here we take first in, for real drivers midi.InByName should be more helpful
-	in, err := midi.InByNumber(0)
-	must(err)
-
-	err = in.SendTo(midi.ReceiverFunc(rec))
+	err = midi.ListenToPort(0, midi.ReceiverFunc(rec))
 
 	//listener, err := midi.NewListener(in, midi.ReceiverFunc(rec))
 
@@ -69,44 +65,38 @@ func main() {
 
 	{ // write somehow MIDI
 		ch := midi.Channel(0)
-		err = out.Send(ch.NoteOn(60, 100))
+		err = s.Send(ch.NoteOn(60, 100))
 		must(err)
 
 		time.Sleep(time.Nanosecond)
-		out.Send(ch.NoteOff(60))
-		out.Send(ch.Pitchbend(-12))
+		s.Send(ch.NoteOff(60))
+		s.Send(ch.Pitchbend(-12))
 		time.Sleep(time.Nanosecond)
 
 		ch = midi.Channel(1)
-		out.Send(ch.ProgramChange(12))
+		s.Send(ch.ProgramChange(12))
 
-		out.Send(ch.NoteOn(70, 100))
+		s.Send(ch.NoteOn(70, 100))
 		time.Sleep(time.Nanosecond)
-		out.Send(ch.NoteOff(70))
+		s.Send(ch.NoteOff(70))
 		time.Sleep(time.Second * 1)
 	}
 }
 
-func printPort(port midi.Port) {
-	fmt.Printf("[%v] %s\n", port.Number(), port.String())
-}
-
 func printInPorts() {
 	fmt.Printf("MIDI IN Ports\n")
-	ins, err := midi.Ins()
-	must(err)
-	for _, port := range ins {
-		printPort(port)
+	ins := midi.InPorts()
+	for i, port := range ins {
+		fmt.Printf("[%v] %s\n", i, port)
 	}
 	fmt.Printf("\n\n")
 }
 
 func printOutPorts() {
 	fmt.Printf("MIDI OUT Ports\n")
-	outs, err := midi.Outs()
-	must(err)
-	for _, port := range outs {
-		printPort(port)
+	outs := midi.OutPorts()
+	for i, port := range outs {
+		fmt.Printf("[%v] %s\n", i, port)
 	}
 	fmt.Printf("\n\n")
 }

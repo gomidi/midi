@@ -3,12 +3,12 @@ package portmididrv
 import "time"
 
 // Option is an option that can be passed to the driver
-type Option func(*driver)
+type Option func(*Driver)
 
 // SleepingTime sets the duration for sleeping between reads when polling on in port
 // The default sleeping time is 0.1ms
 func SleepingTime(d time.Duration) Option {
-	return func(i *driver) {
+	return func(i *Driver) {
 		i.sleepingTime = d
 	}
 }

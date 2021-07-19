@@ -43,7 +43,7 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 
 	for _, ev := range t.Events {
 		absDelta += int64(ev.Delta)
-		ms := resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds()
+		ms := int32(resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds() * 100)
 		receiver.Receive(ev.Message(), ms)
 	}
 }

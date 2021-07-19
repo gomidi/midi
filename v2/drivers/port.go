@@ -38,23 +38,32 @@ type Port interface {
 type In interface {
 	Port
 
-	StartListening(func(data []byte, timestampMicroSec int64)) error
+	// StartListening starts listening, calling the given callback for any incoming midi data
+	// For the reasoning behind the decision to use deltadecimilliseconds (and track it via int32), see the README.md
+	StartListening(callback func(data []byte, deltadecimilliseconds int32)) error
 
 	// StopListening stops the listening.
-	// When closing a MIDI input port, StopListening must be called before (from the driver).
+	// When closing the MIDI input port, the driver must call StopListening first.
 	StopListening() error
 }
 
 // SysExListener is an In port that delivers sysex messages to a separate callback
 type SysExListener interface {
 	In
-	StartListeningForSysEx(func(data []byte, timestampMicroSec int64)) error
+
+	// StartListeningForSysEx starts listening, calling the given callback for any incoming sysex midi data
+	// For the reasoning behind the decision to use deltadecimilliseconds (and track it via int32), see the README.md
+	StartListeningForSysEx(func(data []byte)) error
+	//StartListeningForSysEx(func(data []byte, deltadecimilliseconds int32)) error
 }
 
 // RealtimeListener is an In port that delivers realtime messages to a separate callback
 type RealtimeListener interface {
 	In
-	StartListeningForRealtime(func(msg byte, timestampMicroSec int64)) error
+
+	// StartListeningForRealtime starts listening, calling the given callback for any incoming realtime midi data
+	// For the reasoning behind the decision to use deltadecimilliseconds (and track it via int32), see the README.md
+	StartListeningForRealtime(func(msg byte, deltadecimilliseconds int32)) error
 }
 
 // SysExIgnorer is a port that can ignore sysex messages

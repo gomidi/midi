@@ -1,0 +1,16 @@
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/emersion/go-appdir v1.1.2 h1:3ceZKMz3b7MLy37ZB29shG2Y7Y3G/pcLbtnYP6BJ0eQ=
+github.com/emersion/go-appdir v1.1.2/go.mod h1:N15s1uA0vhxhVomEsNau6w15OdELRpp0aH1Ux4BuSPE=
+github.com/pelletier/go-toml v1.8.1 h1:1Nf83orprkJyknT6h7zbuEGUEjcyVlCxSUGTENmNCRM=
+github.com/pelletier/go-toml v1.8.1/go.mod h1:T2/BmBdy8dvIRq1a/8aqjN41wvWlN4lrapLU/GW4pbc=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210412062545-442b1d8545e9 h1:zlbXAJw+2YRoVxa0fxRN9c0BZmT6LSa1yFvZz0zz0SI=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210412062545-442b1d8545e9/go.mod h1:OPj7tH2bUPFpPN1uU6E7ShXuDlJO0+RHlwp32KhcrtE=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210425073027-dcb5d7eb9e83 h1:FuKUpVHyDsZy9y+ZrWrT9uR2/HWY16MOj0/wY++IEY8=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210425073027-dcb5d7eb9e83/go.mod h1:OPj7tH2bUPFpPN1uU6E7ShXuDlJO0+RHlwp32KhcrtE=
+gitlab.com/metakeule/config v1.18.9/go.mod h1:glEQ76SztqrtydnmgxvrlTtN9BBmgM0lNy7/S2eiZbw=
+gitlab.com/metakeule/config v1.21.0 h1:pQ/J7OzyOyNkngFfWZwhhvvM6pTU5jXVy8LkZg4ffAU=
+gitlab.com/metakeule/config v1.21.0/go.mod h1:jooTFay2TFoNFs1y/I3+FhscrclQMxSlmBTTlWPceCk=
+gitlab.com/metakeule/fmtdate v1.2.0 h1:MCtqJiTO3j8yTn28aJvgvQy63f1DsjTj702f7TGaFOk=
+gitlab.com/metakeule/fmtdate v1.2.0/go.mod h1:uZUf21xepWGLp6PgJGBbHeBVWO+/gsKi3Gdh0Fu4lGg=
+golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f h1:QdHQnPce6K4XQewki9WNbG5KOROuDzqO3NaYjI1cXJ0=
+golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

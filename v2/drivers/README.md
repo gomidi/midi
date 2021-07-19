@@ -16,3 +16,15 @@ All drivers must obey the following rules. If not, it is considered a bug.
    This is the way, the Receiver tells the driver, which data it is interested in.
 10. incomplete sysex data must be cached inside the sender and flushed, if the data is complete.
 11. The driver must have a pass through method which passes the data as is (for debugging).
+
+## Reason for the delta choice of the listener callback
+
+1. we don't want floating point, but integers of small fractions of time (easier to calculate with).
+2. not every driver tracks a delta timing. the ones that don't should indicate with a -1. also some underlying drivers
+   use floats for delta timing, so we can't be sure to don't get negative values.
+3. for the size, we find that int32 is large enough, if we take a reasonable resolution 
+   of 0.1 milliseconds (one decimillisecond or 1sec^-4). Then we get
+     max int32  = 2147483647 / 10 (ms) / 1000 (sec) / 60 (min) / 60 (hours) / 24 = 2,48 days 
+   of maximal duration when converting to absolute timing (starting from the first message), which should be 
+   long enough for a midi recording.
+    int64 would double the needed ressources for no real benefit.
