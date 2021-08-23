@@ -1,6 +1,8 @@
 package midi
 
 import (
+	"fmt"
+
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
@@ -41,7 +43,28 @@ func (w *writer) sendSysExToDriver(bt []byte) {
 	if w.sysexOut != nil {
 		w.sysexOut.SendSysEx(bt)
 	} else {
-		w.out.Send(bt)
+		var i int
+		l := len(bt)
+		for {
+			if i >= l {
+				return
+			}
+			packet := [3]byte{bt[i], 0, 0}
+			i++
+			if i >= l {
+				w.out.Send(packet)
+				return
+			}
+			packet[1] = bt[i]
+			i++
+			if i >= l {
+				w.out.Send(packet)
+				return
+			}
+			packet[2] = bt[i]
+			w.out.Send(packet)
+			i++
+		}
 	}
 }
 
@@ -88,18 +111,18 @@ func (w *writer) sendSysEx(bt []byte) {
 }
 */
 
-func (w *writer) sendRT(bt []byte) error {
+func (w *writer) sendRT(b byte) error {
 	if w.realtimeOut != nil {
-		return w.realtimeOut.SendRealtime(bt[0])
+		return w.realtimeOut.SendRealtime(b)
 	} else {
-		return w.out.Send(bt)
+		return w.out.Send([3]byte{b, 0, 0})
 	}
 }
 
 func (w *writer) Send(msg Message) error {
 	switch {
 	case msg.Is(RealTimeMsg):
-		return w.sendRT(msg.Data)
+		return w.sendRT(msg.Data[0])
 	case msg.Is(SysExMsg):
 		//w.mx.Lock()
 		//w.inSysEx = true
@@ -109,7 +132,16 @@ func (w *writer) Send(msg Message) error {
 		return nil
 	default:
 		//w.mx.Lock()
-		err := w.out.Send(msg.Data)
+		var packet [3]byte
+		packet[0] = msg.Data[0]
+		l := len(msg.Data)
+		if l > 1 {
+			packet[1] = msg.Data[1]
+		}
+		if l > 2 {
+			packet[2] = msg.Data[2]
+		}
+		err := w.out.Send(packet)
 		/*
 			if w.inSysEx {
 				w.inSysEx = false
@@ -125,7 +157,9 @@ var _ Sender = &writer{}
 func SenderToPort(portnumber int) (Sender, error) {
 	out, err := drivers.OutByNumber(portnumber)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get out port %v: %s\n", portnumber, err)
 	}
+
+	//fmt.Printf("returning writer to %q\n", out.String())
 	return newWriter(out), nil
 }

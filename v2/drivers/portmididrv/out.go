@@ -3,8 +3,6 @@ package portmididrv
 import (
 	"fmt"
 
-	"sync"
-
 	"gitlab.com/gomidi/midi/v2/drivers"
 	"gitlab.com/gomidi/midi/v2/drivers/portmididrv/imported/portmidi"
 )
@@ -18,49 +16,52 @@ type out struct {
 	id       int
 	stream   *portmidi.Stream
 	name     string
-	mx       sync.RWMutex
-	driver   *Driver
+	//mx       sync.RWMutex
+	driver *Driver
 }
 
 // IsOpen returns, wether the port is open
 func (o *out) IsOpen() bool {
-	o.mx.RLock()
-	defer o.mx.RUnlock()
+	//o.mx.RLock()
+	//defer o.mx.RUnlock()
 	return o.stream != nil
 }
 
 // Send writes a MIDI sysex message to the outut port
 func (o *out) SendSysEx(data []byte) error {
-	o.mx.RLock()
+	//fmt.Printf("try to send sysex\n")
+
+	//o.mx.RLock()
 	if o.stream == nil {
-		o.mx.RUnlock()
+		//o.mx.RUnlock()
 		return drivers.ErrPortClosed
 	}
-	o.mx.RUnlock()
+	//o.mx.RUnlock()
 
 	// since we always open the outputstream with a latency of 0
 	// the timestamp is ignored
-	var ts portmidi.Timestamp // or portmidi.Time()
+	//var ts portmidi.Timestamp // or portmidi.Time()
 
-	o.mx.Lock()
-	defer o.mx.Unlock()
+	//o.mx.Lock()
+	//	defer o.mx.Unlock()
 	//fmt.Printf("sending sysex % X\n", data)
-	err := o.stream.WriteSysExBytes(ts, data)
+	//err := o.stream.WriteSysExBytes(ts, data)
+	err := o.stream.WriteSysExBytes(0, data)
 	if err != nil {
-		return fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.Number(), o, err)
+		return fmt.Errorf("could not send sysex message to MIDI out %v (%s): %v", o.Number(), o, err)
 	}
 	return nil
 }
 
 // Send writes a MIDI message to the outut port
 // If the output port is closed, it returns midi.ErrPortClosed
-func (o *out) Send(b []byte) error {
-	o.mx.RLock()
+func (o *out) Send(b [3]byte) error {
+	//o.mx.RLock()
 	if o.stream == nil {
-		o.mx.RUnlock()
+		//o.mx.RUnlock()
 		return drivers.ErrPortClosed
 	}
-	o.mx.RUnlock()
+	//o.mx.RUnlock()
 
 	/*
 		if len(b) < 2 {
@@ -68,26 +69,30 @@ func (o *out) Send(b []byte) error {
 		}
 	*/
 
-	first := int64(b[0])
+	/*
+		first := int64(b[0])
 
-	var second int64
-	if len(b) > 1 {
-		second = int64(b[1])
-	}
+		var second int64
+		if len(b) > 1 {
+			second = int64(b[1])
+		}
 
-	var last int64
-	// ProgramChange messages only have 2 bytes
-	if len(b) > 2 {
-		last = int64(b[2])
-	}
+		var last int64
+		// ProgramChange messages only have 2 bytes
+		if len(b) > 2 {
+			last = int64(b[2])
+		}
+	*/
 
 	//	fmt.Printf("sending % X\n", b)
 
-	o.mx.Lock()
-	defer o.mx.Unlock()
+	//o.mx.Lock()
+	//defer o.mx.Unlock()
 	//o.driver.Lock()
 	//defer o.driver.Unlock()
-	err := o.stream.WriteShort(first, second, last)
+	//err := o.stream.WriteShort(first, second, last)
+
+	err := o.stream.WriteShort(int64(b[0]), int64(b[1]), int64(b[2]))
 	if err != nil {
 		return fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.Number(), o, err)
 	}
@@ -115,15 +120,15 @@ func (o *out) String() string {
 
 // Close closes the MIDI out port
 func (o *out) Close() error {
-	o.mx.RLock()
+	//o.mx.RLock()
 	if o.stream == nil {
-		o.mx.RUnlock()
+		//o.mx.RUnlock()
 		return nil
 	}
-	o.mx.RUnlock()
+	//o.mx.RUnlock()
 
-	o.mx.Lock()
-	defer o.mx.Unlock()
+	//o.mx.Lock()
+	//defer o.mx.Unlock()
 	err := o.stream.Close()
 	if err != nil {
 		return fmt.Errorf("can't close MIDI out %v (%s): %v", o.Number(), o, err)
@@ -134,24 +139,27 @@ func (o *out) Close() error {
 
 // Open opens the MIDI output port
 func (o *out) Open() (err error) {
-	o.mx.RLock()
+	//o.mx.RLock()
 	if o.stream != nil {
-		o.mx.RUnlock()
+		//o.mx.RUnlock()
+		//fmt.Printf("already opened\n")
 		return nil
 	}
-	o.mx.RUnlock()
+	//o.mx.RUnlock()
 
-	o.mx.Lock()
-	defer o.mx.Unlock()
+	//o.mx.Lock()
+	//defer o.mx.Unlock()
 	// we always open the outputstream with a latency of 0
 	var latency int64
+	//fmt.Printf("open output stream with deviceid: %v\n", o.deviceid)
 	o.stream, err = portmidi.NewOutputStream(o.deviceid, o.driver.buffersizeOut, latency)
+	//fmt.Printf("opened\n")
 	if err != nil {
 		o.stream = nil
 		return fmt.Errorf("can't open MIDI out port %v (%s): %v", o.Number(), o, err)
 	}
-	o.driver.Lock()
-	defer o.driver.Unlock()
+	//o.driver.Lock()
+	//defer o.driver.Unlock()
 	o.driver.opened = append(o.driver.opened, o)
 	return nil
 }

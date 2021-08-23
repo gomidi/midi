@@ -3,7 +3,6 @@ package rtmididrv
 import (
 	"fmt"
 	"strings"
-	"sync"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
 	"gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi"
@@ -18,11 +17,11 @@ func init() {
 }
 
 type Driver struct {
-	opened            []drivers.Port
-	ignoreSysex       bool
-	ignoreTimeCode    bool
-	ignoreActiveSense bool
-	sync.RWMutex
+	opened []drivers.Port
+	//ignoreSysex       bool
+	//ignoreTimeCode    bool
+	//ignoreActiveSense bool
+	//sync.RWMutex
 }
 
 func (d *Driver) String() string {
@@ -31,7 +30,7 @@ func (d *Driver) String() string {
 
 // Close closes all open ports. It must be called at the end of a session.
 func (d *Driver) Close() (err error) {
-	d.Lock()
+	//	d.Lock()
 	var e CloseErrors
 
 	for _, p := range d.opened {
@@ -41,7 +40,7 @@ func (d *Driver) Close() (err error) {
 		}
 	}
 
-	d.Unlock()
+	//	d.Unlock()
 
 	if len(e) == 0 {
 		return nil
@@ -50,6 +49,7 @@ func (d *Driver) Close() (err error) {
 	return e
 }
 
+/*
 type Option func(*Driver)
 
 func IgnoreSysex() Option {
@@ -69,15 +69,11 @@ func IgnoreActiveSense() Option {
 		d.ignoreActiveSense = true
 	}
 }
+*/
 
 // New returns a driver based on the default rtmidi in and out
-func New(options ...Option) (*Driver, error) {
+func New() (*Driver, error) {
 	d := &Driver{}
-
-	for _, opt := range options {
-		opt(d)
-	}
-
 	return d, nil
 }
 
@@ -94,9 +90,9 @@ func (d *Driver) OpenVirtualIn(name string) (drivers.In, error) {
 		return nil, fmt.Errorf("can't open virtual in port: %s", err.Error())
 	}
 
-	d.Lock()
-	defer d.Unlock()
-	_in.IgnoreTypes(d.ignoreSysex, d.ignoreTimeCode, d.ignoreActiveSense)
+	//	d.Lock()
+	//defer d.Unlock()
+	//_in.IgnoreTypes(d.ignoreSysex, d.ignoreTimeCode, d.ignoreActiveSense)
 	inPort := &in{driver: d, number: -1, name: name, midiIn: _in}
 	d.opened = append(d.opened, inPort)
 	return inPort, nil
@@ -115,8 +111,8 @@ func (d *Driver) OpenVirtualOut(name string) (drivers.Out, error) {
 		return nil, fmt.Errorf("can't open virtual out port: %s", err.Error())
 	}
 
-	d.Lock()
-	defer d.Unlock()
+	//d.Lock()
+	//defer d.Unlock()
 	outPort := &out{driver: d, number: -1, name: name, midiOut: _out}
 	d.opened = append(d.opened, outPort)
 	return outPort, nil

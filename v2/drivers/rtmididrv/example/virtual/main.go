@@ -8,8 +8,8 @@ import (
 	"gitlab.com/gomidi/midi/v2"
 
 	// include a driver (autoregisters it)
-	//_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
-	_ "gitlab.com/gomidi/midi/v2/drivers/testdrv"
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
+	//_ "gitlab.com/gomidi/midi/v2/drivers/testdrv"
 	//_ "gitlab.com/gomidi/midi/v2/drivers/midicatdrv"
 	//_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv"
 )
@@ -31,25 +31,29 @@ func (r receiver) Receive(msg midi.Message, timestamp int32) {
 var _ midi.Receiver = receiver{}
 
 // To receive sysex messages, implement the midi.SysExReceiver interface
-func (r receiver) ReceiveSysEx(b []byte, timestamp int32) {
-	fmt.Printf("got sysex: % X @%v\n", b, timestamp)
+func (r receiver) OnSysEx(b []byte, timestamp int32) {
+	fmt.Printf("got sysex: '% X' @%v\n", b, timestamp)
 }
 
 var _ midi.SysExReceiver = receiver{}
 
+/*
 // To receive sys common messages, implement the midi.SysCommonReceiver interface
 func (r receiver) ReceiveSysCommon(msg midi.Message, timestamp int32) {
 	fmt.Printf("got syscommon: %s @%v\n", msg, timestamp)
 }
+*/
 
-var _ midi.SysCommonReceiver = receiver{}
+//var _ midi.SysCommonReceiver = receiver{}
 
+/*
 // To receive realtime messages, implement the midi.RealtimeReceiver interface
 func (r receiver) ReceiveRealtime(mtype midi.MsgType, timestamp int32) {
 	fmt.Printf("got realtime: %s @%v\n", mtype, timestamp)
 }
+*/
 
-var _ midi.RealtimeReceiver = receiver{}
+//var _ midi.RealtimeReceiver = receiver{}
 
 // run this in two terminals. first terminal without args to create the virtual ports and
 // second terminal with argument "list" to see the ports.
@@ -82,14 +86,16 @@ func run() {
 	//err = midi.ListenToPort(midi.FindInPort("Through Port-0"), receiver{})
 
 	// to get the port number via name, use midi.FindInPort
-	err = midi.ListenToPort(0, receiver{})
+	stop, err := midi.ListenToPort(0, receiver{}, midi.ListenOptions{ActiveSense: true, TimeCode: true})
 	must(err)
 
 	time.Sleep(time.Millisecond)
+	//fmt.Printf("sending % X\n", midi.Channel(2).NoteOn(12, 34).Data)
 	s.Send(midi.Channel(2).NoteOn(12, 34))
 	time.Sleep(time.Millisecond)
 	s.Send(midi.Activesense())
 	time.Sleep(time.Millisecond)
+	//fmt.Printf("sending % X\n", midi.Channel(2).NoteOff(12).Data)
 	s.Send(midi.Channel(2).NoteOff(12))
 	time.Sleep(time.Millisecond)
 	s.Send(midi.Tune())
@@ -102,6 +108,7 @@ func run() {
 	// F0   41   10   42   12   40007F   00   41   F7
 
 	time.Sleep(time.Second)
+	stop()
 }
 
 func printPorts(ports []string) {

@@ -18,8 +18,11 @@ func init() {
 }
 
 var _ drivers.Driver = &Driver{}
-var _ drivers.SysExListener = &in{}
-var _ drivers.SysExSender = &out{}
+
+//var _ drivers.SysExListener = &in{}
+//var _ drivers.SysCommonListener = &in{}
+//var _ drivers.RealtimeListener = &in{}
+//var _ drivers.SysExSender = &out{}
 
 type Driver struct {
 	buffersizeRead int
@@ -112,7 +115,9 @@ func (d *Driver) Outs() (outs []drivers.Out, err error) {
 	var num int
 	for i := 0; i < portmidi.CountDevices(); i++ {
 		info := portmidi.Info(portmidi.DeviceID(i))
+		//		fmt.Printf("%q devideID %v\n", info.Name, portmidi.DeviceID(i))
 		if info != nil && info.IsOutputAvailable {
+			//		fmt.Printf("registering out port %q, number [%v], devideID %v\n", info.Name, num, portmidi.DeviceID(i))
 			outs = append(outs, newOut(d, portmidi.DeviceID(i), num, info.Name))
 			num++
 		}

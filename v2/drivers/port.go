@@ -6,8 +6,11 @@ import (
 )
 
 var ErrPortClosed = fmt.Errorf("ERROR: port is closed")
+var ErrListenStopped = fmt.Errorf("ERROR: stopped listening")
 
 // Port is an interface for a MIDI port.
+// In order to be lockless (for realtime), a port is not threadsafe, so none of its method may be called
+// from different goroutines.
 type Port interface {
 
 	// Open opens the MIDI port. An implementation should save the open state to make it
@@ -28,73 +31,52 @@ type Port interface {
 
 	// String represents the MIDI port by a string, aka name.
 	String() string
+}
 
-	// Underlying returns the underlying driver to allow further adjustments.
-	// When using the underlying driver, the user must take care of proper opening/closing etc.
-	Underlying() interface{}
+// ListenConfig defines the configuration for in port listening
+type ListenConfig struct {
+
+	// TimeCode lets the the timecode messages pass through, if set
+	TimeCode bool
+
+	// ActiveSense lets the the active sense messages pass through, if set
+	ActiveSense bool
+
+	// SysExBufferSize defines the size of the buffer for sysex messages (in bytes).
+	// SysEx messages larger than this size will be ignored.
+	// When SysExBufferSize is 0, the default buffersize (1024) is used.
+	SysExBufferSize uint32
+
+	// OnSysex is the callback that is called for every SysEx message <= SysExBufferSize.
+	// If OnSysEx is nil, SysEx Messages are ignored.
+	OnSysEx func(msg []byte, milliseconds int32)
+
+	// OnErr is the callback that is called for any error happening during the listening.
+	OnErr func(error)
 }
 
 // In is an interface for a MIDI input port
 type In interface {
 	Port
 
-	// StartListening starts listening, calling the given callback for any incoming midi data
-	// For the reasoning behind the decision to use deltadecimilliseconds (and track it via int32), see the README.md
-	StartListening(callback func(data []byte, deltadecimilliseconds int32)) error
-
-	// StopListening stops the listening.
-	// When closing the MIDI input port, the driver must call StopListening first.
-	StopListening() error
-}
-
-// SysExListener is an In port that delivers sysex messages to a separate callback
-type SysExListener interface {
-	In
-
-	// StartListeningForSysEx starts listening, calling the given callback for any incoming sysex midi data
-	// For the reasoning behind the decision to use deltadecimilliseconds (and track it via int32), see the README.md
-	StartListeningForSysEx(func(data []byte)) error
-	//StartListeningForSysEx(func(data []byte, deltadecimilliseconds int32)) error
-}
-
-// RealtimeListener is an In port that delivers realtime messages to a separate callback
-type RealtimeListener interface {
-	In
-
-	// StartListeningForRealtime starts listening, calling the given callback for any incoming realtime midi data
-	// For the reasoning behind the decision to use deltadecimilliseconds (and track it via int32), see the README.md
-	StartListeningForRealtime(func(msg byte, deltadecimilliseconds int32)) error
-}
-
-// SysExIgnorer is a port that can ignore sysex messages
-type SysExIgnorer interface {
-	Port
-
-	// IgnoreSysEx instructs the in port to ignore SysEx messages
-	IgnoreSysEx()
-}
-
-// RealtimeIgnorer is a port that can ignore realtime messages
-type RealtimeIgnorer interface {
-	Port
-
-	// IgnoreRealtime instructs the in port to ignore realtime messages
-	IgnoreRealtime()
-}
-
-// SysCommonIgnorer is a port that can ignore sys common messages
-type SysCommonIgnorer interface {
-	Port
-
-	// IgnoreSysCommon instructs the in port to ignore sys common messages
-	IgnoreSysCommon()
+	// Listen listens for incoming messages. It returns a function that must be used to stop listening.
+	// The onMsg callback is called for every non-sysex message. The onMsg callback must not be nil.
+	// The config defines further listening options (see ListenConfig)
+	// The listening must be stopped before the port may be closed.
+	Listen(
+		onMsg func(msg [3]byte, milliseconds int32),
+		config ListenConfig,
+	) (
+		stopFn func(),
+		err error,
+	)
 }
 
 // Out is an interface for a MIDI output port.
 type Out interface {
 	Port
 
-	Send(data []byte) error
+	Send(data [3]byte) error
 }
 
 // SysExSender is an out port that sends sysex messages by a separate method

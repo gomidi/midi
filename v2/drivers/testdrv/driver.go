@@ -9,8 +9,6 @@ Package testdrv provides a gomidi/midi.Driver for testing.
 package testdrv
 
 import (
-	"io"
-	"sync"
 	"time"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
@@ -22,14 +20,12 @@ func init() {
 }
 
 type Driver struct {
-	in  *in
-	out *out
-	//reader   *drivers.DeviceReader
-	callback        func([]byte, int32)
-	name            string
-	last            time.Time
-	absdecimillisec int32
-	mx              sync.Mutex
+	in            *in
+	out           *out
+	name          string
+	last          time.Time
+	stopListening bool
+	rd            *drivers.Reader
 }
 
 func New(name string) drivers.Driver {
@@ -52,58 +48,36 @@ type in struct {
 	driver *Driver
 }
 
-func (f *in) StopListening() error {
-	f.driver.mx.Lock()
-	f.driver.callback = nil
-	f.driver.mx.Unlock()
-	return nil
-}
 func (f *in) String() string          { return f.name }
 func (f *in) Number() int             { return f.number }
 func (f *in) IsOpen() bool            { return f.isOpen }
 func (f *in) Underlying() interface{} { return nil }
 
-func (f *in) StartListening(cb func([]byte, int32)) error {
-	f.driver.mx.Lock()
-	f.driver.absdecimillisec = 0
+func (f *in) Listen(onMsg func([3]byte, int32), conf drivers.ListenConfig) (func(), error) {
 	f.driver.last = time.Now()
-	//f.driver.reader = drivers.NewDeviceReader(recv)
-	f.driver.callback = cb
-	f.driver.mx.Unlock()
-	return nil
-}
 
-/*
-func (f *in) SetListener(listener func([]byte, int64)) error {
-	f.driver.mx.Lock()
-	f.driver.listener = listener
-	f.driver.mx.Unlock()
-	return nil
+	stopper := func() {
+		f.driver.stopListening = true
+	}
+
+	f.driver.rd = drivers.NewReader(conf, onMsg)
+
+	return stopper, nil
 }
-*/
 
 func (f *in) Close() error {
-	f.driver.mx.Lock()
 	if !f.isOpen {
-		f.driver.mx.Unlock()
 		return nil
 	}
-	f.driver.mx.Unlock()
-	f.StopListening()
-	f.driver.mx.Lock()
 	f.isOpen = false
-	f.driver.mx.Unlock()
 	return nil
 }
 
 func (f *in) Open() error {
-	f.driver.mx.Lock()
 	if f.isOpen {
-		f.driver.mx.Unlock()
 		return nil
 	}
 	f.isOpen = true
-	f.driver.mx.Unlock()
 	return nil
 }
 
@@ -120,42 +94,46 @@ func (f *out) String() string          { return f.name }
 func (f *out) Underlying() interface{} { return nil }
 
 func (f *out) Close() error {
-	f.driver.mx.Lock()
 	if !f.isOpen {
-		f.driver.mx.Unlock()
 		return nil
 	}
 	f.isOpen = false
-	f.driver.mx.Unlock()
 	return nil
 }
-func (f *out) Send(data []byte) error {
-	f.driver.mx.Lock()
+
+func (f *out) Send(b [3]byte) error {
 	if !f.isOpen {
-		f.driver.mx.Unlock()
 		return drivers.ErrPortClosed
 	}
-	if f.driver.callback == nil {
-		f.driver.mx.Unlock()
-		return io.EOF
+
+	if f.driver.stopListening {
+		return nil
 	}
 
 	now := time.Now()
 	dur := now.Sub(f.driver.last)
-	//f.driver.last = now
-	f.driver.absdecimillisec = int32(dur.Milliseconds())
-	f.driver.callback(data, f.driver.absdecimillisec)
-	f.driver.mx.Unlock()
+	ts_ms := int32(dur.Milliseconds())
+	f.driver.last = now
+
+	var bt []byte
+
+	switch {
+	case b[2] == 0 && b[1] == 0:
+		bt = []byte{b[0]}
+		//	case b[2] == 0:
+	//	bt = []byte{b[0], b[1]}
+	default:
+		bt = []byte{b[0], b[1], b[2]}
+	}
+
+	f.driver.rd.EachMessage(bt, ts_ms)
 	return nil
 }
 
 func (f *out) Open() error {
-	f.driver.mx.Lock()
 	if f.isOpen {
-		f.driver.mx.Unlock()
 		return nil
 	}
 	f.isOpen = true
-	f.driver.mx.Unlock()
 	return nil
 }
