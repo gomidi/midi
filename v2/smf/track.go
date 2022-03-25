@@ -1,6 +1,8 @@
 package smf
 
 import (
+	//"fmt"
+
 	"gitlab.com/gomidi/midi/v2"
 )
 
@@ -24,7 +26,8 @@ func (t *Track) Close(deltaticks uint32) {
 	if t.Closed {
 		return
 	}
-	t.Events = append(t.Events, Event{Delta: deltaticks, Data: midi.EOT.Data})
+	t.Events = append(t.Events, Event{Delta: deltaticks, Data: EOT.Data})
+	//fmt.Printf("appending bytes: % X\n", EOT.Data)
 	t.Closed = true
 }
 
@@ -33,7 +36,9 @@ func (t *Track) Add(deltaticks uint32, msgs ...midi.Message) {
 		return
 	}
 	for _, msg := range msgs {
-		t.Events = append(t.Events, Event{Delta: deltaticks, Data: msg.Data})
+		ev := Event{Delta: deltaticks, Data: msg.Bytes()}
+		//fmt.Printf("appending bytes: % X, evtype: %s\n", ev.Data, ev.MsgType())
+		t.Events = append(t.Events, ev)
 		deltaticks = 0
 	}
 }
@@ -43,8 +48,10 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 
 	for _, ev := range t.Events {
 		absDelta += int64(ev.Delta)
-		ms := int32(resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds() * 100)
-		receiver.Receive(ev.Message(), ms)
+		if m, ok := ev.Message().(midi.Msg); ok {
+			ms := int32(resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds() * 100)
+			receiver.Receive(m, ms)
+		}
 	}
 }
 
@@ -98,9 +105,26 @@ func (t *tracksReader) Do(fn func(trackNo int, msg midi.Message, delta int64, de
 				if t.filter == nil {
 					fn(no, ev.Message(), d, dmsec)
 				} else {
-					if ev.MsgType().IsOneOf(t.filter...) {
-						fn(no, ev.Message(), d, dmsec)
+					/*
+						if ev.MsgType().IsOneOf(t.filter...) {
+							fn(no, ev.Message(), d, dmsec)
+						}
+					*/
+					msg := ev.Message()
+					ty := msg.Type()
+					for _, f := range t.filter {
+						if midi.Is(f, ty) {
+							fn(no, msg, d, dmsec)
+						}
 					}
+					/*
+						kind := ev.Message().Kind()
+						for _, f := range t.filter {
+							if kind == f {
+								fn(no, ev.Message(), d, dmsec)
+							}
+						}
+					*/
 				}
 				absTicks += d
 			}

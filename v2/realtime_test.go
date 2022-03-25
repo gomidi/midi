@@ -34,7 +34,7 @@ func TestRealTime(t *testing.T) {
 		},
 		{
 			midi.Undefined(),
-			"UndefinedMsg",
+			"UndefinedMsgType",
 		},
 		{
 			midi.Activesense(),

@@ -141,11 +141,30 @@ func (r *reader) ReadTracks() (err error) {
 		if err != nil {
 			break
 		}
+
 		r.log("message %v", m)
-		//fmt.Println(m)
+		//fmt.Printf("message %v\n", m)
 		tr := int(r.Track())
 
-		if m.Is(midi.MetaEndOfTrackMsg) {
+		var isMetaMsg bool
+
+		/*
+			// TODO maybe remove this after lots of tests
+			if m == nil {
+				continue
+			}
+		*/
+		if m != nil {
+			isMetaMsg = m.Type().Kind() == midi.MetaMsg
+		}
+
+		var mmsg MetaMessage
+
+		if isMetaMsg {
+			mmsg = m.(MetaMessage)
+		}
+
+		if isMetaMsg && mmsg.MetaMsgType == MetaEndOfTrackMsg {
 			r.log("end of track")
 			r.tracks[tr].Close(r.deltatime)
 			absDelta = 0
@@ -154,16 +173,17 @@ func (r *reader) ReadTracks() (err error) {
 
 		absDelta += int64(r.deltatime)
 
-		if m.Is(midi.MetaTempoMsg) {
+		if isMetaMsg && mmsg.MetaMsgType == MetaTempoMsg {
 			tc := TempoChange{
 				AbsDelta: absDelta,
 			}
 
-			m.Tempo(&tc.BPM)
+			mmsg.Tempo(&tc.BPM)
 			r.SMF.tempoChanges = append(r.SMF.tempoChanges, tc)
 		}
 
 		r.log("add message %v to track %v", m, tr)
+		//fmt.Printf("add message %v to track %v\n", m, tr)
 		r.tracks[tr].Add(r.deltatime, m)
 	}
 
@@ -295,10 +315,12 @@ func (r *reader) readChunk() {
 
 func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	r.log("_readEvent, canary: % X", canary)
-	m.MsgType = midi.UnknownMsg
+	msgType := midi.UndefinedMsgType
 
 	status, changed := r.runningStatus.Read(canary)
 	r.log("got status: % X, changed: %v", status, changed)
+
+	var isMetaEndOfTrackMsg bool
 
 	// a non-channel message has reset the status
 	if status == 0 {
@@ -339,13 +361,19 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 				return m, err
 			}
 			//m.Data = bt
-			m = midi.MetaMessage(typ, bt)
+			mm := NewMetaMessage(typ, bt)
+
+			if mm.MetaMsgType == MetaEndOfTrackMsg {
+				isMetaEndOfTrackMsg = true
+			}
 
 			// since System Common messages are not allowed within smf files, there could only be meta messages
 			// all (event unknown) meta messages must be handled by the meta dispatcher
 			//m, err = newMetaReader(r.input, typ).Read()
-			r.log("got meta: %T data: % X", m.MsgType, m.Data)
-			//fmt.Printf("got meta: %s data: % X\n", m.Type, m.Data)
+			//r.log("got meta: %T data: % X", m.MsgType, m.Data)
+			r.log("got meta: %s data: % X\n", mm.MetaMsgType, mm.Data)
+			//fmt.Printf("got meta: %s\n", mm)
+			m = mm
 		default:
 			panic(fmt.Sprintf("must not happen: invalid canary % X", canary))
 		}
@@ -371,10 +399,14 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 	if err != nil {
 		r.log("got err: %v", err)
-		return m, err
+		//fmt.Printf("error: %s\n", err.Error())
+		//return m, err
+		var mm midi.Msg
+		mm.MsgType = msgType
+		m = mm
 	}
 
-	if m.Is(midi.MetaEndOfTrackMsg) {
+	if isMetaEndOfTrackMsg {
 		r.log("got end of track")
 		// p.absTrackTime = 0
 		//p.deltatime = 0
@@ -401,12 +433,13 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	}
 
 	r.log("returning: %v", m)
+	//fmt.Printf("returning %s\n", m.String())
 	return m, nil
 }
 
 func (r *reader) readEvent() (m midi.Message, err error) {
 	if r.error != nil {
-		return m, r.error
+		return nil, r.error
 	}
 
 	//fmt.Println("readevent called")

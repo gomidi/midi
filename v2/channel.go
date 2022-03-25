@@ -28,7 +28,7 @@ const (
 // Pitchbend returns the  bytes of a pitch bend message on the MIDI channel.
 // If value is > 8191 (max), it will be set to 8191. If value is < -8192, it will be set to -8192.
 // A value of 0 is considered as neutral position.
-func (ch Channel) Pitchbend(value int16) Message {
+func (ch Channel) Pitchbend(value int16) Msg {
 	if value > PitchHighest {
 		value = PitchHighest
 	}
@@ -46,36 +46,69 @@ func (ch Channel) Pitchbend(value int16) Message {
 }
 
 // PolyAftertouch returns the bytes of the polyphonic aftertouch message on the MIDI channel.
-func (ch Channel) PolyAftertouch(key, pressure uint8) Message {
+func (ch Channel) PolyAftertouch(key, pressure uint8) Msg {
+	if key > 127 {
+		key = 127
+	}
+	if pressure > 127 {
+		pressure = 127
+	}
 	return channelMessage2(ch.Index(), 10, key, pressure)
 }
 
 // NoteOn returns the bytes of a note on message on the MIDI channel.
-func (ch Channel) NoteOn(key, velocity uint8) Message {
+func (ch Channel) NoteOn(key, velocity uint8) Msg {
+	if key > 127 {
+		key = 127
+	}
+	if velocity > 127 {
+		velocity = 127
+	}
 	return channelMessage2(ch.Index(), 9, key, velocity)
 }
 
 // NoteOffVelocity returns the bytes of a note off message with velocity on the MIDI channel.
-func (ch Channel) NoteOffVelocity(key, velocity uint8) Message {
+func (ch Channel) NoteOffVelocity(key, velocity uint8) Msg {
+	if key > 127 {
+		key = 127
+	}
+	if velocity > 127 {
+		velocity = 127
+	}
 	return channelMessage2(ch.Index(), 8, key, velocity)
 }
 
 // NoteOff returns the bytes of a note off message on the MIDI channel.
-func (ch Channel) NoteOff(key uint8) Message {
+func (ch Channel) NoteOff(key uint8) Msg {
+	if key > 127 {
+		key = 127
+	}
 	return channelMessage2(ch.Index(), 8, key, 0)
 }
 
 // ProgramChange returns the bytes of a program change message on the MIDI channel.
-func (ch Channel) ProgramChange(program uint8) Message {
+func (ch Channel) ProgramChange(program uint8) Msg {
+	if program > 127 {
+		program = 127
+	}
 	return channelMessage1(ch.Index(), 12, program)
 }
 
 // Aftertouch returns the bytes of an aftertouch message on the MIDI channel.
-func (ch Channel) Aftertouch(pressure uint8) Message {
+func (ch Channel) Aftertouch(pressure uint8) Msg {
+	if pressure > 127 {
+		pressure = 127
+	}
 	return channelMessage1(ch.Index(), 13, pressure)
 }
 
 // ControlChange returns the bytes of a control change message on the MIDI channel.
-func (ch Channel) ControlChange(controller, value uint8) Message {
+func (ch Channel) ControlChange(controller, value uint8) Msg {
+	if controller > 127 {
+		controller = 127
+	}
+	if value > 127 {
+		value = 127
+	}
 	return channelMessage2(ch.Index(), 11, controller, value)
 }

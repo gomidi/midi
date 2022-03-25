@@ -19,29 +19,29 @@ const (
 )
 
 var syscommMessages = map[byte]MsgType{
-	byteMIDITimingCodeMessage:  SysCommonMsg.Set(MTCMsg),
-	byteSysSongPositionPointer: SysCommonMsg.Set(SPPMsg),
-	byteSysSongSelect:          SysCommonMsg.Set(SongSelectMsg),
-	byteSysTuneRequest:         SysCommonMsg.Set(TuneMsg),
+	byteMIDITimingCodeMessage:/* SysCommonMsg.Set(MTCMsg), */ MTCMsg,
+	byteSysSongPositionPointer:/* SysCommonMsg.Set(SPPMsg), */ SPPMsg,
+	byteSysSongSelect:/* SysCommonMsg.Set(SongSelectMsg), */ SongSelectMsg,
+	byteSysTuneRequest:/* SysCommonMsg.Set(TuneMsg), */ TuneMsg,
 }
 
 // Tune returns a MIDI tune message
-func Tune() Message {
-	return NewMessage([]byte{byteSysTuneRequest})
+func Tune() Msg {
+	return NewMsg(byteSysTuneRequest, 0, 0)
 }
 
 // SPP returns a MIDI song position pointer message
-func SPP(pointer uint16) Message {
+func SPP(pointer uint16) Msg {
 	var b = make([]byte, 2)
 	b[1] = byte(pointer & 0x7F)
 	b[0] = byte((pointer >> 7) & 0x7F)
-	return NewMessage([]byte{byteSysSongPositionPointer, b[0], b[1]})
+	return NewMsg(byteSysSongPositionPointer, b[0], b[1])
 }
 
 // SongSelect returns a MIDI song select message
-func SongSelect(song uint8) Message {
+func SongSelect(song uint8) Msg {
 	// TODO check - it is a guess
-	return NewMessage([]byte{byteSysSongSelect, song})
+	return NewMsg(byteSysSongSelect, song, 0)
 }
 
 /*
@@ -68,8 +68,8 @@ cdefg = Hours (0-23)
 */
 
 // MTC represents a MIDI timing code message (quarter frame)
-func MTC(m uint8) Message {
+func MTC(m uint8) Msg {
 	// TODO check - it is a guess
 	// TODO provide a better abstraction for MTC
-	return NewMessage([]byte{byteMIDITimingCodeMessage, byte(m)})
+	return NewMsg(byteMIDITimingCodeMessage, byte(m), 0)
 }

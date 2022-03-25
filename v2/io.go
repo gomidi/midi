@@ -14,19 +14,19 @@ func CloseDriver() {
 // Sender sends MIDI messages.
 type Sender interface {
 	// Send sends the given MIDI message and returns any error.
-	Send(msg Message) error
+	Send(msg Msg) error
 }
 
-type ReceiverFunc func(msg Message, absdecimillisec int32)
+type ReceiverFunc func(msg Msg, absdecimillisec int32)
 
-func (r ReceiverFunc) Receive(msg Message, absdecimillisec int32) {
+func (r ReceiverFunc) Receive(msg Msg, absdecimillisec int32) {
 	r(msg, absdecimillisec)
 }
 
 // Receiver receives MIDI messages.
 type Receiver interface {
 	// Receive receives a MIDI message. absmillisec is the absolute timestamp in milliseconds
-	Receive(msg Message, absmillisec int32)
+	Receive(msg Msg, absmillisec int32)
 }
 
 type SysExReceiver interface {

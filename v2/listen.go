@@ -7,7 +7,7 @@ import (
 	midilib "gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-func _channelMessage(typ, channel, data1, data2 byte) Message {
+func _channelMessage(typ, channel, data1, data2 byte) Msg {
 	ch := Channel(channel)
 	switch typ {
 	case byteChannelPressure:
@@ -72,11 +72,11 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 
 	var onMsg = func(data [3]byte, millisec int32) {
 		status := data[0]
-		var msg Message
+		var msg Msg
 		switch {
 		// realtime message
 		case status >= 0xF8:
-			msg = NewMessage([]byte{status})
+			msg = NewMsg(status, 0, 0)
 		// here we clear for System Common Category messages
 		case status > 0xF0 && status < 0xF7:
 			isStatusSet = false
@@ -105,6 +105,7 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 			if conf.OnErr != nil {
 				conf.OnErr(fmt.Errorf(errmsg))
 			} else {
+				// TODO: maybe log
 				panic(errmsg)
 			}
 		case status >= 0x80 && status <= 0xEF:

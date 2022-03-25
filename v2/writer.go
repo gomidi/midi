@@ -119,17 +119,24 @@ func (w *writer) sendRT(b byte) error {
 	}
 }
 
-func (w *writer) Send(msg Message) error {
+func (w *writer) SendSysEx(data []byte) error {
+	w.sendSysExToDriver(data)
+	return nil
+}
+
+func (w *writer) Send(msg Msg) error {
 	switch {
-	case msg.Is(RealTimeMsg):
+	case msg.Kind() == RealTimeMsg:
 		return w.sendRT(msg.Data[0])
-	case msg.Is(SysExMsg):
-		//w.mx.Lock()
-		//w.inSysEx = true
-		w.sendSysExToDriver(msg.Data)
-		//w.mx.Unlock()
-		//go w.sendSysEx(msg.Data)
-		return nil
+		/*
+			case msg.Is(SysExMsg):
+				//w.mx.Lock()
+				//w.inSysEx = true
+				w.sendSysExToDriver(msg.Data)
+				//w.mx.Unlock()
+				//go w.sendSysEx(msg.Data)
+				return nil
+		*/
 	default:
 		//w.mx.Lock()
 		var packet [3]byte

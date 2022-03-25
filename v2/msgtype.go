@@ -4,35 +4,117 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-type MsgType uint64
-
-// UnknownMsg represents every MIDI message that is invalid or unknown.
-// There is no further data associated with messages of this type.
-const UnknownMsg MsgType = 0
+type MsgKind uint8
 
 const (
+	// UnknownMsg represents every MIDI message that is invalid or unknown.
+	// There is no further data associated with messages of this type.
+	UnknownMsg MsgKind = 0
 
-	// ChannelMsg is a MIDI channel message. It can be used in SMF and over the wire.
-	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
-	ChannelMsg MsgType = 1 << iota
-
-	// MetaMsg is a MIDI meta message (used in SMF = Simple MIDI Files)
-	MetaMsg
+	ChannelMsg MsgKind = 1
 
 	// RealTimeMsg is a MIDI realtime message. It can only be used over the wire.
-	RealTimeMsg
+	RealTimeMsg MsgKind = 2
 
 	// SysCommonMsg is a MIDI system common message. It can only be used over the wire.
-	SysCommonMsg
+	SysCommonMsg MsgKind = 3
 
 	// SysExMsg is a MIDI system exclusive message. It can be used in SMF and over the wire.
-	SysExMsg
+	SysExMsg MsgKind = 4
 
+	// MetaMsg is a MIDI meta message (used in SMF = Simple MIDI Files)
+	MetaMsg MsgKind = 5
+
+	// a way for the user to define his own message types (based on the application)
+	UserDefinedMsg = 6
+)
+
+func (k MsgKind) String() string {
+	switch k {
+	case UnknownMsg:
+		return "UnknownMsg"
+	case ChannelMsg:
+		return "ChannelMsg"
+	case RealTimeMsg:
+		return "RealTimeMsg"
+	case SysCommonMsg:
+		return "SysCommonMsg"
+	case SysExMsg:
+		return "SysExMsg"
+	case MetaMsg:
+		return "MetaMsg"
+	default:
+		return "UserDefinedMsg"
+	}
+}
+
+// 39 MessageTypes: uint8 genügt (256); im grunde genügen 6 bits (64)
+/*
+1 unknown message (0)
+7 realtime messages (1-8)
+4 syscommon messages (9-13)
+1 sysex message (14)
+7 channel messages
+------------------------
+20
+
+da kämen wir mit 32, also 5 bits aus
+
++19 Meta messages
+
+wir sind großzuegig: 256 typen
+
+1 unknown message (0)
+15 realtime messages (1-15)
+8 syscommon messages (16-23)
+16 channel messages (24-39)
+32 meta messages (40-71)
+64 sysex typen (72-135)
+121 eigene freie typen (136-255)
+*/
+
+//type MsgType uint64
+//type MsgType uint8
+type MsgType uint32
+
+func (m MsgType) Kind() MsgKind {
+	switch {
+	case m == 0:
+		return UnknownMsg
+	case m <= ProgramChangeMsg:
+		return ChannelMsg
+	case m <= ResetMsg:
+		return RealTimeMsg
+	case m <= TuneMsg:
+		return SysCommonMsg
+		//	case m == MetaMsgType:
+	//	return MetaMsg
+	case m == SysExMsgType:
+		return SysExMsg
+	default:
+		return UserDefinedMsg
+	}
+}
+
+/*
+func (m MessageType) IsOneOf(ts ...MessageType) bool {
+	for _, t := range ts {
+		if m.Is(t) {
+			return true
+		}
+	}
+	return false
+}
+*/
+
+//const UnknownMsg MsgType = 0
+
+const (
 	// NoteOnMsg is a MIDI note on message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The velocity of a concrete Message of this type can be retrieved via the Velocity method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
-	NoteOnMsg
+	NoteOnMsg MsgType = 1 << iota
 
 	// NoteOffMsg is a MIDI note off message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
@@ -66,81 +148,6 @@ const (
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The program number of a concrete Message of this type can be retrieved via the Program method of the Message.
 	ProgramChangeMsg
-
-	// MetaChannelMsg is a MIDI channel meta message (which is a MetaMsg).
-	// TODO add method to Message to get the channel number and document it.
-	MetaChannelMsg
-
-	// MetaCopyrightMsg is a MIDI copyright meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaCopyrightMsg
-
-	// MetaCuepointMsg is a MIDI cuepoint meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaCuepointMsg
-
-	// MetaDeviceMsg is a MIDI device meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaDeviceMsg
-
-	// MetaEndOfTrackMsg is a MIDI end of track meta message (which is a MetaMsg).
-	MetaEndOfTrackMsg
-
-	// MetaInstrumentMsg is a MIDI instrument meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaInstrumentMsg
-
-	// MetaKeySigMsg is a MIDI key signature meta message (which is a MetaMsg).
-	// TODO add method to Message to get the key signature and document it.
-	MetaKeySigMsg
-
-	// MetaLyricMsg is a MIDI lyrics meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaLyricMsg
-
-	// MetaTextMsg is a MIDI text meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaTextMsg
-
-	// MetaMarkerMsg is a MIDI marker meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaMarkerMsg
-
-	// MetaPortMsg is a MIDI port meta message (which is a MetaMsg).
-	// TODO add method to Message to get the port number and document it.
-	MetaPortMsg
-
-	// MetaSeqNumberMsg is a MIDI sequencer number meta message (which is a MetaMsg).
-	// TODO add method to Message to get the sequence number and document it.
-	MetaSeqNumberMsg
-
-	// MetaSeqDataMsg is a MIDI sequencer data meta message (which is a MetaMsg).
-	// TODO add method to Message to get the sequencer data and document it.
-	MetaSeqDataMsg
-
-	// MetaTempoMsg is a MIDI tempo meta message (which is a MetaMsg).
-	// The tempo in beats per minute of a concrete Message of this type can be retrieved via the BPM method of the Message.
-	MetaTempoMsg
-
-	// MetaTimeSigMsg is a MIDI time signature meta message (which is a MetaMsg).
-	// The numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a concrete Message of this type can be retrieved via the TimeSig method of the Message.
-	// A more comfortable way to get the meter is to use the Meter method of the Message.
-	MetaTimeSigMsg
-
-	// MetaTrackNameMsg is a MIDI track name meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaTrackNameMsg
-
-	// MetaSMPTEOffsetMsg is a MIDI smpte offset meta message (which is a MetaMsg).
-	// TODO add method to Message to get the smpte offset and document it.
-	MetaSMPTEOffsetMsg
-
-	// MetaUndefinedMsg is an undefined MIDI meta message (which is a MetaMsg).
-	MetaUndefinedMsg
-
-	// MetaProgramNameMsg is a MIDI program name meta message (which is a MetaMsg).
-	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaProgramNameMsg
 
 	// TimingClockMsg is a MIDI timing clock realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
@@ -194,148 +201,41 @@ const (
 	// There is no further data associated with messages of this type.
 	TuneMsg
 
-	// Channel0Msg is a MIDI channel message on channel 0 (which is a ChannelMsg).
-	Channel0Msg
-
-	// Channel1Msg is a MIDI channel message on channel 1 (which is a ChannelMsg).
-	Channel1Msg
-
-	// Channel2Msg is a MIDI channel message on channel 2 (which is a ChannelMsg).
-	Channel2Msg
-
-	// Channel3Msg is a MIDI channel message on channel 3 (which is a ChannelMsg).
-	Channel3Msg
-
-	// Channel4Msg is a MIDI channel message on channel 4 (which is a ChannelMsg).
-	Channel4Msg
-
-	// Channel5Msg is a MIDI channel message on channel 5 (which is a ChannelMsg).
-	Channel5Msg
-
-	// Channel6Msg is a MIDI channel message on channel 6 (which is a ChannelMsg).
-	Channel6Msg
-
-	// Channel7Msg is a MIDI channel message on channel 7 (which is a ChannelMsg).
-	Channel7Msg
-
-	// Channel8Msg is a MIDI channel message on channel 8 (which is a ChannelMsg).
-	Channel8Msg
-
-	// Channel9Msg is a MIDI channel message on channel 9 (which is a ChannelMsg).
-	Channel9Msg
-
-	// Channel10Msg is a MIDI channel message on channel 10 (which is a ChannelMsg).
-	Channel10Msg
-
-	// Channel11Msg is a MIDI channel message on channel 11 (which is a ChannelMsg).
-	Channel11Msg
-
-	// Channel12Msg is a MIDI channel message on channel 12 (which is a ChannelMsg).
-	Channel12Msg
-
-	// Channel13Msg is a MIDI channel message on channel 13 (which is a ChannelMsg).
-	Channel13Msg
-
-	// Channel14Msg is a MIDI channel message on channel 14 (which is a ChannelMsg).
-	Channel14Msg
-
-	// Channel15Msg is a MIDI channel message on channel 15 (which is a ChannelMsg).
-	Channel15Msg
+	SysExMsgType
 
 	// UndefinedMsg is an undefined MIDI message.
-	UndefinedMsg
+	UndefinedMsgType
+
+	// MetaMsg is a meta message
+	//MetaMsgType
 )
 
 // NoteMsg is either a NoteOnMsg or a NoteOffMsg.
 const NoteMsg = NoteOnMsg | NoteOffMsg
 
-var channelType = map[uint8]MsgType{
-	0:  Channel0Msg,
-	1:  Channel1Msg,
-	2:  Channel2Msg,
-	3:  Channel3Msg,
-	4:  Channel4Msg,
-	5:  Channel5Msg,
-	6:  Channel6Msg,
-	7:  Channel7Msg,
-	8:  Channel8Msg,
-	9:  Channel9Msg,
-	10: Channel10Msg,
-	11: Channel11Msg,
-	12: Channel12Msg,
-	13: Channel13Msg,
-	14: Channel14Msg,
-	15: Channel15Msg,
-}
-
 var msgTypeString = map[MsgType]string{
-	ChannelMsg:         "ChannelMsg",
-	MetaMsg:            "MetaMsg",
-	RealTimeMsg:        "RealTimeMsg",
-	SysCommonMsg:       "SysCommonMsg",
-	SysExMsg:           "SysExMsg",
-	NoteOnMsg:          "NoteOnMsg",
-	NoteOffMsg:         "NoteOffMsg",
-	ControlChangeMsg:   "ControlChangeMsg",
-	PitchBendMsg:       "PitchBendMsg",
-	AfterTouchMsg:      "AfterTouchMsg",
-	PolyAfterTouchMsg:  "PolyAfterTouchMsg",
-	ProgramChangeMsg:   "ProgramChangeMsg",
-	MetaChannelMsg:     "MetaChannelMsg",
-	MetaCopyrightMsg:   "MetaCopyrightMsg",
-	MetaCuepointMsg:    "MetaCuepointMsg",
-	MetaDeviceMsg:      "MetaDeviceMsg",
-	MetaEndOfTrackMsg:  "MetaEndOfTrackMsg",
-	MetaInstrumentMsg:  "MetaInstrumentMsg",
-	MetaKeySigMsg:      "MetaKeySigMsg",
-	MetaLyricMsg:       "MetaLyricMsg",
-	MetaTextMsg:        "MetaTextMsg",
-	MetaMarkerMsg:      "MetaMarkerMsg",
-	MetaPortMsg:        "MetaPortMsg",
-	MetaSeqNumberMsg:   "MetaSeqNumberMsg",
-	MetaSeqDataMsg:     "MetaSeqDataMsg",
-	MetaTempoMsg:       "MetaTempoMsg",
-	MetaTimeSigMsg:     "MetaTimeSigMsg",
-	MetaTrackNameMsg:   "MetaTrackNameMsg",
-	MetaSMPTEOffsetMsg: "MetaSMPTEOffsetMsg",
-	MetaUndefinedMsg:   "MetaUndefinedMsg",
-	MetaProgramNameMsg: "MetaProgramNameMsg",
-	TimingClockMsg:     "TimingClockMsg",
-	TickMsg:            "TickMsg",
-	StartMsg:           "StartMsg",
-	ContinueMsg:        "ContinueMsg",
-	StopMsg:            "StopMsg",
-	ActiveSenseMsg:     "ActiveSenseMsg",
-	ResetMsg:           "ResetMsg",
-	/*
-		SysExStartMsg:      "SysExStartMsg",
-		SysExEndMsg:        "SysExEndMsg",
-		SysExCompleteMsg:   "SysExCompleteMsg",
-		SysExEscapeMsg:     "SysExEscapeMsg",
-		SysExContinueMsg:   "SysExContinueMsg",
-	*/
-	MTCMsg:        "MTCMsg",
-	SongSelectMsg: "SongSelectMsg",
-	SPPMsg:        "SPPMsg",
-	UndefinedMsg:  "UndefinedMsg",
-	TuneMsg:       "TuneMsg",
-	UnknownMsg:    "UnknownMsg",
-	Channel0Msg:   "Channel0Msg",
-	Channel1Msg:   "Channel1Msg",
-	Channel2Msg:   "Channel2Msg",
-	Channel3Msg:   "Channel3Msg",
-	Channel4Msg:   "Channel4Msg",
-	Channel5Msg:   "Channel5Msg",
-	Channel6Msg:   "Channel6Msg",
-	Channel7Msg:   "Channel7Msg",
-	Channel8Msg:   "Channel8Msg",
-	Channel9Msg:   "Channel9Msg",
-	Channel10Msg:  "Channel10Msg",
-	Channel11Msg:  "Channel11Msg",
-	Channel12Msg:  "Channel12Msg",
-	Channel13Msg:  "Channel13Msg",
-	Channel14Msg:  "Channel14Msg",
-	Channel15Msg:  "Channel15Msg",
+	//	MetaMsgType:       "MetaMsgType",
+	SysExMsgType:      "SysExMsgType",
+	NoteOnMsg:         "NoteOnMsg",
+	NoteOffMsg:        "NoteOffMsg",
+	ControlChangeMsg:  "ControlChangeMsg",
+	PitchBendMsg:      "PitchBendMsg",
+	AfterTouchMsg:     "AfterTouchMsg",
+	PolyAfterTouchMsg: "PolyAfterTouchMsg",
+	ProgramChangeMsg:  "ProgramChangeMsg",
+	TimingClockMsg:    "TimingClockMsg",
+	TickMsg:           "TickMsg",
+	StartMsg:          "StartMsg",
+	ContinueMsg:       "ContinueMsg",
+	StopMsg:           "StopMsg",
+	ActiveSenseMsg:    "ActiveSenseMsg",
+	ResetMsg:          "ResetMsg",
+	MTCMsg:            "MTCMsg",
+	SongSelectMsg:     "SongSelectMsg",
+	SPPMsg:            "SPPMsg",
+	UndefinedMsgType:  "UndefinedMsgType",
+	TuneMsg:           "TuneMsg",
+	//	UnknownMsg:    "UnknownMsg",
 }
 
 /*
@@ -345,56 +245,59 @@ The returned MsgType will be a combination of message types, if appropriate (bin
 A note on message on channel 0 will have a message type that is a combination of a ChannelMsg, a Channel0Msg, and a NoteOnMsg.
 A tempo meta message of a SMF file will have a message type that is a combination of a MetaMsg, and a MetaTempoMsg.
 */
-func GetMsgType(msg []byte) (mType MsgType) {
-	if len(msg) == 0 {
-		return UnknownMsg
-	}
-
-	var canary = msg[0]
+func GetMsgType(byte1, byte2 byte) (mType MsgType) {
+	//fmt.Printf("GetMsgType % X\n", msg)
 
 	switch {
 	// channel/Voice Category Status
-	case canary >= 0x80 && canary <= 0xEF:
-		return GetChannelMsgType(canary)
-	case canary == 0xF0, canary == 0xF7:
+	case byte1 >= 0x80 && byte1 <= 0xEF:
+		return GetChannelMsgType(byte1)
+	case byte1 == 0xF0, byte1 == 0xF7:
 		// TODO what about sysex start stop etc.
-		return SysExMsg
-	case canary == 0xFF:
-		if len(msg) > 1 {
-			return GetMetaMsgType(msg[1])
-		}
-		return GetRealtimeMsgType(canary)
-	case canary < 0xF7:
-		return GetSysCommonMsgType(canary)
-	case canary > 0xF7:
-		return GetRealtimeMsgType(canary)
+		return SysExMsgType
+	case byte1 == 0xFF:
+		/*
+			if byte2 > 0 {
+				return MetaMsgType
+			}
+		*/
+		return GetRealtimeMsgType(byte1)
+	case byte1 < 0xF7:
+		return GetSysCommonMsgType(byte1)
+	case byte1 > 0xF7:
+		return GetRealtimeMsgType(byte1)
 	default:
-		return UnknownMsg
+		return UndefinedMsgType
 	}
 }
 
 // Set adds the given message type to the existing message type and returns a combination (via binary flags)
-func (m MsgType) Set(flag MsgType) MsgType { return m | flag }
+//func (m MsgType) Set(flag MsgType) MsgType { return m | flag }
 
 // Clear removes the given message type from the combination of messages types (via binary flags)
-func (m MsgType) Clear(flag MsgType) MsgType { return m &^ flag }
+//func (m MsgType) Clear(flag MsgType) MsgType { return m &^ flag }
 
 // Toggle toggles wether or not the given message type is set (via binary flags)
-func (m MsgType) Toggle(flag MsgType) MsgType { return m ^ flag }
+//func (m MsgType) Toggle(flag MsgType) MsgType { return m ^ flag }
 
 // Is returns if the given message type is part of the combination of message types
-func (m MsgType) Is(flag MsgType) bool { return m&flag != 0 }
+func Is(mt1, mt2 MessageType) bool {
+	return mt1.Kind() == mt2.Kind() && mt1.Val()&mt2.Val() != 0
+}
 
+/*
 // IsOneOf returns true if one of the given message types is set.
 func (m MsgType) IsOneOf(flags ...MsgType) bool {
 	for _, fl := range flags {
-		if m&fl != 0 {
+		if fl.Kind() == m.Kind() && m&fl != 0 {
 			return true
 		}
 	}
 	return false
 }
+*/
 
+/*
 // IsAllOf returns true if all of the given message types are set.
 func (m MsgType) IsAllOf(flags ...MsgType) bool {
 	for _, fl := range flags {
@@ -404,171 +307,190 @@ func (m MsgType) IsAllOf(flags ...MsgType) bool {
 	}
 	return true
 }
+*/
+
+func (m MsgType) Val() uint32 {
+	return uint32(m)
+}
 
 // String returns a string that represents the message type
 func (m MsgType) String() string {
-	//return msgTypeString[m]
-	if m.Is(SysExMsg) {
-		return msgTypeString[SysExMsg]
+	s, has := msgTypeString[m]
+	if !has {
+		return "UndefinedMsgType"
 	}
 
-	if m.Is(MetaMsg) {
-		return msgTypeString[m.Clear(MetaMsg)]
-	}
+	return s
 
-	if m.Is(SysCommonMsg) {
-		return msgTypeString[m.Clear(SysCommonMsg)]
-	}
+	/*
+		switch m.Kind() {
+		case SysExMsg:
+			return "SysExMsgType"
+		case MetaMsg:
+			return "MetaMsgType"
+		case SysCommonMsg:
+			return "SysCommonMsg"
+		case RealTimeMsg:
+			return "RealTimeMsg"
+		case ChannelMsg:
+			return "ChannelMsg"
+		default:
+			return "UndefinedMsgType"
+		}
+	*/
 
-	if m.Is(RealTimeMsg) {
-		return msgTypeString[m.Clear(RealTimeMsg)]
-	}
+	/*
+		if m.Is(ChannelMsg) {
+			var clCh MsgType
 
-	if m.Is(ChannelMsg) {
-		var clCh MsgType
+			if m.Is(Channel0Msg) {
+				clCh = Channel0Msg
+			}
 
-		if m.Is(Channel0Msg) {
-			clCh = Channel0Msg
+			if m.Is(Channel1Msg) {
+				clCh = Channel1Msg
+			}
+
+			if m.Is(Channel2Msg) {
+				clCh = Channel2Msg
+			}
+
+			if m.Is(Channel3Msg) {
+				clCh = Channel3Msg
+			}
+
+			if m.Is(Channel4Msg) {
+				clCh = Channel4Msg
+			}
+
+			if m.Is(Channel5Msg) {
+				clCh = Channel5Msg
+			}
+
+			if m.Is(Channel6Msg) {
+				clCh = Channel6Msg
+			}
+
+			if m.Is(Channel7Msg) {
+				clCh = Channel7Msg
+			}
+
+			if m.Is(Channel8Msg) {
+				clCh = Channel8Msg
+			}
+
+			if m.Is(Channel9Msg) {
+				clCh = Channel9Msg
+			}
+
+			if m.Is(Channel10Msg) {
+				clCh = Channel10Msg
+			}
+
+			if m.Is(Channel11Msg) {
+				clCh = Channel11Msg
+			}
+
+			if m.Is(Channel12Msg) {
+				clCh = Channel12Msg
+			}
+
+			if m.Is(Channel13Msg) {
+				clCh = Channel13Msg
+			}
+
+			if m.Is(Channel14Msg) {
+				clCh = Channel14Msg
+			}
+
+			if m.Is(Channel15Msg) {
+				clCh = Channel15Msg
+			}
+
+			return msgTypeString[clCh] + " & " + msgTypeString[m.Clear(ChannelMsg).Clear(clCh)]
 		}
 
-		if m.Is(Channel1Msg) {
-			clCh = Channel1Msg
-		}
-
-		if m.Is(Channel2Msg) {
-			clCh = Channel2Msg
-		}
-
-		if m.Is(Channel3Msg) {
-			clCh = Channel3Msg
-		}
-
-		if m.Is(Channel4Msg) {
-			clCh = Channel4Msg
-		}
-
-		if m.Is(Channel5Msg) {
-			clCh = Channel5Msg
-		}
-
-		if m.Is(Channel6Msg) {
-			clCh = Channel6Msg
-		}
-
-		if m.Is(Channel7Msg) {
-			clCh = Channel7Msg
-		}
-
-		if m.Is(Channel8Msg) {
-			clCh = Channel8Msg
-		}
-
-		if m.Is(Channel9Msg) {
-			clCh = Channel9Msg
-		}
-
-		if m.Is(Channel10Msg) {
-			clCh = Channel10Msg
-		}
-
-		if m.Is(Channel11Msg) {
-			clCh = Channel11Msg
-		}
-
-		if m.Is(Channel12Msg) {
-			clCh = Channel12Msg
-		}
-
-		if m.Is(Channel13Msg) {
-			clCh = Channel13Msg
-		}
-
-		if m.Is(Channel14Msg) {
-			clCh = Channel14Msg
-		}
-
-		if m.Is(Channel15Msg) {
-			clCh = Channel15Msg
-		}
-
-		return msgTypeString[clCh] + " & " + msgTypeString[m.Clear(ChannelMsg).Clear(clCh)]
-	}
-
-	return "Unknown"
+		return "Unknown"
+	*/
 }
 
 // GetChannelMsgType returns the MsgType of a channel message. It should not be used by the end consumer.
 func GetChannelMsgType(canary byte) (mType MsgType) {
-	var sType MsgType
-	//r.status = canary
-	tp, ch := utils.ParseStatus(canary)
-	mType = mType.Set(ChannelMsg)
-	var ctype MsgType
+	tp, _ := utils.ParseStatus(canary)
+	/*
+		var sType MsgType
+		//r.status = canary
+		mType = mType.Set(ChannelMsg)
+		var ctype MsgType
 
-	switch ch {
-	case 0:
-		ctype = Channel0Msg
-	case 1:
-		ctype = Channel1Msg
-	case 2:
-		ctype = Channel2Msg
-	case 3:
-		ctype = Channel3Msg
-	case 4:
-		ctype = Channel4Msg
-	case 5:
-		ctype = Channel5Msg
-	case 6:
-		ctype = Channel6Msg
-	case 7:
-		ctype = Channel7Msg
-	case 8:
-		ctype = Channel8Msg
-	case 9:
-		ctype = Channel9Msg
-	case 10:
-		ctype = Channel10Msg
-	case 11:
-		ctype = Channel11Msg
-	case 12:
-		ctype = Channel12Msg
-	case 13:
-		ctype = Channel13Msg
-	case 14:
-		ctype = Channel14Msg
-	case 15:
-		ctype = Channel15Msg
-	}
+		switch ch {
+		case 0:
+			ctype = Channel0Msg
+		case 1:
+			ctype = Channel1Msg
+		case 2:
+			ctype = Channel2Msg
+		case 3:
+			ctype = Channel3Msg
+		case 4:
+			ctype = Channel4Msg
+		case 5:
+			ctype = Channel5Msg
+		case 6:
+			ctype = Channel6Msg
+		case 7:
+			ctype = Channel7Msg
+		case 8:
+			ctype = Channel8Msg
+		case 9:
+			ctype = Channel9Msg
+		case 10:
+			ctype = Channel10Msg
+		case 11:
+			ctype = Channel11Msg
+		case 12:
+			ctype = Channel12Msg
+		case 13:
+			ctype = Channel13Msg
+		case 14:
+			ctype = Channel14Msg
+		case 15:
+			ctype = Channel15Msg
+		}
 
-	mType = mType.Set(ctype)
+		mType = mType.Set(ctype)
+	*/
+
+	//	fmt.Printf("status: % X\n", tp)
 
 	switch tp {
 	case 0xC:
-		sType = ProgramChangeMsg
+		return ProgramChangeMsg
 	case 0xD:
-		sType = AfterTouchMsg
+		return AfterTouchMsg
 	case 0x8:
-		sType = NoteOffMsg
+		return NoteOffMsg
 	case 0x9:
-		sType = NoteOnMsg
+		return NoteOnMsg
 	case 0xA:
-		sType = PolyAfterTouchMsg
+		return PolyAfterTouchMsg
 	case 0xB:
-		sType = ControlChangeMsg
+		return ControlChangeMsg
 	case 0xE:
-		sType = PitchBendMsg
+		return PitchBendMsg
 	default:
-		return UnknownMsg
+		return UndefinedMsgType
 	}
-	mType = mType.Set(sType)
-	return mType
+
+	//mType = mType.Set(sType)
+	//return mType
 }
 
 // GetRealtimeMsgType returns the MsgType of a realtime message. It should not be used by the end consumer.
 func GetRealtimeMsgType(b byte) MsgType {
 	ty, has := rtMessages[b]
 	if !has {
-		return UnknownMsg
+		return UndefinedMsgType
 	}
 	return ty
 }
@@ -577,12 +499,14 @@ func GetRealtimeMsgType(b byte) MsgType {
 func GetSysCommonMsgType(b byte) MsgType {
 	ty, has := syscommMessages[b]
 	if !has {
-		return UnknownMsg
+		return UndefinedMsgType
 	}
 	return ty
 }
 
+/*
 // GetMetaMsgType returns the MsgType of a meta message. It should not be used by the end consumer.
 func GetMetaMsgType(b byte) MsgType {
 	return metaMessages[b]
 }
+*/

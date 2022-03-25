@@ -7,27 +7,107 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-// Message represents a MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
-type Message struct {
+// Message is a generalized interface for live midi messages (Msg) and meta messages (smf.MetaMessage)
+type Message interface {
+	String() string
+	Type() MessageType
+	Bytes() []byte
+}
+
+type MessageType interface {
+	Kind() MsgKind
+	String() string
+	Val() uint32
+}
+
+func init() {
+	var _ Message = Channel(1).ProgramChange(5)
+	//var _ Message = MetaCuepoint("test")
+	var _ Message = SysEx([]byte{0xf4, 0xf8})
+}
+
+// Msg represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
+type Msg struct {
 
 	// MsgType represents the message type of the MIDI message
 	MsgType
 
 	// Data contains the bytes of the MiDI message
-	Data []byte
+	Data [3]byte
+}
+
+func (m Msg) Type() MessageType {
+	return m.MsgType
+}
+
+func (m Msg) Bytes() []byte {
+	var b = []byte{}
+
+	/*
+		if m.Data[0] > 0 {
+			b = append(b, m.Data[0])
+		}
+	*/
+
+	switch m.MsgType.Kind() {
+	case ChannelMsg:
+		switch m.MsgType {
+		case ProgramChangeMsg:
+			b = append(b, m.Data[0], m.Data[1])
+		case AfterTouchMsg:
+			b = append(b, m.Data[0], m.Data[1])
+		default:
+			b = append(b, m.Data[0], m.Data[1], m.Data[2])
+		}
+	case MetaMsg:
+		panic("unreachable")
+	case SysExMsg:
+		panic("unreachable")
+	case SysCommonMsg:
+		switch m.MsgType {
+		case TuneMsg:
+			b = append(b, m.Data[0])
+		case SongSelectMsg:
+			b = append(b, m.Data[0], m.Data[1])
+		case MTCMsg:
+			b = append(b, m.Data[0], m.Data[1])
+		case SPPMsg:
+			b = append(b, m.Data[0], m.Data[1], m.Data[2])
+		}
+	case RealTimeMsg:
+		b = append(b, m.Data[0])
+	default:
+		panic("undefined kind")
+	}
+
+	/*
+		if m.Data[1] > 0 {
+			b = append(b, m.Data[1])
+		}
+
+		if m.Data[2] > 0 {
+			b = append(b, m.Data[2])
+		}
+	*/
+
+	return b
 }
 
 // NewMessage returns a new Message from the bytes of the message, by finding the correct type.
 // If the type could not be found, the MsgType of the Message is UnknownMsg.
-func NewMessage(data []byte) (m Message) {
-	m.MsgType = GetMsgType(data)
-	m.Data = data
+func NewMsg(b1, b2, b3 byte) (m Msg) {
+	m.MsgType = GetMsgType(b1, b2)
+	m.Data = [3]byte{b1, b2, b3}
 	return
+}
+
+func (m Msg) Is(t MsgType) bool {
+	return Is(m.MsgType, t)
 }
 
 // NoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteOn(channel, key, velocity *uint8) (is bool) {
+func (m Msg) NoteOn(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) {
 		return false
 	}
@@ -39,7 +119,7 @@ func (m Message) NoteOn(channel, key, velocity *uint8) (is bool) {
 
 // NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteStart(channel, key, velocity *uint8) (is bool) {
+func (m Msg) NoteStart(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) {
 		return false
 	}
@@ -54,7 +134,7 @@ func (m Message) NoteStart(channel, key, velocity *uint8) (is bool) {
 
 // NoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteOff(channel, key, velocity *uint8) (is bool) {
+func (m Msg) NoteOff(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOffMsg) {
 		return false
 	}
@@ -66,8 +146,8 @@ func (m Message) NoteOff(channel, key, velocity *uint8) (is bool) {
 
 // Channel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) Channel(channel *uint8) (is bool) {
-	if !m.Is(ChannelMsg) {
+func (m Msg) Channel(channel *uint8) (is bool) {
+	if m.Kind() != ChannelMsg {
 		return false
 	}
 
@@ -77,8 +157,8 @@ func (m Message) Channel(channel *uint8) (is bool) {
 
 // NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteEnd(channel, key, velocity *uint8) (is bool) {
-	if !m.IsOneOf(NoteOnMsg, NoteOffMsg) {
+func (m Msg) NoteEnd(channel, key, velocity *uint8) (is bool) {
+	if !m.Is(NoteMsg) {
 		return false
 	}
 
@@ -89,7 +169,7 @@ func (m Message) NoteEnd(channel, key, velocity *uint8) (is bool) {
 
 // PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
+func (m Msg) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	if !m.Is(PolyAfterTouchMsg) {
 		return false
 	}
@@ -101,7 +181,7 @@ func (m Message) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 
 // AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) AfterTouch(channel, pressure *uint8) (is bool) {
+func (m Msg) AfterTouch(channel, pressure *uint8) (is bool) {
 	if !m.Is(AfterTouchMsg) {
 		return false
 	}
@@ -113,7 +193,7 @@ func (m Message) AfterTouch(channel, pressure *uint8) (is bool) {
 
 // ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ProgramChange(channel, program *uint8) (is bool) {
+func (m Msg) ProgramChange(channel, program *uint8) (is bool) {
 	if !m.Is(ProgramChangeMsg) {
 		return false
 	}
@@ -126,10 +206,12 @@ func (m Message) ProgramChange(channel, program *uint8) (is bool) {
 // PitchBend returns true if (and only if) the message is a PitchBendMsg.
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
-func (m Message) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
+func (m Msg) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
 	if !m.Is(PitchBendMsg) {
 		return false
 	}
+
+	_, *channel = utils.ParseStatus(m.Data[0])
 
 	rel, abs := utils.ParsePitchWheelVals(m.Data[1], m.Data[2])
 	if relative != nil {
@@ -143,7 +225,7 @@ func (m Message) PitchBend(channel *uint8, relative *int16, absolute *uint16) (i
 
 // ControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ControlChange(channel, controller, value *uint8) (is bool) {
+func (m Msg) ControlChange(channel, controller, value *uint8) (is bool) {
 	if !m.Is(ControlChangeMsg) {
 		return false
 	}
@@ -151,119 +233,6 @@ func (m Message) ControlChange(channel, controller, value *uint8) (is bool) {
 	_, *channel = utils.ParseStatus(m.Data[0])
 	*controller, *value = utils.ParseTwoUint7(m.Data[1], m.Data[2])
 	return true
-}
-
-// Tempo returns true if (and only if) the message is a MetaTempoMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Tempo(bpm *float64) (is bool) {
-	if !m.Is(MetaTempoMsg) {
-		return false
-	}
-
-	rd := bytes.NewReader(m.metaDataWithoutVarlength())
-	microsecondsPerCrotchet, err := utils.ReadUint24(rd)
-	if err != nil {
-		return false
-	}
-
-	*bpm = float64(60000000) / float64(microsecondsPerCrotchet)
-
-	return true
-}
-
-// Lyric returns true if (and only if) the message is a MetaLyricMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Lyric(text *string) (is bool) {
-	if !m.Is(MetaLyricMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// Copyright returns true if (and only if) the message is a MetaCopyrightMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Copyright(text *string) (is bool) {
-	if !m.Is(MetaCopyrightMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// Cuepoint returns true if (and only if) the message is a MetaCuepointMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Cuepoint(text *string) (is bool) {
-	if !m.Is(MetaCuepointMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// Device returns true if (and only if) the message is a MetaDeviceMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Device(text *string) (is bool) {
-	if !m.Is(MetaDeviceMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// Instrument returns true if (and only if) the message is a MetaInstrumentMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Instrument(text *string) (is bool) {
-	if !m.Is(MetaInstrumentMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// Marker returns true if (and only if) the message is a MetaMarkerMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Marker(text *string) (is bool) {
-	if !m.Is(MetaMarkerMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// ProgramName returns true if (and only if) the message is a MetaProgramNameMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ProgramName(text *string) (is bool) {
-	if !m.Is(MetaProgramNameMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// Text returns true if (and only if) the message is a MetaTextMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) Text(text *string) (is bool) {
-	if !m.Is(MetaTextMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-// TrackName returns true if (and only if) the message is a MetaTrackNameMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) TrackName(text *string) (is bool) {
-	if !m.Is(MetaTrackNameMsg) {
-		return false
-	}
-	m.text(text)
-	return true
-}
-
-func (m Message) text(text *string) {
-	*text, _ = utils.ReadText(bytes.NewReader(m.Data[2:]))
-	return
 }
 
 /*
@@ -290,7 +259,7 @@ cdefg = Hours (0-23)
 */
 
 // MTC represents a MIDI timing code message (quarter frame)
-func (m Message) MTC(quarterframe *uint8) (is bool) {
+func (m Msg) MTC(quarterframe *uint8) (is bool) {
 	if !m.Is(MTCMsg) {
 		return false
 	}
@@ -300,7 +269,7 @@ func (m Message) MTC(quarterframe *uint8) (is bool) {
 }
 
 // Song returns the song number of a MIDI song select system message
-func (m Message) SongSelect(song *uint8) (is bool) {
+func (m Msg) SongSelect(song *uint8) (is bool) {
 	if !m.Is(SongSelectMsg) {
 		return false
 	}
@@ -310,7 +279,7 @@ func (m Message) SongSelect(song *uint8) (is bool) {
 }
 
 // SPP returns the song position pointer of a MIDI song position pointer system message
-func (m Message) SPP(spp *uint16) (is bool) {
+func (m Msg) SPP(spp *uint16) (is bool) {
 	if !m.Is(SPPMsg) {
 		return false
 	}
@@ -319,80 +288,46 @@ func (m Message) SPP(spp *uint16) (is bool) {
 	return true
 }
 
-// Meter returns the meter of a MetaTimeSigMsg.
-// For other messages, it returns 0,0.
-func (m Message) Meter(num, denom *uint8) (is bool) {
-	return m.TimeSig(num, denom, nil, nil)
-}
-
-// metaData strips away the meta byte and the metatype byte and the varlength byte
-func (m Message) metaDataWithoutVarlength() []byte {
-	//fmt.Printf("original data: % X\n", m.Data)
-	return m.Data[3:]
-}
-
-// TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
-// MetaTimeSigMsg. For other messages, it returns 0,0,0,0.
-func (m Message) TimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
-	if !m.Is(MetaTimeSigMsg) {
-		//fmt.Println("not timesig message")
-		return false
-	}
-
-	data := m.metaDataWithoutVarlength()
-
-	if len(data) != 4 {
-		//fmt.Printf("not correct data lenght: % X \n", data)
-		//err = unexpectedMessageLengthError("TimeSignature expected length 4")
-		return false
-	}
-
-	//fmt.Printf("TimeSigData: % X\n", data)
-
-	*numerator = data[0]
-	*denominator = data[1]
-	if clocksPerClick != nil {
-		*clocksPerClick = data[2]
-	}
-	if demiSemiQuaverPerQuarter != nil {
-		*demiSemiQuaverPerQuarter = data[3]
-	}
-	*denominator = bin2decDenom(*denominator)
-	return true
-}
-
 // String represents the Message as a string that contains the MsgType and its properties.
-func (m Message) String() string {
+func (m Msg) String() string {
 	var bf bytes.Buffer
 	fmt.Fprintf(&bf, m.MsgType.String())
 
 	var channel, val1, val2 uint8
 	var pitchabs uint16
 	var pitchrel int16
-	var text string
-	var bpm float64
+	//	var text string
+	//	var bpm float64
 	var spp uint16
 
 	switch {
 	case m.NoteOn(&channel, &val1, &val2):
-		fmt.Fprintf(&bf, " key: %v velocity: %v", val1, val2)
+		fmt.Fprintf(&bf, " channel: %v key: %v velocity: %v", channel, val1, val2)
 	case m.NoteOff(&channel, &val1, &val2):
-		fmt.Fprintf(&bf, " key: %v velocity: %v", val1, val2)
+		if val2 > 0 {
+			fmt.Fprintf(&bf, " channel: %v key: %v velocity: %v", channel, val1, val2)
+		} else {
+			fmt.Fprintf(&bf, " channel: %v key: %v", channel, val1)
+		}
 	case m.PolyAfterTouch(&channel, &val1, &val2):
-		fmt.Fprintf(&bf, " key: %v pressure: %v", val1, val2)
+		fmt.Fprintf(&bf, " channel: %v key: %v pressure: %v", channel, val1, val2)
+	case m.AfterTouch(&channel, &val1):
+		fmt.Fprintf(&bf, " channel: %v pressure: %v", channel, val1)
 	case m.ControlChange(&channel, &val1, &val2):
-		fmt.Fprintf(&bf, " controller: %v value: %v", val1, val2)
+		fmt.Fprintf(&bf, " channel: %v controller: %v value: %v", channel, val1, val2)
 	case m.ProgramChange(&channel, &val1):
-		fmt.Fprintf(&bf, " program: %v", val1)
+		fmt.Fprintf(&bf, " channel: %v program: %v", channel, val1)
 	case m.PitchBend(&channel, &pitchrel, &pitchabs):
-		fmt.Fprintf(&bf, " pitch: %v (%v)", pitchrel, pitchabs)
-	case m.Tempo(&bpm):
-		fmt.Fprintf(&bf, " bpm: %0.2f", bpm)
-	case m.Meter(&val1, &val2):
-		fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
-	case m.IsOneOf(MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg):
-		m.text(&text)
-		fmt.Fprintf(&bf, " text: %q", text)
+		fmt.Fprintf(&bf, " channel: %v pitch: %v (%v)", channel, pitchrel, pitchabs)
+		/*
+			case m.Tempo(&bpm):
+				fmt.Fprintf(&bf, " bpm: %0.2f", bpm)
+			case m.Meter(&val1, &val2):
+				fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
+			case m.IsOneOf(MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg):
+				m.text(&text)
+				fmt.Fprintf(&bf, " text: %q", text)
+		*/
 	case m.MTC(&val1):
 		fmt.Fprintf(&bf, " mtc: %v", val1)
 	case m.SPP(&spp):

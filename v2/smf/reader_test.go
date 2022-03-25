@@ -66,17 +66,17 @@ SMF0
 TimeFormat: 96 MetricTicks
 Track 0@0 MetaTimeSigMsg meter: 4/4
 Track 0@0 MetaTempoMsg bpm: 120.00
-Track 0@0 Channel0Msg & ProgramChangeMsg program: 5
-Track 0@0 Channel1Msg & ProgramChangeMsg program: 46
-Track 0@0 Channel2Msg & ProgramChangeMsg program: 70
-Track 0@0 Channel2Msg & NoteOnMsg key: 48 velocity: 96
-Track 0@0 Channel2Msg & NoteOnMsg key: 60 velocity: 96
-Track 0@96 Channel1Msg & NoteOnMsg key: 67 velocity: 64
-Track 0@96 Channel0Msg & NoteOnMsg key: 76 velocity: 32
-Track 0@192 Channel2Msg & NoteOffMsg key: 48 velocity: 64
-Track 0@0 Channel2Msg & NoteOffMsg key: 60 velocity: 64
-Track 0@0 Channel1Msg & NoteOffMsg key: 67 velocity: 64
-Track 0@0 Channel0Msg & NoteOffMsg key: 76 velocity: 64
+Track 0@0 ProgramChangeMsg channel: 0 program: 5
+Track 0@0 ProgramChangeMsg channel: 1 program: 46
+Track 0@0 ProgramChangeMsg channel: 2 program: 70
+Track 0@0 NoteOnMsg channel: 2 key: 48 velocity: 96
+Track 0@0 NoteOnMsg channel: 2 key: 60 velocity: 96
+Track 0@96 NoteOnMsg channel: 1 key: 67 velocity: 64
+Track 0@96 NoteOnMsg channel: 0 key: 76 velocity: 32
+Track 0@192 NoteOffMsg channel: 2 key: 48 velocity: 64
+Track 0@0 NoteOffMsg channel: 2 key: 60 velocity: 64
+Track 0@0 NoteOffMsg channel: 1 key: 67 velocity: 64
+Track 0@0 NoteOffMsg channel: 0 key: 76 velocity: 64
 Track 0@0 MetaEndOfTrackMsg
 `
 	//l := log.Default()
@@ -113,19 +113,19 @@ TimeFormat: 96 MetricTicks
 Track 0@0 MetaTimeSigMsg meter: 4/4
 Track 0@0 MetaTempoMsg bpm: 120.00
 Track 0@384 MetaEndOfTrackMsg
-Track 1@0 Channel0Msg & ProgramChangeMsg program: 5
-Track 1@192 Channel0Msg & NoteOnMsg key: 76 velocity: 32
-Track 1@192 Channel0Msg & NoteOnMsg key: 76 velocity: 0
+Track 1@0 ProgramChangeMsg channel: 0 program: 5
+Track 1@192 NoteOnMsg channel: 0 key: 76 velocity: 32
+Track 1@192 NoteOnMsg channel: 0 key: 76 velocity: 0
 Track 1@0 MetaEndOfTrackMsg
-Track 2@0 Channel1Msg & ProgramChangeMsg program: 46
-Track 2@96 Channel1Msg & NoteOnMsg key: 67 velocity: 64
-Track 2@288 Channel1Msg & NoteOnMsg key: 67 velocity: 0
+Track 2@0 ProgramChangeMsg channel: 1 program: 46
+Track 2@96 NoteOnMsg channel: 1 key: 67 velocity: 64
+Track 2@288 NoteOnMsg channel: 1 key: 67 velocity: 0
 Track 2@0 MetaEndOfTrackMsg
-Track 3@0 Channel2Msg & ProgramChangeMsg program: 70
-Track 3@0 Channel2Msg & NoteOnMsg key: 48 velocity: 96
-Track 3@0 Channel2Msg & NoteOnMsg key: 60 velocity: 96
-Track 3@384 Channel2Msg & NoteOnMsg key: 48 velocity: 0
-Track 3@0 Channel2Msg & NoteOnMsg key: 60 velocity: 0
+Track 3@0 ProgramChangeMsg channel: 2 program: 70
+Track 3@0 NoteOnMsg channel: 2 key: 48 velocity: 96
+Track 3@0 NoteOnMsg channel: 2 key: 60 velocity: 96
+Track 3@384 NoteOnMsg channel: 2 key: 48 velocity: 0
+Track 3@0 NoteOnMsg channel: 2 key: 60 velocity: 0
 Track 3@0 MetaEndOfTrackMsg
 `
 	if got, want := testRead(t, SpecSMF1), expected; got != want {

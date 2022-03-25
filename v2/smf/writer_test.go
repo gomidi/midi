@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	. "gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2"
 )
 
 // SpecSMF0 is an example from SMF spec for SMF type 0
@@ -68,9 +68,9 @@ func TestWriteSMF0(t *testing.T) {
 		bf    bytes.Buffer
 		track = NewTrack()
 		res   = MetricTicks(96)
-		ch0   = Channel(0)
-		ch1   = Channel(1)
-		ch2   = Channel(2)
+		ch0   = midi.Channel(0)
+		ch1   = midi.Channel(1)
+		ch2   = midi.Channel(2)
 	)
 
 	track.Add(0, MetaTimeSig(4, 4, 24, 8))
@@ -200,9 +200,9 @@ func TestWriteSMF1(t *testing.T) {
 		ticks = MetricTicks(96)
 		smf   = New()
 		beat  = ticks.Ticks4th()
-		ch0   = Channel(0)
-		ch1   = Channel(1)
-		ch2   = Channel(2)
+		ch0   = midi.Channel(0)
+		ch1   = midi.Channel(1)
+		ch2   = midi.Channel(2)
 	)
 
 	smf.TimeFormat = ticks

@@ -12,52 +12,52 @@ const (
 )
 
 var rtMessages = map[byte]MsgType{
-	byteTimingClock: RealTimeMsg.Set(TimingClockMsg),
-	byteTick:        RealTimeMsg.Set(TickMsg),
-	byteStart:       RealTimeMsg.Set(StartMsg),
-	byteContinue:    RealTimeMsg.Set(ContinueMsg),
-	byteStop:        RealTimeMsg.Set(StopMsg),
-	byteUndefined4:  RealTimeMsg.Set(UndefinedMsg),
-	byteActivesense: RealTimeMsg.Set(ActiveSenseMsg),
-	byteReset:       RealTimeMsg.Set(ResetMsg),
+	byteTimingClock:/* RealTimeMsg.Set(TimingClockMsg), */ TimingClockMsg,
+	byteTick:/* RealTimeMsg.Set(TickMsg), */ TickMsg,
+	byteStart:/* RealTimeMsg.Set(StartMsg), */ StartMsg,
+	byteContinue:/* RealTimeMsg.Set(ContinueMsg), */ ContinueMsg,
+	byteStop:/* RealTimeMsg.Set(StopMsg), */ StopMsg,
+	byteUndefined4:/* RealTimeMsg.Set(UndefinedMsg), */ UndefinedMsgType,
+	byteActivesense:/* RealTimeMsg.Set(ActiveSenseMsg), */ ActiveSenseMsg,
+	byteReset:/* RealTimeMsg.Set(ResetMsg), */ ResetMsg,
 }
 
 // TimingClock returns a MIDI timing clock message
-func TimingClock() Message {
-	return NewMessage([]byte{byteTimingClock})
+func TimingClock() Msg {
+	return NewMsg(byteTimingClock, 0, 0)
 }
 
 // Tick returns a midi tick message
-func Tick() Message {
-	return NewMessage([]byte{byteTick})
+func Tick() Msg {
+	return NewMsg(byteTick, 0, 0)
 }
 
 // Start returns a MIDI start message
-func Start() Message {
-	return NewMessage([]byte{byteStart})
+func Start() Msg {
+	return NewMsg(byteStart, 0, 0)
 }
 
 // Continue returns a MIDI continue message
-func Continue() Message {
-	return NewMessage([]byte{byteContinue})
+func Continue() Msg {
+	return NewMsg(byteContinue, 0, 0)
 }
 
 // Stop returns a MIDI stop message
-func Stop() Message {
-	return NewMessage([]byte{byteStop})
+func Stop() Msg {
+	return NewMsg(byteStop, 0, 0)
 }
 
 // Undefined returns an undefined realtime message
-func Undefined() Message {
-	return NewMessage([]byte{byteUndefined4})
+func Undefined() Msg {
+	return NewMsg(byteUndefined4, 0, 0)
 }
 
 // Activesense returns a MIDI active sensing message
-func Activesense() Message {
-	return NewMessage([]byte{byteActivesense})
+func Activesense() Msg {
+	return NewMsg(byteActivesense, 0, 0)
 }
 
 // Reset returns a MIDI reset message
-func Reset() Message {
-	return NewMessage([]byte{byteReset})
+func Reset() Msg {
+	return NewMsg(byteReset, 0, 0)
 }

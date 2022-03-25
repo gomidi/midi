@@ -1,11 +1,39 @@
 package midi
 
-func SysEx(msg []byte) Message {
+import "fmt"
+
+type SysEx []byte
+
+func (s SysEx) Bytes() []byte {
+	var b = []byte{0xF0}
+	b = append(b, []byte(s)...)
+	b = append(b, 0xF7)
+	return b
+}
+
+/*
+func (s SysEx) Kind() MsgKind {
+	return SysExMsg
+}
+*/
+
+func (s SysEx) Type() MessageType {
+	return SysExMsgType
+}
+
+func (s SysEx) String() string {
+	return fmt.Sprintf("Sysex % X", []byte(s))
+}
+
+/*
+func SysEx(msg []byte) []byte {
 	var b = []byte{0xF0}
 	b = append(b, []byte(msg)...)
 	b = append(b, 0xF7)
-	return NewMessage(b)
+	//return NewMessage(b)
+	return b
 }
+*/
 
 func IsSysEx(msg []byte) bool {
 	if len(msg) < 4 {
