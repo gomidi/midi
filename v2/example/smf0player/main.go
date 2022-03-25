@@ -37,9 +37,9 @@ func run() error {
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.MetaMsgType).
 		Only(midi.NoteMsg).
 		Do(
-			func(trackNo int, msg smf.Message, delta int64, deltamicroSec int64) {
-				fmt.Printf("%s (%s)\n", msg.String(), msg.Kind())
-				if mm, ok := msg.(midi.Message); ok {
+			func(trackNo int, msg midi.Message, delta int64, deltamicroSec int64) {
+				fmt.Printf("%s (%s)\n", msg.String(), msg.Type())
+				if mm, ok := msg.(midi.Msg); ok {
 					time.Sleep(time.Microsecond * time.Duration(deltamicroSec))
 					_ = mm
 					out.Send(mm.Data)
