@@ -47,9 +47,10 @@ type Reader struct {
 	typ        uint8
 
 	SysExBufferSize uint32
-	OnMsg           func([3]byte, int32)
-	OnSysEx         func([]byte, int32)
-	OnErr           func(error)
+	OnMsg           func([]byte, int32)
+	HandleSysex     bool
+	//OnSysEx         func([]byte, int32)
+	OnErr func(error)
 }
 
 func (r *Reader) withinChannelMessage(b byte) {
@@ -59,18 +60,18 @@ func (r *Reader) withinChannelMessage(b byte) {
 		r.issetBf = false
 		r.state = readerStateClean
 		//p.receiver.Receive(Channel(p.channel).Aftertouch(b), p.timestamp)
-		r.OnMsg([3]byte{r.statusByte, b, 0}, r.ts_ms)
+		r.OnMsg([]byte{r.statusByte, b, 0}, r.ts_ms)
 	case byteProgramChange:
 		r.issetBf = false // first: is set, second: the byte
 		r.state = readerStateClean
 		//p.receiver.Receive(Channel(p.channel).ProgramChange(b), p.timestamp)
-		r.OnMsg([3]byte{r.statusByte, b, 0}, r.ts_ms)
+		r.OnMsg([]byte{r.statusByte, b, 0}, r.ts_ms)
 	case byteControlChange:
 		if r.issetBf {
 			r.issetBf = false // first: is set, second: the byte
 			r.state = readerStateClean
 			//p.receiver.Receive(Channel(p.channel).ControlChange(p.getBf(), b), p.timestamp)
-			r.OnMsg([3]byte{r.statusByte, r.bf, b}, r.ts_ms)
+			r.OnMsg([]byte{r.statusByte, r.bf, b}, r.ts_ms)
 		} else {
 			r.issetBf = true
 			r.bf = b
@@ -80,7 +81,7 @@ func (r *Reader) withinChannelMessage(b byte) {
 			r.issetBf = false // first: is set, second: the byte
 			r.state = readerStateClean
 			//p.receiver.Receive(Channel(p.channel).NoteOn(p.getBf(), b), p.timestamp)
-			r.OnMsg([3]byte{r.statusByte, r.bf, b}, r.ts_ms)
+			r.OnMsg([]byte{r.statusByte, r.bf, b}, r.ts_ms)
 		} else {
 			r.issetBf = true
 			r.bf = b
@@ -90,7 +91,7 @@ func (r *Reader) withinChannelMessage(b byte) {
 			r.issetBf = false // first: is set, second: the byte
 			r.state = readerStateClean
 			//p.receiver.Receive(Channel(p.channel).NoteOffVelocity(p.getBf(), b), p.timestamp)
-			r.OnMsg([3]byte{r.statusByte, r.bf, b}, r.ts_ms)
+			r.OnMsg([]byte{r.statusByte, r.bf, b}, r.ts_ms)
 		} else {
 			r.issetBf = true
 			r.bf = b
@@ -100,7 +101,7 @@ func (r *Reader) withinChannelMessage(b byte) {
 			r.issetBf = false // first: is set, second: the byte
 			r.state = readerStateClean
 			//p.receiver.Receive(Channel(p.channel).PolyAftertouch(p.getBf(), b), p.timestamp)
-			r.OnMsg([3]byte{r.statusByte, r.bf, b}, r.ts_ms)
+			r.OnMsg([]byte{r.statusByte, r.bf, b}, r.ts_ms)
 		} else {
 			r.issetBf = true
 			r.bf = b
@@ -112,7 +113,7 @@ func (r *Reader) withinChannelMessage(b byte) {
 			r.issetBf = false // first: is set, second: the byte
 			r.state = readerStateClean
 			//p.receiver.Receive(Channel(p.channel).Pitchbend(rel), p.timestamp)
-			r.OnMsg([3]byte{r.statusByte, r.bf, b}, r.ts_ms)
+			r.OnMsg([]byte{r.statusByte, r.bf, b}, r.ts_ms)
 		} else {
 			r.issetBf = true
 			r.bf = b
@@ -144,7 +145,7 @@ func (r *Reader) cleanState(b byte) {
 		r.sysexBf = nil
 		r.sysexlen = 0
 		r.statusByte = 0
-		r.OnMsg([3]byte{b, 0, 0}, r.ts_ms)
+		r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
 
 	// here we clear for System Common Category messages
 	case b > 0xF0 && b < 0xF7:
@@ -156,7 +157,7 @@ func (r *Reader) cleanState(b byte) {
 			r.state = readerStateWithinSysCommon
 			r.typ = b
 		case byteSysTuneRequest:
-			r.OnMsg([3]byte{b, 0, 0}, r.ts_ms)
+			r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
 			/*
 				if p.syscommonHander != nil {
 					p.syscommonHander(Tune(), p.timestamp)
@@ -187,7 +188,7 @@ func (r *Reader) cleanState(b byte) {
 
 func (r *Reader) eachByte(b byte) {
 	if b >= 0xF8 {
-		r.OnMsg([3]byte{b, 0, 0}, r.ts_ms)
+		r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
 		return
 	}
 
@@ -219,7 +220,7 @@ func (r *Reader) eachByte(b byte) {
 				}
 			*/
 			r.state = readerStateClean
-			if r.OnSysEx != nil {
+			if r.HandleSysex {
 				r.sysexBf[r.sysexlen] = b
 				r.sysexlen++
 				go func(bb []byte, l int) {
@@ -228,7 +229,7 @@ func (r *Reader) eachByte(b byte) {
 					for i := 0; i < l; i++ {
 						_bt[i] = bb[i]
 					}
-					r.OnSysEx(_bt, r.sysexTS)
+					r.OnMsg(_bt, r.sysexTS)
 				}(r.sysexBf, r.sysexlen)
 			}
 			r.sysexBf = nil
@@ -244,7 +245,7 @@ func (r *Reader) eachByte(b byte) {
 			return
 		}
 
-		if r.OnSysEx != nil {
+		if r.HandleSysex {
 			r.sysexBf[r.sysexlen] = b
 			r.sysexlen++
 		}
@@ -275,7 +276,7 @@ func (r *Reader) eachByte(b byte) {
 			*/
 			r.issetBf = false
 			r.state = readerStateClean
-			r.OnMsg([3]byte{r.typ, b, 0}, r.ts_ms)
+			r.OnMsg([]byte{r.typ, b, 0}, r.ts_ms)
 		case byteSysSongPositionPointer:
 			if r.issetBf {
 				/*
@@ -286,7 +287,7 @@ func (r *Reader) eachByte(b byte) {
 				*/
 				r.issetBf = false
 				r.state = readerStateClean
-				r.OnMsg([3]byte{r.typ, r.bf, b}, r.ts_ms)
+				r.OnMsg([]byte{r.typ, r.bf, b}, r.ts_ms)
 			} else {
 				r.issetBf = true
 				r.bf = b
@@ -299,7 +300,7 @@ func (r *Reader) eachByte(b byte) {
 			*/
 			r.issetBf = false
 			r.state = readerStateClean
-			r.OnMsg([3]byte{r.typ, b, 0}, r.ts_ms)
+			r.OnMsg([]byte{r.typ, b, 0}, r.ts_ms)
 		case byteSysTuneRequest:
 			//panic("must not be handled here, but within clean state")
 		default:
@@ -331,11 +332,12 @@ func (r *Reader) Reset() {
 	r.state = readerStateClean
 }
 
-func NewReader(config ListenConfig, onMsg func([3]byte, int32)) *Reader {
+func NewReader(config ListenConfig, onMsg func([]byte, int32)) *Reader {
 	var r Reader
 	r.OnMsg = onMsg
 	r.OnErr = config.OnErr
-	r.OnSysEx = config.OnSysEx
+	//r.OnSysEx = config.OnSysEx
+	r.HandleSysex = config.SysEx
 	r.SysExBufferSize = config.SysExBufferSize
 	r.Reset()
 	return &r

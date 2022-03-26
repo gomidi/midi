@@ -11,21 +11,22 @@ func newWriter(out drivers.Out) *writer {
 		out: out,
 	}
 
-	if syss, canDo := out.(drivers.SysExSender); canDo {
-		wr.sysexOut = syss
-	}
+	/*
+		if syss, canDo := out.(drivers.SysExSender); canDo {
+			wr.sysexOut = syss
+		}
 
-	if rts, canDo := out.(drivers.RealtimeSender); canDo {
-		wr.realtimeOut = rts
-	}
-
+		if rts, canDo := out.(drivers.RealtimeSender); canDo {
+			wr.realtimeOut = rts
+		}
+	*/
 	return wr
 }
 
 type writer struct {
-	out         drivers.Out
-	sysexOut    drivers.SysExSender
-	realtimeOut drivers.RealtimeSender
+	out drivers.Out
+	//sysexOut    drivers.SysExSender
+	//realtimeOut drivers.RealtimeSender
 	//mx          sync.RWMutex
 	//inSysEx        bool
 	//interruptSysEx chan bool
@@ -40,32 +41,35 @@ func (w *writer) isInSysEx() bool {
 */
 
 func (w *writer) sendSysExToDriver(bt []byte) {
-	if w.sysexOut != nil {
-		w.sysexOut.SendSysEx(bt)
-	} else {
-		var i int
-		l := len(bt)
-		for {
-			if i >= l {
-				return
-			}
-			packet := [3]byte{bt[i], 0, 0}
-			i++
-			if i >= l {
+	w.out.Send(bt)
+	/*
+		if w.sysexOut != nil {
+			w.sysexOut.SendSysEx(bt)
+		} else {
+			var i int
+			l := len(bt)
+			for {
+				if i >= l {
+					return
+				}
+				packet := [3]byte{bt[i], 0, 0}
+				i++
+				if i >= l {
+					w.out.Send(packet)
+					return
+				}
+				packet[1] = bt[i]
+				i++
+				if i >= l {
+					w.out.Send(packet)
+					return
+				}
+				packet[2] = bt[i]
 				w.out.Send(packet)
-				return
+				i++
 			}
-			packet[1] = bt[i]
-			i++
-			if i >= l {
-				w.out.Send(packet)
-				return
-			}
-			packet[2] = bt[i]
-			w.out.Send(packet)
-			i++
 		}
-	}
+	*/
 }
 
 /*
@@ -112,11 +116,14 @@ func (w *writer) sendSysEx(bt []byte) {
 */
 
 func (w *writer) sendRT(b byte) error {
-	if w.realtimeOut != nil {
-		return w.realtimeOut.SendRealtime(b)
-	} else {
-		return w.out.Send([3]byte{b, 0, 0})
-	}
+	return w.out.Send([]byte{b})
+	/*
+		if w.realtimeOut != nil {
+			return w.realtimeOut.SendRealtime(b)
+		} else {
+			return w.out.Send([3]byte{b, 0, 0})
+		}
+	*/
 }
 
 func (w *writer) SendSysEx(data []byte) error {
@@ -138,17 +145,20 @@ func (w *writer) Send(msg Msg) error {
 				return nil
 		*/
 	default:
-		//w.mx.Lock()
-		var packet [3]byte
-		packet[0] = msg.Data[0]
-		l := len(msg.Data)
-		if l > 1 {
-			packet[1] = msg.Data[1]
-		}
-		if l > 2 {
-			packet[2] = msg.Data[2]
-		}
-		err := w.out.Send(packet)
+		/*
+			//w.mx.Lock()
+			var packet [3]byte
+			packet[0] = msg.Data[0]
+			l := len(msg.Data)
+			if l > 1 {
+				packet[1] = msg.Data[1]
+			}
+			if l > 2 {
+				packet[2] = msg.Data[2]
+			}
+			err := w.out.Send(packet)
+		*/
+		err := w.out.Send(msg.Bytes())
 		/*
 			if w.inSysEx {
 				w.inSysEx = false

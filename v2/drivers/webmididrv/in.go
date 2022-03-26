@@ -1,9 +1,9 @@
 package webmididrv
 
 import (
-	"fmt"
 	"math"
 	"sync"
+	"sync/atomic"
 	"syscall/js"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
@@ -78,6 +78,79 @@ func newIn(driver *Driver, number int, name string, jsport js.Value) drivers.In 
 	return &in{driver: driver, number: number, name: name, jsport: jsport}
 }
 
+/*
+    i.Lock()
+	//i.listener = recv.Receive
+
+	jsCallback := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		jsdata := args[0].Get("data")
+		jstime := args[0].Get("receivedTime")
+
+		var data = make([]byte, 3)
+		data[0] = byte(jsdata.Index(0).Int())
+		data[1] = byte(jsdata.Index(1).Int())
+		data[2] = byte(jsdata.Index(2).Int())
+		var t = int32(-1)
+		if jstime.Truthy() {
+			// round to milliseconds
+			t = int32(math.Round(jstime.Float()))
+		}
+		//i.listener(data, t)
+		cb(data, t)
+		return nil
+	})
+
+	i.jsport.Call("addEventListener", "midimessage", jsCallback)
+	i.Unlock()
+
+*/
+
+func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
+
+	var stop int32
+
+	//stopWait := i.driver.sleepingTime * 2
+	stopFn = func() {
+		// lockless sync
+		atomic.StoreInt32(&stop, 1)
+		//time.Sleep(stopWait)
+	}
+
+	i.Lock()
+
+	var stopped int32
+
+	jsCallback := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		// lockless sync
+		stopped = atomic.LoadInt32(&stop)
+
+		if stopped == 1 {
+			return nil
+		}
+
+		jsdata := args[0].Get("data")
+		jstime := args[0].Get("receivedTime")
+
+		var data = make([]byte, 3)
+		data[0] = byte(jsdata.Index(0).Int())
+		data[1] = byte(jsdata.Index(1).Int())
+		data[2] = byte(jsdata.Index(2).Int())
+		var t = int32(-1)
+		if jstime.Truthy() {
+			// round to milliseconds
+			t = int32(math.Round(jstime.Float()))
+		}
+		onMsg(data, t)
+		return nil
+	})
+
+	go i.jsport.Call("addEventListener", "midimessage", jsCallback)
+	i.Unlock()
+
+	return
+}
+
+/*
 // SendTo
 func (i *in) StartListening(cb func(data []byte, timestamp int32)) (err error) {
 	if !i.IsOpen() {
@@ -126,3 +199,4 @@ func (i *in) StopListening() (err error) {
 	// TODO
 	return
 }
+*/

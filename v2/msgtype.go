@@ -245,8 +245,10 @@ The returned MsgType will be a combination of message types, if appropriate (bin
 A note on message on channel 0 will have a message type that is a combination of a ChannelMsg, a Channel0Msg, and a NoteOnMsg.
 A tempo meta message of a SMF file will have a message type that is a combination of a MetaMsg, and a MetaTempoMsg.
 */
-func GetMsgType(byte1, byte2 byte) (mType MsgType) {
+func GetMsgType(bt []byte) (mType MsgType) {
 	//fmt.Printf("GetMsgType % X\n", msg)
+
+	byte1 := bt[0]
 
 	switch {
 	// channel/Voice Category Status

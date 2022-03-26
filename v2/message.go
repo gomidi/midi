@@ -33,7 +33,8 @@ type Msg struct {
 	MsgType
 
 	// Data contains the bytes of the MiDI message
-	Data [3]byte
+	//Data [3]byte
+	Data []byte
 }
 
 func (m Msg) Type() MessageType {
@@ -95,9 +96,11 @@ func (m Msg) Bytes() []byte {
 
 // NewMessage returns a new Message from the bytes of the message, by finding the correct type.
 // If the type could not be found, the MsgType of the Message is UnknownMsg.
-func NewMsg(b1, b2, b3 byte) (m Msg) {
-	m.MsgType = GetMsgType(b1, b2)
-	m.Data = [3]byte{b1, b2, b3}
+func NewMsg(bt []byte) (m Msg) {
+	m.MsgType = GetMsgType(bt)
+
+	//m.Data = [3]byte{b1, b2, b3}
+	m.Data = bt
 	return
 }
 

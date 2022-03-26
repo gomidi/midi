@@ -43,6 +43,8 @@ type ListenOptions struct {
 	// SysEx messages larger than this size will be ignored.
 	// When SysExBufferSize is 0, the default buffersize (1024) is used.
 	SysExBufferSize uint32
+
+	SysEx bool
 }
 
 var ErrPortClosed = drivers.ErrPortClosed
@@ -58,10 +60,13 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 	conf.SysExBufferSize = opt.SysExBufferSize
 	conf.TimeCode = opt.TimeCode
 	conf.ActiveSense = opt.ActiveSense
+	conf.SysEx = opt.SysEx
 
-	if sysrc, has := recv.(SysExReceiver); has {
-		conf.OnSysEx = sysrc.OnSysEx
-	}
+	/*
+		if sysrc, has := recv.(SysExReceiver); has {
+			conf.OnSysEx = sysrc.OnSysEx
+		}
+	*/
 
 	if errrc, has := recv.(ErrorReceiver); has {
 		conf.OnErr = errrc.OnError
@@ -70,13 +75,13 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 	var isStatusSet bool
 	var typ, channel byte
 
-	var onMsg = func(data [3]byte, millisec int32) {
+	var onMsg = func(data []byte, millisec int32) {
 		status := data[0]
 		var msg Msg
 		switch {
 		// realtime message
 		case status >= 0xF8:
-			msg = NewMsg(status, 0, 0)
+			msg = NewMsg([]byte{status})
 		// here we clear for System Common Category messages
 		case status > 0xF0 && status < 0xF7:
 			isStatusSet = false

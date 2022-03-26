@@ -55,11 +55,16 @@ func (o *out) SendSysEx(data []byte) error {
 
 // Send writes a MIDI message to the outut port
 // If the output port is closed, it returns midi.ErrPortClosed
-func (o *out) Send(b [3]byte) error {
+func (o *out) Send(b []byte) error {
 	//o.mx.RLock()
 	if o.stream == nil {
 		//o.mx.RUnlock()
 		return drivers.ErrPortClosed
+	}
+
+	// sysex
+	if b[0] == 0xF0 {
+		return o.SendSysEx(b)
 	}
 	//o.mx.RUnlock()
 
@@ -69,20 +74,18 @@ func (o *out) Send(b [3]byte) error {
 		}
 	*/
 
-	/*
-		first := int64(b[0])
+	first := int64(b[0])
 
-		var second int64
-		if len(b) > 1 {
-			second = int64(b[1])
-		}
+	var second int64
+	if len(b) > 1 {
+		second = int64(b[1])
+	}
 
-		var last int64
-		// ProgramChange messages only have 2 bytes
-		if len(b) > 2 {
-			last = int64(b[2])
-		}
-	*/
+	var last int64
+	// ProgramChange messages only have 2 bytes
+	if len(b) > 2 {
+		last = int64(b[2])
+	}
 
 	//	fmt.Printf("sending % X\n", b)
 
@@ -90,9 +93,9 @@ func (o *out) Send(b [3]byte) error {
 	//defer o.mx.Unlock()
 	//o.driver.Lock()
 	//defer o.driver.Unlock()
-	//err := o.stream.WriteShort(first, second, last)
+	err := o.stream.WriteShort(first, second, last)
 
-	err := o.stream.WriteShort(int64(b[0]), int64(b[1]), int64(b[2]))
+	//err := o.stream.WriteShort(int64(b[0]), int64(b[1]), int64(b[2]))
 	if err != nil {
 		return fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.Number(), o, err)
 	}

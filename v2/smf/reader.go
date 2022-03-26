@@ -315,7 +315,7 @@ func (r *reader) readChunk() {
 
 func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 	r.log("_readEvent, canary: % X", canary)
-	msgType := midi.UndefinedMsgType
+	//	msgType := midi.UndefinedMsgType
 
 	status, changed := r.runningStatus.Read(canary)
 	r.log("got status: % X, changed: %v", status, changed)
@@ -344,7 +344,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		case 0xFF:
 			var typ byte
 			typ, err = utils.ReadByte(r.input)
-			r.log("read system common type: % X, err: %v", typ, err)
+			r.log("read meta message type: % X, err: %v", typ, err)
 
 			if err != nil {
 				return m, err
@@ -402,7 +402,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		//fmt.Printf("error: %s\n", err.Error())
 		//return m, err
 		var mm midi.Msg
-		mm.MsgType = msgType
+		//mm.MsgType = msgType
 		m = mm
 	}
 

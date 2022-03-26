@@ -121,13 +121,13 @@ func newIn(driver *Driver, number int, name string) drivers.In {
 	return &in{driver: driver, number: number, name: name}
 }
 
-func (i *in) Listen(onMsg func(msg [3]byte, milliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
+func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
 
 	if onMsg == nil {
 		return nil, fmt.Errorf("onMsg callback must not be nil")
 	}
 
-	i.midiIn.IgnoreTypes(config.OnSysEx == nil, !config.TimeCode, !config.ActiveSense)
+	i.midiIn.IgnoreTypes(!config.SysEx, !config.TimeCode, !config.ActiveSense)
 
 	//var inSysEx bool
 	if config.SysExBufferSize == 0 {

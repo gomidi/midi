@@ -20,20 +20,21 @@ func (e *Event) Message() midi.Message {
 		return NewMetaMessage(e.Data[1:2][0], e.Data[2:])
 	}
 
-	b1 := e.Data[0]
+	/*
+		b1 := e.Data[0]
 
-	var b2, b3 byte
-	switch len(e.Data) {
-	case 0, 1:
-	case 2:
-		b2 = e.Data[1]
-	default:
-		b1 = e.Data[0]
-		b2 = e.Data[1]
-		b3 = e.Data[2]
-	}
-
-	m := midi.NewMsg(b1, b2, b3)
+		var b2, b3 byte
+		switch len(e.Data) {
+		case 0, 1:
+		case 2:
+			b2 = e.Data[1]
+		default:
+			b1 = e.Data[0]
+			b2 = e.Data[1]
+			b3 = e.Data[2]
+		}
+	*/
+	m := midi.NewMsg(e.Data)
 
 	switch m.MsgType {
 	case midi.SysExMsgType:

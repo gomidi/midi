@@ -36,11 +36,14 @@ type Port interface {
 // ListenConfig defines the configuration for in port listening
 type ListenConfig struct {
 
-	// TimeCode lets the the timecode messages pass through, if set
+	// TimeCode lets the timecode messages pass through, if set
 	TimeCode bool
 
-	// ActiveSense lets the the active sense messages pass through, if set
+	// ActiveSense lets the active sense messages pass through, if set
 	ActiveSense bool
+
+	// SysEx lets the sysex messaes pass through, if set
+	SysEx bool
 
 	// SysExBufferSize defines the size of the buffer for sysex messages (in bytes).
 	// SysEx messages larger than this size will be ignored.
@@ -49,7 +52,7 @@ type ListenConfig struct {
 
 	// OnSysex is the callback that is called for every SysEx message <= SysExBufferSize.
 	// If OnSysEx is nil, SysEx Messages are ignored.
-	OnSysEx func(msg []byte, milliseconds int32)
+	//OnSysEx func(msg []byte, milliseconds int32)
 
 	// OnErr is the callback that is called for any error happening during the listening.
 	OnErr func(error)
@@ -64,7 +67,8 @@ type In interface {
 	// The config defines further listening options (see ListenConfig)
 	// The listening must be stopped before the port may be closed.
 	Listen(
-		onMsg func(msg [3]byte, milliseconds int32),
+		//onMsg func(msg [3]byte, milliseconds int32),
+		onMsg func(msg []byte, milliseconds int32),
 		config ListenConfig,
 	) (
 		stopFn func(),
@@ -76,9 +80,11 @@ type In interface {
 type Out interface {
 	Port
 
-	Send(data [3]byte) error
+	//Send(data [3]byte) error
+	Send(data []byte) error
 }
 
+/*
 // SysExSender is an out port that sends sysex messages by a separate method
 type SysExSender interface {
 	Out
@@ -93,6 +99,7 @@ type RealtimeSender interface {
 	// SendRealtime sends a realtime message
 	SendRealtime(msg byte) error
 }
+*/
 
 // Ins return the available MIDI in ports
 func Ins() ([]In, error) {

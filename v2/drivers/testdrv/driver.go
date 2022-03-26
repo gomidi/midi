@@ -53,7 +53,7 @@ func (f *in) Number() int             { return f.number }
 func (f *in) IsOpen() bool            { return f.isOpen }
 func (f *in) Underlying() interface{} { return nil }
 
-func (f *in) Listen(onMsg func([3]byte, int32), conf drivers.ListenConfig) (func(), error) {
+func (f *in) Listen(onMsg func([]byte, int32), conf drivers.ListenConfig) (func(), error) {
 	f.driver.last = time.Now()
 
 	stopper := func() {
@@ -101,7 +101,7 @@ func (f *out) Close() error {
 	return nil
 }
 
-func (f *out) Send(b [3]byte) error {
+func (f *out) Send(bt []byte) error {
 	if !f.isOpen {
 		return drivers.ErrPortClosed
 	}
@@ -114,17 +114,6 @@ func (f *out) Send(b [3]byte) error {
 	dur := now.Sub(f.driver.last)
 	ts_ms := int32(dur.Milliseconds())
 	f.driver.last = now
-
-	var bt []byte
-
-	switch {
-	case b[2] == 0 && b[1] == 0:
-		bt = []byte{b[0]}
-		//	case b[2] == 0:
-	//	bt = []byte{b[0], b[1]}
-	default:
-		bt = []byte{b[0], b[1], b[2]}
-	}
 
 	f.driver.rd.EachMessage(bt, ts_ms)
 	return nil

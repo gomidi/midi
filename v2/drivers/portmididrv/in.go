@@ -76,7 +76,7 @@ func (i *in) Open() (err error) {
 }
 
 // Listen
-func (i *in) Listen(onMsg func(msg [3]byte, milliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
+func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
 
 	if onMsg == nil {
 		return nil, fmt.Errorf("onMsg callback must not be nil")
@@ -207,7 +207,7 @@ func (i *in) Listen(onMsg func(msg [3]byte, milliseconds int32), config drivers.
 
 					// realtime message
 					case ev.Status >= 0xF8:
-						onMsg([3]byte{byte(ev.Status), 0, 0}, ts)
+						onMsg([]byte{byte(ev.Status)}, ts)
 
 					// sysex
 					case ev.Status == 0xF0 || inSysEx:
@@ -220,7 +220,7 @@ func (i *in) Listen(onMsg func(msg [3]byte, milliseconds int32), config drivers.
 
 						bt := []byte{byte(ev.Status), byte(ev.Data1), byte(ev.Data2), byte(ev.Rest)}
 
-						if config.OnSysEx != nil {
+						if config.SysEx {
 							for _, b := range bt {
 								if sysexlen >= maxlenSysex {
 									if config.OnErr != nil {
@@ -242,7 +242,7 @@ func (i *in) Listen(onMsg func(msg [3]byte, milliseconds int32), config drivers.
 										for i := 0; i < l; i++ {
 											_bt[i] = bb[i]
 										}
-										config.OnSysEx(_bt, lastSysExTimestamp)
+										onMsg(_bt, lastSysExTimestamp)
 									}(sysexBf, sysexlen)
 									sysexlen = 0
 									inSysEx = false
@@ -259,15 +259,16 @@ func (i *in) Listen(onMsg func(msg [3]byte, milliseconds int32), config drivers.
 					// to appear on a MIDI 1.0 DIN cable.  Unpaired 0xF7 octets have no
 					// semantic meaning in MIDI apart from cancelling running status.
 					case ev.Status == 0xF7:
-						if config.OnSysEx != nil {
+						if config.SysEx {
 							sysexlen = 0
 						}
 						// to allow cancelling running status, send the 0xF7
-						onMsg([3]byte{0xF7, 0, 0}, ts)
+						onMsg([]byte{0xF7}, ts)
 
 					// all other messages (syscommon and channel messages)
+					// TODO: only transmit the necessary bytes
 					default:
-						onMsg([3]byte{byte(ev.Status), byte(ev.Data1), byte(ev.Data2)}, ts)
+						onMsg([]byte{byte(ev.Status), byte(ev.Data1), byte(ev.Data2)}, ts)
 					}
 				}
 

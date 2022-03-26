@@ -53,7 +53,7 @@ func (o *out) SendSysEx(data []byte) error {
 	return nil
 }
 
-func (o *out) Send(b [3]byte) error {
+func (o *out) Send(b []byte) error {
 	if o.midiOut == nil {
 		//o.RUnlock()
 		return drivers.ErrPortClosed
@@ -61,19 +61,22 @@ func (o *out) Send(b [3]byte) error {
 	//	o.RUnlock()
 
 	//fmt.Printf("send % X\n", m.Data)
-	var bt []byte
+	/*
+		var bt []byte
 
-	switch {
-	case b[2] == 0 && b[1] == 0:
-		bt = []byte{b[0]}
-		//	case b[2] == 0:
-	//	bt = []byte{b[0], b[1]}
-	default:
-		bt = []byte{b[0], b[1], b[2]}
-	}
+		switch {
+		case b[2] == 0 && b[1] == 0:
+			bt = []byte{b[0]}
+			//	case b[2] == 0:
+		//	bt = []byte{b[0], b[1]}
+		default:
+			bt = []byte{b[0], b[1], b[2]}
+		}
 
-	//bt := []byte{b[0], b[1], b[2]}
-	err := o.midiOut.SendMessage(bt)
+		//bt := []byte{b[0], b[1], b[2]}
+		err := o.midiOut.SendMessage(bt)
+	*/
+	err := o.midiOut.SendMessage(b)
 	if err != nil {
 		return fmt.Errorf("could not send message to MIDI out %v (%s): %v", o.number, o, err)
 	}

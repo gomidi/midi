@@ -22,7 +22,7 @@ func channelMessage1(c uint8, status, msg byte) Msg {
 	cm := &channelMessage{channel: c, status: status}
 	cm.data[0] = msg
 	bt := cm.bytes()
-	return NewMsg(bt[0], bt[1], bt[2])
+	return NewMsg(bt)
 }
 
 // channelMessage2 returns the bytes for a two bytes channel message
@@ -32,7 +32,7 @@ func channelMessage2(c uint8, status, msg1 byte, msg2 byte) Msg {
 	cm.data[1] = msg2
 	cm.twoBytes = true
 	bt := cm.bytes()
-	return NewMsg(bt[0], bt[1], bt[2])
+	return NewMsg(bt)
 }
 
 type channelMessage struct {
@@ -52,11 +52,11 @@ func (m *channelMessage) getCompleteStatus() uint8 {
 	return s
 }
 
-func (m *channelMessage) bytes() [3]byte {
+func (m *channelMessage) bytes() []byte {
 	if m.twoBytes {
-		return [3]byte{m.getCompleteStatus(), m.data[0], m.data[1]}
+		return []byte{m.getCompleteStatus(), m.data[0], m.data[1]}
 	}
-	return [3]byte{m.getCompleteStatus(), m.data[0], 0}
+	return []byte{m.getCompleteStatus(), m.data[0]}
 }
 
 const (
