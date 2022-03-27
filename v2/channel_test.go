@@ -13,72 +13,72 @@ func TestChannelString(t *testing.T) {
 		expected string
 	}{
 		{
-			Channel(1).Aftertouch(120),
-			"AfterTouchMsg channel: 1 pressure: 120",
+			Channel(1).NewAftertouch(120),
+			"AfterTouch channel: 1 pressure: 120",
 		},
 		{
-			Channel(8).ControlChange(7, 110),
-			//"ControlChangeMsg channel: 8 controller: 7 (\"Volume (MSB)\") value 110",
-			"ControlChangeMsg channel: 8 controller: 7 value: 110",
+			Channel(8).NewControlChange(7, 110),
+			//"ControlChange channel: 8 controller: 7 (\"Volume (MSB)\") value 110",
+			"ControlChange channel: 8 controller: 7 value: 110",
 		},
 		{
-			Channel(2).NoteOn(100, 80),
-			"NoteOnMsg channel: 2 key: 100 velocity: 80",
+			Channel(2).NewNoteOn(100, 80),
+			"NoteOn channel: 2 key: 100 velocity: 80",
 		},
 		{
-			Channel(3).NoteOff(80),
-			"NoteOffMsg channel: 3 key: 80",
+			Channel(3).NewNoteOff(80),
+			"NoteOff channel: 3 key: 80",
 		},
 		{
-			Channel(4).NoteOffVelocity(80, 20),
-			"NoteOffMsg channel: 4 key: 80 velocity: 20",
+			Channel(4).NewNoteOffVelocity(80, 20),
+			"NoteOff channel: 4 key: 80 velocity: 20",
 		},
 		{
-			Channel(4).Pitchbend(300),
-			"PitchBendMsg channel: 4 pitch: 300 (8492)",
+			Channel(4).NewPitchbend(300),
+			"PitchBend channel: 4 pitch: 300 (8492)",
 		},
 		{
-			Channel(4).PolyAftertouch(86, 109),
-			"PolyAfterTouchMsg channel: 4 key: 86 pressure: 109",
+			Channel(4).NewPolyAftertouch(86, 109),
+			"PolyAfterTouch channel: 4 key: 86 pressure: 109",
 		},
 		{
-			Channel(4).ProgramChange(83),
-			"ProgramChangeMsg channel: 4 program: 83",
+			Channel(4).NewProgramChange(83),
+			"ProgramChange channel: 4 program: 83",
 		},
 
 		// too high values
 		{
-			Channel(1).Aftertouch(130),
-			"AfterTouchMsg channel: 1 pressure: 127",
+			Channel(1).NewAftertouch(130),
+			"AfterTouch channel: 1 pressure: 127",
 		},
 		{
-			Channel(8).ControlChange(137, 130),
-			//"ControlChangeMsg channel: 8 controller: 127 (\"Poly Operation\") value 127",
-			"ControlChangeMsg channel: 8 controller: 127 value: 127",
+			Channel(8).NewControlChange(137, 130),
+			//"ControlChange channel: 8 controller: 127 (\"Poly Operation\") value 127",
+			"ControlChange channel: 8 controller: 127 value: 127",
 		},
 		{
-			Channel(2).NoteOn(130, 130),
-			"NoteOnMsg channel: 2 key: 127 velocity: 127",
+			Channel(2).NewNoteOn(130, 130),
+			"NoteOn channel: 2 key: 127 velocity: 127",
 		},
 		{
-			Channel(3).NoteOff(180),
-			"NoteOffMsg channel: 3 key: 127",
+			Channel(3).NewNoteOff(180),
+			"NoteOff channel: 3 key: 127",
 		},
 		{
-			Channel(4).NoteOffVelocity(180, 220),
-			"NoteOffMsg channel: 4 key: 127 velocity: 127",
+			Channel(4).NewNoteOffVelocity(180, 220),
+			"NoteOff channel: 4 key: 127 velocity: 127",
 		},
 		{
-			Channel(4).Pitchbend(12300),
-			"PitchBendMsg channel: 4 pitch: 8191 (16383)",
+			Channel(4).NewPitchbend(12300),
+			"PitchBend channel: 4 pitch: 8191 (16383)",
 		},
 		{
-			Channel(4).PolyAftertouch(186, 190),
-			"PolyAfterTouchMsg channel: 4 key: 127 pressure: 127",
+			Channel(4).NewPolyAftertouch(186, 190),
+			"PolyAfterTouch channel: 4 key: 127 pressure: 127",
 		},
 		{
-			Channel(4).ProgramChange(183),
-			"ProgramChangeMsg channel: 4 program: 127",
+			Channel(4).NewProgramChange(183),
+			"ProgramChange channel: 4 program: 127",
 		},
 	}
 
@@ -102,35 +102,35 @@ func TestChannelRaw(t *testing.T) {
 		expected string
 	}{
 		{ // 0
-			Channel(1).Aftertouch(120),
+			Channel(1).NewAftertouch(120),
 			"D1 78",
 		},
 		{ // 1
-			Channel(8).ControlChange(7, 110),
+			Channel(8).NewControlChange(7, 110),
 			"B8 07 6E",
 		},
 		{ // 2
-			Channel(2).NoteOn(100, 80),
+			Channel(2).NewNoteOn(100, 80),
 			"92 64 50",
 		},
 		{ // 3
-			Channel(3).NoteOff(80),
+			Channel(3).NewNoteOff(80),
 			"83 50 00",
 		},
 		{
-			Channel(4).NoteOffVelocity(80, 20),
+			Channel(4).NewNoteOffVelocity(80, 20),
 			"84 50 14",
 		},
 		{
-			Channel(4).Pitchbend(300),
+			Channel(4).NewPitchbend(300),
 			"E4 2C 42",
 		},
 		{
-			Channel(4).PolyAftertouch(86, 109),
+			Channel(4).NewPolyAftertouch(86, 109),
 			"A4 56 6D",
 		},
 		{
-			Channel(4).ProgramChange(83),
+			Channel(4).NewProgramChange(83),
 			"C4 53",
 		},
 	}

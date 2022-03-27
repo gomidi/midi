@@ -133,7 +133,7 @@ func (w *writer) SendSysEx(data []byte) error {
 
 func (w *writer) Send(msg Msg) error {
 	switch {
-	case msg.Kind() == RealTimeMsg:
+	case msg.Category() == RealTimeMessages:
 		return w.sendRT(msg.Data[0])
 		/*
 			case msg.Is(SysExMsg):

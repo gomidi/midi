@@ -61,7 +61,7 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 type tracksReader struct {
 	smf    *SMF
 	tracks map[int]bool
-	filter []midi.MsgType
+	filter []midi.MessageType
 	err    error
 }
 
@@ -91,7 +91,7 @@ func ReadTracks(filepath string, tracks ...int) *tracksReader {
 	return t
 }
 
-func (t *tracksReader) Only(mtypes ...midi.MsgType) *tracksReader {
+func (t *tracksReader) Only(mtypes ...midi.MessageType) *tracksReader {
 	t.filter = mtypes
 	return t
 }
@@ -215,7 +215,8 @@ func (t *tracksReader) Do(fn func(TrackEvent)) *tracksReader {
 					msg := ev.Message()
 					ty := msg.Type()
 					for _, f := range t.filter {
-						if midi.Is(f, ty) {
+						//fmt.Printf("%s [%s] %s [%s]\n", f, f.Kind().String(), ty, ty.Kind().String())
+						if Is(f, ty) {
 							//fn(no, msg, d, dmsec)
 							fn(te)
 						}

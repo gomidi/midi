@@ -2,13 +2,22 @@ package midi
 
 import "fmt"
 
-type SysEx []byte
+func NewSysEx(b []byte) sysEx {
+	return sysEx(b)
+}
 
-func (s SysEx) Bytes() []byte {
+type sysEx []byte
+
+func (s sysEx) Bytes() []byte {
 	var b = []byte{0xF0}
 	b = append(b, []byte(s)...)
 	b = append(b, 0xF7)
 	return b
+}
+
+func (s sysEx) Is(t MsgType) bool {
+	//return Is(m.MsgType, t)
+	return s.Type().Val()&t.Val() != 0
 }
 
 /*
@@ -17,11 +26,15 @@ func (s SysEx) Kind() MsgKind {
 }
 */
 
-func (s SysEx) Type() MessageType {
-	return SysExMsgType
+func (s sysEx) Type() MessageType {
+	return SysEx
 }
 
-func (s SysEx) String() string {
+func (s sysEx) Category() MessageCategory {
+	return SysExMessages
+}
+
+func (s sysEx) String() string {
 	return fmt.Sprintf("Sysex % X", []byte(s))
 }
 

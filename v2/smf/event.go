@@ -37,8 +37,8 @@ func (e *Event) Message() midi.Message {
 	m := midi.NewMsg(e.Data)
 
 	switch m.MsgType {
-	case midi.SysExMsgType:
-		return midi.SysEx(e.Data[1 : len(e.Data)-1])
+	case midi.SysEx:
+		return midi.NewSysEx(e.Data[1 : len(e.Data)-1])
 	default:
 		return m
 	}

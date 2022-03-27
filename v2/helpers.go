@@ -104,9 +104,9 @@ func getMsg1(typ uint8, channel uint8, arg uint8) (m Msg) {
 
 	switch typ {
 	case byteProgramChange:
-		m.MsgType = /* m.MsgType.Set(ProgramChangeMsg) */ ProgramChangeMsg
+		m.MsgType = /* m.MsgType.Set(ProgramChangeMsg) */ ProgramChange
 	case byteChannelPressure:
-		m.MsgType = /* m.MsgType.Set(AfterTouchMsg) */ AfterTouchMsg
+		m.MsgType = /* m.MsgType.Set(AfterTouchMsg) */ AfterTouch
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
 	}
@@ -121,15 +121,15 @@ func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Msg) {
 
 	switch typ {
 	case byteNoteOff:
-		msg.MsgType = NoteOffMsg
+		msg.MsgType = NoteOff
 	case byteNoteOn:
-		msg.MsgType = NoteOnMsg
+		msg.MsgType = NoteOn
 	case bytePolyphonicKeyPressure:
-		msg.MsgType = PolyAfterTouchMsg
+		msg.MsgType = PolyAfterTouch
 	case byteControlChange:
-		msg.MsgType = ControlChangeMsg
+		msg.MsgType = ControlChange
 	case bytePitchWheel:
-		msg.MsgType = PitchBendMsg
+		msg.MsgType = PitchBend
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
 	}

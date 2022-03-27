@@ -11,20 +11,20 @@ func _channelMessage(typ, channel, data1, data2 byte) Msg {
 	ch := Channel(channel)
 	switch typ {
 	case byteChannelPressure:
-		return ch.Aftertouch(data1)
+		return ch.NewAftertouch(data1)
 	case byteProgramChange:
-		return ch.ProgramChange(data1)
+		return ch.NewProgramChange(data1)
 	case byteControlChange:
-		return ch.ControlChange(data1, data2)
+		return ch.NewControlChange(data1, data2)
 	case byteNoteOn:
-		return ch.NoteOn(data1, data2)
+		return ch.NewNoteOn(data1, data2)
 	case byteNoteOff:
-		return ch.NoteOffVelocity(data1, data2)
+		return ch.NewNoteOffVelocity(data1, data2)
 	case bytePolyphonicKeyPressure:
-		return ch.PolyAftertouch(data1, data2)
+		return ch.NewPolyAftertouch(data1, data2)
 	case bytePitchWheel:
 		rel, _ := midilib.ParsePitchWheelVals(data1, data2)
-		return ch.Pitchbend(rel)
+		return ch.NewPitchbend(rel)
 	default:
 		panic("unknown typ")
 	}
@@ -87,17 +87,17 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 			isStatusSet = false
 			switch status {
 			case byteSysTuneRequest:
-				msg = Tune()
+				msg = NewTune()
 			case byteMIDITimingCodeMessage:
-				msg = MTC(data[1])
+				msg = NewMTC(data[1])
 			case byteSysSongPositionPointer:
 				_, abs := midilib.ParsePitchWheelVals(data[1], data[2])
-				msg = SPP(abs)
+				msg = NewSPP(abs)
 			case byteSysSongSelect:
-				msg = SongSelect(data[1])
+				msg = NewSongSelect(data[1])
 			default:
 				// undefined syscommon message
-				msg = Undefined()
+				msg = NewUndefined()
 			}
 
 		// [MIDI] permits 0xF7 octets that are not part of a (0xF0, 0xF7) pair

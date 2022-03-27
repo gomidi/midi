@@ -1,5 +1,6 @@
 package midi
 
+/*
 type Filter []MsgType
 
 func (f Filter) Contains(msg Msg) bool {
@@ -18,3 +19,4 @@ func (f Filter) Receiver(rec Receiver) Receiver {
 		}
 	})
 }
+*/

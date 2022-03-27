@@ -33,7 +33,7 @@ func TestPitchbend(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		m := Channel(0).Pitchbend(test.in)
+		m := Channel(0).NewPitchbend(test.in)
 
 		var got uint16
 		var ch uint8

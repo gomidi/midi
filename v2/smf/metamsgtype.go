@@ -6,8 +6,8 @@ import (
 
 type MetaMsgType uint32
 
-func (m MetaMsgType) Kind() midi.MsgKind {
-	return midi.MetaMsg
+func (m MetaMsgType) Category() midi.MessageCategory {
+	return midi.MetaMessages
 }
 
 func (m MetaMsgType) Val() uint32 {
@@ -20,106 +20,110 @@ const (
 
 	// MetaChannelMsg is a MIDI channel meta message (which is a MetaMsg).
 	// TODO add method to Message to get the channel number and document it.
-	MetaChannelMsg MetaMsgType = 1 << iota
+	MetaChannel MetaMsgType = 1 << iota
 
 	// MetaCopyrightMsg is a MIDI copyright meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaCopyrightMsg
+	MetaCopyright
 
 	// MetaCuepointMsg is a MIDI cuepoint meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaCuepointMsg
+	MetaCuepoint
 
 	// MetaDeviceMsg is a MIDI device meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaDeviceMsg
+	MetaDevice
 
 	// MetaEndOfTrackMsg is a MIDI end of track meta message (which is a MetaMsg).
-	MetaEndOfTrackMsg
+	MetaEndOfTrack
 
 	// MetaInstrumentMsg is a MIDI instrument meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaInstrumentMsg
+	MetaInstrument
 
 	// MetaKeySigMsg is a MIDI key signature meta message (which is a MetaMsg).
 	// TODO add method to Message to get the key signature and document it.
-	MetaKeySigMsg
+	MetaKeySig
 
 	// MetaLyricMsg is a MIDI lyrics meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaLyricMsg
+	MetaLyric
 
 	// MetaTextMsg is a MIDI text meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaTextMsg
+	MetaText
 
 	// MetaMarkerMsg is a MIDI marker meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaMarkerMsg
+	MetaMarker
 
 	// MetaPortMsg is a MIDI port meta message (which is a MetaMsg).
 	// TODO add method to Message to get the port number and document it.
-	MetaPortMsg
+	MetaPort
 
 	// MetaSeqNumberMsg is a MIDI sequencer number meta message (which is a MetaMsg).
 	// TODO add method to Message to get the sequence number and document it.
-	MetaSeqNumberMsg
+	MetaSeqNumber
 
 	// MetaSeqDataMsg is a MIDI sequencer data meta message (which is a MetaMsg).
 	// TODO add method to Message to get the sequencer data and document it.
-	MetaSeqDataMsg
+	MetaSeqData
 
 	// MetaTempoMsg is a MIDI tempo meta message (which is a MetaMsg).
 	// The tempo in beats per minute of a concrete Message of this type can be retrieved via the BPM method of the Message.
-	MetaTempoMsg
+	MetaTempo
 
 	// MetaTimeSigMsg is a MIDI time signature meta message (which is a MetaMsg).
 	// The numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a concrete Message of this type can be retrieved via the TimeSig method of the Message.
 	// A more comfortable way to get the meter is to use the Meter method of the Message.
-	MetaTimeSigMsg
+	MetaTimeSig
 
 	// MetaTrackNameMsg is a MIDI track name meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaTrackNameMsg
+	MetaTrackName
 
 	// MetaSMPTEOffsetMsg is a MIDI smpte offset meta message (which is a MetaMsg).
 	// TODO add method to Message to get the smpte offset and document it.
-	MetaSMPTEOffsetMsg
+	MetaSMPTEOffset
 
 	// MetaUndefinedMsg is an undefined MIDI meta message (which is a MetaMsg).
-	MetaUndefinedMsg
+	MetaUndefined
 
 	// MetaProgramNameMsg is a MIDI program name meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
-	MetaProgramNameMsg
+	MetaProgramName
 )
 
 var msgTypeString = map[MetaMsgType]string{
-	MetaChannelMsg:     "MetaChannelMsg",
-	MetaCopyrightMsg:   "MetaCopyrightMsg",
-	MetaCuepointMsg:    "MetaCuepointMsg",
-	MetaDeviceMsg:      "MetaDeviceMsg",
-	MetaEndOfTrackMsg:  "MetaEndOfTrackMsg",
-	MetaInstrumentMsg:  "MetaInstrumentMsg",
-	MetaKeySigMsg:      "MetaKeySigMsg",
-	MetaLyricMsg:       "MetaLyricMsg",
-	MetaTextMsg:        "MetaTextMsg",
-	MetaMarkerMsg:      "MetaMarkerMsg",
-	MetaPortMsg:        "MetaPortMsg",
-	MetaSeqNumberMsg:   "MetaSeqNumberMsg",
-	MetaSeqDataMsg:     "MetaSeqDataMsg",
-	MetaTempoMsg:       "MetaTempoMsg",
-	MetaTimeSigMsg:     "MetaTimeSigMsg",
-	MetaTrackNameMsg:   "MetaTrackNameMsg",
-	MetaSMPTEOffsetMsg: "MetaSMPTEOffsetMsg",
-	MetaUndefinedMsg:   "MetaUndefinedMsg",
-	MetaProgramNameMsg: "MetaProgramNameMsg",
+	MetaChannel:     "MetaChannel",
+	MetaCopyright:   "MetaCopyright",
+	MetaCuepoint:    "MetaCuepoint",
+	MetaDevice:      "MetaDevice",
+	MetaEndOfTrack:  "MetaEndOfTrack",
+	MetaInstrument:  "MetaInstrument",
+	MetaKeySig:      "MetaKeySig",
+	MetaLyric:       "MetaLyric",
+	MetaText:        "MetaText",
+	MetaMarker:      "MetaMarker",
+	MetaPort:        "MetaPort",
+	MetaSeqNumber:   "MetaSeqNumber",
+	MetaSeqData:     "MetaSeqData",
+	MetaTempo:       "MetaTempo",
+	MetaTimeSig:     "MetaTimeSig",
+	MetaTrackName:   "MetaTrackName",
+	MetaSMPTEOffset: "MetaSMPTEOffset",
+	MetaUndefined:   "MetaUndefined",
+	MetaProgramName: "MetaProgramName",
+}
+
+func init() {
+	var _ midi.MessageType = MetaTrackName
 }
 
 func (t MetaMsgType) String() string {
 	s, has := msgTypeString[t]
 	if !has {
-		return msgTypeString[MetaUndefinedMsg]
+		return msgTypeString[MetaUndefined]
 	}
 	return s
 }

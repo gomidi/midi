@@ -64,20 +64,20 @@ func TestReadSMF0(t *testing.T) {
 SMF0
 1 Track(s)
 TimeFormat: 96 MetricTicks
-Track 0@0 MetaTimeSigMsg meter: 4/4
-Track 0@0 MetaTempoMsg bpm: 120.00
-Track 0@0 ProgramChangeMsg channel: 0 program: 5
-Track 0@0 ProgramChangeMsg channel: 1 program: 46
-Track 0@0 ProgramChangeMsg channel: 2 program: 70
-Track 0@0 NoteOnMsg channel: 2 key: 48 velocity: 96
-Track 0@0 NoteOnMsg channel: 2 key: 60 velocity: 96
-Track 0@96 NoteOnMsg channel: 1 key: 67 velocity: 64
-Track 0@96 NoteOnMsg channel: 0 key: 76 velocity: 32
-Track 0@192 NoteOffMsg channel: 2 key: 48 velocity: 64
-Track 0@0 NoteOffMsg channel: 2 key: 60 velocity: 64
-Track 0@0 NoteOffMsg channel: 1 key: 67 velocity: 64
-Track 0@0 NoteOffMsg channel: 0 key: 76 velocity: 64
-Track 0@0 MetaEndOfTrackMsg
+Track 0@0 MetaTimeSig meter: 4/4
+Track 0@0 MetaTempo bpm: 120.00
+Track 0@0 ProgramChange channel: 0 program: 5
+Track 0@0 ProgramChange channel: 1 program: 46
+Track 0@0 ProgramChange channel: 2 program: 70
+Track 0@0 NoteOn channel: 2 key: 48 velocity: 96
+Track 0@0 NoteOn channel: 2 key: 60 velocity: 96
+Track 0@96 NoteOn channel: 1 key: 67 velocity: 64
+Track 0@96 NoteOn channel: 0 key: 76 velocity: 32
+Track 0@192 NoteOff channel: 2 key: 48 velocity: 64
+Track 0@0 NoteOff channel: 2 key: 60 velocity: 64
+Track 0@0 NoteOff channel: 1 key: 67 velocity: 64
+Track 0@0 NoteOff channel: 0 key: 76 velocity: 64
+Track 0@0 MetaEndOfTrack
 `
 	//l := log.Default()
 
@@ -110,23 +110,23 @@ func TestReadSMF1(t *testing.T) {
 SMF1
 4 Track(s)
 TimeFormat: 96 MetricTicks
-Track 0@0 MetaTimeSigMsg meter: 4/4
-Track 0@0 MetaTempoMsg bpm: 120.00
-Track 0@384 MetaEndOfTrackMsg
-Track 1@0 ProgramChangeMsg channel: 0 program: 5
-Track 1@192 NoteOnMsg channel: 0 key: 76 velocity: 32
-Track 1@192 NoteOnMsg channel: 0 key: 76 velocity: 0
-Track 1@0 MetaEndOfTrackMsg
-Track 2@0 ProgramChangeMsg channel: 1 program: 46
-Track 2@96 NoteOnMsg channel: 1 key: 67 velocity: 64
-Track 2@288 NoteOnMsg channel: 1 key: 67 velocity: 0
-Track 2@0 MetaEndOfTrackMsg
-Track 3@0 ProgramChangeMsg channel: 2 program: 70
-Track 3@0 NoteOnMsg channel: 2 key: 48 velocity: 96
-Track 3@0 NoteOnMsg channel: 2 key: 60 velocity: 96
-Track 3@384 NoteOnMsg channel: 2 key: 48 velocity: 0
-Track 3@0 NoteOnMsg channel: 2 key: 60 velocity: 0
-Track 3@0 MetaEndOfTrackMsg
+Track 0@0 MetaTimeSig meter: 4/4
+Track 0@0 MetaTempo bpm: 120.00
+Track 0@384 MetaEndOfTrack
+Track 1@0 ProgramChange channel: 0 program: 5
+Track 1@192 NoteOn channel: 0 key: 76 velocity: 32
+Track 1@192 NoteOn channel: 0 key: 76 velocity: 0
+Track 1@0 MetaEndOfTrack
+Track 2@0 ProgramChange channel: 1 program: 46
+Track 2@96 NoteOn channel: 1 key: 67 velocity: 64
+Track 2@288 NoteOn channel: 1 key: 67 velocity: 0
+Track 2@0 MetaEndOfTrack
+Track 3@0 ProgramChange channel: 2 program: 70
+Track 3@0 NoteOn channel: 2 key: 48 velocity: 96
+Track 3@0 NoteOn channel: 2 key: 60 velocity: 96
+Track 3@384 NoteOn channel: 2 key: 48 velocity: 0
+Track 3@0 NoteOn channel: 2 key: 60 velocity: 0
+Track 3@0 MetaEndOfTrack
 `
 	if got, want := testRead(t, SpecSMF1), expected; got != want {
 		t.Errorf("got:\n%v\n\nwanted\n%v\n\n", got, want)

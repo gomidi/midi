@@ -12,52 +12,52 @@ const (
 )
 
 var rtMessages = map[byte]MsgType{
-	byteTimingClock:/* RealTimeMsg.Set(TimingClockMsg), */ TimingClockMsg,
-	byteTick:/* RealTimeMsg.Set(TickMsg), */ TickMsg,
-	byteStart:/* RealTimeMsg.Set(StartMsg), */ StartMsg,
-	byteContinue:/* RealTimeMsg.Set(ContinueMsg), */ ContinueMsg,
-	byteStop:/* RealTimeMsg.Set(StopMsg), */ StopMsg,
-	byteUndefined4:/* RealTimeMsg.Set(UndefinedMsg), */ UndefinedMsgType,
-	byteActivesense:/* RealTimeMsg.Set(ActiveSenseMsg), */ ActiveSenseMsg,
-	byteReset:/* RealTimeMsg.Set(ResetMsg), */ ResetMsg,
+	byteTimingClock:/* RealTimeMsg.Set(TimingClockMsg), */ TimingClock,
+	byteTick:/* RealTimeMsg.Set(TickMsg), */ Tick,
+	byteStart:/* RealTimeMsg.Set(StartMsg), */ Start,
+	byteContinue:/* RealTimeMsg.Set(ContinueMsg), */ Continue,
+	byteStop:/* RealTimeMsg.Set(StopMsg), */ Stop,
+	byteUndefined4:/* RealTimeMsg.Set(UndefinedMsg), */ Undefined,
+	byteActivesense:/* RealTimeMsg.Set(ActiveSenseMsg), */ ActiveSense,
+	byteReset:/* RealTimeMsg.Set(ResetMsg), */ Reset,
 }
 
 // TimingClock returns a MIDI timing clock message
-func TimingClock() Msg {
+func NewTimingClock() Msg {
 	return NewMsg([]byte{byteTimingClock})
 }
 
 // Tick returns a midi tick message
-func Tick() Msg {
+func NewTick() Msg {
 	return NewMsg([]byte{byteTick})
 }
 
 // Start returns a MIDI start message
-func Start() Msg {
+func NewStart() Msg {
 	return NewMsg([]byte{byteStart})
 }
 
 // Continue returns a MIDI continue message
-func Continue() Msg {
+func NewContinue() Msg {
 	return NewMsg([]byte{byteContinue})
 }
 
 // Stop returns a MIDI stop message
-func Stop() Msg {
+func NewStop() Msg {
 	return NewMsg([]byte{byteStop})
 }
 
 // Undefined returns an undefined realtime message
-func Undefined() Msg {
+func NewUndefined() Msg {
 	return NewMsg([]byte{byteUndefined4})
 }
 
 // Activesense returns a MIDI active sensing message
-func Activesense() Msg {
+func NewActivesense() Msg {
 	return NewMsg([]byte{byteActivesense})
 }
 
 // Reset returns a MIDI reset message
-func Reset() Msg {
+func NewReset() Msg {
 	return NewMsg([]byte{byteReset})
 }

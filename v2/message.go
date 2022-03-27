@@ -11,19 +11,20 @@ import (
 type Message interface {
 	String() string
 	Type() MessageType
+	Category() MessageCategory
 	Bytes() []byte
 }
 
 type MessageType interface {
-	Kind() MsgKind
+	Category() MessageCategory
 	String() string
 	Val() uint32
 }
 
 func init() {
-	var _ Message = Channel(1).ProgramChange(5)
+	var _ Message = Channel(1).NewProgramChange(5)
 	//var _ Message = MetaCuepoint("test")
-	var _ Message = SysEx([]byte{0xf4, 0xf8})
+	var _ Message = NewSysEx([]byte{0xf4, 0xf8})
 }
 
 // Msg represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
@@ -50,32 +51,32 @@ func (m Msg) Bytes() []byte {
 		}
 	*/
 
-	switch m.MsgType.Kind() {
-	case ChannelMsg:
+	switch m.MsgType.Category() {
+	case ChannelMessages:
 		switch m.MsgType {
-		case ProgramChangeMsg:
+		case ProgramChange:
 			b = append(b, m.Data[0], m.Data[1])
-		case AfterTouchMsg:
+		case AfterTouch:
 			b = append(b, m.Data[0], m.Data[1])
 		default:
 			b = append(b, m.Data[0], m.Data[1], m.Data[2])
 		}
-	case MetaMsg:
+	case MetaMessages:
 		panic("unreachable")
-	case SysExMsg:
+	case SysExMessages:
 		panic("unreachable")
-	case SysCommonMsg:
+	case SysCommonMessages:
 		switch m.MsgType {
-		case TuneMsg:
+		case Tune:
 			b = append(b, m.Data[0])
-		case SongSelectMsg:
+		case SongSelect:
 			b = append(b, m.Data[0], m.Data[1])
-		case MTCMsg:
+		case MTC:
 			b = append(b, m.Data[0], m.Data[1])
-		case SPPMsg:
+		case SPP:
 			b = append(b, m.Data[0], m.Data[1], m.Data[2])
 		}
-	case RealTimeMsg:
+	case RealTimeMessages:
 		b = append(b, m.Data[0])
 	default:
 		panic("undefined kind")
@@ -105,13 +106,14 @@ func NewMsg(bt []byte) (m Msg) {
 }
 
 func (m Msg) Is(t MsgType) bool {
-	return Is(m.MsgType, t)
+	//return Is(m.MsgType, t)
+	return m.Val()&t.Val() != 0
 }
 
 // NoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) NoteOn(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOnMsg) {
+	if !m.Is(NoteOn) {
 		return false
 	}
 
@@ -123,7 +125,7 @@ func (m Msg) NoteOn(channel, key, velocity *uint8) (is bool) {
 // NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
 func (m Msg) NoteStart(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOnMsg) {
+	if !m.Is(NoteOn) {
 		return false
 	}
 
@@ -138,7 +140,7 @@ func (m Msg) NoteStart(channel, key, velocity *uint8) (is bool) {
 // NoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) NoteOff(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOffMsg) {
+	if !m.Is(NoteOff) {
 		return false
 	}
 
@@ -150,7 +152,7 @@ func (m Msg) NoteOff(channel, key, velocity *uint8) (is bool) {
 // Channel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) Channel(channel *uint8) (is bool) {
-	if m.Kind() != ChannelMsg {
+	if m.Category() != ChannelMessages {
 		return false
 	}
 
@@ -167,13 +169,13 @@ func (m Msg) NoteEnd(channel, key, velocity *uint8) (is bool) {
 
 	_, *channel = utils.ParseStatus(m.Data[0])
 	*key, *velocity = utils.ParseTwoUint7(m.Data[1], m.Data[2])
-	return m.Is(NoteOffMsg) || *velocity == 0
+	return m.Is(NoteOff) || *velocity == 0
 }
 
 // PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
-	if !m.Is(PolyAfterTouchMsg) {
+	if !m.Is(PolyAfterTouch) {
 		return false
 	}
 
@@ -185,7 +187,7 @@ func (m Msg) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 // AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) AfterTouch(channel, pressure *uint8) (is bool) {
-	if !m.Is(AfterTouchMsg) {
+	if !m.Is(AfterTouch) {
 		return false
 	}
 
@@ -197,7 +199,7 @@ func (m Msg) AfterTouch(channel, pressure *uint8) (is bool) {
 // ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) ProgramChange(channel, program *uint8) (is bool) {
-	if !m.Is(ProgramChangeMsg) {
+	if !m.Is(ProgramChange) {
 		return false
 	}
 
@@ -210,7 +212,7 @@ func (m Msg) ProgramChange(channel, program *uint8) (is bool) {
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
 func (m Msg) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
-	if !m.Is(PitchBendMsg) {
+	if !m.Is(PitchBend) {
 		return false
 	}
 
@@ -229,7 +231,7 @@ func (m Msg) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bo
 // ControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) ControlChange(channel, controller, value *uint8) (is bool) {
-	if !m.Is(ControlChangeMsg) {
+	if !m.Is(ControlChange) {
 		return false
 	}
 
@@ -263,7 +265,7 @@ cdefg = Hours (0-23)
 
 // MTC represents a MIDI timing code message (quarter frame)
 func (m Msg) MTC(quarterframe *uint8) (is bool) {
-	if !m.Is(MTCMsg) {
+	if !m.Is(MTC) {
 		return false
 	}
 
@@ -273,7 +275,7 @@ func (m Msg) MTC(quarterframe *uint8) (is bool) {
 
 // Song returns the song number of a MIDI song select system message
 func (m Msg) SongSelect(song *uint8) (is bool) {
-	if !m.Is(SongSelectMsg) {
+	if !m.Is(SongSelect) {
 		return false
 	}
 
@@ -283,7 +285,7 @@ func (m Msg) SongSelect(song *uint8) (is bool) {
 
 // SPP returns the song position pointer of a MIDI song position pointer system message
 func (m Msg) SPP(spp *uint16) (is bool) {
-	if !m.Is(SPPMsg) {
+	if !m.Is(SPP) {
 		return false
 	}
 

@@ -154,7 +154,7 @@ func (r *reader) ReadTracks() (err error) {
 			}
 		*/
 		if m != nil {
-			isMetaMsg = m.Type().Kind() == midi.MetaMsg
+			isMetaMsg = m.Type().Category() == midi.MetaMessages
 		}
 
 		var mmsg MetaMessage
@@ -163,7 +163,7 @@ func (r *reader) ReadTracks() (err error) {
 			mmsg = m.(MetaMessage)
 		}
 
-		if isMetaMsg && mmsg.MetaMsgType == MetaEndOfTrackMsg {
+		if isMetaMsg && mmsg.MetaMsgType == MetaEndOfTrack {
 			r.log("end of track")
 			r.tracks[tr].Close(r.deltatime)
 			absTicks = 0
@@ -172,7 +172,7 @@ func (r *reader) ReadTracks() (err error) {
 
 		absTicks += int64(r.deltatime)
 
-		if isMetaMsg && mmsg.MetaMsgType == MetaTempoMsg {
+		if isMetaMsg && mmsg.MetaMsgType == MetaTempo {
 			tc := TempoChange{
 				AbsTicks: absTicks,
 			}
@@ -339,7 +339,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			if err != nil {
 				return m, err
 			}
-			return midi.SysEx(bt), nil
+			return midi.NewSysEx(bt), nil
 		// meta event
 		case 0xFF:
 			var typ byte
@@ -363,7 +363,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			//m.Data = bt
 			mm := NewMetaMessage(typ, bt)
 
-			if mm.MetaMsgType == MetaEndOfTrackMsg {
+			if mm.MetaMsgType == MetaEndOfTrack {
 				isMetaEndOfTrackMsg = true
 			}
 

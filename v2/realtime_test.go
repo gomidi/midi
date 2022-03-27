@@ -13,36 +13,36 @@ func TestRealTime(t *testing.T) {
 		expected string
 	}{
 		{
-			midi.TimingClock(),
-			"TimingClockMsg",
+			midi.NewTimingClock(),
+			"TimingClock",
 		},
 		{
-			midi.Tick(),
-			"TickMsg",
+			midi.NewTick(),
+			"Tick",
 		},
 		{
-			midi.Start(),
-			"StartMsg",
+			midi.NewStart(),
+			"Start",
 		},
 		{
-			midi.Continue(),
-			"ContinueMsg",
+			midi.NewContinue(),
+			"Continue",
 		},
 		{
-			midi.Stop(),
-			"StopMsg",
+			midi.NewStop(),
+			"Stop",
 		},
 		{
-			midi.Undefined(),
-			"UndefinedMsgType",
+			midi.NewUndefined(),
+			"Undefined",
 		},
 		{
-			midi.Activesense(),
-			"ActiveSenseMsg",
+			midi.NewActivesense(),
+			"ActiveSense",
 		},
 		{
-			midi.Reset(),
-			"ResetMsg",
+			midi.NewReset(),
+			"Reset",
 		},
 	}
 
