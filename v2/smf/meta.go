@@ -38,29 +38,12 @@ func (m MetaMessage) Is(t MetaMsgType) bool {
 	return m.MetaMsgType == t
 }
 
-/*
-func newMetaMessage(data []byte) (m MetaMessage) {
-	m.MetaMsgType = GetMetaMsgType(data[1])
-	m.Data = data
-	return
-}
-
-func _MetaMessage(typ byte, data []byte) MetaMessage {
-	b := []byte{byte(0xFF), typ}
-	b = append(b, utils.VlqEncode(uint32(len(data)))...)
-	if len(data) != 0 {
-		b = append(b, data...)
-	}
-	return newMetaMessage(b)
-}
-*/
-
 func NewMetaMessage(typ byte, data []byte) MetaMessage {
 	return _MetaMessage(typ, data)
 }
 
 func _MetaMessage(typ byte, data []byte) MetaMessage {
-	//b := []byte{byte(0xFF), typ}
+	//fmt.Printf("NewMetaMessage %X % X\n", typ, data)
 	b := []byte{byte(0xFF), typ}
 	b = append(b, utils.VlqEncode(uint32(len(data)))...)
 	if len(data) != 0 {
@@ -82,8 +65,7 @@ func (m MetaMessage) Meter(num, denom *uint8) (is bool) {
 // metaData strips away the meta byte and the metatype byte and the varlength byte
 func (m MetaMessage) metaDataWithoutVarlength() []byte {
 	//fmt.Printf("original data: % X\n", m.Data)
-	//return m.Data[3:]
-	return m.Data[4:]
+	return m.Data[3:]
 }
 
 // TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
@@ -97,7 +79,7 @@ func (m MetaMessage) TimeSig(numerator, denominator, clocksPerClick, demiSemiQua
 	data := m.metaDataWithoutVarlength()
 
 	if len(data) != 4 {
-		fmt.Printf("not correct data lenght: % X \n", data)
+		//fmt.Printf("not correct data lenght: % X \n", data)
 		//err = unexpectedMessageLengthError("TimeSignature expected length 4")
 		return false
 	}
@@ -264,7 +246,7 @@ func (m MetaMessage) TrackName(text *string) (is bool) {
 }
 
 func (m MetaMessage) text(text *string) {
-	*text, _ = utils.ReadText(bytes.NewReader(m.Data[3:]))
+	*text, _ = utils.ReadText(bytes.NewReader(m.Data[2:]))
 	return
 }
 

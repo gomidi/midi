@@ -46,7 +46,7 @@ func run() error {
 		//Only(midi.MetaMsg).
 		Do(
 			func(te smf.TrackEvent) {
-				fmt.Printf("[%v] %s\n", te.TrackNo, te.Message())
+				//fmt.Printf("[%v] %s\n", te.TrackNo, te.Message())
 				msg := te.Message()
 				if msg.Category() == midi.MetaMessages {
 					// && msg.Type() == smf.MetaTrackName
@@ -56,6 +56,10 @@ func run() error {
 						//fmt.Printf("[%v] %s %s (%s): %q\n", te.TrackNo, msg.Type().Kind(), msg.String(), msg.Type(), t)
 						fmt.Printf("[%v] %s: %q\n", te.TrackNo, msg.Type(), t)
 						//fmt.Printf("[%v] %s %s (%s): %q\n", te.TrackNo, mm.Type().Kind(), mm.String(), mm.Type(), t)
+					}
+					var bpm float64
+					if mm.Tempo(&bpm) {
+						fmt.Printf("[%v] %s: %v\n", te.TrackNo, msg.Type(), bpm)
 					}
 				}
 			},
