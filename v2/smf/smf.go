@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 )
 
 // New returns a SMF file of format type 0 (single track), that becomes type 1 (multi track), if you add tracks
@@ -45,6 +46,8 @@ type SMF struct {
 
 	tempoChanges TempoChanges
 
+	tempoChangesFinished bool
+
 	finished bool
 
 	//opts []Option
@@ -57,6 +60,44 @@ type SMF struct {
 
 func (s *SMF) TempoChanges() TempoChanges {
 	return s.tempoChanges
+}
+
+func (s *SMF) finishTempoChanges() {
+	if s.tempoChangesFinished {
+		return
+	}
+	sort.Sort(s.tempoChanges)
+	s.calculateAbsTimes()
+	s.tempoChangesFinished = true
+}
+
+func (s *SMF) calculateAbsTimes() {
+	var lasttcTick int64
+	mt := s.TimeFormat.(MetricTicks)
+	for _, tc := range s.tempoChanges {
+		prev := s.tempoChanges.TempoChangeAt(tc.AbsTicks - 1)
+		var prevTime int64
+		if prev != nil {
+			prevTime = prev.AbsTimeMicroSec
+		}
+		diffTicks := tc.AbsTicks - lasttcTick
+		prevTempo := s.tempoChanges.TempoAt(tc.AbsTicks - 1)
+		//fmt.Printf("tc at: %v diff ticks: %v (uint32: %v)\n", tc.AbsTicks, diffTicks, uint32(diffTicks))
+		// calculate time for diffTicks with the help of the last tempo and the MetricTicks
+		tc.AbsTimeMicroSec = prevTime + mt.Duration(prevTempo, uint32(diffTicks)).Microseconds()
+
+		lasttcTick = tc.AbsTicks
+	}
+}
+
+func (s *SMF) TimeAt(absTicks int64) (absTimeMicroSec int64) {
+	s.finishTempoChanges()
+	mt := s.TimeFormat.(MetricTicks)
+	prevTc := s.tempoChanges.TempoChangeAt(absTicks - 1)
+	if prevTc == nil {
+		return mt.Duration(120.00, uint32(absTicks)).Microseconds()
+	}
+	return prevTc.AbsTimeMicroSec + mt.Duration(prevTc.BPM, uint32(absTicks-prevTc.AbsTicks)).Microseconds()
 }
 
 func (s *SMF) Tracks() []*Track {

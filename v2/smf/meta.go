@@ -60,8 +60,7 @@ func (m MetaMessage) Meter(num, denom *uint8) (is bool) {
 // metaData strips away the meta byte and the metatype byte and the varlength byte
 func (m MetaMessage) metaDataWithoutVarlength() []byte {
 	//fmt.Printf("original data: % X\n", m.Data)
-	//return m.Data[3:]
-	return m.Data[4:]
+	return m.Data[3:]
 }
 
 // TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
@@ -137,6 +136,7 @@ func (m MetaMessage) Tempo(bpm *float64) (is bool) {
 		return false
 	}
 
+	//fmt.Printf("tempo pure bytes: % X\n", m.metaDataWithoutVarlength())
 	rd := bytes.NewReader(m.metaDataWithoutVarlength())
 	microsecondsPerCrotchet, err := utils.ReadUint24(rd)
 	if err != nil {
@@ -221,11 +221,13 @@ func (m MetaMessage) ProgramName(text *string) (is bool) {
 // Text returns true if (and only if) the message is a MetaTextMsg.
 // Then it also extracts the data to the given arguments
 func (m MetaMessage) Text(text *string) (is bool) {
-	if !m.Is(MetaTextMsg) {
+	switch m.MetaMsgType {
+	case MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg:
+		m.text(text)
+		return true
+	default:
 		return false
 	}
-	m.text(text)
-	return true
 }
 
 // TrackName returns true if (and only if) the message is a MetaTrackNameMsg.

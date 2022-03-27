@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"sort"
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/internal/runningstatus"
@@ -134,7 +133,7 @@ func (r *reader) tracksMissing() bool {
 
 func (r *reader) ReadTracks() (err error) {
 	var m midi.Message
-	var absDelta int64
+	var absTicks int64
 
 	for {
 		m, err = r.Read()
@@ -167,19 +166,20 @@ func (r *reader) ReadTracks() (err error) {
 		if isMetaMsg && mmsg.MetaMsgType == MetaEndOfTrackMsg {
 			r.log("end of track")
 			r.tracks[tr].Close(r.deltatime)
-			absDelta = 0
+			absTicks = 0
 			continue
 		}
 
-		absDelta += int64(r.deltatime)
+		absTicks += int64(r.deltatime)
 
 		if isMetaMsg && mmsg.MetaMsgType == MetaTempoMsg {
 			tc := TempoChange{
-				AbsDelta: absDelta,
+				AbsTicks: absTicks,
 			}
 
 			mmsg.Tempo(&tc.BPM)
-			r.SMF.tempoChanges = append(r.SMF.tempoChanges, tc)
+			//fmt.Printf("BPM: %v\n", tc.BPM)
+			r.SMF.tempoChanges = append(r.SMF.tempoChanges, &tc)
 		}
 
 		r.log("add message %v to track %v", m, tr)
@@ -187,7 +187,7 @@ func (r *reader) ReadTracks() (err error) {
 		r.tracks[tr].Add(r.deltatime, m)
 	}
 
-	sort.Sort(r.SMF.tempoChanges)
+	r.SMF.finishTempoChanges()
 
 	return err
 }
