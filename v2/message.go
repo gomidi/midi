@@ -7,93 +7,27 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-// Message is a generalized interface for live midi messages (Msg) and meta messages (smf.MetaMessage)
-type Message interface {
-	String() string
-	Type() MessageType
-	Category() MessageCategory
-	Bytes() []byte
-}
-
-type MessageType interface {
-	Category() MessageCategory
-	String() string
-	Val() uint32
-}
-
-func init() {
-	var _ Message = Channel(1).NewProgramChange(5)
-	var _ Message = NewSysEx([]byte{0xf4, 0xf8})
-}
-
 // Msg represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
-type Msg struct {
+type Message struct {
 
-	// MsgType represents the message type of the MIDI message
-	MsgType
+	// Type represents the message type of the MIDI message
+	Type
 
 	// Data contains the bytes of the MiDI message
 	Data []byte
 }
 
-func (m Msg) Type() MessageType {
-	return m.MsgType
-}
-
-func (m Msg) Bytes() []byte {
-	return m.Data
-	var b = []byte{}
-
-	switch m.MsgType.Category() {
-	case ChannelMessages:
-		switch m.MsgType {
-		case ProgramChange:
-			b = append(b, m.Data[0], m.Data[1])
-		case AfterTouch:
-			b = append(b, m.Data[0], m.Data[1])
-		default:
-			b = append(b, m.Data[0], m.Data[1], m.Data[2])
-		}
-	case MetaMessages:
-		panic("unreachable")
-	case SysExMessages:
-		panic("unreachable")
-	case SysCommonMessages:
-		switch m.MsgType {
-		case Tune:
-			b = append(b, m.Data[0])
-		case SongSelect:
-			b = append(b, m.Data[0], m.Data[1])
-		case MTC:
-			b = append(b, m.Data[0], m.Data[1])
-		case SPP:
-			b = append(b, m.Data[0], m.Data[1], m.Data[2])
-		}
-	case RealTimeMessages:
-		b = append(b, m.Data[0])
-	default:
-		panic("undefined kind")
-	}
-
-	return b
-}
-
-// NewMsg returns a new Msg from the bytes of the message, by finding the correct type.
-// If the type could not be found, the MsgType of the Message is UnknownMsg.
-func NewMsg(bt []byte) (m Msg) {
-	m.MsgType = GetMsgType(bt)
+// NewMessage returns a new Message from the bytes of the message, by finding the correct type.
+// If the type could not be found, the Type of the Message is UnknownType.
+func NewMessage(bt []byte) (m Message) {
+	m.Type = GetType(bt)
 	m.Data = bt
 	return
 }
 
-func (m Msg) Is(t MsgType) bool {
-	//return Is(m.MsgType, t)
-	return m.Val()&t.Val() != 0
-}
-
 // NoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) NoteOn(channel, key, velocity *uint8) (is bool) {
+func (m Message) NoteOn(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOn) {
 		return false
 	}
@@ -105,7 +39,7 @@ func (m Msg) NoteOn(channel, key, velocity *uint8) (is bool) {
 
 // NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
-func (m Msg) NoteStart(channel, key, velocity *uint8) (is bool) {
+func (m Message) NoteStart(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOn) {
 		return false
 	}
@@ -120,7 +54,7 @@ func (m Msg) NoteStart(channel, key, velocity *uint8) (is bool) {
 
 // NoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) NoteOff(channel, key, velocity *uint8) (is bool) {
+func (m Message) NoteOff(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOff) {
 		return false
 	}
@@ -132,8 +66,8 @@ func (m Msg) NoteOff(channel, key, velocity *uint8) (is bool) {
 
 // Channel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) Channel(channel *uint8) (is bool) {
-	if m.Category() != ChannelMessages {
+func (m Message) Channel(channel *uint8) (is bool) {
+	if !m.Is(ChannelType) {
 		return false
 	}
 
@@ -143,8 +77,8 @@ func (m Msg) Channel(channel *uint8) (is bool) {
 
 // NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) NoteEnd(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(Note) {
+func (m Message) NoteEnd(channel, key, velocity *uint8) (is bool) {
+	if !m.Is(NoteOn) && !m.Is(NoteOff) {
 		return false
 	}
 
@@ -155,7 +89,7 @@ func (m Msg) NoteEnd(channel, key, velocity *uint8) (is bool) {
 
 // PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
+func (m Message) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	if !m.Is(PolyAfterTouch) {
 		return false
 	}
@@ -167,7 +101,7 @@ func (m Msg) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 
 // AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) AfterTouch(channel, pressure *uint8) (is bool) {
+func (m Message) AfterTouch(channel, pressure *uint8) (is bool) {
 	if !m.Is(AfterTouch) {
 		return false
 	}
@@ -179,7 +113,7 @@ func (m Msg) AfterTouch(channel, pressure *uint8) (is bool) {
 
 // ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) ProgramChange(channel, program *uint8) (is bool) {
+func (m Message) ProgramChange(channel, program *uint8) (is bool) {
 	if !m.Is(ProgramChange) {
 		return false
 	}
@@ -192,7 +126,7 @@ func (m Msg) ProgramChange(channel, program *uint8) (is bool) {
 // PitchBend returns true if (and only if) the message is a PitchBendMsg.
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
-func (m Msg) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
+func (m Message) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
 	if !m.Is(PitchBend) {
 		return false
 	}
@@ -211,7 +145,7 @@ func (m Msg) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bo
 
 // ControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Msg) ControlChange(channel, controller, value *uint8) (is bool) {
+func (m Message) ControlChange(channel, controller, value *uint8) (is bool) {
 	if !m.Is(ControlChange) {
 		return false
 	}
@@ -245,7 +179,7 @@ cdefg = Hours (0-23)
 */
 
 // MTC represents a MIDI timing code message (quarter frame)
-func (m Msg) MTC(quarterframe *uint8) (is bool) {
+func (m Message) MTC(quarterframe *uint8) (is bool) {
 	if !m.Is(MTC) {
 		return false
 	}
@@ -255,7 +189,7 @@ func (m Msg) MTC(quarterframe *uint8) (is bool) {
 }
 
 // Song returns the song number of a MIDI song select system message
-func (m Msg) SongSelect(song *uint8) (is bool) {
+func (m Message) SongSelect(song *uint8) (is bool) {
 	if !m.Is(SongSelect) {
 		return false
 	}
@@ -265,7 +199,7 @@ func (m Msg) SongSelect(song *uint8) (is bool) {
 }
 
 // SPP returns the song position pointer of a MIDI song position pointer system message
-func (m Msg) SPP(spp *uint16) (is bool) {
+func (m Message) SPP(spp *uint16) (is bool) {
 	if !m.Is(SPP) {
 		return false
 	}
@@ -275,9 +209,9 @@ func (m Msg) SPP(spp *uint16) (is bool) {
 }
 
 // String represents the Message as a string that contains the MsgType and its properties.
-func (m Msg) String() string {
+func (m Message) String() string {
 	var bf bytes.Buffer
-	fmt.Fprintf(&bf, m.MsgType.String())
+	fmt.Fprintf(&bf, m.Type.String())
 
 	var channel, val1, val2 uint8
 	var pitchabs uint16

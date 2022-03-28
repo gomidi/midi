@@ -1,11 +1,14 @@
 package midi
 
-import "fmt"
-
-func NewSysEx(b []byte) sysEx {
-	return sysEx(b)
+func NewSysEx(bt []byte) (m Message) {
+	var b = []byte{0xF0}
+	b = append(b, []byte(bt)...)
+	m.Data = append(b, 0xF7)
+	m.Type = SysExType
+	return m
 }
 
+/*
 type sysEx []byte
 
 func (s sysEx) Bytes() []byte {
@@ -19,6 +22,7 @@ func (s sysEx) Is(t MsgType) bool {
 	//return Is(m.MsgType, t)
 	return s.Type().Val()&t.Val() != 0
 }
+*/
 
 /*
 func (s SysEx) Kind() MsgKind {
@@ -26,6 +30,7 @@ func (s SysEx) Kind() MsgKind {
 }
 */
 
+/*
 func (s sysEx) Type() MessageType {
 	return SysEx
 }
@@ -37,6 +42,7 @@ func (s sysEx) Category() MessageCategory {
 func (s sysEx) String() string {
 	return fmt.Sprintf("Sysex % X", []byte(s))
 }
+*/
 
 /*
 func SysEx(msg []byte) []byte {

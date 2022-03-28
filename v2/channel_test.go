@@ -139,7 +139,7 @@ func TestChannelRaw(t *testing.T) {
 
 		var bf bytes.Buffer
 
-		bf.Write(test.input.Bytes())
+		bf.Write(test.input.Data)
 
 		if got, want := fmt.Sprintf("% X", bf.Bytes()), test.expected; got != want {
 			t.Errorf("[%v] got: %#v; wanted %#v", i, got, want)

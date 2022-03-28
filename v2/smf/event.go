@@ -6,30 +6,25 @@ import (
 
 type Event struct {
 	Delta uint32
-	Data  []byte
+	midi.Message
+	//Data  []byte
 }
 
+/*
 func (e *Event) Message() midi.Message {
 
 	if len(e.Data) == 0 {
-		var m midi.Msg
+		var m midi.Message
 		return m
 	}
 
 	if e.Data[0] == 0xFF {
 		var msg MetaMessage
 		msg.Data = e.Data
-		msg.MetaType = GetMetaType(e.Data[1])
-		return msg
+		msg.Type = GetMetaType(e.Data[1])
+		return msg.Message
 	}
 
-	m := midi.NewMsg(e.Data)
-
-	switch m.MsgType {
-	case midi.SysEx:
-		return midi.NewSysEx(e.Data[1 : len(e.Data)-1])
-	default:
-		return m
-	}
-
+	return midi.NewMsg(e.Data)
 }
+*/

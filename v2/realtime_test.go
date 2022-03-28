@@ -32,10 +32,12 @@ func TestRealTime(t *testing.T) {
 			midi.NewStop(),
 			"Stop",
 		},
-		{
-			midi.NewUndefined(),
-			"Undefined",
-		},
+		/*
+			{
+				midi.NewUndefined(),
+				"UnknownType",
+			},
+		*/
 		{
 			midi.NewActivesense(),
 			"ActiveSense",

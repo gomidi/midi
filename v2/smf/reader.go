@@ -145,7 +145,7 @@ func (r *reader) ReadTracks() (err error) {
 		//fmt.Printf("message %v\n", m)
 		tr := int(r.Track())
 
-		var isMetaMsg bool
+		//var isMetaMsg bool
 
 		/*
 			// TODO maybe remove this after lots of tests
@@ -153,17 +153,20 @@ func (r *reader) ReadTracks() (err error) {
 				continue
 			}
 		*/
-		if m != nil {
-			isMetaMsg = m.Type().Category() == midi.MetaMessages
-		}
+		//if m != nil {
+		//isMetaMsg = m.Type.Is(MetaMsg)
+		//}
 
-		var mmsg MetaMessage
+		/*
+			var mmsg MetaMessage
 
-		if isMetaMsg {
-			mmsg = m.(MetaMessage)
-		}
+			if isMetaMsg {
+				mmsg.Message = m
+			}
 
-		if isMetaMsg && mmsg.MetaType == MetaEndOfTrack {
+			if isMetaMsg && mmsg.Type.Is(MetaEndOfTrack) {
+		*/
+		if m.Type.Is(MetaEndOfTrack) {
 			r.log("end of track")
 			r.tracks[tr].Close(r.deltatime)
 			absTicks = 0
@@ -172,12 +175,12 @@ func (r *reader) ReadTracks() (err error) {
 
 		absTicks += int64(r.deltatime)
 
-		if isMetaMsg && mmsg.MetaType == MetaTempo {
+		if m.Type.Is(MetaTempo) {
 			tc := TempoChange{
 				AbsTicks: absTicks,
 			}
 
-			mmsg.Tempo(&tc.BPM)
+			MetaMessage(m).Tempo(&tc.BPM)
 			//fmt.Printf("BPM: %v\n", tc.BPM)
 			r.SMF.tempoChanges = append(r.SMF.tempoChanges, &tc)
 		}
@@ -361,9 +364,9 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 				return m, err
 			}
 			//m.Data = bt
-			mm := NewMetaMessage(typ, bt)
+			mm := newMetaMessage(typ, bt)
 
-			if mm.MetaType == MetaEndOfTrack {
+			if mm.Type.Is(MetaEndOfTrack) {
 				isMetaEndOfTrackMsg = true
 			}
 
@@ -371,7 +374,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			// all (event unknown) meta messages must be handled by the meta dispatcher
 			//m, err = newMetaReader(r.input, typ).Read()
 			//r.log("got meta: %T data: % X", m.MsgType, m.Data)
-			r.log("got meta: %s data: % X\n", mm.MetaType, mm.Data)
+			r.log("got meta: %s data: % X\n", mm.Type, mm.Data)
 			//fmt.Printf("got meta: %s\n", mm)
 			m = mm
 		default:
@@ -401,7 +404,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 		r.log("got err: %v", err)
 		//fmt.Printf("error: %s\n", err.Error())
 		//return m, err
-		var mm midi.Msg
+		var mm midi.Message
 		//mm.MsgType = msgType
 		m = mm
 	}
@@ -439,7 +442,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 
 func (r *reader) readEvent() (m midi.Message, err error) {
 	if r.error != nil {
-		return nil, r.error
+		return m, r.error
 	}
 
 	//fmt.Println("readevent called")

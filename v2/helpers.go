@@ -8,21 +8,21 @@ import (
 )
 
 // channelMessage1 returns the bytes for a single byte channel message
-func channelMessage1(c uint8, status, msg byte) Msg {
+func channelMessage1(c uint8, status, msg byte) Message {
 	cm := &channelMessage{channel: c, status: status}
 	cm.data[0] = msg
 	bt := cm.bytes()
-	return NewMsg(bt)
+	return NewMessage(bt)
 }
 
 // channelMessage2 returns the bytes for a two bytes channel message
-func channelMessage2(c uint8, status, msg1 byte, msg2 byte) Msg {
+func channelMessage2(c uint8, status, msg1 byte, msg2 byte) Message {
 	cm := &channelMessage{channel: c, status: status}
 	cm.data[0] = msg1
 	cm.data[1] = msg2
 	cm.twoBytes = true
 	bt := cm.bytes()
-	return NewMsg(bt)
+	return NewMessage(bt)
 }
 
 type channelMessage struct {
@@ -60,7 +60,7 @@ const (
 )
 
 // ReadChannelMessage reads a channel message for the given status byte from the given reader.
-func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Msg, err error) {
+func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err error) {
 	typ, channel := utils.ParseStatus(status)
 
 	if err != nil {
@@ -87,16 +87,16 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Msg, err error)
 }
 
 // getMsg1 returns a 1-byte channel message (program change or aftertouch)
-func getMsg1(typ uint8, channel uint8, arg uint8) (m Msg) {
+func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
 	//m.MsgType = GetChannelMsgType(typ)
 	//m.MsgType = ChannelMsg.Set(channelType[channel])
 	m.Data = channelMessage1(channel, typ, arg).Data
 
 	switch typ {
 	case byteProgramChange:
-		m.MsgType = /* m.MsgType.Set(ProgramChangeMsg) */ ProgramChange
+		m.Type = /* m.MsgType.Set(ProgramChangeMsg) */ ProgramChange
 	case byteChannelPressure:
-		m.MsgType = /* m.MsgType.Set(AfterTouchMsg) */ AfterTouch
+		m.Type = /* m.MsgType.Set(AfterTouchMsg) */ AfterTouch
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
 	}
@@ -105,21 +105,21 @@ func getMsg1(typ uint8, channel uint8, arg uint8) (m Msg) {
 }
 
 // getMsg2 returns a 2-byte channel message (noteon/noteoff, poly aftertouch, control change or pitchbend)
-func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Msg) {
+func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Message) {
 	//msg.MsgType = ChannelMsg.Set(channelType[channel])
 	msg.Data = channelMessage2(channel, typ, arg1, arg2).Data
 
 	switch typ {
 	case byteNoteOff:
-		msg.MsgType = NoteOff
+		msg.Type = NoteOff
 	case byteNoteOn:
-		msg.MsgType = NoteOn
+		msg.Type = NoteOn
 	case bytePolyphonicKeyPressure:
-		msg.MsgType = PolyAfterTouch
+		msg.Type = PolyAfterTouch
 	case byteControlChange:
-		msg.MsgType = ControlChange
+		msg.Type = ControlChange
 	case bytePitchWheel:
-		msg.MsgType = PitchBend
+		msg.Type = PitchBend
 	default:
 		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
 	}

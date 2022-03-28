@@ -29,7 +29,7 @@ func (t *Track) Close(deltaticks uint32) {
 	if t.Closed {
 		return
 	}
-	t.Events = append(t.Events, Event{Delta: deltaticks, Data: EOT.Data})
+	t.Events = append(t.Events, Event{Delta: deltaticks, Message: EOT})
 	//fmt.Printf("appending bytes: % X\n", EOT.Data)
 	t.Closed = true
 }
@@ -39,7 +39,7 @@ func (t *Track) Add(deltaticks uint32, msgs ...midi.Message) {
 		return
 	}
 	for _, msg := range msgs {
-		ev := Event{Delta: deltaticks, Data: msg.Bytes()}
+		ev := Event{Delta: deltaticks, Message: msg}
 		//fmt.Printf("appending bytes: % X, evtype: %s\n", ev.Data, ev.MsgType())
 		t.Events = append(t.Events, ev)
 		deltaticks = 0
@@ -51,9 +51,10 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 
 	for _, ev := range t.Events {
 		absDelta += int64(ev.Delta)
-		if m, ok := ev.Message().(midi.Msg); ok {
+		if ev.Message.IsPlayable() {
+			//		if m, ok := ev.Message().Type() <  .(midi.Msg); ok {
 			ms := int32(resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds() * 100)
-			receiver.Receive(m, ms)
+			receiver.Receive(ev.Message, ms)
 		}
 	}
 }
@@ -61,7 +62,7 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 type tracksReader struct {
 	smf    *SMF
 	tracks map[int]bool
-	filter []midi.MessageType
+	filter []midi.Type
 	err    error
 }
 
@@ -95,7 +96,7 @@ func ReadTracks(filepath string, tracks ...int) *tracksReader {
 	return t
 }
 
-func (t *tracksReader) Only(mtypes ...midi.MessageType) *tracksReader {
+func (t *tracksReader) Only(mtypes ...midi.Type) *tracksReader {
 	t.filter = mtypes
 	return t
 }
@@ -105,6 +106,10 @@ type TrackEvent struct {
 	TrackNo         int
 	AbsTicks        int64
 	AbsMicroSeconds int64
+}
+
+func (te TrackEvent) MetaMessage() MetaMessage {
+	return MetaMessage(te.Message)
 }
 
 type playEvent struct {
@@ -147,8 +152,10 @@ func (t *tracksReader) MultiPlay(trackouts map[int]drivers.Out) *tracksReader {
 
 	t.Do(
 		func(te TrackEvent) {
-			msg := te.Message()
-			if mm, ok := msg.(midi.Msg); ok {
+			msg := te.Message
+			//ty := msg.Type
+			if msg.IsPlayable() {
+				//if mm, ok := msg.(midi.Msg); ok {
 				var out drivers.Out
 
 				if o, has := trackouts[te.TrackNo]; has {
@@ -163,7 +170,7 @@ func (t *tracksReader) MultiPlay(trackouts map[int]drivers.Out) *tracksReader {
 
 				pl = append(pl, playEvent{
 					absTime: te.AbsMicroSeconds,
-					data:    mm.Data,
+					data:    msg.Data,
 					out:     out,
 					trackNo: te.TrackNo,
 					str:     msg.String(),
@@ -216,11 +223,12 @@ func (t *tracksReader) Do(fn func(TrackEvent)) *tracksReader {
 							fn(no, ev.Message(), d, dmsec)
 						}
 					*/
-					msg := ev.Message()
-					ty := msg.Type()
+					msg := ev.Message
+					ty := msg.Type
 					for _, f := range t.filter {
 						//fmt.Printf("%s [%s] %s [%s]\n", f, f.Kind().String(), ty, ty.Kind().String())
-						if Is(f, ty) {
+						if ty.Is(f) {
+							//if Is(f, ty) {
 							//fn(no, msg, d, dmsec)
 							fn(te)
 						}
