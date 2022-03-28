@@ -59,22 +59,22 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 	}
 }
 
-type tracksReader struct {
+type TracksReader struct {
 	smf    *SMF
 	tracks map[int]bool
 	filter []midi.Type
 	err    error
 }
 
-func (t *tracksReader) Error() error {
+func (t *TracksReader) Error() error {
 	return t.err
 }
 
-func (t *tracksReader) SMF() *SMF {
+func (t *TracksReader) SMF() *SMF {
 	return t.smf
 }
 
-func (t *tracksReader) doTrack(tr int) bool {
+func (t *TracksReader) doTrack(tr int) bool {
 	if len(t.tracks) == 0 {
 		return true
 	}
@@ -82,8 +82,8 @@ func (t *tracksReader) doTrack(tr int) bool {
 	return t.tracks[tr]
 }
 
-func ReadTracks(filepath string, tracks ...int) *tracksReader {
-	t := &tracksReader{}
+func ReadTracks(filepath string, tracks ...int) *TracksReader {
+	t := &TracksReader{}
 	t.tracks = map[int]bool{}
 	for _, tr := range tracks {
 		t.tracks[tr] = true
@@ -96,7 +96,7 @@ func ReadTracks(filepath string, tracks ...int) *tracksReader {
 	return t
 }
 
-func (t *tracksReader) Only(mtypes ...midi.Type) *tracksReader {
+func (t *TracksReader) Only(mtypes ...midi.Type) *TracksReader {
 	t.filter = mtypes
 	return t
 }
@@ -137,13 +137,13 @@ func (p player) Len() int {
 }
 
 // Play plays the tracks on the given out port
-func (t *tracksReader) Play(out drivers.Out) *tracksReader {
+func (t *TracksReader) Play(out drivers.Out) *TracksReader {
 	return t.MultiPlay(map[int]drivers.Out{-1: out})
 }
 
 // MultiPlay plays tracks to different out ports.
 // If the map has an index of -1, it will be used to play all tracks that have no explicit out port.
-func (t *tracksReader) MultiPlay(trackouts map[int]drivers.Out) *tracksReader {
+func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) *TracksReader {
 	var pl player
 	if len(trackouts) == 0 {
 		t.err = fmt.Errorf("trackouts not set")
@@ -190,7 +190,7 @@ func (t *tracksReader) MultiPlay(trackouts map[int]drivers.Out) *tracksReader {
 	return t
 }
 
-func (t *tracksReader) play(last time.Duration, p playEvent) time.Duration {
+func (t *TracksReader) play(last time.Duration, p playEvent) time.Duration {
 	current := (time.Microsecond * time.Duration(p.absTime))
 	diff := current - last
 	//fmt.Printf("sleeping %s\n", diff)
@@ -201,7 +201,7 @@ func (t *tracksReader) play(last time.Duration, p playEvent) time.Duration {
 	return current
 }
 
-func (t *tracksReader) Do(fn func(TrackEvent)) *tracksReader {
+func (t *TracksReader) Do(fn func(TrackEvent)) *TracksReader {
 	tracks := t.smf.Tracks()
 
 	//	ticks := t.smf.TimeFormat.(MetricTicks)

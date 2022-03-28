@@ -49,7 +49,6 @@ type Reader struct {
 	SysExBufferSize uint32
 	OnMsg           func([]byte, int32)
 	HandleSysex     bool
-	//OnSysEx         func([]byte, int32)
 	OnErr func(error)
 }
 

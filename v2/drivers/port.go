@@ -50,10 +50,6 @@ type ListenConfig struct {
 	// When SysExBufferSize is 0, the default buffersize (1024) is used.
 	SysExBufferSize uint32
 
-	// OnSysex is the callback that is called for every SysEx message <= SysExBufferSize.
-	// If OnSysEx is nil, SysEx Messages are ignored.
-	//OnSysEx func(msg []byte, milliseconds int32)
-
 	// OnErr is the callback that is called for any error happening during the listening.
 	OnErr func(error)
 }
@@ -67,7 +63,6 @@ type In interface {
 	// The config defines further listening options (see ListenConfig)
 	// The listening must be stopped before the port may be closed.
 	Listen(
-		//onMsg func(msg [3]byte, milliseconds int32),
 		onMsg func(msg []byte, milliseconds int32),
 		config ListenConfig,
 	) (
@@ -83,23 +78,6 @@ type Out interface {
 	//Send(data [3]byte) error
 	Send(data []byte) error
 }
-
-/*
-// SysExSender is an out port that sends sysex messages by a separate method
-type SysExSender interface {
-	Out
-
-	// SendSysEx sends a sysex message
-	SendSysEx(data []byte) error
-}
-
-// RealtimeSender is an out port that sends realtime messages by a separate method
-type RealtimeSender interface {
-
-	// SendRealtime sends a realtime message
-	SendRealtime(msg byte) error
-}
-*/
 
 // Ins return the available MIDI in ports
 func Ins() ([]In, error) {

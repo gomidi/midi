@@ -2,10 +2,11 @@ package key
 
 import (
 	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/smf"
 )
 
 func key(key, num uint8, isMajor, isFlat bool) midi.Message {
-	return midi.MetaKey(key, isMajor, num, isFlat)
+	return smf.NewMetaKey(key, isMajor, num, isFlat)
 }
 
 // CMaj returns the MIDI key signature meta message for C Major

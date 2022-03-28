@@ -6,8 +6,8 @@ import (
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 
-	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
-	//_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
+	// "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
+	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
 	"gitlab.com/gomidi/midi/v2/smf"
 )
 
@@ -20,7 +20,6 @@ func printPorts() {
 
 func run() error {
 
-	//out, err := drivers.OutByName("FLUID Synth")
 	out, err := drivers.OutByName("qsynth")
 	if err != nil {
 		return err
@@ -30,8 +29,8 @@ func run() error {
 
 	//result := smf.ReadTracks("Prelude4.mid", 2).
 	//result := smf.ReadTracks("Prelude4.mid", 1, 2, 3, 4, 5, 6, 7).
-	//result := smf.ReadTracks("Prelude4.mid").
-	result := smf.ReadTracks("VOYAGER.MID").
+	result := smf.ReadTracks("Prelude4.mid").
+		//result := smf.ReadTracks("VOYAGER.MID").
 		//result := smf.ReadTracks("VOYAGER.MID", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.MetaMsgType).
@@ -42,7 +41,6 @@ func run() error {
 		Do(
 			func(te smf.TrackEvent) {
 				if te.Is(smf.MetaType) {
-					// && msg.Type() == smf.MetaTrackName
 					//mm := te.MetaMessage()
 					fmt.Printf("[%v] %s\n", te.TrackNo, te.MetaMessage())
 					/*
@@ -58,7 +56,7 @@ func run() error {
 						}
 					*/
 				} else {
-					fmt.Printf("[%v] %s\n", te.TrackNo, te.Message)
+					//fmt.Printf("[%v] %s\n", te.TrackNo, te.Message)
 				}
 			},
 		).Play(out)

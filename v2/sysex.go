@@ -54,12 +54,14 @@ func SysEx(msg []byte) []byte {
 }
 */
 
+/*
 func IsSysEx(msg []byte) bool {
 	if len(msg) < 4 {
 		return false
 	}
 	return msg[0] == 0xF0 && msg[len(msg)-1] == 0xF7
 }
+*/
 
 /*
 import (

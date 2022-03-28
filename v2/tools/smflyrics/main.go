@@ -98,7 +98,10 @@ func (p *Json) ReadSMF() {
 func (t *Json) ReadTrack(tr *smf.Track) {
 	var text string
 	for _, ev := range tr.Events {
-		msg := ev.Message()
+		if !ev.Is(smf.MetaType) {
+			continue
+		}
+		msg := smf.MetaMessage(ev.Message)
 
 		switch {
 		case msg.Lyric(&text):
