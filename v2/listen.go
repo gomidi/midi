@@ -11,7 +11,7 @@ func _channelMessage(typ, channel, data1, data2 byte) Msg {
 	ch := Channel(channel)
 	switch typ {
 	case byteChannelPressure:
-		return ch.NewAftertouch(data1)
+		return ch.NewAfterTouch(data1)
 	case byteProgramChange:
 		return ch.NewProgramChange(data1)
 	case byteControlChange:
@@ -21,7 +21,7 @@ func _channelMessage(typ, channel, data1, data2 byte) Msg {
 	case byteNoteOff:
 		return ch.NewNoteOffVelocity(data1, data2)
 	case bytePolyphonicKeyPressure:
-		return ch.NewPolyAftertouch(data1, data2)
+		return ch.NewPolyAfterTouch(data1, data2)
 	case bytePitchWheel:
 		rel, _ := midilib.ParsePitchWheelVals(data1, data2)
 		return ch.NewPitchbend(rel)
@@ -50,6 +50,8 @@ type ListenOptions struct {
 var ErrPortClosed = drivers.ErrPortClosed
 var ErrListenStopped = drivers.ErrListenStopped
 
+// ListenToPort listens on the given port number and passes the received MIDI data to the given receiver.
+// It returns a stop function that may be called to stop the listening.
 func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func(), err error) {
 	in, err := drivers.InByNumber(portnumber)
 	if err != nil {
@@ -61,12 +63,6 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 	conf.TimeCode = opt.TimeCode
 	conf.ActiveSense = opt.ActiveSense
 	conf.SysEx = opt.SysEx
-
-	/*
-		if sysrc, has := recv.(SysExReceiver); has {
-			conf.OnSysEx = sysrc.OnSysEx
-		}
-	*/
 
 	if errrc, has := recv.(ErrorReceiver); has {
 		conf.OnErr = errrc.OnError

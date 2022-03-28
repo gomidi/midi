@@ -163,7 +163,7 @@ func (r *reader) ReadTracks() (err error) {
 			mmsg = m.(MetaMessage)
 		}
 
-		if isMetaMsg && mmsg.MetaMsgType == MetaEndOfTrack {
+		if isMetaMsg && mmsg.MetaType == MetaEndOfTrack {
 			r.log("end of track")
 			r.tracks[tr].Close(r.deltatime)
 			absTicks = 0
@@ -172,7 +172,7 @@ func (r *reader) ReadTracks() (err error) {
 
 		absTicks += int64(r.deltatime)
 
-		if isMetaMsg && mmsg.MetaMsgType == MetaTempo {
+		if isMetaMsg && mmsg.MetaType == MetaTempo {
 			tc := TempoChange{
 				AbsTicks: absTicks,
 			}
@@ -363,7 +363,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			//m.Data = bt
 			mm := NewMetaMessage(typ, bt)
 
-			if mm.MetaMsgType == MetaEndOfTrack {
+			if mm.MetaType == MetaEndOfTrack {
 				isMetaEndOfTrackMsg = true
 			}
 
@@ -371,7 +371,7 @@ func (r *reader) _readEvent(canary byte) (m midi.Message, err error) {
 			// all (event unknown) meta messages must be handled by the meta dispatcher
 			//m, err = newMetaReader(r.input, typ).Read()
 			//r.log("got meta: %T data: % X", m.MsgType, m.Data)
-			r.log("got meta: %s data: % X\n", mm.MetaMsgType, mm.Data)
+			r.log("got meta: %s data: % X\n", mm.MetaType, mm.Data)
 			//fmt.Printf("got meta: %s\n", mm)
 			m = mm
 		default:

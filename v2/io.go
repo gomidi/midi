@@ -7,6 +7,7 @@ import (
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
+// CloseDriver closes the default driver.
 func CloseDriver() {
 	drivers.Close()
 }
@@ -17,6 +18,7 @@ type Sender interface {
 	Send(msg Msg) error
 }
 
+// ReceiverFunc is a function that receives MIDI messages
 type ReceiverFunc func(msg Msg, absdecimillisec int32)
 
 func (r ReceiverFunc) Receive(msg Msg, absdecimillisec int32) {
@@ -29,18 +31,13 @@ type Receiver interface {
 	Receive(msg Msg, absmillisec int32)
 }
 
-type SysExReceiver interface {
-	Receiver
-
-	// OnSysEx receives a sysex message. absmillisec is the absolute timestamp in milliseconds
-	OnSysEx(data []byte, absmillisec int32)
-}
-
+// ErrorReceiver is a receiver that can receive errors.
 type ErrorReceiver interface {
 	Receiver
 	OnError(error)
 }
 
+// InPorts returns the MIDI input ports
 func InPorts() []string {
 	ins, err := drivers.Ins()
 
@@ -58,6 +55,7 @@ func InPorts() []string {
 	return res
 }
 
+// OutPorts returns the MIDI output ports
 func OutPorts() []string {
 	outs, err := drivers.Outs()
 

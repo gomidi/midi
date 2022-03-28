@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
@@ -59,7 +60,7 @@ func run() error {
 					}
 					var bpm float64
 					if mm.Tempo(&bpm) {
-						fmt.Printf("[%v] %s: %v\n", te.TrackNo, msg.Type(), bpm)
+						fmt.Printf("[%v] %s: %v\n", te.TrackNo, msg.Type(), math.Round(bpm))
 					}
 				}
 			},

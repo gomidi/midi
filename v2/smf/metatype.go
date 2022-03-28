@@ -4,13 +4,13 @@ import (
 	"gitlab.com/gomidi/midi/v2"
 )
 
-type MetaMsgType uint32
+type MetaType uint32
 
-func (m MetaMsgType) Category() midi.MessageCategory {
+func (m MetaType) Category() midi.MessageCategory {
 	return midi.MetaMessages
 }
 
-func (m MetaMsgType) Val() uint32 {
+func (m MetaType) Val() uint32 {
 	return uint32(m)
 }
 
@@ -20,7 +20,7 @@ const (
 
 	// MetaChannelMsg is a MIDI channel meta message (which is a MetaMsg).
 	// TODO add method to Message to get the channel number and document it.
-	MetaChannel MetaMsgType = 1 << iota
+	MetaChannel MetaType = 1 << iota
 
 	// MetaCopyrightMsg is a MIDI copyright meta message (which is a MetaMsg).
 	// The text of a concrete Message of this type can be retrieved via the Text method of the Message.
@@ -94,7 +94,7 @@ const (
 	MetaProgramName
 )
 
-var msgTypeString = map[MetaMsgType]string{
+var msgTypeString = map[MetaType]string{
 	MetaChannel:     "MetaChannel",
 	MetaCopyright:   "MetaCopyright",
 	MetaCuepoint:    "MetaCuepoint",
@@ -120,7 +120,7 @@ func init() {
 	var _ midi.MessageType = MetaTrackName
 }
 
-func (t MetaMsgType) String() string {
+func (t MetaType) String() string {
 	s, has := msgTypeString[t]
 	if !has {
 		return msgTypeString[MetaUndefined]

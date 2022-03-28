@@ -23,7 +23,6 @@ type MessageType interface {
 
 func init() {
 	var _ Message = Channel(1).NewProgramChange(5)
-	//var _ Message = MetaCuepoint("test")
 	var _ Message = NewSysEx([]byte{0xf4, 0xf8})
 }
 
@@ -34,7 +33,6 @@ type Msg struct {
 	MsgType
 
 	// Data contains the bytes of the MiDI message
-	//Data [3]byte
 	Data []byte
 }
 
@@ -43,13 +41,8 @@ func (m Msg) Type() MessageType {
 }
 
 func (m Msg) Bytes() []byte {
+	return m.Data
 	var b = []byte{}
-
-	/*
-		if m.Data[0] > 0 {
-			b = append(b, m.Data[0])
-		}
-	*/
 
 	switch m.MsgType.Category() {
 	case ChannelMessages:
@@ -82,25 +75,13 @@ func (m Msg) Bytes() []byte {
 		panic("undefined kind")
 	}
 
-	/*
-		if m.Data[1] > 0 {
-			b = append(b, m.Data[1])
-		}
-
-		if m.Data[2] > 0 {
-			b = append(b, m.Data[2])
-		}
-	*/
-
 	return b
 }
 
-// NewMessage returns a new Message from the bytes of the message, by finding the correct type.
+// NewMsg returns a new Msg from the bytes of the message, by finding the correct type.
 // If the type could not be found, the MsgType of the Message is UnknownMsg.
 func NewMsg(bt []byte) (m Msg) {
 	m.MsgType = GetMsgType(bt)
-
-	//m.Data = [3]byte{b1, b2, b3}
 	m.Data = bt
 	return
 }
@@ -163,7 +144,7 @@ func (m Msg) Channel(channel *uint8) (is bool) {
 // NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
 func (m Msg) NoteEnd(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteMsg) {
+	if !m.Is(Note) {
 		return false
 	}
 

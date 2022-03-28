@@ -22,42 +22,42 @@ var rtMessages = map[byte]MsgType{
 	byteReset:/* RealTimeMsg.Set(ResetMsg), */ Reset,
 }
 
-// TimingClock returns a MIDI timing clock message
+// NewTimingClock returns a MIDI timing clock message
 func NewTimingClock() Msg {
 	return NewMsg([]byte{byteTimingClock})
 }
 
-// Tick returns a midi tick message
+// NewTick returns a midi tick message
 func NewTick() Msg {
 	return NewMsg([]byte{byteTick})
 }
 
-// Start returns a MIDI start message
+// NewStart returns a MIDI start message
 func NewStart() Msg {
 	return NewMsg([]byte{byteStart})
 }
 
-// Continue returns a MIDI continue message
+// NewContinue returns a MIDI continue message
 func NewContinue() Msg {
 	return NewMsg([]byte{byteContinue})
 }
 
-// Stop returns a MIDI stop message
+// NewStop returns a MIDI stop message
 func NewStop() Msg {
 	return NewMsg([]byte{byteStop})
 }
 
-// Undefined returns an undefined realtime message
+// NewUndefined returns an undefined realtime message
 func NewUndefined() Msg {
 	return NewMsg([]byte{byteUndefined4})
 }
 
-// Activesense returns a MIDI active sensing message
+// NewActivesense returns a MIDI active sensing message
 func NewActivesense() Msg {
 	return NewMsg([]byte{byteActivesense})
 }
 
-// Reset returns a MIDI reset message
+// NewReset returns a MIDI reset message
 func NewReset() Msg {
 	return NewMsg([]byte{byteReset})
 }

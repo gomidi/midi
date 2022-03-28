@@ -13,7 +13,7 @@ func TestChannelString(t *testing.T) {
 		expected string
 	}{
 		{
-			Channel(1).NewAftertouch(120),
+			Channel(1).NewAfterTouch(120),
 			"AfterTouch channel: 1 pressure: 120",
 		},
 		{
@@ -38,7 +38,7 @@ func TestChannelString(t *testing.T) {
 			"PitchBend channel: 4 pitch: 300 (8492)",
 		},
 		{
-			Channel(4).NewPolyAftertouch(86, 109),
+			Channel(4).NewPolyAfterTouch(86, 109),
 			"PolyAfterTouch channel: 4 key: 86 pressure: 109",
 		},
 		{
@@ -48,7 +48,7 @@ func TestChannelString(t *testing.T) {
 
 		// too high values
 		{
-			Channel(1).NewAftertouch(130),
+			Channel(1).NewAfterTouch(130),
 			"AfterTouch channel: 1 pressure: 127",
 		},
 		{
@@ -73,7 +73,7 @@ func TestChannelString(t *testing.T) {
 			"PitchBend channel: 4 pitch: 8191 (16383)",
 		},
 		{
-			Channel(4).NewPolyAftertouch(186, 190),
+			Channel(4).NewPolyAfterTouch(186, 190),
 			"PolyAfterTouch channel: 4 key: 127 pressure: 127",
 		},
 		{
@@ -102,7 +102,7 @@ func TestChannelRaw(t *testing.T) {
 		expected string
 	}{
 		{ // 0
-			Channel(1).NewAftertouch(120),
+			Channel(1).NewAfterTouch(120),
 			"D1 78",
 		},
 		{ // 1
@@ -126,7 +126,7 @@ func TestChannelRaw(t *testing.T) {
 			"E4 2C 42",
 		},
 		{
-			Channel(4).NewPolyAftertouch(86, 109),
+			Channel(4).NewPolyAfterTouch(86, 109),
 			"A4 56 6D",
 		},
 		{

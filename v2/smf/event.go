@@ -19,7 +19,7 @@ func (e *Event) Message() midi.Message {
 	if e.Data[0] == 0xFF {
 		var msg MetaMessage
 		msg.Data = e.Data
-		msg.MetaMsgType = GetMetaMsgType(e.Data[1])
+		msg.MetaType = GetMetaType(e.Data[1])
 		return msg
 	}
 

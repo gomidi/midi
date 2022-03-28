@@ -7,25 +7,25 @@ import (
 type MessageCategory uint8
 
 const (
-	// UnknownMsg represents every MIDI message that is invalid or unknown.
-	// There is no further data associated with messages of this type.
+	// UnknownMessages are invalid or unknown MIDI messages.
 	UnknownMessages MessageCategory = 0
 
+	// ChannelMessages are MIDI channel messages. They can be used in SMF and over the wire.
 	ChannelMessages MessageCategory = 1
 
-	// RealTimeMsg is a MIDI realtime message. It can only be used over the wire.
+	// RealTimeMessages are MIDI realtime messages. They can only be used over the wire.
 	RealTimeMessages MessageCategory = 2
 
-	// SysCommonMsg is a MIDI system common message. It can only be used over the wire.
+	// SysCommonMessages are MIDI system common messages. They can only be used over the wire.
 	SysCommonMessages MessageCategory = 3
 
-	// SysExMsg is a MIDI system exclusive message. It can be used in SMF and over the wire.
+	// SysExMessages are MIDI system exclusive messages. They can be used in SMF and over the wire.
 	SysExMessages MessageCategory = 4
 
-	// MetaMsg is a MIDI meta message (used in SMF = Simple MIDI Files)
+	// MetaMessages are MIDI meta messages (used in SMF = Simple MIDI Files)
 	MetaMessages MessageCategory = 5
 
-	// a way for the user to define his own message types (based on the application)
+	// UserDefinedMessages can be defined by the user (based on the application)
 	UserDefinedMessages MessageCategory = 6
 )
 
@@ -75,6 +75,22 @@ wir sind großzuegig: 256 typen
 121 eigene freie typen (136-255)
 */
 
+/*
+unknown message (0)
+realtime message kind (1)
+14 realtime messages (2-15)
+syscommon message kind (16)
+7 syscommon messages (17-23)
+channel message kind (24)
+16 channel messages (25-39)
+meta message kind (40)
+31 meta messages (41-71)
+sysex message kind (72)
+63 sysex typen (73-135)
+user defined kind (136)
+120 eigene freie typen (137-255)
+*/
+
 //type MsgType uint64
 //type MsgType uint8
 type MsgType uint32
@@ -112,70 +128,70 @@ func (m MessageType) IsOneOf(ts ...MessageType) bool {
 //const UnknownMsg MsgType = 0
 
 const (
-	// NoteOnMsg is a MIDI note on message (which is a ChannelMsg).
+	// NoteOn is a MIDI note on message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The velocity of a concrete Message of this type can be retrieved via the Velocity method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
 	NoteOn MsgType = 1 << iota
 
-	// NoteOffMsg is a MIDI note off message (which is a ChannelMsg).
+	// NoteOff is a MIDI note off message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The velocity of a concrete Message of this type can be retrieved via the Velocity method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
 	NoteOff
 
-	// ControlChangeMsg is a MIDI control change message (which is a ChannelMsg).
+	// ControlChange is a MIDI control change message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The controller of a concrete Message of this type can be retrieved via the Controller method of the Message.
 	// The change of a concrete Message of this type can be retrieved via the Change method of the Message.
 	ControlChange
 
-	// PitchBendMsg is a MIDI pitch bend message (which is a ChannelMsg).
+	// PitchBend is a MIDI pitch bend message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The absolute and releative pitch of a concrete Message of this type can be retrieved via the Pitch method of the Message.
 	PitchBend
 
-	// AfterTouchMsg is a MIDI after touch message (which is a ChannelMsg).
+	// AfterTouch is a MIDI after touch message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The pressure of a concrete Message of this type can be retrieved via the Pressure method of the Message.
 	AfterTouch
 
-	// PolyAfterTouchMsg is a polyphonic MIDI after touch message (which is a ChannelMsg).
+	// PolyAfterTouch is a polyphonic MIDI after touch message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
 	// The pressure of a concrete Message of this type can be retrieved via the Pressure method of the Message.
 	PolyAfterTouch
 
-	// ProgramChangeMsg is a MIDI program change message (which is a ChannelMsg).
+	// ProgramChange is a MIDI program change message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The program number of a concrete Message of this type can be retrieved via the Program method of the Message.
 	ProgramChange
 
-	// TimingClockMsg is a MIDI timing clock realtime message (which is a RealTimeMsg).
+	// TimingClock is a MIDI timing clock realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	TimingClock
 
-	// TickMsg is a MIDI tick realtime message (which is a RealTimeMsg).
+	// Tick is a MIDI tick realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	Tick
 
-	// StartMsg is a MIDI start realtime message (which is a RealTimeMsg).
+	// Start is a MIDI start realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	Start
 
-	// ContinueMsg is a MIDI continue realtime message (which is a RealTimeMsg).
+	// Continue is a MIDI continue realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	Continue
 
-	// StopMsg is a MIDI stop realtime message (which is a RealTimeMsg).
+	// Stop is a MIDI stop realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	Stop
 
-	// ActiveSenseMsg is a MIDI active sense realtime message (which is a RealTimeMsg).
+	// ActiveSense is a MIDI active sense realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	ActiveSense
 
-	// ResetMsg is a MIDI reset realtime message (which is a RealTimeMsg).
+	// Reset is a MIDI reset realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
 	Reset
 
@@ -187,33 +203,34 @@ const (
 		SysExContinueMsg
 	*/
 
-	// MTCMsg is a MIDI MTC system common message (which is a SysCommonMsg).
+	// MTC is a MIDI MTC system common message.
 	// TODO add method to Message to get the quarter frame and document it.
 	MTC
 
-	// SongSelectMsg is a MIDI song select system common message (which is a SysCommonMsg).
+	// SongSelect is a MIDI song select system common message.
 	// TODO add method to Message to get the song number and document it.
 	SongSelect
 
-	// SPPMsg is a MIDI song position pointer (SPP) system common message (which is a SysCommonMsg).
+	// SPP is a MIDI song position pointer (SPP) system common message.
 	// TODO add method to Message to get the song position pointer and document it.
 	SPP
 
-	// SPPMsg is a MIDI tune request system common message (which is a SysCommonMsg).
+	// Tune is a MIDI tune request system common message.
 	// There is no further data associated with messages of this type.
 	Tune
 
+	// SysEx is a MIDI system exclusive message
 	SysEx
 
-	// UndefinedMsg is an undefined MIDI message.
+	// Undefined is an undefined MIDI message.
 	Undefined
 
 	// MetaMsg is a meta message
 	//MetaMsgType
 )
 
-// NoteMsg is either a NoteOnMsg or a NoteOffMsg.
-const NoteMsg = NoteOn | NoteOff
+// Note is either a NoteOn or a NoteOff.
+const Note = NoteOn | NoteOff
 
 var msgTypeString = map[MsgType]string{
 	//	MetaMsgType:       "MetaMsgType",

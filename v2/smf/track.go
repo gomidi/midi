@@ -88,6 +88,10 @@ func ReadTracks(filepath string, tracks ...int) *tracksReader {
 		t.tracks[tr] = true
 	}
 	t.smf, t.err = ReadFile(filepath)
+	if _, ok := t.smf.TimeFormat.(MetricTicks); !ok {
+		t.err = fmt.Errorf("SMF time format is not metric ticks, but %s (currently not supported)", t.smf.TimeFormat.String())
+		return nil
+	}
 	return t
 }
 

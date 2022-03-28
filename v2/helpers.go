@@ -7,16 +7,6 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-/*
-// bin2decDenom converts the binary denominator to the decimal
-func bin2decDenom(bin uint8) uint8 {
-	if bin == 0 {
-		return 1
-	}
-	return 2 << (bin - 1)
-}
-*/
-
 // channelMessage1 returns the bytes for a single byte channel message
 func channelMessage1(c uint8, status, msg byte) Msg {
 	cm := &channelMessage{channel: c, status: status}
@@ -114,7 +104,7 @@ func getMsg1(typ uint8, channel uint8, arg uint8) (m Msg) {
 	return
 }
 
-// getMsg1 returns a 2-byte channel message (noteon/noteoff, poly aftertouch, control change or pitchbend)
+// getMsg2 returns a 2-byte channel message (noteon/noteoff, poly aftertouch, control change or pitchbend)
 func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Msg) {
 	//msg.MsgType = ChannelMsg.Set(channelType[channel])
 	msg.Data = channelMessage2(channel, typ, arg1, arg2).Data
