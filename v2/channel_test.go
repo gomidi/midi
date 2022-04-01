@@ -13,71 +13,71 @@ func TestChannelString(t *testing.T) {
 		expected string
 	}{
 		{
-			Channel(1).NewAfterTouch(120),
+			NewAfterTouch(1, 120),
 			"AfterTouch channel: 1 pressure: 120",
 		},
 		{
-			Channel(8).NewControlChange(7, 110),
+			NewControlChange(8, 7, 110),
 			//"ControlChange channel: 8 controller: 7 (\"Volume (MSB)\") value 110",
 			"ControlChange channel: 8 controller: 7 value: 110",
 		},
 		{
-			Channel(2).NewNoteOn(100, 80),
+			NewNoteOn(2, 100, 80),
 			"NoteOn channel: 2 key: 100 velocity: 80",
 		},
 		{
-			Channel(3).NewNoteOff(80),
+			NewNoteOff(3, 80),
 			"NoteOff channel: 3 key: 80",
 		},
 		{
-			Channel(4).NewNoteOffVelocity(80, 20),
+			NewNoteOffVelocity(4, 80, 20),
 			"NoteOff channel: 4 key: 80 velocity: 20",
 		},
 		{
-			Channel(4).NewPitchbend(300),
+			NewPitchbend(4, 300),
 			"PitchBend channel: 4 pitch: 300 (8492)",
 		},
 		{
-			Channel(4).NewPolyAfterTouch(86, 109),
+			NewPolyAfterTouch(4, 86, 109),
 			"PolyAfterTouch channel: 4 key: 86 pressure: 109",
 		},
 		{
-			Channel(4).NewProgramChange(83),
+			NewProgramChange(4, 83),
 			"ProgramChange channel: 4 program: 83",
 		},
 
 		// too high values
 		{
-			Channel(1).NewAfterTouch(130),
+			NewAfterTouch(1, 130),
 			"AfterTouch channel: 1 pressure: 127",
 		},
 		{
-			Channel(8).NewControlChange(137, 130),
+			NewControlChange(8, 137, 130),
 			//"ControlChange channel: 8 controller: 127 (\"Poly Operation\") value 127",
 			"ControlChange channel: 8 controller: 127 value: 127",
 		},
 		{
-			Channel(2).NewNoteOn(130, 130),
+			NewNoteOn(2, 130, 130),
 			"NoteOn channel: 2 key: 127 velocity: 127",
 		},
 		{
-			Channel(3).NewNoteOff(180),
+			NewNoteOff(3, 180),
 			"NoteOff channel: 3 key: 127",
 		},
 		{
-			Channel(4).NewNoteOffVelocity(180, 220),
+			NewNoteOffVelocity(4, 180, 220),
 			"NoteOff channel: 4 key: 127 velocity: 127",
 		},
 		{
-			Channel(4).NewPitchbend(12300),
+			NewPitchbend(4, 12300),
 			"PitchBend channel: 4 pitch: 8191 (16383)",
 		},
 		{
-			Channel(4).NewPolyAfterTouch(186, 190),
+			NewPolyAfterTouch(4, 186, 190),
 			"PolyAfterTouch channel: 4 key: 127 pressure: 127",
 		},
 		{
-			Channel(4).NewProgramChange(183),
+			NewProgramChange(4, 183),
 			"ProgramChange channel: 4 program: 127",
 		},
 	}
@@ -102,35 +102,35 @@ func TestChannelRaw(t *testing.T) {
 		expected string
 	}{
 		{ // 0
-			Channel(1).NewAfterTouch(120),
+			NewAfterTouch(1, 120),
 			"D1 78",
 		},
 		{ // 1
-			Channel(8).NewControlChange(7, 110),
+			NewControlChange(8, 7, 110),
 			"B8 07 6E",
 		},
 		{ // 2
-			Channel(2).NewNoteOn(100, 80),
+			NewNoteOn(2, 100, 80),
 			"92 64 50",
 		},
 		{ // 3
-			Channel(3).NewNoteOff(80),
+			NewNoteOff(3, 80),
 			"83 50 00",
 		},
 		{
-			Channel(4).NewNoteOffVelocity(80, 20),
+			NewNoteOffVelocity(4, 80, 20),
 			"84 50 14",
 		},
 		{
-			Channel(4).NewPitchbend(300),
+			NewPitchbend(4, 300),
 			"E4 2C 42",
 		},
 		{
-			Channel(4).NewPolyAfterTouch(86, 109),
+			NewPolyAfterTouch(4, 86, 109),
 			"A4 56 6D",
 		},
 		{
-			Channel(4).NewProgramChange(83),
+			NewProgramChange(4, 83),
 			"C4 53",
 		},
 	}

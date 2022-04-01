@@ -7,7 +7,7 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-// Msg represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
+// Message represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
 type Message struct {
 
 	// Type represents the message type of the MIDI message

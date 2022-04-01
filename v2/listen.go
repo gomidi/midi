@@ -8,23 +8,22 @@ import (
 )
 
 func _channelMessage(typ, channel, data1, data2 byte) Message {
-	ch := Channel(channel)
 	switch typ {
 	case byteChannelPressure:
-		return ch.NewAfterTouch(data1)
+		return NewAfterTouch(channel, data1)
 	case byteProgramChange:
-		return ch.NewProgramChange(data1)
+		return NewProgramChange(channel, data1)
 	case byteControlChange:
-		return ch.NewControlChange(data1, data2)
+		return NewControlChange(channel, data1, data2)
 	case byteNoteOn:
-		return ch.NewNoteOn(data1, data2)
+		return NewNoteOn(channel, data1, data2)
 	case byteNoteOff:
-		return ch.NewNoteOffVelocity(data1, data2)
+		return NewNoteOffVelocity(channel, data1, data2)
 	case bytePolyphonicKeyPressure:
-		return ch.NewPolyAfterTouch(data1, data2)
+		return NewPolyAfterTouch(channel, data1, data2)
 	case bytePitchWheel:
 		rel, _ := midilib.ParsePitchWheelVals(data1, data2)
-		return ch.NewPitchbend(rel)
+		return NewPitchbend(channel, rel)
 	default:
 		panic("unknown typ")
 	}
@@ -93,7 +92,7 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 				msg = NewSongSelect(data[1])
 			default:
 				// undefined syscommon message
-//				msg = NewUndefined()
+				//				msg = NewUndefined()
 			}
 
 		// [MIDI] permits 0xF7 octets that are not part of a (0xF0, 0xF7) pair

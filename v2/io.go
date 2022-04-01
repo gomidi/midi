@@ -12,6 +12,28 @@ func CloseDriver() {
 	drivers.Close()
 }
 
+func SenderToPort(no int) (Sender, error) {
+	out, err := drivers.OutByNumber(no)
+	if err != nil {
+		return nil, err
+	}
+	if !out.IsOpen() {
+		err = out.Open()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return SenderFunc(func(msg Message) error {
+		return out.Send(msg.Data)
+	}), nil
+}
+
+type SenderFunc func(msg Message) error
+
+func (s SenderFunc) Send(msg Message) error {
+	return s(msg)
+}
+
 // Sender sends MIDI messages.
 type Sender interface {
 	// Send sends the given MIDI message and returns any error.
@@ -19,10 +41,10 @@ type Sender interface {
 }
 
 // ReceiverFunc is a function that receives MIDI messages
-type ReceiverFunc func(msg Message, absdecimillisec int32)
+type ReceiverFunc func(msg Message, absmillisec int32)
 
-func (r ReceiverFunc) Receive(msg Message, absdecimillisec int32) {
-	r(msg, absdecimillisec)
+func (r ReceiverFunc) Receive(msg Message, absmillisec int32) {
+	r(msg, absmillisec)
 }
 
 // Receiver receives MIDI messages.

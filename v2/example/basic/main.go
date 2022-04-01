@@ -54,8 +54,10 @@ func main() {
 	s, err := midi.SenderToPort(0)
 	must(err)
 
+	var o midi.ListenOptions
+
 	// here we take first in, for real drivers midi.InByName should be more helpful
-	err = midi.ListenToPort(0, midi.ReceiverFunc(rec))
+	stop, err := midi.ListenToPort(0, midi.ReceiverFunc(rec), o)
 
 	//listener, err := midi.NewListener(in, midi.ReceiverFunc(rec))
 
@@ -64,23 +66,23 @@ func main() {
 	//listener.Only(midi.ChannelMsg).StartListening()
 
 	{ // write somehow MIDI
-		ch := midi.Channel(0)
-		err = s.Send(ch.NoteOn(60, 100))
+		err = s.Send(midi.NewNoteOn(0, 60, 100))
 		must(err)
 
 		time.Sleep(time.Nanosecond)
-		s.Send(ch.NoteOff(60))
-		s.Send(ch.Pitchbend(-12))
+		s.Send(midi.NewNoteOff(0, 60))
+		s.Send(midi.NewPitchbend(0, -12))
 		time.Sleep(time.Nanosecond)
 
-		ch = midi.Channel(1)
-		s.Send(ch.ProgramChange(12))
+		s.Send(midi.NewProgramChange(1, 12))
 
-		s.Send(ch.NoteOn(70, 100))
+		s.Send(midi.NewNoteOn(1, 70, 100))
 		time.Sleep(time.Nanosecond)
-		s.Send(ch.NoteOff(70))
+		s.Send(midi.NewNoteOff(1, 70))
 		time.Sleep(time.Second * 1)
 	}
+
+	stop()
 }
 
 func printInPorts() {

@@ -24,39 +24,40 @@ func run() error {
 	bpm := float64(120)
 
 	tr := smf.NewTrack()
-	tr.Add(0, midi.MetaTempo(bpm))
+	tr.Add(0, smf.NewMetaTempo(bpm))
 
-	in, err := midi.InByName("VMPK")
+	defer midi.CloseDriver()
+	in := midi.FindInPort("VMPK")
 
-	if err != nil {
-		return err
+	if in < 0 {
+		return fmt.Errorf("can't find MIDI in port %q", "VMPK")
 	}
 
-	var absMicroSec int64
+	var absmillisec int32
+
+	var o midi.ListenOptions
 
 	// single track recording, for multitrack we would have to collect the messages first (separated by port / midi channel)
 	// and the write them after the recording to the different tracks
-	listener, err := midi.NewListener(in, midi.ReceiverFunc(func(msg midi.Message, absmSec int64) {
-		deltamicroSec := absmSec - absMicroSec
-		absMicroSec = absmSec
-		fmt.Printf("[%v] %s\n", deltamicroSec, msg.String())
-		delta := ticks.Ticks(bpm, time.Duration(deltamicroSec)*time.Microsecond)
+	stop, err := midi.ListenToPort(in, midi.ReceiverFunc(func(msg midi.Message, absms int32) {
+		deltams := absms - absmillisec
+		absmillisec = absms
+		fmt.Printf("[%v] %s\n", deltams, msg.String())
+		delta := ticks.Ticks(bpm, time.Duration(deltams)*time.Millisecond)
 		tr.Add(delta, msg)
-	}))
+	}), o)
 
 	if err != nil {
 		return err
 	}
-	listener.Only(midi.ChannelMsg).StartListening()
 
 	time.Sleep(5 * time.Second)
 
-	listener.StopListening()
-	listener.Close()
+	stop()
 
 	file.AddAndClose(0, tr)
 
-	err2 := file.WriteFile("recorded.mid")
+	err2 := file.WriteFile("recordedx.mid")
 	if err != nil {
 		return err
 	}

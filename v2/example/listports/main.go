@@ -30,15 +30,10 @@ func run() error {
 }
 
 func printInPorts() error {
-	ins, err := midi.Ins()
-	if err != nil {
-		return err
-	}
-
 	fmt.Println("MIDI input ports")
 
-	for _, in := range ins {
-		fmt.Printf("port no. %v %q\n", in.Number(), in.String())
+	for n, in := range midi.InPorts() {
+		fmt.Printf("port no. %v %q\n", n, in)
 	}
 
 	fmt.Println("\n\n")
@@ -47,15 +42,10 @@ func printInPorts() error {
 }
 
 func printOutPorts() error {
-	outs, err := midi.Outs()
-	if err != nil {
-		return err
-	}
-
 	fmt.Println("MIDI output ports")
 
-	for _, out := range outs {
-		fmt.Printf("port no. %v %q\n", out.Number(), out.String())
+	for n, out := range midi.OutPorts() {
+		fmt.Printf("port no. %v %q\n", n, out)
 	}
 
 	fmt.Println("\n\n")
