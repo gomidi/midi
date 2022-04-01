@@ -3,7 +3,6 @@ package smf
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io"
 	"math"
 	"math/big"
@@ -13,13 +12,21 @@ import (
 )
 
 // MetaMessage represents a MIDI meta message. It can be created from the MIDI bytes of a message, by calling NewMetaMessage.
-type MetaMessage midi.Message
+//type MetaMessage midi.Message
 
-func newMetaMessage(typ byte, data []byte) midi.Message {
+/*
+func newMetaMessage(typ byte, data []byte) []byte {
 	return _MetaMessage(typ, data)
 }
+*/
 
-func _MetaMessage(typ byte, data []byte) midi.Message {
+func IsMeta(msg []byte) bool {
+	return msg[0] == 0xFF
+}
+
+// TODO or return a MetaMessage here??
+func _MetaMessage(typ byte, data []byte) []byte {
+	//func _MetaMessage(typ byte, data []byte) MetaMessage {
 	//fmt.Printf("NewMetaMessage %X % X\n", typ, data)
 	b := []byte{byte(0xFF), typ}
 	b = append(b, utils.VlqEncode(uint32(len(data)))...)
@@ -27,28 +34,32 @@ func _MetaMessage(typ byte, data []byte) midi.Message {
 		b = append(b, data...)
 	}
 
-	var m midi.Message
-	m.Type = GetMetaType(typ)
-	m.Data = b
-	return m
+	/*
+		var m midi.Message
+		m.Type = GetMetaType(typ)
+		m.Data = b
+		return m
+	*/
+	//return midi.Message(b)
+	return b
 }
 
 // Meter returns the meter of a MetaTimeSigMsg.
 // For other messages, it returns 0,0.
-func (m MetaMessage) Meter(num, denom *uint8) (is bool) {
-	return m.TimeSig(num, denom, nil, nil)
+func (m Message) ScanMeter(num, denom *uint8) (is bool) {
+	return m.ScanTimeSig(num, denom, nil, nil)
 }
 
 // metaData strips away the meta byte and the metatype byte and the varlength byte
-func (m MetaMessage) metaDataWithoutVarlength() []byte {
+func (m Message) metaDataWithoutVarlength() []byte {
 	//fmt.Printf("original data: % X\n", m.Data)
-	return m.Data[3:]
+	return m[3:]
 }
 
 // TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
 // MetaTimeSigMsg. For other messages, it returns 0,0,0,0.
-func (m MetaMessage) TimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
-	if !m.Type.Is(MetaTimeSig) {
+func (m Message) ScanTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
+	if !m.Type().Is(MetaTimeSig) {
 		//fmt.Println("not timesig message")
 		return false
 	}
@@ -75,34 +86,6 @@ func (m MetaMessage) TimeSig(numerator, denominator, clocksPerClick, demiSemiQua
 	return true
 }
 
-// String represents the Message as a string that contains the MsgType and its properties.
-func (m MetaMessage) String() string {
-	var bf bytes.Buffer
-	fmt.Fprintf(&bf, m.Type.String())
-
-	var val1, val2 uint8
-	//	var pitchabs uint16
-	//	var pitchrel int16
-	var text string
-	var bpm float64
-	//	var spp uint16
-
-	switch {
-	case m.Tempo(&bpm):
-		fmt.Fprintf(&bf, " bpm: %0.2f", bpm)
-	case m.Meter(&val1, &val2):
-		fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
-	default:
-		switch m.Type {
-		case MetaLyric, MetaMarker, MetaCopyright, MetaText, MetaCuepoint, MetaDevice, MetaInstrument, MetaProgramName, MetaTrackName:
-			m.text(&text)
-			fmt.Fprintf(&bf, " text: %q", text)
-		}
-	}
-
-	return bf.String()
-}
-
 // bin2decDenom converts the binary denominator to the decimal
 func bin2decDenom(bin uint8) uint8 {
 	if bin == 0 {
@@ -113,8 +96,8 @@ func bin2decDenom(bin uint8) uint8 {
 
 // Tempo returns true if (and only if) the message is a MetaTempoMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Tempo(bpm *float64) (is bool) {
-	if !m.Type.Is(MetaTempo) {
+func (m Message) ScanTempo(bpm *float64) (is bool) {
+	if !m.Type().Is(MetaTempo) {
 		return false
 	}
 
@@ -132,17 +115,23 @@ func (m MetaMessage) Tempo(bpm *float64) (is bool) {
 
 // Lyric returns true if (and only if) the message is a MetaLyricMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Lyric(text *string) (is bool) {
-	if !m.Type.Is(MetaLyric) {
+func (m Message) ScanLyric(text *string) (is bool) {
+	if !m.Type().Is(MetaLyric) {
 		return false
 	}
 	m.text(text)
 	return true
 }
 
+/*
+func (m Message) Is(t midi.Type) bool {
+	return m.Type().Is(t)
+}
+*/
+
 // Copyright returns true if (and only if) the message is a MetaCopyrightMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Copyright(text *string) (is bool) {
+func (m Message) ScanCopyright(text *string) (is bool) {
 	if !m.Is(MetaCopyright) {
 		return false
 	}
@@ -152,7 +141,7 @@ func (m MetaMessage) Copyright(text *string) (is bool) {
 
 // Cuepoint returns true if (and only if) the message is a MetaCuepointMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Cuepoint(text *string) (is bool) {
+func (m Message) ScanCuepoint(text *string) (is bool) {
 	if !m.Is(MetaCuepoint) {
 		return false
 	}
@@ -162,7 +151,7 @@ func (m MetaMessage) Cuepoint(text *string) (is bool) {
 
 // Device returns true if (and only if) the message is a MetaDeviceMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Device(text *string) (is bool) {
+func (m Message) ScanDevice(text *string) (is bool) {
 	if !m.Is(MetaDevice) {
 		return false
 	}
@@ -172,7 +161,7 @@ func (m MetaMessage) Device(text *string) (is bool) {
 
 // Instrument returns true if (and only if) the message is a MetaInstrumentMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Instrument(text *string) (is bool) {
+func (m Message) ScanInstrument(text *string) (is bool) {
 	if !m.Is(MetaInstrument) {
 		return false
 	}
@@ -182,7 +171,7 @@ func (m MetaMessage) Instrument(text *string) (is bool) {
 
 // Marker returns true if (and only if) the message is a MetaMarkerMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Marker(text *string) (is bool) {
+func (m Message) ScanMarker(text *string) (is bool) {
 	if !m.Is(MetaMarker) {
 		return false
 	}
@@ -192,7 +181,7 @@ func (m MetaMessage) Marker(text *string) (is bool) {
 
 // ProgramName returns true if (and only if) the message is a MetaProgramNameMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) ProgramName(text *string) (is bool) {
+func (m Message) ScanProgramName(text *string) (is bool) {
 	if !m.Is(MetaProgramName) {
 		return false
 	}
@@ -202,8 +191,8 @@ func (m MetaMessage) ProgramName(text *string) (is bool) {
 
 // Text returns true if (and only if) the message is a MetaTextMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) Text(text *string) (is bool) {
-	switch m.Type {
+func (m Message) ScanText(text *string) (is bool) {
+	switch m.Type() {
 	case MetaLyric, MetaMarker, MetaCopyright, MetaText, MetaCuepoint, MetaDevice, MetaInstrument, MetaProgramName, MetaTrackName:
 		m.text(text)
 		return true
@@ -214,7 +203,7 @@ func (m MetaMessage) Text(text *string) (is bool) {
 
 // TrackName returns true if (and only if) the message is a MetaTrackNameMsg.
 // Then it also extracts the data to the given arguments
-func (m MetaMessage) TrackName(text *string) (is bool) {
+func (m Message) ScanTrackName(text *string) (is bool) {
 	if !m.Is(MetaTrackName) {
 		return false
 	}
@@ -222,8 +211,8 @@ func (m MetaMessage) TrackName(text *string) (is bool) {
 	return true
 }
 
-func (m MetaMessage) text(text *string) {
-	*text, _ = utils.ReadText(bytes.NewReader(m.Data[2:]))
+func (m Message) text(text *string) {
+	*text, _ = utils.ReadText(bytes.NewReader(m[2:]))
 	return
 }
 
@@ -297,27 +286,27 @@ func GetMetaType(b byte) midi.Type {
 const bpmFac = 60000000
 
 // NewMetaLyric returns the bytes of a lyric meta message
-func NewMetaLyric(text string) midi.Message {
+func NewMetaLyric(text string) []byte {
 	return _MetaMessage(byteLyric, []byte(text))
 }
 
 // NewMetaCopyright returns the bytes of a copyright meta message
-func NewMetaCopyright(text string) midi.Message {
+func NewMetaCopyright(text string) []byte {
 	return _MetaMessage(byteCopyright, []byte(text))
 }
 
 // NewMetaChannel returns the bytes of a channel meta message
-func NewMetaChannel(ch uint8) midi.Message {
+func NewMetaChannel(ch uint8) Message {
 	return _MetaMessage(byteMIDIChannel, []byte{byte(ch)})
 }
 
 // NewMetaCuepoint returns the bytes of a cuepoint meta message
-func NewMetaCuepoint(text string) midi.Message {
+func NewMetaCuepoint(text string) Message {
 	return _MetaMessage(byteCuepoint, []byte(text))
 }
 
 // NewMetaDevice returns the bytes of a device meta message
-func NewMetaDevice(text string) midi.Message {
+func NewMetaDevice(text string) Message {
 	return _MetaMessage(byteDevicePort, []byte(text))
 }
 
@@ -325,22 +314,22 @@ func NewMetaDevice(text string) midi.Message {
 var EOT = _MetaMessage(byteEndOfTrack, nil)
 
 // NewMetaInstrument returns the bytes of a instrument meta message
-func NewMetaInstrument(text string) midi.Message {
+func NewMetaInstrument(text string) Message {
 	return _MetaMessage(byteInstrument, []byte(text))
 }
 
 // NewMetaMarker returns the bytes of a marker meta message
-func NewMetaMarker(text string) midi.Message {
+func NewMetaMarker(text string) Message {
 	return _MetaMessage(byteMarker, []byte(text))
 }
 
 // NewMetaPort returns the bytes of a port meta message
-func NewMetaPort(p uint8) midi.Message {
+func NewMetaPort(p uint8) Message {
 	return _MetaMessage(byteMIDIPort, []byte{byte(p)})
 }
 
 // NewMetaProgram returns the bytes of a program meta message
-func NewMetaProgram(text string) midi.Message {
+func NewMetaProgram(text string) Message {
 	return _MetaMessage(byteProgramName, []byte(text))
 }
 

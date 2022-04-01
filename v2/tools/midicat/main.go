@@ -198,6 +198,8 @@ func runIn(drv drivers.Driver) (err error) {
 		}
 	}()
 
+	//var stop func()
+
 	go func() {
 		err = midi.ListenToPort(in.Number(), recv)
 		//err = in.SendTo(recv)

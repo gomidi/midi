@@ -37,12 +37,14 @@ func testRead(t *testing.T, input []byte) string {
 			//out.WriteString(fmt.Sprintf("Track %v@%v %s\n", i, ev.Delta, ev.MessageType()))
 			//m := midi2.NewMessage(ev.Data)
 			//m.Type = midi2.GetMessageType(ev.Data)
-			var s string
-			if ev.Message.Is(MetaType) {
-				s = MetaMessage(ev.Message).String()
-			} else {
-				s = ev.Message.String()
-			}
+			var s string = Message(ev.Message).String()
+			/*
+				if IsMeta(ev.Message) {
+					s = MetaMessage(ev.Message).String()
+				} else {
+					s = ev.Message.String()
+				}
+			*/
 			out.WriteString(fmt.Sprintf("Track %v@%v %v\n", i, ev.Delta, s))
 		}
 	}

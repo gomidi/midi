@@ -24,7 +24,7 @@ func SenderToPort(no int) (Sender, error) {
 		}
 	}
 	return SenderFunc(func(msg Message) error {
-		return out.Send(msg.Data)
+		return out.Send(msg)
 	}), nil
 }
 

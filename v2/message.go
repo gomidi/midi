@@ -7,6 +7,7 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
+/*
 // Message represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
 type Message struct {
 
@@ -16,7 +17,11 @@ type Message struct {
 	// Data contains the bytes of the MiDI message
 	Data []byte
 }
+*/
 
+type Message []byte
+
+/*
 // NewMessage returns a new Message from the bytes of the message, by finding the correct type.
 // If the type could not be found, the Type of the Message is UnknownType.
 func NewMessage(bt []byte) (m Message) {
@@ -24,28 +29,45 @@ func NewMessage(bt []byte) (m Message) {
 	m.Data = bt
 	return
 }
+*/
+
+func (m Message) Bytes() []byte {
+	return []byte(m)
+}
+
+func (m Message) IsPlayable() bool {
+	return m.Type().IsPlayable()
+}
+
+func (m Message) Type() Type {
+	return GetType(m)
+}
+
+func (m Message) Is(t Type) bool {
+	return m.Type().Is(t)
+}
 
 // NoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteOn(channel, key, velocity *uint8) (is bool) {
+func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOn) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*key, *velocity = utils.ParseTwoUint7(m.Data[1], m.Data[2])
+	_, *channel = utils.ParseStatus(m[0])
+	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
 	return true
 }
 
 // NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteStart(channel, key, velocity *uint8) (is bool) {
+func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOn) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*key, *velocity = utils.ParseTwoUint7(m.Data[1], m.Data[2])
+	_, *channel = utils.ParseStatus(m[0])
+	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
 	if *velocity == 0 {
 		return false
 	}
@@ -54,86 +76,86 @@ func (m Message) NoteStart(channel, key, velocity *uint8) (is bool) {
 
 // NoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteOff(channel, key, velocity *uint8) (is bool) {
+func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOff) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*key, *velocity = utils.ParseTwoUint7(m.Data[1], m.Data[2])
+	_, *channel = utils.ParseStatus(m[0])
+	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
 	return true
 }
 
 // Channel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) Channel(channel *uint8) (is bool) {
+func (m Message) ScanChannel(channel *uint8) (is bool) {
 	if !m.Is(ChannelType) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
+	_, *channel = utils.ParseStatus(m[0])
 	return true
 }
 
 // NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) NoteEnd(channel, key, velocity *uint8) (is bool) {
+func (m Message) ScanNoteEnd(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOn) && !m.Is(NoteOff) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*key, *velocity = utils.ParseTwoUint7(m.Data[1], m.Data[2])
+	_, *channel = utils.ParseStatus(m[0])
+	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
 	return m.Is(NoteOff) || *velocity == 0
 }
 
 // PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) PolyAfterTouch(channel, key, pressure *uint8) (is bool) {
+func (m Message) ScanPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	if !m.Is(PolyAfterTouch) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*key, *pressure = utils.ParseTwoUint7(m.Data[1], m.Data[2])
+	_, *channel = utils.ParseStatus(m[0])
+	*key, *pressure = utils.ParseTwoUint7(m[1], m[2])
 	return true
 }
 
 // AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) AfterTouch(channel, pressure *uint8) (is bool) {
+func (m Message) ScanAfterTouch(channel, pressure *uint8) (is bool) {
 	if !m.Is(AfterTouch) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*pressure = utils.ParseUint7(m.Data[1])
+	_, *channel = utils.ParseStatus(m[0])
+	*pressure = utils.ParseUint7(m[1])
 	return true
 }
 
 // ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ProgramChange(channel, program *uint8) (is bool) {
+func (m Message) ScanProgramChange(channel, program *uint8) (is bool) {
 	if !m.Is(ProgramChange) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*program = utils.ParseUint7(m.Data[1])
+	_, *channel = utils.ParseStatus(m[0])
+	*program = utils.ParseUint7(m[1])
 	return true
 }
 
 // PitchBend returns true if (and only if) the message is a PitchBendMsg.
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
-func (m Message) PitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
+func (m Message) ScanPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
 	if !m.Is(PitchBend) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
+	_, *channel = utils.ParseStatus(m[0])
 
-	rel, abs := utils.ParsePitchWheelVals(m.Data[1], m.Data[2])
+	rel, abs := utils.ParsePitchWheelVals(m[1], m[2])
 	if relative != nil {
 		*relative = rel
 	}
@@ -145,13 +167,13 @@ func (m Message) PitchBend(channel *uint8, relative *int16, absolute *uint16) (i
 
 // ControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ControlChange(channel, controller, value *uint8) (is bool) {
+func (m Message) ScanControlChange(channel, controller, value *uint8) (is bool) {
 	if !m.Is(ControlChange) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m.Data[0])
-	*controller, *value = utils.ParseTwoUint7(m.Data[1], m.Data[2])
+	_, *channel = utils.ParseStatus(m[0])
+	*controller, *value = utils.ParseTwoUint7(m[1], m[2])
 	return true
 }
 
@@ -179,39 +201,39 @@ cdefg = Hours (0-23)
 */
 
 // MTC represents a MIDI timing code message (quarter frame)
-func (m Message) MTC(quarterframe *uint8) (is bool) {
+func (m Message) ScanMTC(quarterframe *uint8) (is bool) {
 	if !m.Is(MTC) {
 		return false
 	}
 
-	*quarterframe = utils.ParseUint7(m.Data[1])
+	*quarterframe = utils.ParseUint7(m[1])
 	return true
 }
 
 // Song returns the song number of a MIDI song select system message
-func (m Message) SongSelect(song *uint8) (is bool) {
+func (m Message) ScanSongSelect(song *uint8) (is bool) {
 	if !m.Is(SongSelect) {
 		return false
 	}
 
-	*song = utils.ParseUint7(m.Data[1])
+	*song = utils.ParseUint7(m[1])
 	return true
 }
 
 // SPP returns the song position pointer of a MIDI song position pointer system message
-func (m Message) SPP(spp *uint16) (is bool) {
+func (m Message) ScanSPP(spp *uint16) (is bool) {
 	if !m.Is(SPP) {
 		return false
 	}
 
-	_, *spp = utils.ParsePitchWheelVals(m.Data[2], m.Data[1])
+	_, *spp = utils.ParsePitchWheelVals(m[2], m[1])
 	return true
 }
 
 // String represents the Message as a string that contains the MsgType and its properties.
 func (m Message) String() string {
 	var bf bytes.Buffer
-	fmt.Fprintf(&bf, m.Type.String())
+	fmt.Fprintf(&bf, m.Type().String())
 
 	var channel, val1, val2 uint8
 	var pitchabs uint16
@@ -221,23 +243,23 @@ func (m Message) String() string {
 	var spp uint16
 
 	switch {
-	case m.NoteOn(&channel, &val1, &val2):
+	case m.ScanNoteOn(&channel, &val1, &val2):
 		fmt.Fprintf(&bf, " channel: %v key: %v velocity: %v", channel, val1, val2)
-	case m.NoteOff(&channel, &val1, &val2):
+	case m.ScanNoteOff(&channel, &val1, &val2):
 		if val2 > 0 {
 			fmt.Fprintf(&bf, " channel: %v key: %v velocity: %v", channel, val1, val2)
 		} else {
 			fmt.Fprintf(&bf, " channel: %v key: %v", channel, val1)
 		}
-	case m.PolyAfterTouch(&channel, &val1, &val2):
+	case m.ScanPolyAfterTouch(&channel, &val1, &val2):
 		fmt.Fprintf(&bf, " channel: %v key: %v pressure: %v", channel, val1, val2)
-	case m.AfterTouch(&channel, &val1):
+	case m.ScanAfterTouch(&channel, &val1):
 		fmt.Fprintf(&bf, " channel: %v pressure: %v", channel, val1)
-	case m.ControlChange(&channel, &val1, &val2):
+	case m.ScanControlChange(&channel, &val1, &val2):
 		fmt.Fprintf(&bf, " channel: %v controller: %v value: %v", channel, val1, val2)
-	case m.ProgramChange(&channel, &val1):
+	case m.ScanProgramChange(&channel, &val1):
 		fmt.Fprintf(&bf, " channel: %v program: %v", channel, val1)
-	case m.PitchBend(&channel, &pitchrel, &pitchabs):
+	case m.ScanPitchBend(&channel, &pitchrel, &pitchabs):
 		fmt.Fprintf(&bf, " channel: %v pitch: %v (%v)", channel, pitchrel, pitchabs)
 		/*
 			case m.Tempo(&bpm):
@@ -248,11 +270,11 @@ func (m Message) String() string {
 				m.text(&text)
 				fmt.Fprintf(&bf, " text: %q", text)
 		*/
-	case m.MTC(&val1):
+	case m.ScanMTC(&val1):
 		fmt.Fprintf(&bf, " mtc: %v", val1)
-	case m.SPP(&spp):
+	case m.ScanSPP(&spp):
 		fmt.Fprintf(&bf, " spp: %v", spp)
-	case m.SongSelect(&val1):
+	case m.ScanSongSelect(&val1):
 		fmt.Fprintf(&bf, " song: %v", val1)
 	default:
 	}

@@ -3,8 +3,8 @@ package midi
 func NewSysEx(bt []byte) (m Message) {
 	var b = []byte{0xF0}
 	b = append(b, []byte(bt)...)
-	m.Data = append(b, 0xF7)
-	m.Type = SysExType
+	m = append(b, 0xF7)
+	//m.Type = SysExType
 	return m
 }
 

@@ -40,9 +40,9 @@ func run() error {
 		//Only(midi.MetaMsg).
 		Do(
 			func(te smf.TrackEvent) {
-				if te.Is(smf.MetaType) {
+				if smf.Message(te.Message).Is(smf.MetaType) {
 					//mm := te.MetaMessage()
-					fmt.Printf("[%v] %s\n", te.TrackNo, te.MetaMessage())
+					fmt.Printf("[%v] %s\n", te.TrackNo, smf.Message(te.Message).String())
 					/*
 						var t string
 						if mm.Text(&t) {

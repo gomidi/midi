@@ -1,12 +1,8 @@
 package smf
 
-import (
-	"gitlab.com/gomidi/midi/v2"
-)
-
 type Event struct {
-	Delta uint32
-	midi.Message
+	Delta   uint32
+	Message []byte
 	//Data  []byte
 }
 

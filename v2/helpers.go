@@ -1,7 +1,6 @@
 package midi
 
 import (
-	"fmt"
 	"io"
 
 	"gitlab.com/gomidi/midi/v2/internal/utils"
@@ -92,38 +91,41 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
 	//m.MsgType = GetChannelMsgType(typ)
 	//m.MsgType = ChannelMsg.Set(channelType[channel])
-	m.Data = channelMessage1(channel, typ, arg)
-
-	switch typ {
-	case byteProgramChange:
-		m.Type = /* m.MsgType.Set(ProgramChangeMsg) */ ProgramChange
-	case byteChannelPressure:
-		m.Type = /* m.MsgType.Set(AfterTouchMsg) */ AfterTouch
-	default:
-		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
-	}
-
+	//m.Data = channelMessage1(channel, typ, arg)
+	m = channelMessage1(channel, typ, arg)
+	/*
+		switch typ {
+		case byteProgramChange:
+			m.Type = ProgramChange
+		case byteChannelPressure:
+			m.Type =  AfterTouch
+		default:
+			panic(fmt.Sprintf("must not happen (typ % X is not an channel message with one argument)", typ))
+		}
+	*/
 	return
 }
 
 // getMsg2 returns a 2-byte channel message (noteon/noteoff, poly aftertouch, control change or pitchbend)
 func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Message) {
 	//msg.MsgType = ChannelMsg.Set(channelType[channel])
-	msg.Data = channelMessage2(channel, typ, arg1, arg2)
+	msg = channelMessage2(channel, typ, arg1, arg2)
 
-	switch typ {
-	case byteNoteOff:
-		msg.Type = NoteOff
-	case byteNoteOn:
-		msg.Type = NoteOn
-	case bytePolyphonicKeyPressure:
-		msg.Type = PolyAfterTouch
-	case byteControlChange:
-		msg.Type = ControlChange
-	case bytePitchWheel:
-		msg.Type = PitchBend
-	default:
-		panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
-	}
+	/*
+		switch typ {
+		case byteNoteOff:
+			msg.Type = NoteOff
+		case byteNoteOn:
+			msg.Type = NoteOn
+		case bytePolyphonicKeyPressure:
+			msg.Type = PolyAfterTouch
+		case byteControlChange:
+			msg.Type = ControlChange
+		case bytePitchWheel:
+			msg.Type = PitchBend
+		default:
+			panic(fmt.Sprintf("must not happen (typ % X is not an channel message with two arguments)", typ))
+		}
+	*/
 	return
 }

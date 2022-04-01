@@ -49,7 +49,7 @@ func TestRealTime(t *testing.T) {
 	}
 
 	for n, test := range tests {
-		m := midi.NewMessage(test.msg)
+		m := midi.Message(test.msg)
 
 		if got, want := m.String(), test.expected; got != want {
 			t.Errorf("[%v] (% X).String() = %#v; want %#v", n, test.msg, got, want)

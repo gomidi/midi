@@ -166,7 +166,7 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 		for _, ev := range t.Events {
 			//fmt.Printf("written ev: %v\n ", ev)
 			wr.SetDelta(ev.Delta)
-			err = wr.Write(ev.Data)
+			err = wr.Write(ev.Message)
 			if err != nil {
 				break
 			}
