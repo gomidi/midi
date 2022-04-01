@@ -7,7 +7,7 @@ import (
 	midilib "gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-func _channelMessage(typ, channel, data1, data2 byte) Message {
+func _channelMessage(typ, channel, data1, data2 byte) []byte {
 	switch typ {
 	case byteChannelPressure:
 		return NewAfterTouch(channel, data1)
@@ -72,11 +72,13 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 
 	var onMsg = func(data []byte, millisec int32) {
 		status := data[0]
-		var msg Message
+		var msg []byte
+		//var msg Message
 		switch {
 		// realtime message
 		case status >= 0xF8:
-			msg = NewMessage([]byte{status})
+			//msg = NewMessage([]byte{status})
+			msg = []byte{status}
 		// here we clear for System Common Category messages
 		case status > 0xF0 && status < 0xF7:
 			isStatusSet = false

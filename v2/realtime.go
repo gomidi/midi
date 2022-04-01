@@ -23,28 +23,33 @@ var rtMessages = map[byte]Type{
 }
 
 // NewTimingClock returns a MIDI timing clock message
-func NewTimingClock() Message {
-	return NewMessage([]byte{byteTimingClock})
+func NewTimingClock() []byte {
+	//return NewMessage([]byte{byteTimingClock})
+	return []byte{byteTimingClock}
 }
 
 // NewTick returns a midi tick message
-func NewTick() Message {
-	return NewMessage([]byte{byteTick})
+func NewTick() []byte {
+	//return NewMessage([]byte{byteTick})
+	return []byte{byteTick}
 }
 
 // NewStart returns a MIDI start message
-func NewStart() Message {
-	return NewMessage([]byte{byteStart})
+func NewStart() []byte {
+	//return NewMessage([]byte{byteStart})
+	return []byte{byteStart}
 }
 
 // NewContinue returns a MIDI continue message
-func NewContinue() Message {
-	return NewMessage([]byte{byteContinue})
+func NewContinue() []byte {
+	//return NewMessage([]byte{byteContinue})
+	return []byte{byteContinue}
 }
 
 // NewStop returns a MIDI stop message
-func NewStop() Message {
-	return NewMessage([]byte{byteStop})
+func NewStop() []byte {
+	//return NewMessage([]byte{byteStop})
+	return []byte{byteStop}
 }
 
 /*
@@ -55,11 +60,13 @@ func NewUndefined() Message {
 */
 
 // NewActivesense returns a MIDI active sensing message
-func NewActivesense() Message {
-	return NewMessage([]byte{byteActivesense})
+func NewActivesense() []byte {
+	//return NewMessage([]byte{byteActivesense})
+	return []byte{byteActivesense}
 }
 
 // NewReset returns a MIDI reset message
-func NewReset() Message {
-	return NewMessage([]byte{byteReset})
+func NewReset() []byte {
+	//return NewMessage([]byte{byteReset})
+	return []byte{byteReset}
 }

@@ -9,7 +9,7 @@ import (
 func TestChannelString(t *testing.T) {
 
 	tests := []struct {
-		input    Message
+		input    []byte
 		expected string
 	}{
 		{
@@ -86,7 +86,7 @@ func TestChannelString(t *testing.T) {
 
 		var bf bytes.Buffer
 
-		bf.WriteString(test.input.String())
+		bf.WriteString(NewMessage(test.input).String())
 
 		if got, want := bf.String(), test.expected; got != want {
 			t.Errorf("got: %#v; wanted %#v", got, want)
@@ -98,7 +98,7 @@ func TestChannelString(t *testing.T) {
 func TestChannelRaw(t *testing.T) {
 
 	tests := []struct {
-		input    Message
+		input    []byte
 		expected string
 	}{
 		{ // 0
@@ -139,7 +139,7 @@ func TestChannelRaw(t *testing.T) {
 
 		var bf bytes.Buffer
 
-		bf.Write(test.input.Data)
+		bf.Write(test.input)
 
 		if got, want := fmt.Sprintf("% X", bf.Bytes()), test.expected; got != want {
 			t.Errorf("[%v] got: %#v; wanted %#v", i, got, want)

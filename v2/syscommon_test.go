@@ -9,7 +9,7 @@ import (
 func TestSysCommon(t *testing.T) {
 
 	tests := []struct {
-		msg      midi.Message
+		msg      []byte
 		expected string
 	}{
 		{
@@ -35,7 +35,7 @@ func TestSysCommon(t *testing.T) {
 	}
 
 	for n, test := range tests {
-		m := test.msg
+		m := midi.NewMessage(test.msg)
 
 		if got, want := m.String(), test.expected; got != want {
 			t.Errorf("[%v] (% X).String() = %#v; want %#v", n, test.msg, got, want)

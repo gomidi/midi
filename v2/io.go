@@ -40,17 +40,17 @@ type Sender interface {
 	Send(msg Message) error
 }
 
-// ReceiverFunc is a function that receives MIDI messages
-type ReceiverFunc func(msg Message, absmillisec int32)
+// ReceiverFunc is a function that receives a single MIDI message
+type ReceiverFunc func(msg []byte, absmillisec int32)
 
-func (r ReceiverFunc) Receive(msg Message, absmillisec int32) {
+func (r ReceiverFunc) Receive(msg []byte, absmillisec int32) {
 	r(msg, absmillisec)
 }
 
 // Receiver receives MIDI messages.
 type Receiver interface {
-	// Receive receives a MIDI message. absmillisec is the absolute timestamp in milliseconds
-	Receive(msg Message, absmillisec int32)
+	// Receive receives a single MIDI message. absmillisec is the absolute timestamp in milliseconds
+	Receive(msg []byte, absmillisec int32)
 }
 
 // ErrorReceiver is a receiver that can receive errors.

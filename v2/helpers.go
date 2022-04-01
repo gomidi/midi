@@ -8,21 +8,23 @@ import (
 )
 
 // channelMessage1 returns the bytes for a single byte channel message
-func channelMessage1(c uint8, status, msg byte) Message {
+func channelMessage1(c uint8, status, msg byte) []byte {
 	cm := &channelMessage{channel: c, status: status}
 	cm.data[0] = msg
 	bt := cm.bytes()
-	return NewMessage(bt)
+	//return NewMessage(bt)
+	return bt
 }
 
 // channelMessage2 returns the bytes for a two bytes channel message
-func channelMessage2(c uint8, status, msg1 byte, msg2 byte) Message {
+func channelMessage2(c uint8, status, msg1 byte, msg2 byte) []byte {
 	cm := &channelMessage{channel: c, status: status}
 	cm.data[0] = msg1
 	cm.data[1] = msg2
 	cm.twoBytes = true
 	bt := cm.bytes()
-	return NewMessage(bt)
+	//return NewMessage(bt)
+	return bt
 }
 
 type channelMessage struct {
@@ -90,7 +92,7 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
 	//m.MsgType = GetChannelMsgType(typ)
 	//m.MsgType = ChannelMsg.Set(channelType[channel])
-	m.Data = channelMessage1(channel, typ, arg).Data
+	m.Data = channelMessage1(channel, typ, arg)
 
 	switch typ {
 	case byteProgramChange:
@@ -107,7 +109,7 @@ func getMsg1(typ uint8, channel uint8, arg uint8) (m Message) {
 // getMsg2 returns a 2-byte channel message (noteon/noteoff, poly aftertouch, control change or pitchbend)
 func getMsg2(typ uint8, channel uint8, arg1 uint8, arg2 uint8) (msg Message) {
 	//msg.MsgType = ChannelMsg.Set(channelType[channel])
-	msg.Data = channelMessage2(channel, typ, arg1, arg2).Data
+	msg.Data = channelMessage2(channel, typ, arg1, arg2)
 
 	switch typ {
 	case byteNoteOff:

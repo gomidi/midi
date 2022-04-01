@@ -37,7 +37,7 @@ func TestPitchbend(t *testing.T) {
 
 		var got uint16
 		var ch uint8
-		m.PitchBend(&ch, nil, &got)
+		NewMessage(m).PitchBend(&ch, nil, &got)
 
 		if got != test.expected {
 			t.Errorf("Pitchbend(%v).absValue = %v; wanted %v", test.in, got, test.expected)
