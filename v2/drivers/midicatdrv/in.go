@@ -20,7 +20,7 @@ type in struct {
 	shouldKill          chan bool
 	wasKilled           chan bool
 	hasProc             bool
-	listener            func(data []byte, deltadecimilli int32)
+	listener            func(data []byte, deltamillisecs int32)
 }
 
 func (o *in) fireCmd() error {
@@ -47,7 +47,7 @@ func (o *in) fireCmd() error {
 	o.Unlock()
 	go func() {
 		for {
-			data, err := lib.ReadAndConvert(rd)
+			data, abstime, err := lib.ReadAndConvert(rd)
 			if err != nil {
 				return
 			}
@@ -58,7 +58,7 @@ func (o *in) fireCmd() error {
 			}
 
 			if o.listener != nil {
-				o.listener(data, -1)
+				o.listener(data, abstime)
 			}
 			o.RUnlock()
 			runtime.Gosched()
@@ -163,6 +163,43 @@ func newIn(driver *Driver, number int, name string) drivers.In {
 	return &in{driver: driver, number: number, name: name}
 }
 
+func (i *in) Listen(onMsg func(msg []byte, absmilliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
+	stopFn = func() {
+		if !i.IsOpen() {
+			return
+		}
+		i.shouldStopListening <- true
+		<-i.didStopListening
+	}
+
+	if !i.IsOpen() {
+		return nil, drivers.ErrPortClosed
+	}
+
+	if onMsg == nil {
+		return nil, fmt.Errorf("onMsg callback must not be nil")
+	}
+
+	i.RLock()
+	if i.listener != nil {
+		i.RUnlock()
+		return nil, fmt.Errorf("listener already set")
+	}
+	i.RUnlock()
+
+	//var rd = drivers.NewReader(config, onMsg)
+	i.Lock()
+	i.listener = func(data []byte, absmilliseconds int32) {
+		//rd.EachMessage(data, deltamillisecs)
+		//rd.EachMessage(data, -1)
+		onMsg(data, absmilliseconds)
+	}
+	i.Unlock()
+
+	return stopFn, nil
+}
+
+/*
 // SendTo makes the listener listen to the in port
 func (i *in) StartListening(cb func([]byte, int32)) (err error) {
 	if !i.IsOpen() {
@@ -192,3 +229,4 @@ func (i *in) StopListening() (err error) {
 	<-i.didStopListening
 	return
 }
+*/

@@ -33,27 +33,55 @@ func convert(b []byte) (out []byte, err error) {
 
 }
 
+func convertDelta(b []byte) (deltams int32, err error) {
+	_, err = fmt.Sscanf(string(b), "%d", &deltams)
+	if err != nil {
+		return -1, err
+	}
+
+	return deltams, nil
+
+}
+
 const limit = byte('\n')
 
-func Read(rd io.Reader) (out []byte, err error) {
+func Read(rd io.Reader) (out []byte, deltams int32, err error) {
+	var deltaRead bool
+	var deltaBf []byte
+
 	for {
 		b, errRd := read(rd)
 		if errRd != nil {
-			return nil, errRd
+			return nil, -1, errRd
+		}
+
+		if b == ' ' {
+			deltams, err = convertDelta(deltaBf)
+			if err != nil {
+				return
+			}
+			deltaRead = true
+			continue
 		}
 
 		if b == limit {
-			return out, err
+			return out, deltams, err
 		}
-		out = append(out, b)
+
+		if deltaRead {
+			out = append(out, b)
+		} else {
+			deltaBf = append(deltaBf, b)
+		}
 	}
 }
 
-func ReadAndConvert(rd io.Reader) (out []byte, err error) {
-	out, err = Read(rd)
+func ReadAndConvert(rd io.Reader) (out []byte, deltams int32, err error) {
+	out, deltams, err = Read(rd)
 	if err != nil {
 		return
 	}
 
-	return convert(out)
+	conv, err := convert(out)
+	return conv, deltams, err
 }

@@ -119,7 +119,7 @@ func log() error {
 	//logrd := midireader.New(&logBuffer, logRealTime)
 	for {
 
-		b, err := lib.ReadAndConvert(os.Stdin)
+		b, abstime, err := lib.ReadAndConvert(os.Stdin)
 		if err == io.EOF {
 			break
 		}
@@ -129,7 +129,7 @@ func log() error {
 		}
 
 		if !argLogNoOut.Get() {
-			_, werr := fmt.Fprintf(os.Stdout, "%X\n", b)
+			_, werr := fmt.Fprintf(os.Stdout, "%d %X\n", abstime, b)
 			os.Stdout.Sync()
 			_ = werr
 		}
@@ -146,10 +146,15 @@ func log() error {
 				//logMsg("%s\n", msg)
 			}
 		*/
-		fmt.Fprintln(os.Stderr, msg.String())
+		fmt.Fprintf(os.Stderr, "%vms %s # ", abstime, msg.String())
 		runtime.Gosched()
 	}
 	return nil
+}
+
+type timestampedMsg struct {
+	absmillisec int32
+	msg         []byte
 }
 
 func runIn() (err error) {
@@ -162,20 +167,21 @@ func runIn() (err error) {
 		in = midi.FindInPort(argPortName.Get())
 	}
 
-	var msgChan = make(chan midi.Message, 1)
+	var msgChan = make(chan timestampedMsg, 1)
 	var stopChan = make(chan bool, 1)
 	var stoppedChan = make(chan bool, 1)
 
-	recv := midi.ReceiverFunc(func(msg midi.Message, absdecimillisec int32) {
-		//fmt.Printf("got message %s from in port %s\n", msg.String(), in.String())
-		msgChan <- msg
+	recv := midi.ReceiverFunc(func(msg midi.Message, absmillisec int32) {
+		//fmt.Printf("got message %s from in port %v\n", msg.String(), in)
+
+		msgChan <- timestampedMsg{absmillisec: absmillisec, msg: msg.Bytes()}
 	})
 
 	go func() {
 		for {
 			select {
-			case msg := <-msgChan:
-				_, werr := fmt.Fprintf(os.Stdout, "%X\n", msg)
+			case m := <-msgChan:
+				_, werr := fmt.Fprintf(os.Stdout, "%d %X\n", m.absmillisec, m.msg)
 				if werr != nil {
 					logMsg("midicat in: error while writing: %s\n", werr.Error())
 				}
@@ -235,8 +241,10 @@ func runOut() (err error) {
 	wg.Add(1)
 
 	go func() {
+		//var lastAbstime int32
 		for {
-			b, err := lib.ReadAndConvert(os.Stdin)
+			//b, abstime, err := lib.ReadAndConvert(os.Stdin)
+			b, _, err := lib.ReadAndConvert(os.Stdin)
 
 			if err == io.EOF {
 				break
@@ -247,6 +255,15 @@ func runOut() (err error) {
 				continue
 			}
 
+			/*
+				delta := abstime - lastAbstime
+
+				if delta > 0 {
+					time.Sleep(time.Millisecond * time.Duration(delta))
+				}
+
+				lastAbstime = abstime
+			*/
 			werr := sender.Send(b)
 
 			if werr != nil {
