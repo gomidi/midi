@@ -13,71 +13,71 @@ func TestChannelString(t *testing.T) {
 		expected string
 	}{
 		{
-			NewAfterTouch(1, 120),
+			AfterTouch(1, 120),
 			"AfterTouch channel: 1 pressure: 120",
 		},
 		{
-			NewControlChange(8, 7, 110),
+			ControlChange(8, 7, 110),
 			//"ControlChange channel: 8 controller: 7 (\"Volume (MSB)\") value 110",
 			"ControlChange channel: 8 controller: 7 value: 110",
 		},
 		{
-			NewNoteOn(2, 100, 80),
+			NoteOn(2, 100, 80),
 			"NoteOn channel: 2 key: 100 velocity: 80",
 		},
 		{
-			NewNoteOff(3, 80),
+			NoteOff(3, 80),
 			"NoteOff channel: 3 key: 80",
 		},
 		{
-			NewNoteOffVelocity(4, 80, 20),
+			NoteOffVelocity(4, 80, 20),
 			"NoteOff channel: 4 key: 80 velocity: 20",
 		},
 		{
-			NewPitchbend(4, 300),
+			Pitchbend(4, 300),
 			"PitchBend channel: 4 pitch: 300 (8492)",
 		},
 		{
-			NewPolyAfterTouch(4, 86, 109),
+			PolyAfterTouch(4, 86, 109),
 			"PolyAfterTouch channel: 4 key: 86 pressure: 109",
 		},
 		{
-			NewProgramChange(4, 83),
+			ProgramChange(4, 83),
 			"ProgramChange channel: 4 program: 83",
 		},
 
 		// too high values
 		{
-			NewAfterTouch(1, 130),
+			AfterTouch(1, 130),
 			"AfterTouch channel: 1 pressure: 127",
 		},
 		{
-			NewControlChange(8, 137, 130),
+			ControlChange(8, 137, 130),
 			//"ControlChange channel: 8 controller: 127 (\"Poly Operation\") value 127",
 			"ControlChange channel: 8 controller: 127 value: 127",
 		},
 		{
-			NewNoteOn(2, 130, 130),
+			NoteOn(2, 130, 130),
 			"NoteOn channel: 2 key: 127 velocity: 127",
 		},
 		{
-			NewNoteOff(3, 180),
+			NoteOff(3, 180),
 			"NoteOff channel: 3 key: 127",
 		},
 		{
-			NewNoteOffVelocity(4, 180, 220),
+			NoteOffVelocity(4, 180, 220),
 			"NoteOff channel: 4 key: 127 velocity: 127",
 		},
 		{
-			NewPitchbend(4, 12300),
+			Pitchbend(4, 12300),
 			"PitchBend channel: 4 pitch: 8191 (16383)",
 		},
 		{
-			NewPolyAfterTouch(4, 186, 190),
+			PolyAfterTouch(4, 186, 190),
 			"PolyAfterTouch channel: 4 key: 127 pressure: 127",
 		},
 		{
-			NewProgramChange(4, 183),
+			ProgramChange(4, 183),
 			"ProgramChange channel: 4 program: 127",
 		},
 	}
@@ -86,7 +86,7 @@ func TestChannelString(t *testing.T) {
 
 		var bf bytes.Buffer
 
-		bf.WriteString(NewMessage(test.input).String())
+		bf.WriteString(Message(test.input).String())
 
 		if got, want := bf.String(), test.expected; got != want {
 			t.Errorf("got: %#v; wanted %#v", got, want)
@@ -102,35 +102,35 @@ func TestChannelRaw(t *testing.T) {
 		expected string
 	}{
 		{ // 0
-			NewAfterTouch(1, 120),
+			AfterTouch(1, 120),
 			"D1 78",
 		},
 		{ // 1
-			NewControlChange(8, 7, 110),
+			ControlChange(8, 7, 110),
 			"B8 07 6E",
 		},
 		{ // 2
-			NewNoteOn(2, 100, 80),
+			NoteOn(2, 100, 80),
 			"92 64 50",
 		},
 		{ // 3
-			NewNoteOff(3, 80),
+			NoteOff(3, 80),
 			"83 50 00",
 		},
 		{
-			NewNoteOffVelocity(4, 80, 20),
+			NoteOffVelocity(4, 80, 20),
 			"84 50 14",
 		},
 		{
-			NewPitchbend(4, 300),
+			Pitchbend(4, 300),
 			"E4 2C 42",
 		},
 		{
-			NewPolyAfterTouch(4, 86, 109),
+			PolyAfterTouch(4, 86, 109),
 			"A4 56 6D",
 		},
 		{
-			NewProgramChange(4, 83),
+			ProgramChange(4, 83),
 			"C4 53",
 		},
 	}

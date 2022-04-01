@@ -77,7 +77,7 @@ func (w *writer) SetDelta(deltatime uint32) {
 // Write writes the message and returns the bytes that have been physically written.
 // If a write fails with an error, every following attempt to write will return this first error,
 // so de facto writing will be blocked.
-func (w *writer) Write(m []byte) (err error) {
+func (w *writer) Write(m Message) (err error) {
 	if w.error != nil {
 		return w.error
 	}
@@ -212,7 +212,7 @@ func (w *writer) appendToChunk(deltaTime uint32, b []byte) {
 }
 
 // delta is distance in time to last event in this track (independent of the channel)
-func (w *writer) addMessage(deltaTime uint32, raw []byte) {
+func (w *writer) addMessage(deltaTime uint32, raw Message) {
 	w.absPos += uint64(deltaTime)
 
 	isSysEx := raw[0] == 0xF0 || raw[0] == 0xF7

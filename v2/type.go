@@ -28,26 +28,26 @@ func (t Type) IsAllOf(checkers ...Type) bool {
 func (t Type) Is(checker Type) bool {
 
 	switch {
-	case t == UnknownType:
-		return checker == UnknownType
-	case t == SysExType:
-		return checker == SysExType
-	case t < UnknownType:
+	case t == UnknownMsg:
+		return checker == UnknownMsg
+	case t == SysExMsg:
+		return checker == SysExMsg
+	case t < UnknownMsg:
 		return false
-	case checker == UnknownType:
+	case checker == UnknownMsg:
 		return false
-	case checker > UnknownType:
+	case checker > UnknownMsg:
 		return t == checker
 	default:
 		switch checker {
-		case RealTimeType:
-			return t <= reservedRealTime14
-		case SysCommonType:
-			return t >= MTC && t <= reservedSysCommon10
-		case ChannelType:
-			return t >= NoteOn && t <= reservedChannelMsg16
-		case metaType:
-			return t >= firstMeta
+		case RealTimeMsg:
+			return t <= reservedRealTimeMsg14
+		case SysCommonMsg:
+			return t >= MTCMsg && t <= reservedSysCommonMsg10
+		case ChannelMsg:
+			return t >= NoteOnMsg && t <= reservedChannelMsg16
+		case metaMsg:
+			return t >= firstMetaMsg
 		default:
 			return false
 		}
@@ -66,36 +66,36 @@ func AddTypeName(m Type, name string) bool {
 
 var typeNames = map[Type]string{
 
-	UnknownType:   "UnknownType",
-	RealTimeType:  "RealTimeType",
-	SysCommonType: "SysCommonType",
-	ChannelType:   "ChannelType",
-	SysExType:     "SysExType",
+	UnknownMsg:   "UnknownType",
+	RealTimeMsg:  "RealTimeType",
+	SysCommonMsg: "SysCommonType",
+	ChannelMsg:   "ChannelType",
+	SysExMsg:     "SysExType",
 	//metaMsg:      "MetaType",
 
-	Tick:        "Tick",
-	TimingClock: "TimingClock",
-	Start:       "Start",
-	Continue:    "Continue",
-	Stop:        "Stop",
-	ActiveSense: "ActiveSense",
-	Reset:       "Reset",
+	TickMsg:        "Tick",
+	TimingClockMsg: "TimingClock",
+	StartMsg:       "Start",
+	ContinueMsg:    "Continue",
+	StopMsg:        "Stop",
+	ActiveSenseMsg: "ActiveSense",
+	ResetMsg:       "Reset",
 
-	reservedRealTime8:  "reservedRealTime8",
-	reservedRealTime9:  "reservedRealTime9",
-	reservedRealTime10: "reservedRealTime10",
-	reservedRealTime11: "reservedRealTime11",
-	reservedRealTime12: "reservedRealTime12",
-	reservedRealTime13: "reservedRealTime13",
-	reservedRealTime14: "reservedRealTime14",
+	reservedRealTimeMsg8:  "reservedRealTime8",
+	reservedRealTimeMsg9:  "reservedRealTime9",
+	reservedRealTimeMsg10: "reservedRealTime10",
+	reservedRealTimeMsg11: "reservedRealTime11",
+	reservedRealTimeMsg12: "reservedRealTime12",
+	reservedRealTimeMsg13: "reservedRealTime13",
+	reservedRealTimeMsg14: "reservedRealTime14",
 
-	NoteOn:         "NoteOn",
-	NoteOff:        "NoteOff",
-	ControlChange:  "ControlChange",
-	PitchBend:      "PitchBend",
-	AfterTouch:     "AfterTouch",
-	PolyAfterTouch: "PolyAfterTouch",
-	ProgramChange:  "ProgramChange",
+	NoteOnMsg:         "NoteOn",
+	NoteOffMsg:        "NoteOff",
+	ControlChangeMsg:  "ControlChange",
+	PitchBendMsg:      "PitchBend",
+	AfterTouchMsg:     "AfterTouch",
+	PolyAfterTouchMsg: "PolyAfterTouch",
+	ProgramChangeMsg:  "ProgramChange",
 
 	reservedChannelMsg8:  "reservedChannelMsg8",
 	reservedChannelMsg9:  "reservedChannelMsg9",
@@ -107,25 +107,25 @@ var typeNames = map[Type]string{
 	reservedChannelMsg15: "reservedChannelMsg15",
 	reservedChannelMsg16: "reservedChannelMsg16",
 
-	MTC:        "MTC",
-	SongSelect: "SongSelect",
-	SPP:        "SPP",
-	Tune:       "Tune",
+	MTCMsg:        "MTC",
+	SongSelectMsg: "SongSelect",
+	SPPMsg:        "SPP",
+	TuneMsg:       "Tune",
 
-	reservedSysCommon5:  "reservedSysCommon5",
-	reservedSysCommon6:  "reservedSysCommon6",
-	reservedSysCommon7:  "reservedSysCommon7",
-	reservedSysCommon8:  "reservedSysCommon8",
-	reservedSysCommon9:  "reservedSysCommon9",
-	reservedSysCommon10: "reservedSysCommon10",
+	reservedSysCommonMsg5:  "reservedSysCommon5",
+	reservedSysCommonMsg6:  "reservedSysCommon6",
+	reservedSysCommonMsg7:  "reservedSysCommon7",
+	reservedSysCommonMsg8:  "reservedSysCommon8",
+	reservedSysCommonMsg9:  "reservedSysCommon9",
+	reservedSysCommonMsg10: "reservedSysCommon10",
 }
 
 func (t Type) IsPlayable() bool {
-	if t <= UnknownType {
+	if t <= UnknownMsg {
 		return false
 	}
 
-	return t < firstMeta
+	return t < firstMetaMsg
 }
 
 func (t Type) String() string {
@@ -133,8 +133,8 @@ func (t Type) String() string {
 		return s
 	}
 
-	if t >= firstMeta {
-		return typeNames[metaType]
+	if t >= firstMetaMsg {
+		return typeNames[metaMsg]
 	}
 
 	return "user defined"
@@ -148,100 +148,100 @@ func init() {
 
 const (
 	// UnknownMsg is an invalid or unknown MIDI message
-	UnknownType Type = 0
+	UnknownMsg Type = 0
 
 	// RealTimeMsg is a MIDI realtime message. It can only be used over the wire.
-	RealTimeType Type = -1
+	RealTimeMsg Type = -1
 
 	// SysCommonMsg is a MIDI system common message. It can only be used over the wire.
-	SysCommonType Type = -2
+	SysCommonMsg Type = -2
 
 	// ChannelMsg is a MIDI channel message. It can be used in SMF and over the wire.
-	ChannelType Type = -3
+	ChannelMsg Type = -3
 
 	// SysExMsg is a MIDI system exclusive message. It can be used in SMF and over the wire.
-	SysExType Type = -4
+	SysExMsg Type = -4
 
 	// metaMsg is a MIDI meta message (used in SMF = Simple MIDI Files)
-	metaType Type = -5
+	metaMsg Type = -5
 )
 
 const (
 
 	// Tick is a MIDI tick realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	Tick Type = 1 + iota
+	TickMsg Type = 1 + iota
 
 	// TimingClock is a MIDI timing clock realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	TimingClock
+	TimingClockMsg
 
 	// Start is a MIDI start realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	Start
+	StartMsg
 
 	// Continue is a MIDI continue realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	Continue
+	ContinueMsg
 
 	// Stop is a MIDI stop realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	Stop
+	StopMsg
 
 	// ActiveSense is a MIDI active sense realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	ActiveSense
+	ActiveSenseMsg
 
 	// Reset is a MIDI reset realtime message (which is a RealTimeMsg).
 	// There is no further data associated with messages of this type.
-	Reset
+	ResetMsg
 
-	reservedRealTime8
-	reservedRealTime9
-	reservedRealTime10
-	reservedRealTime11
-	reservedRealTime12
-	reservedRealTime13
-	reservedRealTime14
+	reservedRealTimeMsg8
+	reservedRealTimeMsg9
+	reservedRealTimeMsg10
+	reservedRealTimeMsg11
+	reservedRealTimeMsg12
+	reservedRealTimeMsg13
+	reservedRealTimeMsg14
 
 	// NoteOn is a MIDI note on message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The velocity of a concrete Message of this type can be retrieved via the Velocity method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
-	NoteOn
+	NoteOnMsg
 
 	// NoteOff is a MIDI note off message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The velocity of a concrete Message of this type can be retrieved via the Velocity method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
-	NoteOff
+	NoteOffMsg
 
 	// ControlChange is a MIDI control change message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The controller of a concrete Message of this type can be retrieved via the Controller method of the Message.
 	// The change of a concrete Message of this type can be retrieved via the Change method of the Message.
-	ControlChange
+	ControlChangeMsg
 
 	// PitchBend is a MIDI pitch bend message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The absolute and releative pitch of a concrete Message of this type can be retrieved via the Pitch method of the Message.
-	PitchBend
+	PitchBendMsg
 
 	// AfterTouch is a MIDI after touch message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The pressure of a concrete Message of this type can be retrieved via the Pressure method of the Message.
-	AfterTouch
+	AfterTouchMsg
 
 	// PolyAfterTouch is a polyphonic MIDI after touch message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The key of a concrete Message of this type can be retrieved via the Key method of the Message.
 	// The pressure of a concrete Message of this type can be retrieved via the Pressure method of the Message.
-	PolyAfterTouch
+	PolyAfterTouchMsg
 
 	// ProgramChange is a MIDI program change message (which is a ChannelMsg).
 	// The channel of a concrete Message of this type can be retrieved via the Channel method of the Message.
 	// The program number of a concrete Message of this type can be retrieved via the Program method of the Message.
-	ProgramChange
+	ProgramChangeMsg
 
 	reservedChannelMsg8
 	reservedChannelMsg9
@@ -255,31 +255,31 @@ const (
 
 	// MTC is a MIDI MTC system common message.
 	// TODO add method to Message to get the quarter frame and document it.
-	MTC
+	MTCMsg
 
 	// SongSelect is a MIDI song select system common message.
 	// TODO add method to Message to get the song number and document it.
-	SongSelect
+	SongSelectMsg
 
 	// SPP is a MIDI song position pointer (SPP) system common message.
 	// TODO add method to Message to get the song position pointer and document it.
-	SPP
+	SPPMsg
 
 	// Tune is a MIDI tune request system common message.
 	// There is no further data associated with messages of this type.
-	Tune
+	TuneMsg
 
-	reservedSysCommon5
-	reservedSysCommon6
-	reservedSysCommon7
-	reservedSysCommon8
-	reservedSysCommon9
-	reservedSysCommon10
+	reservedSysCommonMsg5
+	reservedSysCommonMsg6
+	reservedSysCommonMsg7
+	reservedSysCommonMsg8
+	reservedSysCommonMsg9
+	reservedSysCommonMsg10
 )
 
 const (
 	// everything >= firstMeta are meta messages
-	firstMeta Type = 70
+	firstMetaMsg Type = 70
 )
 
 /*
@@ -291,7 +291,9 @@ A tempo meta message of a SMF file will have a message type that is a combinatio
 */
 func GetType(bt []byte) (mType Type) {
 	//fmt.Printf("GetMsgType % X\n", msg)
-
+	if len(bt) == 0 {
+		return UnknownMsg
+	}
 	byte1 := bt[0]
 
 	switch {
@@ -300,7 +302,7 @@ func GetType(bt []byte) (mType Type) {
 		return GetChannelType(byte1)
 	case byte1 == 0xF0, byte1 == 0xF7:
 		// TODO what about sysex start stop etc.
-		return SysExType
+		return SysExMsg
 	case byte1 == 0xFF:
 		/*
 			if byte2 > 0 {
@@ -313,7 +315,7 @@ func GetType(bt []byte) (mType Type) {
 	case byte1 > 0xF7:
 		return GetRealtimeType(byte1)
 	default:
-		return UnknownType
+		return UnknownMsg
 	}
 }
 
@@ -323,21 +325,21 @@ func GetChannelType(canary byte) (mType Type) {
 
 	switch tp {
 	case 0xC:
-		return ProgramChange
+		return ProgramChangeMsg
 	case 0xD:
-		return AfterTouch
+		return AfterTouchMsg
 	case 0x8:
-		return NoteOff
+		return NoteOffMsg
 	case 0x9:
-		return NoteOn
+		return NoteOnMsg
 	case 0xA:
-		return PolyAfterTouch
+		return PolyAfterTouchMsg
 	case 0xB:
-		return ControlChange
+		return ControlChangeMsg
 	case 0xE:
-		return PitchBend
+		return PitchBendMsg
 	default:
-		return UnknownType
+		return UnknownMsg
 	}
 }
 
@@ -345,7 +347,7 @@ func GetChannelType(canary byte) (mType Type) {
 func GetRealtimeType(b byte) Type {
 	ty, has := rtMessages[b]
 	if !has {
-		return UnknownType
+		return UnknownMsg
 	}
 	return ty
 }
@@ -354,7 +356,7 @@ func GetRealtimeType(b byte) Type {
 func GetSysCommonType(b byte) Type {
 	ty, has := syscommMessages[b]
 	if !has {
-		return UnknownType
+		return UnknownMsg
 	}
 	return ty
 }

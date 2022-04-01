@@ -26,9 +26,8 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2"
-	"gitlab.com/gomidi/midi/v2/drivers"
-	"gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
-	"gitlab.com/gomidi/midi/v2/tools/midicat/lib"
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
+	lib "gitlab.com/gomidi/midi/v2/tools/midicat"
 	"gitlab.com/metakeule/config"
 )
 
@@ -53,6 +52,8 @@ var (
 )
 
 func main() {
+	defer midi.CloseDriver()
+
 	err := run()
 
 	if err != nil {
@@ -76,28 +77,30 @@ func run() error {
 		return log()
 	}
 
-	drv, err := rtmididrv.New()
-	if err != nil {
-		return err
-	}
+	/*
+		drv, err := rtmididrv.New()
+		if err != nil {
+			return err
+		}
+	*/
 
 	switch cfg.ActiveCommand() {
 	case cmdIns:
 		if argJson.Get() {
-			return showInJson(drv)
+			return showInJson()
 		} else {
-			return showInPorts(drv)
+			return showInPorts()
 		}
 	case cmdOuts:
 		if argJson.Get() {
-			return showOutJson(drv)
+			return showOutJson()
 		} else {
-			return showOutPorts(drv)
+			return showOutPorts()
 		}
 	case cmdIn:
-		return runIn(drv)
+		return runIn()
 	case cmdOut:
-		return runOut(drv)
+		return runOut()
 	default:
 		return fmt.Errorf("[command] missing")
 	}
@@ -133,7 +136,7 @@ func log() error {
 
 		//logBuffer.Write(b)
 		//msg, merr := logrd.Read()
-		msg := midi.NewMessage(b)
+		msg := midi.Message(b)
 		//logBuffer.Reset()
 
 		/*
@@ -149,36 +152,23 @@ func log() error {
 	return nil
 }
 
-func runIn(drv drivers.Driver) (err error) {
-	defer drv.Close()
-	var in drivers.In
+func runIn() (err error) {
+	var in int = 0 // default
 
 	switch {
 	case argPortNum.IsSet():
-		in, err = drivers.InByNumber(int(argPortNum.Get()))
+		in = int(argPortNum.Get())
 	case argPortName.IsSet():
-		in, err = drivers.InByName(argPortName.Get())
-	default:
-		in, err = drivers.InByNumber(0)
+		in = midi.FindInPort(argPortName.Get())
 	}
 
-	if err != nil {
-		return err
-	}
-
-	err = in.Open()
-
-	if err != nil {
-		return err
-	}
-
-	var msgChan = make(chan []byte, 1)
+	var msgChan = make(chan midi.Message, 1)
 	var stopChan = make(chan bool, 1)
 	var stoppedChan = make(chan bool, 1)
 
 	recv := midi.ReceiverFunc(func(msg midi.Message, absdecimillisec int32) {
 		//fmt.Printf("got message %s from in port %s\n", msg.String(), in.String())
-		msgChan <- msg.Data
+		msgChan <- msg
 	})
 
 	go func() {
@@ -198,11 +188,10 @@ func runIn(drv drivers.Driver) (err error) {
 		}
 	}()
 
-	//var stop func()
+	var stop func()
 
 	go func() {
-		err = midi.ListenToPort(in.Number(), recv)
-		//err = in.SendTo(recv)
+		stop, err = midi.ListenTo(in, recv)
 
 		if err != nil {
 			stopChan <- true
@@ -218,32 +207,25 @@ func runIn(drv drivers.Driver) (err error) {
 
 	// interrupt has happend
 	<-sigchan
-	in.StopListening()
+	stop()
+	//in.StopListening()
 	stopChan <- true
 	<-stoppedChan
 
 	return nil
 }
 
-func runOut(drv drivers.Driver) (err error) {
-	defer drv.Close()
-
-	var out drivers.Out
+func runOut() (err error) {
+	var out int = 0
 
 	switch {
 	case argPortNum.IsSet():
-		out, err = drivers.OutByNumber(int(argPortNum.Get()))
+		out = int(argPortNum.Get())
 	case argPortName.IsSet():
-		out, err = drivers.OutByName(argPortName.Get())
-	default:
-		out, err = drivers.OutByNumber(0)
+		out = midi.FindOutPort(argPortName.Get())
 	}
 
-	if err != nil {
-		return err
-	}
-
-	err = out.Open()
+	sender, err := midi.SendTo(out)
 
 	if err != nil {
 		return err
@@ -265,10 +247,10 @@ func runOut(drv drivers.Driver) (err error) {
 				continue
 			}
 
-			werr := out.Send(b)
+			werr := sender.Send(b)
 
 			if werr != nil {
-				logMsg("midicat out: could not write % X to port %q: %s\n", b, out.String(), werr.Error())
+				logMsg("midicat out: could not write % X to port %q: %s\n", b, out, werr.Error())
 			}
 			runtime.Gosched()
 		}
@@ -280,71 +262,43 @@ func runOut(drv drivers.Driver) (err error) {
 	return nil
 }
 
-func showInJson(drv drivers.Driver) error {
-	defer drv.Close()
-	ports, err := drv.Ins()
-
-	if err != nil {
-		return err
-	}
-
+func showInJson() error {
 	var portm = map[int]string{}
 
-	for _, port := range ports {
-		portm[port.Number()] = port.String()
+	for num, port := range midi.InPorts() {
+		portm[num] = port
 	}
 
 	enc := json.NewEncoder(os.Stdout)
 	return enc.Encode(portm)
 }
 
-func showInPorts(drv drivers.Driver) error {
-	defer drv.Close()
-	ins, err := drv.Ins()
-
-	if err != nil {
-		return err
-	}
-
+func showInPorts() error {
 	fmt.Fprintln(os.Stdout, "MIDI inputs")
 
-	for _, in := range ins {
-		fmt.Fprintf(os.Stdout, "[%v] %s\n", in.Number(), in.String())
+	for num, in := range midi.InPorts() {
+		fmt.Fprintf(os.Stdout, "[%v] %s\n", num, in)
 	}
 
 	return nil
 }
 
-func showOutJson(drv drivers.Driver) error {
-	defer drv.Close()
-	ports, err := drv.Outs()
-
-	if err != nil {
-		return err
-	}
-
+func showOutJson() error {
 	var portm = map[int]string{}
 
-	for _, port := range ports {
-		portm[port.Number()] = port.String()
+	for num, port := range midi.OutPorts() {
+		portm[num] = port
 	}
 
 	enc := json.NewEncoder(os.Stdout)
 	return enc.Encode(portm)
 }
 
-func showOutPorts(drv drivers.Driver) error {
-	defer drv.Close()
-	outs, err := drv.Outs()
-
-	if err != nil {
-		return err
-	}
-
+func showOutPorts() error {
 	fmt.Fprintln(os.Stdout, "MIDI outputs")
 
-	for _, out := range outs {
-		fmt.Fprintf(os.Stdout, "[%v] %s\n", out.Number(), out.String())
+	for num, out := range midi.OutPorts() {
+		fmt.Fprintf(os.Stdout, "[%v] %s\n", num, out)
 	}
 
 	return nil

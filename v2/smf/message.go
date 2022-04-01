@@ -7,6 +7,7 @@ import (
 	"gitlab.com/gomidi/midi/v2"
 )
 
+// Message is a MIDI message that might appear in a SMF file, i.e. channel messages, sysex messages and meta messages.
 type Message []byte
 
 func (m Message) Bytes() []byte {
@@ -17,18 +18,15 @@ func (m Message) IsPlayable() bool {
 	return m.Type().IsPlayable()
 }
 
-/*
-func (m Message) Type() midi.Type {
-	return GetMetaType(m[1])
-}
-*/
-
 func (m Message) Type() midi.Type {
 	return GetType(m)
 }
 
 func GetType(msg []byte) midi.Type {
-	if IsMeta(msg) {
+	if len(msg) == 0 {
+		return midi.UnknownMsg
+	}
+	if Message(msg).IsMeta() {
 		return GetMetaType(msg[1])
 	} else {
 		return midi.GetType(msg)
@@ -39,31 +37,31 @@ func (m Message) Is(t midi.Type) bool {
 	return m.Type().Is(t)
 }
 
-// NoteOn returns true if (and only if) the message is a NoteOnMsg.
+// ScanNoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).ScanNoteOn(channel, key, velocity)
 }
 
-// NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
+// ScanNoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).ScanNoteStart(channel, key, velocity)
 }
 
-// NoteOff returns true if (and only if) the message is a NoteOffMsg.
+// ScanNoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).ScanNoteOff(channel, key, velocity)
 }
 
-// Channel returns true if (and only if) the message is a ChannelMsg.
+// ScanChannel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanChannel(channel *uint8) (is bool) {
 	return midi.Message(m).ScanChannel(channel)
 }
 
-// NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
+// ScanNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteEnd(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).ScanNoteEnd(channel, key, velocity)
@@ -103,7 +101,7 @@ func (m Message) ScanControlChange(channel, controller, value *uint8) (is bool) 
 // String represents the Message as a string that contains the MsgType and its properties.
 func (m Message) String() string {
 
-	if IsMeta(m) {
+	if m.IsMeta() {
 		var bf bytes.Buffer
 		fmt.Fprintf(&bf, m.Type().String())
 
@@ -119,7 +117,7 @@ func (m Message) String() string {
 			fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
 		default:
 			switch m.Type() {
-			case MetaLyric, MetaMarker, MetaCopyright, MetaText, MetaCuepoint, MetaDevice, MetaInstrument, MetaProgramName, MetaTrackName:
+			case MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg:
 				m.text(&text)
 				fmt.Fprintf(&bf, " text: %q", text)
 			}

@@ -18,7 +18,7 @@ to build, run
 GOOS=js GOARCH=wasm go build -o main.wasm main_js.go
 */
 
-func printMessage(message string) {
+func log(message string) {
 	document := js.Global().Get("document")
 	p := document.Call("createElement", "p")
 	p.Set("innerHTML", message)
@@ -27,48 +27,47 @@ func printMessage(message string) {
 
 func main() {
 	defer midi.CloseDriver()
-
-	ins := midi.InPorts()
 	var bf bytes.Buffer
 
-	for i, in := range ins {
+	for i, in := range midi.InPorts() {
 		fmt.Fprintf(&bf, "found MIDI in port: %v: %s<br />", i, in)
 	}
 
-	printMessage(bf.String())
+	fmt.Fprintf(&bf, "<br><br>")
 
-	outs := midi.OutPorts()
-
-	bf.Reset()
-
-	for i, out := range outs {
+	for i, out := range midi.OutPorts() {
 		fmt.Fprintf(&bf, "found MIDI out port: %v: %s<br />", i, out)
 	}
 
-	printMessage(bf.String())
+	log(bf.String())
 
-	s, err := midi.SenderToPort(0)
-	must(err)
+	stop, err := midi.ListenTo(0, midi.ReceiverFunc(func(msg midi.Message, timestamp int32) {
+		log(fmt.Sprintf("got: %s<br />", msg))
+	}))
+	e(err)
 
-	var o midi.ListenOptions
+	s, err := midi.SendTo(0)
+	e(err)
 
-	stop, err := midi.ListenToPort(0, midi.ReceiverFunc(func(msg midi.Message, timestamp int32) {
-		printMessage(fmt.Sprintf("got: %s<br />", msg))
-	}), o)
-	must(err)
-
-	channel := midi.Channel(3)
-	key := uint8(60)
-	velocity := uint8(120)
-
-	printMessage(fmt.Sprintf("send: NoteOn key: %v veloctiy: %v on channel %v<br />", key, velocity, channel))
+	log(fmt.Sprintf("send: NoteOn key: %v veloctiy: %v on channel %v<br />", 60, 120, 3))
 
 	// do some writing: if you are using a loopback midi device on your os, you will see
 	// this messages in the browser window
-	s.Send(channel.NewNoteOn(key, velocity))
+	s.Send(midi.NoteOn(3, 60, 120))
 	time.Sleep(time.Second)
-	printMessage(fmt.Sprintf("send: NoteOff key: %v on channel %v<br />", key, channel))
-	s.Send(channel.NewNoteOff(key))
+	log(fmt.Sprintf("send: NoteOff key: %v on channel %v<br />", 60, 3))
+	s.Send(midi.NoteOff(3, 60))
+
+	qsynth := midi.FindOutPort("qsynth")
+
+	if qsynth >= 0 {
+		qs, err := midi.SendTo(qsynth)
+		e(err)
+
+		qs.Send(midi.NoteOn(0, 60, 120))
+		time.Sleep(time.Millisecond * 500)
+		qs.Send(midi.NoteOff(0, 60))
+	}
 
 	// stay alive
 	ch := make(chan bool)
@@ -76,8 +75,8 @@ func main() {
 	stop()
 }
 
-func must(err error) {
+func e(err error) {
 	if err != nil {
-		printMessage(fmt.Sprintf("ERROR: %s", err.Error()))
+		log(fmt.Sprintf("ERROR: %s", err.Error()))
 	}
 }

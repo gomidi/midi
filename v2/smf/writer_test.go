@@ -73,24 +73,24 @@ func TestWriteSMF0(t *testing.T) {
 		//ch2   = midi.Channel(2)
 	)
 
-	track.Add(0, NewMetaTimeSig(4, 4, 24, 8))
-	track.Add(0, NewMetaTempo(120))
+	track.Add(0, MetaTimeSig(4, 4, 24, 8))
+	track.Add(0, MetaTempo(120))
 
-	track.Add(0, midi.NewProgramChange(0, 5))
-	track.Add(0, midi.NewProgramChange(1, 46))
-	track.Add(0, midi.NewProgramChange(2, 70))
+	track.Add(0, midi.ProgramChange(0, 5))
+	track.Add(0, midi.ProgramChange(1, 46))
+	track.Add(0, midi.ProgramChange(2, 70))
 
-	track.Add(0, midi.NewNoteOn(2, 48, 96))
-	track.Add(0, midi.NewNoteOn(2, 60, 96))
+	track.Add(0, midi.NoteOn(2, 48, 96))
+	track.Add(0, midi.NoteOn(2, 60, 96))
 
-	track.Add(res.Ticks4th(), midi.NewNoteOn(1, 67, 64))
-	track.Add(res.Ticks4th(), midi.NewNoteOn(0, 76, 32))
+	track.Add(res.Ticks4th(), midi.NoteOn(1, 67, 64))
+	track.Add(res.Ticks4th(), midi.NoteOn(0, 76, 32))
 
-	track.Add(res.Ticks4th()*2, midi.NewNoteOffVelocity(2, 48, 64))
+	track.Add(res.Ticks4th()*2, midi.NoteOffVelocity(2, 48, 64))
 
-	track.Add(0, midi.NewNoteOffVelocity(2, 60, 64))
-	track.Add(0, midi.NewNoteOffVelocity(1, 67, 64))
-	track.Add(0, midi.NewNoteOffVelocity(0, 76, 64))
+	track.Add(0, midi.NoteOffVelocity(2, 60, 64))
+	track.Add(0, midi.NoteOffVelocity(1, 67, 64))
+	track.Add(0, midi.NoteOffVelocity(0, 76, 64))
 
 	smf := New()
 	smf.TimeFormat = res
@@ -205,27 +205,27 @@ func TestWriteSMF1(t *testing.T) {
 	smf.TimeFormat = ticks
 
 	track = NewTrack()
-	track.Add(0, NewMetaTimeSig(4, 4, 24, 8))
-	track.Add(0, NewMetaTempo(120))
+	track.Add(0, MetaTimeSig(4, 4, 24, 8))
+	track.Add(0, MetaTempo(120))
 	smf.AddAndClose(beat*4, track)
 
 	track = NewTrack()
-	track.Add(0, midi.NewProgramChange(0, 5))
-	track.Add(beat*2, midi.NewNoteOn(0, 76, 32))
-	track.Add(beat*2, midi.NewNoteOn(0, 76, 0))
+	track.Add(0, midi.ProgramChange(0, 5))
+	track.Add(beat*2, midi.NoteOn(0, 76, 32))
+	track.Add(beat*2, midi.NoteOn(0, 76, 0))
 	smf.AddAndClose(0, track)
 
 	track = NewTrack()
-	track.Add(0, midi.NewProgramChange(1, 46))
-	track.Add(beat, midi.NewNoteOn(1, 67, 64))
-	track.Add(beat*3, midi.NewNoteOn(1, 67, 0))
+	track.Add(0, midi.ProgramChange(1, 46))
+	track.Add(beat, midi.NoteOn(1, 67, 64))
+	track.Add(beat*3, midi.NoteOn(1, 67, 0))
 	smf.AddAndClose(0, track)
 
 	track = NewTrack()
-	track.Add(0, midi.NewProgramChange(2, 70))
-	track.Add(0, midi.NewNoteOn(2, 48, 96))
-	track.Add(0, midi.NewNoteOn(2, 60, 96))
-	track.Add(beat*4, midi.NewNoteOn(2, 48, 0), midi.NewNoteOn(2, 60, 0))
+	track.Add(0, midi.ProgramChange(2, 70))
+	track.Add(0, midi.NoteOn(2, 48, 96))
+	track.Add(0, midi.NoteOn(2, 60, 96))
+	track.Add(beat*4, midi.NoteOn(2, 48, 0), midi.NoteOn(2, 60, 0))
 	smf.AddAndClose(0, track)
 
 	err := smf.WriteTo(&bf)

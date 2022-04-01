@@ -7,23 +7,23 @@ import (
 	midilib "gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-func _channelMessage(typ, channel, data1, data2 byte) []byte {
+func _channelMessage(typ, channel, data1, data2 byte) Message {
 	switch typ {
 	case byteChannelPressure:
-		return NewAfterTouch(channel, data1)
+		return AfterTouch(channel, data1)
 	case byteProgramChange:
-		return NewProgramChange(channel, data1)
+		return ProgramChange(channel, data1)
 	case byteControlChange:
-		return NewControlChange(channel, data1, data2)
+		return ControlChange(channel, data1, data2)
 	case byteNoteOn:
-		return NewNoteOn(channel, data1, data2)
+		return NoteOn(channel, data1, data2)
 	case byteNoteOff:
-		return NewNoteOffVelocity(channel, data1, data2)
+		return NoteOffVelocity(channel, data1, data2)
 	case bytePolyphonicKeyPressure:
-		return NewPolyAfterTouch(channel, data1, data2)
+		return PolyAfterTouch(channel, data1, data2)
 	case bytePitchWheel:
 		rel, _ := midilib.ParsePitchWheelVals(data1, data2)
-		return NewPitchbend(channel, rel)
+		return Pitchbend(channel, rel)
 	default:
 		panic("unknown typ")
 	}
@@ -32,29 +32,61 @@ func _channelMessage(typ, channel, data1, data2 byte) []byte {
 // ListenOptions are the options for the listening
 type ListenOptions struct {
 
-	// TimeCode lets the the timecode messages pass through, if set
+	// TimeCode lets the timecode messages pass through, if set
 	TimeCode bool
 
-	// ActiveSense lets the the active sense messages pass through, if set
+	// ActiveSense lets the active sense messages pass through, if set
 	ActiveSense bool
+
+	// SysEx lets the system exclusive messages pass through, if set
+	SysEx bool
 
 	// SysExBufferSize defines the size of the buffer for sysex messages (in bytes).
 	// SysEx messages larger than this size will be ignored.
 	// When SysExBufferSize is 0, the default buffersize (1024) is used.
 	SysExBufferSize uint32
+}
 
-	SysEx bool
+type ListenOption func(*ListenOptions)
+
+func GetTimeCode() ListenOption {
+	return func(l *ListenOptions) {
+		l.TimeCode = true
+	}
+}
+
+func GetActiveSense() ListenOption {
+	return func(l *ListenOptions) {
+		l.ActiveSense = true
+	}
+}
+
+func GetSysEx() ListenOption {
+	return func(l *ListenOptions) {
+		l.SysEx = true
+	}
+}
+
+func SysExBufferSize(size uint32) ListenOption {
+	return func(l *ListenOptions) {
+		l.SysExBufferSize = size
+	}
 }
 
 var ErrPortClosed = drivers.ErrPortClosed
 var ErrListenStopped = drivers.ErrListenStopped
 
-// ListenToPort listens on the given port number and passes the received MIDI data to the given receiver.
+// ListenTo listens on the given port number and passes the received MIDI data to the given receiver.
 // It returns a stop function that may be called to stop the listening.
-func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func(), err error) {
+func ListenTo(portnumber int, recv Receiver, opts ...ListenOption) (stop func(), err error) {
 	in, err := drivers.InByNumber(portnumber)
 	if err != nil {
 		return nil, err
+	}
+
+	var opt ListenOptions
+	for _, o := range opts {
+		o(&opt)
 	}
 
 	var conf drivers.ListenConfig
@@ -72,8 +104,8 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 
 	var onMsg = func(data []byte, millisec int32) {
 		status := data[0]
-		var msg []byte
-		//var msg Message
+		//var msg []byte
+		var msg Message
 		switch {
 		// realtime message
 		case status >= 0xF8:
@@ -84,14 +116,14 @@ func ListenToPort(portnumber int, recv Receiver, opt ListenOptions) (stop func()
 			isStatusSet = false
 			switch status {
 			case byteSysTuneRequest:
-				msg = NewTune()
+				msg = Tune()
 			case byteMIDITimingCodeMessage:
-				msg = NewMTC(data[1])
+				msg = MTC(data[1])
 			case byteSysSongPositionPointer:
 				_, abs := midilib.ParsePitchWheelVals(data[1], data[2])
-				msg = NewSPP(abs)
+				msg = SPP(abs)
 			case byteSysSongSelect:
-				msg = NewSongSelect(data[1])
+				msg = SongSelect(data[1])
 			default:
 				// undefined syscommon message
 				//				msg = NewUndefined()

@@ -1,4 +1,4 @@
-module gitlab.com/gomidi/midi/v2/tools/midicat
+module gitlab.com/gomidi/midi/v2/tools/midicat/cmd/midicat
 
 go 1.16
 
@@ -9,6 +9,6 @@ require (
 )
 
 replace (
-	gitlab.com/gomidi/midi/v2 => ../../
-	gitlab.com/gomidi/midi/v2/drivers/rtmididrv => ../../drivers/rtmididrv
+	gitlab.com/gomidi/midi/v2 => ../../../../
+	gitlab.com/gomidi/midi/v2/drivers/rtmididrv => ../../../../drivers/rtmididrv
 )

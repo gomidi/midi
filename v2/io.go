@@ -12,8 +12,8 @@ func CloseDriver() {
 	drivers.Close()
 }
 
-func SenderToPort(no int) (Sender, error) {
-	out, err := drivers.OutByNumber(no)
+func SendTo(portno int) (Sender, error) {
+	out, err := drivers.OutByNumber(portno)
 	if err != nil {
 		return nil, err
 	}
@@ -41,16 +41,16 @@ type Sender interface {
 }
 
 // ReceiverFunc is a function that receives a single MIDI message
-type ReceiverFunc func(msg []byte, absmillisec int32)
+type ReceiverFunc func(msg Message, absmillisec int32)
 
-func (r ReceiverFunc) Receive(msg []byte, absmillisec int32) {
+func (r ReceiverFunc) Receive(msg Message, absmillisec int32) {
 	r(msg, absmillisec)
 }
 
 // Receiver receives MIDI messages.
 type Receiver interface {
 	// Receive receives a single MIDI message. absmillisec is the absolute timestamp in milliseconds
-	Receive(msg []byte, absmillisec int32)
+	Receive(msg Message, absmillisec int32)
 }
 
 // ErrorReceiver is a receiver that can receive errors.

@@ -13,23 +13,23 @@ func TestSysCommon(t *testing.T) {
 		expected string
 	}{
 		{
-			midi.NewMTC(3),
+			midi.MTC(3),
 			"MTC mtc: 3",
 		},
 		{
-			midi.NewTune(),
+			midi.Tune(),
 			"Tune",
 		},
 		{
-			midi.NewSongSelect(5),
+			midi.SongSelect(5),
 			"SongSelect song: 5",
 		},
 		{
-			midi.NewSPP(4),
+			midi.SPP(4),
 			"SPP spp: 4",
 		},
 		{
-			midi.NewSPP(4000),
+			midi.SPP(4000),
 			"SPP spp: 4000",
 		},
 	}

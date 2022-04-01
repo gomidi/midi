@@ -36,13 +36,12 @@ func run() error {
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.MetaMsgType).
 		//Only(midi.NoteMsg, midi.ControlChangeMsg, midi.ProgramChangeMsg).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.ControlChangeMsg, midi.ProgramChangeMsg, smf.MetaTrackNameMsg).
-		//Only(midi.ProgramChange, smf.MetaTrackName, smf.MetaTempo, smf.MetaTimeSig).
+		Only(midi.ProgramChangeMsg, smf.MetaTrackNameMsg, smf.MetaTempoMsg, smf.MetaTimeSigMsg).
 		//Only(midi.MetaMsg).
 		Do(
 			func(te smf.TrackEvent) {
-				if smf.Message(te.Message).Is(smf.MetaType) {
-					//mm := te.MetaMessage()
-					fmt.Printf("[%v] %s\n", te.TrackNo, smf.Message(te.Message).String())
+				if te.Message.IsMeta() {
+					fmt.Printf("[%v] %s\n", te.TrackNo, te.Message.String())
 					/*
 						var t string
 						if mm.Text(&t) {
@@ -56,7 +55,7 @@ func run() error {
 						}
 					*/
 				} else {
-					//fmt.Printf("[%v] %s\n", te.TrackNo, te.Message)
+					fmt.Printf("[%v] %s\n", te.TrackNo, te.Message)
 				}
 			},
 		).Play(out)

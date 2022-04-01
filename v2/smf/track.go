@@ -34,7 +34,7 @@ func (t *Track) Close(deltaticks uint32) {
 	t.Closed = true
 }
 
-func (t *Track) Add(deltaticks uint32, msgs ...midi.Message) {
+func (t *Track) Add(deltaticks uint32, msgs ...[]byte) {
 	if t.Closed {
 		return
 	}
@@ -54,7 +54,7 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 		if Message(ev.Message).IsPlayable() {
 			//		if m, ok := ev.Message().Type() <  .(midi.Msg); ok {
 			ms := int32(resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds() * 100)
-			receiver.Receive(ev.Message, ms)
+			receiver.Receive(ev.Message.Bytes(), ms)
 		}
 	}
 }
@@ -108,20 +108,13 @@ type TrackEvent struct {
 	AbsMicroSeconds int64
 }
 
-/*
-func (te TrackEvent) Message() Message {
-	return Message(te.Message)
-}
-*/
-
 type playEvent struct {
 	absTime int64
 	sleep   time.Duration
 	data    []byte
-	//bytes   []byte
 	out     drivers.Out
 	trackNo int
-	str     string
+	//str     string
 }
 
 type player []playEvent
@@ -156,7 +149,7 @@ func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) *TracksReader {
 		func(te TrackEvent) {
 			msg := te.Message
 			//ty := msg.Type
-			if Message(msg).IsPlayable() {
+			if msg.IsPlayable() {
 				//if mm, ok := msg.(midi.Msg); ok {
 				var out drivers.Out
 
@@ -175,7 +168,7 @@ func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) *TracksReader {
 					data:    msg,
 					out:     out,
 					trackNo: te.TrackNo,
-					str:     Message(msg).String(),
+					//str:     msg.String(),
 				})
 			}
 		},
@@ -226,7 +219,7 @@ func (t *TracksReader) Do(fn func(TrackEvent)) *TracksReader {
 						}
 					*/
 					msg := ev.Message
-					ty := Message(msg).Type()
+					ty := msg.Type()
 					for _, f := range t.filter {
 						//fmt.Printf("%s [%s] %s [%s]\n", f, f.Kind().String(), ty, ty.Kind().String())
 						if ty.Is(f) {

@@ -50,7 +50,7 @@ func (m Message) Is(t Type) bool {
 // NoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOn) {
+	if !m.Is(NoteOnMsg) {
 		return false
 	}
 
@@ -62,7 +62,7 @@ func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
 // NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOn) {
+	if !m.Is(NoteOnMsg) {
 		return false
 	}
 
@@ -77,7 +77,7 @@ func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
 // NoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOff) {
+	if !m.Is(NoteOffMsg) {
 		return false
 	}
 
@@ -89,7 +89,7 @@ func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
 // Channel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanChannel(channel *uint8) (is bool) {
-	if !m.Is(ChannelType) {
+	if !m.Is(ChannelMsg) {
 		return false
 	}
 
@@ -100,19 +100,19 @@ func (m Message) ScanChannel(channel *uint8) (is bool) {
 // NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanNoteEnd(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOn) && !m.Is(NoteOff) {
+	if !m.Is(NoteOnMsg) && !m.Is(NoteOffMsg) {
 		return false
 	}
 
 	_, *channel = utils.ParseStatus(m[0])
 	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
-	return m.Is(NoteOff) || *velocity == 0
+	return m.Is(NoteOffMsg) || *velocity == 0
 }
 
 // PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
-	if !m.Is(PolyAfterTouch) {
+	if !m.Is(PolyAfterTouchMsg) {
 		return false
 	}
 
@@ -124,7 +124,7 @@ func (m Message) ScanPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 // AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanAfterTouch(channel, pressure *uint8) (is bool) {
-	if !m.Is(AfterTouch) {
+	if !m.Is(AfterTouchMsg) {
 		return false
 	}
 
@@ -136,7 +136,7 @@ func (m Message) ScanAfterTouch(channel, pressure *uint8) (is bool) {
 // ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanProgramChange(channel, program *uint8) (is bool) {
-	if !m.Is(ProgramChange) {
+	if !m.Is(ProgramChangeMsg) {
 		return false
 	}
 
@@ -149,7 +149,7 @@ func (m Message) ScanProgramChange(channel, program *uint8) (is bool) {
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
 func (m Message) ScanPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
-	if !m.Is(PitchBend) {
+	if !m.Is(PitchBendMsg) {
 		return false
 	}
 
@@ -168,7 +168,7 @@ func (m Message) ScanPitchBend(channel *uint8, relative *int16, absolute *uint16
 // ControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanControlChange(channel, controller, value *uint8) (is bool) {
-	if !m.Is(ControlChange) {
+	if !m.Is(ControlChangeMsg) {
 		return false
 	}
 
@@ -202,7 +202,7 @@ cdefg = Hours (0-23)
 
 // MTC represents a MIDI timing code message (quarter frame)
 func (m Message) ScanMTC(quarterframe *uint8) (is bool) {
-	if !m.Is(MTC) {
+	if !m.Is(MTCMsg) {
 		return false
 	}
 
@@ -212,7 +212,7 @@ func (m Message) ScanMTC(quarterframe *uint8) (is bool) {
 
 // Song returns the song number of a MIDI song select system message
 func (m Message) ScanSongSelect(song *uint8) (is bool) {
-	if !m.Is(SongSelect) {
+	if !m.Is(SongSelectMsg) {
 		return false
 	}
 
@@ -222,7 +222,7 @@ func (m Message) ScanSongSelect(song *uint8) (is bool) {
 
 // SPP returns the song position pointer of a MIDI song position pointer system message
 func (m Message) ScanSPP(spp *uint16) (is bool) {
-	if !m.Is(SPP) {
+	if !m.Is(SPPMsg) {
 		return false
 	}
 

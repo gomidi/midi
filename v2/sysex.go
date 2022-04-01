@@ -1,6 +1,6 @@
 package midi
 
-func NewSysEx(bt []byte) (m Message) {
+func SysEx(bt []byte) (m Message) {
 	var b = []byte{0xF0}
 	b = append(b, []byte(bt)...)
 	m = append(b, 0xF7)
