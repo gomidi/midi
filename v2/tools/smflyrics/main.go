@@ -98,33 +98,33 @@ func (p *Json) ReadSMF() {
 func (t *Json) ReadTrack(tr *smf.Track) {
 	var text string
 	for _, ev := range tr.Events {
-		if !ev.Is(smf.MetaType) {
+		if !ev.Message.IsMeta() {
 			continue
 		}
-		msg := smf.MetaMessage(ev.Message)
+		msg := ev.Message
 
 		switch {
-		case msg.Lyric(&text):
+		case msg.ScanLyric(&text):
 			t.Tracks[t.current].addLyric(text)
 			if t.printText {
 				fmt.Print(text + " ")
 			}
-		case t.includeText && msg.Text(&text):
+		case t.includeText && msg.ScanText(&text):
 			t.Tracks[t.current].addText(text)
 			if t.printText {
 				fmt.Printf(" %q ", text)
 			}
-		case msg.TrackName(&text):
+		case msg.ScanTrackName(&text):
 			t.Tracks[t.current].Name = text
 			if t.printText {
 				fmt.Println(fmt.Sprintf("[track: %v]\n", text))
 			}
-		case msg.Instrument(&text):
+		case msg.ScanInstrument(&text):
 			t.Tracks[t.current].Instrument = text
 			if t.printText {
 				fmt.Println(fmt.Sprintf("[instrument: %v]\n", text))
 			}
-		case msg.ProgramName(&text):
+		case msg.ScanProgramName(&text):
 			t.Tracks[t.current].Program = text
 			if t.printText {
 				fmt.Println(fmt.Sprintf("[program: %v]\n", text))
