@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"gitlab.com/gomidi/midi/v2"
-	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
 	"gitlab.com/gomidi/midi/v2/smf"
+
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
 )
 
 func main() {
@@ -24,7 +25,7 @@ func run() error {
 	bpm := float64(120)
 
 	tr := smf.NewTrack()
-	tr.Add(0, smf.NewMetaTempo(bpm))
+	tr.Add(0, smf.MetaTempo(bpm))
 
 	defer midi.CloseDriver()
 	in := midi.FindInPort("VMPK")
@@ -35,17 +36,15 @@ func run() error {
 
 	var absmillisec int32
 
-	var o midi.ListenOptions
-
 	// single track recording, for multitrack we would have to collect the messages first (separated by port / midi channel)
 	// and the write them after the recording to the different tracks
-	stop, err := midi.ListenToPort(in, midi.ReceiverFunc(func(msg midi.Message, absms int32) {
+	stop, err := midi.ListenTo(in, midi.ReceiverFunc(func(msg midi.Message, absms int32) {
 		deltams := absms - absmillisec
 		absmillisec = absms
 		fmt.Printf("[%v] %s\n", deltams, msg.String())
 		delta := ticks.Ticks(bpm, time.Duration(deltams)*time.Millisecond)
 		tr.Add(delta, msg)
-	}), o)
+	}))
 
 	if err != nil {
 		return err

@@ -132,17 +132,26 @@ func (p player) Len() int {
 }
 
 // Play plays the tracks on the given out port
-func (t *TracksReader) Play(out drivers.Out) *TracksReader {
-	return t.MultiPlay(map[int]drivers.Out{-1: out})
+func (t *TracksReader) Play(out int) error {
+	o, err := drivers.OutByNumber(out)
+	if err != nil {
+		return err
+	}
+	err = o.Open()
+	if err != nil {
+		return err
+	}
+
+	return t.MultiPlay(map[int]drivers.Out{-1: o})
 }
 
 // MultiPlay plays tracks to different out ports.
 // If the map has an index of -1, it will be used to play all tracks that have no explicit out port.
-func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) *TracksReader {
+func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) error {
 	var pl player
 	if len(trackouts) == 0 {
 		t.err = fmt.Errorf("trackouts not set")
-		return t
+		return t.err
 	}
 
 	t.Do(
@@ -182,7 +191,7 @@ func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) *TracksReader {
 		last = t.play(last, pl[i])
 	}
 
-	return t
+	return t.err
 }
 
 func (t *TracksReader) play(last time.Duration, p playEvent) time.Duration {

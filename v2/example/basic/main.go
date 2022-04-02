@@ -22,17 +22,17 @@ func rec(msg midi.Message, timestamp int32) {
 	var pitch int16
 
 	switch {
-	case msg.NoteOn(&channel, &key, &velocity):
+	case msg.ScanNoteOn(&channel, &key, &velocity):
 		fmt.Printf("Channel: %v key: %v %s\n", channel, key, msg)
-	case msg.NoteOff(&channel, &key, &velocity):
+	case msg.ScanNoteOff(&channel, &key, &velocity):
 		fmt.Printf("Channel: %v key: %v %s\n", channel, key, msg)
-	case msg.AfterTouch(&channel, &pressure):
+	case msg.ScanAfterTouch(&channel, &pressure):
 		fmt.Printf("Channel: %v Pressure: %v %s\n", channel, pressure, msg)
-	case msg.ProgramChange(&channel, &program):
+	case msg.ScanProgramChange(&channel, &program):
 		fmt.Printf("Channel: %v Program: %v %s\n", channel, program, msg)
-	case msg.PitchBend(&channel, &pitch, nil):
+	case msg.ScanPitchBend(&channel, &pitch, nil):
 		fmt.Printf("Channel: %v Pitch: %v %s\n", channel, pitch, msg)
-	case msg.Channel(&channel):
+	case msg.ScanChannel(&channel):
 		fmt.Printf("Channel: %v %s\n", channel, msg)
 	default:
 		fmt.Printf("%s\n", msg)
@@ -51,13 +51,11 @@ func main() {
 	}
 
 	// here we take first out, for real drivers midi.OutByName should be more helpful
-	s, err := midi.SenderToPort(0)
+	s, err := midi.SendTo(0)
 	must(err)
 
-	var o midi.ListenOptions
-
 	// here we take first in, for real drivers midi.InByName should be more helpful
-	stop, err := midi.ListenToPort(0, midi.ReceiverFunc(rec), o)
+	stop, err := midi.ListenTo(0, midi.ReceiverFunc(rec))
 
 	//listener, err := midi.NewListener(in, midi.ReceiverFunc(rec))
 
@@ -66,19 +64,19 @@ func main() {
 	//listener.Only(midi.ChannelMsg).StartListening()
 
 	{ // write somehow MIDI
-		err = s.Send(midi.NewNoteOn(0, 60, 100))
+		err = s.Send(midi.NoteOn(0, 60, 100))
 		must(err)
 
 		time.Sleep(time.Nanosecond)
-		s.Send(midi.NewNoteOff(0, 60))
-		s.Send(midi.NewPitchbend(0, -12))
+		s.Send(midi.NoteOff(0, 60))
+		s.Send(midi.Pitchbend(0, -12))
 		time.Sleep(time.Nanosecond)
 
-		s.Send(midi.NewProgramChange(1, 12))
+		s.Send(midi.ProgramChange(1, 12))
 
-		s.Send(midi.NewNoteOn(1, 70, 100))
+		s.Send(midi.NoteOn(1, 70, 100))
 		time.Sleep(time.Nanosecond)
-		s.Send(midi.NewNoteOff(1, 70))
+		s.Send(midi.NoteOff(1, 70))
 		time.Sleep(time.Second * 1)
 	}
 

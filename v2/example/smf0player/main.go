@@ -4,11 +4,10 @@ import (
 	"fmt"
 
 	"gitlab.com/gomidi/midi/v2"
-	"gitlab.com/gomidi/midi/v2/drivers"
-
-	// "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
-	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
 	"gitlab.com/gomidi/midi/v2/smf"
+
+	//_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
+	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
 )
 
 func printPorts() {
@@ -20,16 +19,14 @@ func printPorts() {
 
 func run() error {
 
-	out, err := drivers.OutByName("qsynth")
-	if err != nil {
-		return err
+	out := midi.FindOutPort("qsynth")
+	if out < 0 {
+		return fmt.Errorf("can't find qsynth")
 	}
-
-	defer out.Close()
 
 	//result := smf.ReadTracks("Prelude4.mid", 2).
 	//result := smf.ReadTracks("Prelude4.mid", 1, 2, 3, 4, 5, 6, 7).
-	result := smf.ReadTracks("Prelude4.mid").
+	return smf.ReadTracks("Prelude4.mid").
 		//result := smf.ReadTracks("VOYAGER.MID").
 		//result := smf.ReadTracks("VOYAGER.MID", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg).
@@ -59,11 +56,10 @@ func run() error {
 				}
 			},
 		).Play(out)
-
-	return result.Error()
 }
 
 func main() {
+	defer midi.CloseDriver()
 	err := run()
 
 	if err != nil {
