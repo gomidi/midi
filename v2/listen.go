@@ -29,8 +29,8 @@ func _channelMessage(typ, channel, data1, data2 byte) Message {
 	}
 }
 
-// ListenOptions are the options for the listening
-type ListenOptions struct {
+// listeningOptions are the options for the listening
+type listeningOptions struct {
 
 	// TimeCode lets the timecode messages pass through, if set
 	TimeCode bool
@@ -45,31 +45,40 @@ type ListenOptions struct {
 	// SysEx messages larger than this size will be ignored.
 	// When SysExBufferSize is 0, the default buffersize (1024) is used.
 	SysExBufferSize uint32
+
+	// OnError handles occuring errors
+	OnError func(error)
 }
 
-type ListenOption func(*ListenOptions)
+type ListeningOption func(*listeningOptions)
 
-func GetTimeCode() ListenOption {
-	return func(l *ListenOptions) {
+func GetTimeCode() ListeningOption {
+	return func(l *listeningOptions) {
 		l.TimeCode = true
 	}
 }
 
-func GetActiveSense() ListenOption {
-	return func(l *ListenOptions) {
+func GetActiveSense() ListeningOption {
+	return func(l *listeningOptions) {
 		l.ActiveSense = true
 	}
 }
 
-func GetSysEx() ListenOption {
-	return func(l *ListenOptions) {
+func GetSysEx() ListeningOption {
+	return func(l *listeningOptions) {
 		l.SysEx = true
 	}
 }
 
-func SysExBufferSize(size uint32) ListenOption {
-	return func(l *ListenOptions) {
+func SysExBufferSize(size uint32) ListeningOption {
+	return func(l *listeningOptions) {
 		l.SysExBufferSize = size
+	}
+}
+
+func OnError(cb func(error)) ListeningOption {
+	return func(l *listeningOptions) {
+		l.OnError = cb
 	}
 }
 
@@ -78,13 +87,13 @@ var ErrListenStopped = drivers.ErrListenStopped
 
 // ListenTo listens on the given port number and passes the received MIDI data to the given receiver.
 // It returns a stop function that may be called to stop the listening.
-func ListenTo(portnumber int, recv Receiver, opts ...ListenOption) (stop func(), err error) {
+func ListenTo(portnumber int, recv func(msg Message, timestampms int32), opts ...ListeningOption) (stop func(), err error) {
 	in, err := drivers.InByNumber(portnumber)
 	if err != nil {
 		return nil, err
 	}
 
-	var opt ListenOptions
+	var opt listeningOptions
 	for _, o := range opts {
 		o(&opt)
 	}
@@ -94,10 +103,7 @@ func ListenTo(portnumber int, recv Receiver, opts ...ListenOption) (stop func(),
 	conf.TimeCode = opt.TimeCode
 	conf.ActiveSense = opt.ActiveSense
 	conf.SysEx = opt.SysEx
-
-	if errrc, has := recv.(ErrorReceiver); has {
-		conf.OnErr = errrc.OnError
-	}
+	conf.OnErr = opt.OnError
 
 	var isStatusSet bool
 	var typ, channel byte
@@ -153,7 +159,7 @@ func ListenTo(portnumber int, recv Receiver, opts ...ListenOption) (stop func(),
 			}
 		}
 
-		recv.Receive(msg, millisec)
+		recv(msg, millisec)
 	}
 
 	return in.Listen(onMsg, conf)

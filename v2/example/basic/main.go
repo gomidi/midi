@@ -12,97 +12,70 @@ import (
 	_ "gitlab.com/gomidi/midi/v2/drivers/testdrv"
 	// when using rtmidi, replace the line above with
 	//_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
-	// when using portmidi, replace the line above with
-	//_ gitlab.com/gomidi/midi/v2/drivers/portmididrv
 )
-
-func rec(msg midi.Message, timestamp int32) {
-
-	var channel, key, velocity, program, pressure uint8
-	var pitch int16
-
-	switch {
-	case msg.ScanNoteOn(&channel, &key, &velocity):
-		fmt.Printf("Channel: %v key: %v %s\n", channel, key, msg)
-	case msg.ScanNoteOff(&channel, &key, &velocity):
-		fmt.Printf("Channel: %v key: %v %s\n", channel, key, msg)
-	case msg.ScanAfterTouch(&channel, &pressure):
-		fmt.Printf("Channel: %v Pressure: %v %s\n", channel, pressure, msg)
-	case msg.ScanProgramChange(&channel, &program):
-		fmt.Printf("Channel: %v Program: %v %s\n", channel, program, msg)
-	case msg.ScanPitchBend(&channel, &pitch, nil):
-		fmt.Printf("Channel: %v Pitch: %v %s\n", channel, pitch, msg)
-	case msg.ScanChannel(&channel):
-		fmt.Printf("Channel: %v %s\n", channel, msg)
-	default:
-		fmt.Printf("%s\n", msg)
-	}
-}
 
 func main() {
 
+	// always good to close the driver at the end
 	defer midi.CloseDriver()
 
 	// allows you to get the ports when using "real" drivers like rtmididrv or portmididrv
 	if len(os.Args) == 2 && os.Args[1] == "list" {
-		printInPorts()
-		printOutPorts()
+		fmt.Printf("MIDI IN Ports\n")
+		for i, port := range midi.InPorts() {
+			fmt.Printf("no: %v %q\n", i, port)
+		}
+		fmt.Printf("\n\nMIDI OUT Ports\n")
+		for i, port := range midi.OutPorts() {
+			fmt.Printf("no: %v %q\n", i, port)
+		}
+		fmt.Printf("\n\n")
 		return
 	}
 
-	// here we take first out, for real drivers midi.OutByName should be more helpful
-	s, err := midi.SendTo(0)
-	must(err)
+	var out int = 0
+	// here we take first out, for real drivers the following should be more helpful
+	// var out = midi.OutByName("my synth")
 
-	// here we take first in, for real drivers midi.InByName should be more helpful
-	stop, err := midi.ListenTo(0, midi.ReceiverFunc(rec))
+	// creates a sender function to the midi out port
+	send, _ := midi.SendTo(out)
 
-	//listener, err := midi.NewListener(in, midi.ReceiverFunc(rec))
+	var in int = 0
+	// here we take first in, for real drivers the following should be more helpful
+	// var in = midi.InByName("my midi keyboard")
 
-	must(err)
+	// listens to the midi in port and calls the callback function eachMessage for each
+	// message. Note, that any running status bytes are converted and only complete messages
+	// are passed to the callback.
+	stop, _ := midi.ListenTo(in, eachMessage)
 
-	//listener.Only(midi.ChannelMsg).StartListening()
-
-	{ // write somehow MIDI
-		err = s.Send(midi.NoteOn(0, 60, 100))
-		must(err)
-
-		time.Sleep(time.Nanosecond)
-		s.Send(midi.NoteOff(0, 60))
-		s.Send(midi.Pitchbend(0, -12))
-		time.Sleep(time.Nanosecond)
-
-		s.Send(midi.ProgramChange(1, 12))
-
-		s.Send(midi.NoteOn(1, 70, 100))
-		time.Sleep(time.Nanosecond)
-		s.Send(midi.NoteOff(1, 70))
-		time.Sleep(time.Second * 1)
+	{ // send some MIDI via the sender
+		send(midi.NoteOn(0, 60, 100))
+		time.Sleep(time.Millisecond * 30)
+		send(midi.NoteOff(0, 60))
+		send(midi.Pitchbend(0, -12))
+		time.Sleep(time.Millisecond * 20)
+		send(midi.ProgramChange(1, 12))
 	}
 
+	// stops listening
 	stop()
 }
 
-func printInPorts() {
-	fmt.Printf("MIDI IN Ports\n")
-	ins := midi.InPorts()
-	for i, port := range ins {
-		fmt.Printf("[%v] %s\n", i, port)
+func eachMessage(msg midi.Message, timestampms int32) {
+	if msg.Is(midi.RealTimeMsg) {
+		// ignore realtime messages
+		return
 	}
-	fmt.Printf("\n\n")
-}
-
-func printOutPorts() {
-	fmt.Printf("MIDI OUT Ports\n")
-	outs := midi.OutPorts()
-	for i, port := range outs {
-		fmt.Printf("[%v] %s\n", i, port)
-	}
-	fmt.Printf("\n\n")
-}
-
-func must(err error) {
-	if err != nil {
-		panic(err.Error())
+	var channel, key, velocity uint8
+	switch {
+	// is better, than to use ScanNoteOn, since note on messages with velocity of 0 also stop notes
+	case msg.ScanNoteStart(&channel, &key, &velocity):
+		fmt.Printf("note started at %vms channel: %v key: %v velocity: %v\n", timestampms, channel, key, velocity)
+	// is better, than to use ScanNoteOff, since note on messages with velocity of 0 also stop notes
+	case msg.ScanNoteEnd(&channel, &key, &velocity):
+		fmt.Printf("note ended at %vms channel: %v key: %v\n", timestampms, channel, key)
+	default:
+		fmt.Printf("received %s at %vms\n", msg, timestampms)
 	}
 }

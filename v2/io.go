@@ -12,7 +12,7 @@ func CloseDriver() {
 	drivers.Close()
 }
 
-func SendTo(portno int) (Sender, error) {
+func SendTo(portno int) (func(msg Message) error, error) {
 	out, err := drivers.OutByNumber(portno)
 	if err != nil {
 		return nil, err
@@ -23,11 +23,12 @@ func SendTo(portno int) (Sender, error) {
 			return nil, err
 		}
 	}
-	return SenderFunc(func(msg Message) error {
+	return func(msg Message) error {
 		return out.Send(msg)
-	}), nil
+	}, nil
 }
 
+/*
 type SenderFunc func(msg Message) error
 
 func (s SenderFunc) Send(msg Message) error {
@@ -39,7 +40,9 @@ type Sender interface {
 	// Send sends the given MIDI message and returns any error.
 	Send(msg Message) error
 }
+*/
 
+/*
 // ReceiverFunc is a function that receives a single MIDI message
 type ReceiverFunc func(msg Message, absmillisec int32)
 
@@ -58,6 +61,7 @@ type ErrorReceiver interface {
 	Receiver
 	OnError(error)
 }
+*/
 
 // InPorts returns the MIDI input ports
 func InPorts() []string {
