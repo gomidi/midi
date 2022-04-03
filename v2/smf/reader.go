@@ -180,7 +180,7 @@ func (r *reader) ReadTracks() (err error) {
 				AbsTicks: absTicks,
 			}
 
-			m.ScanTempo(&tc.BPM)
+			m.ScanMetaTempo(&tc.BPM)
 			//fmt.Printf("BPM: %v\n", tc.BPM)
 			r.SMF.tempoChanges = append(r.SMF.tempoChanges, &tc)
 		}

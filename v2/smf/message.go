@@ -107,14 +107,33 @@ func (m Message) String() string {
 
 		var val1 uint8
 		var val2 uint8
+		var val3 uint8
+		var val4 uint8
+		var val5 uint8
+		var val16 uint16
+		var bl1 bool
+		var bl2 bool
 		var text string
 		var bpm float64
-		// TODO: complete
+		var bt []byte
+
 		switch {
-		case m.ScanTempo(&bpm):
+		case m.ScanMetaTempo(&bpm):
 			fmt.Fprintf(&bf, " bpm: %0.2f", bpm)
-		case m.ScanMeter(&val1, &val2):
+		case m.ScanMetaMeter(&val1, &val2):
 			fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
+		case m.ScanMetaChannel(&val1):
+			fmt.Fprintf(&bf, " channel: %v", val1)
+		case m.ScanMetaPort(&val1):
+			fmt.Fprintf(&bf, " port: %v", val1)
+		case m.ScanMetaSeqNumber(&val16):
+			fmt.Fprintf(&bf, " number: %v", val16)
+		case m.ScanMetaSMPTEOffsetMsg(&val1, &val2, &val3, &val4, &val5):
+			fmt.Fprintf(&bf, " hour: %v minute: %v second: %v frame: %v fractframe: %v", val1, val2, val3, val4, val5)
+		case m.ScanMetaSeqData(&bt):
+			fmt.Fprintf(&bf, " bytes: % X", bt)
+		case m.ScanMetaKeySig(&val1, &val2, &bl1, &bl2):
+			fmt.Fprintf(&bf, " key: %v num: %v ismajor: %v isflat: %v", val1, val2, bl1, bl2)
 		default:
 			switch m.Type() {
 			case MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg:

@@ -15,6 +15,33 @@ func hasBitU8(n uint8, pos uint8) bool {
 	return (val > 0)
 }
 
+// Supplied to KeySignature
+const (
+	majorMode = 0
+	minorMode = 1
+)
+
+// KeyFromSharpsOrFlats Taking a signed number of sharps or flats (positive for sharps, negative for flats) and a mode (0 for major, 1 for minor)
+// decide the key signature.
+//
+// This is a slightly modified variant of the keySignatureFromSharpsOrFlats function
+// from Joe Wass. See the file music.go for the original.
+func KeyFromSharpsOrFlats(sharpsOrFlats int8, mode uint8) uint8 {
+	tmp := int(sharpsOrFlats * 7)
+
+	// Relative Minor.
+	if mode == minorMode {
+		tmp -= 3
+	}
+
+	// Clamp to Octave 0-11.
+	for tmp < 0 {
+		tmp += 12
+	}
+
+	return uint8(tmp % 12)
+}
+
 // IsChannelMessage returns if the given byte is a channel message
 func IsChannelMessage(b uint8) bool {
 	return !hasBitU8(b, 6)
@@ -75,6 +102,18 @@ func ReadUint16(rd io.Reader) (uint16, error) {
 	val |= uint16(b[0]) << 8
 
 	return val, nil
+}
+
+// ParseUint16 converts 2 bytes to a 16 bit integer
+// This is a slightly modified variant of the parseUint16 function
+// from Joe Wass. See the file midi_functions.go for the original.
+func ParseUint16(b1, b2 byte) uint16 {
+
+	var val uint16 = 0x00
+	val |= uint16(b2) << 0
+	val |= uint16(b1) << 8
+
+	return val
 }
 
 // ReadUint32 parse a 4-byte 32 bit integer from a Reader.

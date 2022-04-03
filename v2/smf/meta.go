@@ -49,8 +49,8 @@ func _MetaMessage(typ byte, data []byte) Message {
 
 // Meter returns the meter of a MetaTimeSigMsg.
 // For other messages, it returns 0,0.
-func (m Message) ScanMeter(num, denom *uint8) (is bool) {
-	return m.ScanTimeSig(num, denom, nil, nil)
+func (m Message) ScanMetaMeter(num, denom *uint8) (is bool) {
+	return m.ScanMetaTimeSig(num, denom, nil, nil)
 }
 
 // metaData strips away the meta byte and the metatype byte and the varlength byte
@@ -59,9 +59,111 @@ func (m Message) metaDataWithoutVarlength() []byte {
 	return m[3:]
 }
 
+func (m Message) ScanMetaChannel(channel *uint8) bool {
+	if !m.Type().Is(MetaChannelMsg) {
+		return false
+	}
+
+	data := m.metaDataWithoutVarlength()
+
+	*channel = data[0]
+	return true
+}
+
+func (m Message) ScanMetaPort(port *uint8) bool {
+	if !m.Type().Is(MetaPortMsg) {
+		return false
+	}
+
+	data := m.metaDataWithoutVarlength()
+
+	*port = data[0]
+	return true
+}
+
+func (m Message) ScanMetaSeqNumber(sequenceNumber *uint16) bool {
+	if !m.Type().Is(MetaSeqNumberMsg) {
+		return false
+	}
+
+	// Zero length sequences allowed according to http://home.roadrunner.com/~jgglatt/tech/midifile/seq.htm
+	if len(m) == 2 {
+		*sequenceNumber = 0
+		return true
+	}
+
+	*sequenceNumber = utils.ParseUint16(m[2], m[3])
+
+	return true
+
+}
+
+func (m Message) ScanMetaSeqData(bt *[]byte) bool {
+	if !m.Is(MetaSeqDataMsg) {
+		return false
+	}
+
+	data := m.metaDataWithoutVarlength()
+	*bt = data
+	return true
+}
+
+func (m Message) ScanMetaKeySig(key, num *uint8, isMajor *bool, isFlat *bool) bool {
+	if !m.Is(MetaKeySigMsg) {
+		return false
+	}
+
+	data := m.metaDataWithoutVarlength()
+
+	if len(data) != 2 {
+		//err = unexpectedMessageLengthError("KeySignature expected length 2")
+		//return nil, err
+		return false
+	}
+
+	sharpsOrFlats := int8(data[0])
+
+	// Mode is Major or Minor.
+	mode := data[1]
+
+	_num := sharpsOrFlats
+	if _num < 0 {
+		_num = _num * (-1)
+	}
+
+	*key = utils.KeyFromSharpsOrFlats(sharpsOrFlats, mode)
+	*num = uint8(_num)
+	*isMajor = mode == majorMode
+	*isFlat = sharpsOrFlats < 0
+
+	return true
+}
+
+func (m Message) ScanMetaSMPTEOffsetMsg(hour, minute, second, frame, fractframe *uint8) bool {
+	if !m.Is(MetaSMPTEOffsetMsg) {
+		return false
+	}
+
+	data := m.metaDataWithoutVarlength()
+
+	if len(data) != 5 {
+		//err = unexpectedMessageLengthError("SMPTEOffset expected length 5")
+		//return nil, err
+		return false
+	}
+
+	*hour = data[0]
+	*minute = data[1]
+	*second = data[2]
+	*frame = data[3]
+	*fractframe = data[4]
+
+	return true
+}
+
 // TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
 // MetaTimeSigMsg. For other messages, it returns 0,0,0,0.
-func (m Message) ScanTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
+func (m Message) ScanMetaTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
 	if !m.Type().Is(MetaTimeSigMsg) {
 		//fmt.Println("not timesig message")
 		return false
@@ -99,7 +201,7 @@ func bin2decDenom(bin uint8) uint8 {
 
 // Tempo returns true if (and only if) the message is a MetaTempoMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanTempo(bpm *float64) (is bool) {
+func (m Message) ScanMetaTempo(bpm *float64) (is bool) {
 	if !m.Type().Is(MetaTempoMsg) {
 		return false
 	}
@@ -118,7 +220,7 @@ func (m Message) ScanTempo(bpm *float64) (is bool) {
 
 // Lyric returns true if (and only if) the message is a MetaLyricMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanLyric(text *string) (is bool) {
+func (m Message) ScanMetaLyric(text *string) (is bool) {
 	if !m.Type().Is(MetaLyricMsg) {
 		return false
 	}
@@ -134,7 +236,7 @@ func (m Message) Is(t midi.Type) bool {
 
 // Copyright returns true if (and only if) the message is a MetaCopyrightMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanCopyright(text *string) (is bool) {
+func (m Message) ScanMetaCopyright(text *string) (is bool) {
 	if !m.Is(MetaCopyrightMsg) {
 		return false
 	}
@@ -144,7 +246,7 @@ func (m Message) ScanCopyright(text *string) (is bool) {
 
 // Cuepoint returns true if (and only if) the message is a MetaCuepointMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanCuepoint(text *string) (is bool) {
+func (m Message) ScanMetaCuepoint(text *string) (is bool) {
 	if !m.Is(MetaCuepointMsg) {
 		return false
 	}
@@ -154,7 +256,7 @@ func (m Message) ScanCuepoint(text *string) (is bool) {
 
 // Device returns true if (and only if) the message is a MetaDeviceMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanDevice(text *string) (is bool) {
+func (m Message) ScanMetaDevice(text *string) (is bool) {
 	if !m.Is(MetaDeviceMsg) {
 		return false
 	}
@@ -164,7 +266,7 @@ func (m Message) ScanDevice(text *string) (is bool) {
 
 // Instrument returns true if (and only if) the message is a MetaInstrumentMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanInstrument(text *string) (is bool) {
+func (m Message) ScanMetaInstrument(text *string) (is bool) {
 	if !m.Is(MetaInstrumentMsg) {
 		return false
 	}
@@ -174,7 +276,7 @@ func (m Message) ScanInstrument(text *string) (is bool) {
 
 // Marker returns true if (and only if) the message is a MetaMarkerMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanMarker(text *string) (is bool) {
+func (m Message) ScanMetaMarker(text *string) (is bool) {
 	if !m.Is(MetaMarkerMsg) {
 		return false
 	}
@@ -184,7 +286,7 @@ func (m Message) ScanMarker(text *string) (is bool) {
 
 // ProgramName returns true if (and only if) the message is a MetaProgramNameMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanProgramName(text *string) (is bool) {
+func (m Message) ScanMetaProgramName(text *string) (is bool) {
 	if !m.Is(MetaProgramNameMsg) {
 		return false
 	}
@@ -194,7 +296,7 @@ func (m Message) ScanProgramName(text *string) (is bool) {
 
 // Text returns true if (and only if) the message is a MetaTextMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanText(text *string) (is bool) {
+func (m Message) ScanMetaText(text *string) (is bool) {
 	switch m.Type() {
 	case MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg:
 		m.text(text)
@@ -206,7 +308,7 @@ func (m Message) ScanText(text *string) (is bool) {
 
 // TrackName returns true if (and only if) the message is a MetaTrackNameMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanTrackName(text *string) (is bool) {
+func (m Message) ScanMetaTrackName(text *string) (is bool) {
 	if !m.Is(MetaTrackNameMsg) {
 		return false
 	}
