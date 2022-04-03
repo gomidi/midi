@@ -15,21 +15,21 @@ func (m Message) Bytes() []byte {
 }
 
 func (m Message) IsPlayable() bool {
-	return m.Type().IsPlayable()
+	return midi.Message(m).IsPlayable()
 }
 
 func (m Message) Type() midi.Type {
-	return GetType(m)
+	return getType(m)
 }
 
-func GetType(msg []byte) midi.Type {
+func getType(msg []byte) midi.Type {
 	if len(msg) == 0 {
 		return midi.UnknownMsg
 	}
 	if Message(msg).IsMeta() {
-		return GetMetaType(msg[1])
+		return getMetaType(msg[1])
 	} else {
-		return midi.GetType(msg)
+		return midi.Message(msg).Type()
 	}
 }
 

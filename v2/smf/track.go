@@ -46,7 +46,7 @@ func (t *Track) Add(deltaticks uint32, msgs ...[]byte) {
 	}
 }
 
-func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Receiver) {
+func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver func(m midi.Message, timestampms int32)) {
 	var absDelta int64
 
 	for _, ev := range t.Events {
@@ -54,7 +54,7 @@ func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver midi.Re
 		if Message(ev.Message).IsPlayable() {
 			//		if m, ok := ev.Message().Type() <  .(midi.Msg); ok {
 			ms := int32(resolution.Duration(tc.TempoAt(absDelta), ev.Delta).Microseconds() * 100)
-			receiver.Receive(ev.Message.Bytes(), ms)
+			receiver(ev.Message.Bytes(), ms)
 		}
 	}
 }

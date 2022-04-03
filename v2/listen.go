@@ -50,33 +50,33 @@ type listeningOptions struct {
 	OnError func(error)
 }
 
-type ListeningOption func(*listeningOptions)
+type Option func(*listeningOptions)
 
-func GetTimeCode() ListeningOption {
+func UseTimeCode() Option {
 	return func(l *listeningOptions) {
 		l.TimeCode = true
 	}
 }
 
-func GetActiveSense() ListeningOption {
+func UseActiveSense() Option {
 	return func(l *listeningOptions) {
 		l.ActiveSense = true
 	}
 }
 
-func GetSysEx() ListeningOption {
+func UseSysEx() Option {
 	return func(l *listeningOptions) {
 		l.SysEx = true
 	}
 }
 
-func SysExBufferSize(size uint32) ListeningOption {
+func SysExBufferSize(size uint32) Option {
 	return func(l *listeningOptions) {
 		l.SysExBufferSize = size
 	}
 }
 
-func OnError(cb func(error)) ListeningOption {
+func HandleError(cb func(error)) Option {
 	return func(l *listeningOptions) {
 		l.OnError = cb
 	}
@@ -87,8 +87,8 @@ var ErrListenStopped = drivers.ErrListenStopped
 
 // ListenTo listens on the given port number and passes the received MIDI data to the given receiver.
 // It returns a stop function that may be called to stop the listening.
-func ListenTo(portnumber int, recv func(msg Message, timestampms int32), opts ...ListeningOption) (stop func(), err error) {
-	in, err := drivers.InByNumber(portnumber)
+func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Option) (stop func(), err error) {
+	in, err := drivers.InByNumber(portno)
 	if err != nil {
 		return nil, err
 	}

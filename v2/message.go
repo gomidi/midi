@@ -36,11 +36,33 @@ func (m Message) Bytes() []byte {
 }
 
 func (m Message) IsPlayable() bool {
-	return m.Type().IsPlayable()
+	if m.Type() <= UnknownMsg {
+		return false
+	}
+
+	return m.Type() < firstMetaMsg
+}
+
+func (m Message) IsOneOf(checkers ...Type) bool {
+	for _, checker := range checkers {
+		if m.Is(checker) {
+			return true
+		}
+	}
+	return false
+}
+
+func (m Message) IsAllOf(checkers ...Type) bool {
+	for _, checker := range checkers {
+		if !m.Is(checker) {
+			return false
+		}
+	}
+	return true
 }
 
 func (m Message) Type() Type {
-	return GetType(m)
+	return getType(m)
 }
 
 func (m Message) Is(t Type) bool {

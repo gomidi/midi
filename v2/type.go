@@ -6,24 +6,6 @@ import (
 
 type Type int8
 
-func (t Type) IsOneOf(checkers ...Type) bool {
-	for _, checker := range checkers {
-		if t.Is(checker) {
-			return true
-		}
-	}
-	return false
-}
-
-func (t Type) IsAllOf(checkers ...Type) bool {
-	for _, checker := range checkers {
-		if !t.Is(checker) {
-			return false
-		}
-	}
-	return true
-}
-
 // t must not be a message kind (exception: sysex), but a concrete type
 func (t Type) Is(checker Type) bool {
 
@@ -120,13 +102,6 @@ var typeNames = map[Type]string{
 	reservedSysCommonMsg10: "reservedSysCommon10",
 }
 
-func (t Type) IsPlayable() bool {
-	if t <= UnknownMsg {
-		return false
-	}
-
-	return t < firstMetaMsg
-}
 
 func (t Type) String() string {
 	if s, has := typeNames[t]; has {
@@ -289,7 +264,7 @@ The returned MsgType will be a combination of message types, if appropriate (bin
 A note on message on channel 0 will have a message type that is a combination of a ChannelMsg, a Channel0Msg, and a NoteOnMsg.
 A tempo meta message of a SMF file will have a message type that is a combination of a MetaMsg, and a MetaTempoMsg.
 */
-func GetType(bt []byte) (mType Type) {
+func getType(bt []byte) (mType Type) {
 	//fmt.Printf("GetMsgType % X\n", msg)
 	if len(bt) == 0 {
 		return UnknownMsg
@@ -299,7 +274,7 @@ func GetType(bt []byte) (mType Type) {
 	switch {
 	// channel/Voice Category Status
 	case byte1 >= 0x80 && byte1 <= 0xEF:
-		return GetChannelType(byte1)
+		return getChannelType(byte1)
 	case byte1 == 0xF0, byte1 == 0xF7:
 		// TODO what about sysex start stop etc.
 		return SysExMsg
@@ -309,18 +284,18 @@ func GetType(bt []byte) (mType Type) {
 				return MetaMsgType
 			}
 		*/
-		return GetRealtimeType(byte1)
+		return getRealtimeType(byte1)
 	case byte1 < 0xF7:
-		return GetSysCommonType(byte1)
+		return getSysCommonType(byte1)
 	case byte1 > 0xF7:
-		return GetRealtimeType(byte1)
+		return getRealtimeType(byte1)
 	default:
 		return UnknownMsg
 	}
 }
 
 // GetChannelMsgType returns the MsgType of a channel message. It should not be used by the end consumer.
-func GetChannelType(canary byte) (mType Type) {
+func getChannelType(canary byte) (mType Type) {
 	tp, _ := utils.ParseStatus(canary)
 
 	switch tp {
@@ -344,7 +319,7 @@ func GetChannelType(canary byte) (mType Type) {
 }
 
 // GetRealtimeMsgType returns the MsgType of a realtime message. It should not be used by the end consumer.
-func GetRealtimeType(b byte) Type {
+func getRealtimeType(b byte) Type {
 	ty, has := rtMessages[b]
 	if !has {
 		return UnknownMsg
@@ -353,7 +328,7 @@ func GetRealtimeType(b byte) Type {
 }
 
 // GetSysCommonMsgType returns the MsgType of a sys common message. It should not be used by the end consumer.
-func GetSysCommonType(b byte) Type {
+func getSysCommonType(b byte) Type {
 	ty, has := syscommMessages[b]
 	if !has {
 		return UnknownMsg

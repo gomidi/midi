@@ -60,7 +60,7 @@ func (m Message) metaDataWithoutVarlength() []byte {
 }
 
 func (m Message) ScanMetaChannel(channel *uint8) bool {
-	if !m.Type().Is(MetaChannelMsg) {
+	if !m.Is(MetaChannelMsg) {
 		return false
 	}
 
@@ -71,7 +71,7 @@ func (m Message) ScanMetaChannel(channel *uint8) bool {
 }
 
 func (m Message) ScanMetaPort(port *uint8) bool {
-	if !m.Type().Is(MetaPortMsg) {
+	if !m.Is(MetaPortMsg) {
 		return false
 	}
 
@@ -82,7 +82,7 @@ func (m Message) ScanMetaPort(port *uint8) bool {
 }
 
 func (m Message) ScanMetaSeqNumber(sequenceNumber *uint16) bool {
-	if !m.Type().Is(MetaSeqNumberMsg) {
+	if !m.Is(MetaSeqNumberMsg) {
 		return false
 	}
 
@@ -164,7 +164,7 @@ func (m Message) ScanMetaSMPTEOffsetMsg(hour, minute, second, frame, fractframe 
 // TimeSig returns the numerator, denominator, clocksPerClick and demiSemiQuaverPerQuarter of a
 // MetaTimeSigMsg. For other messages, it returns 0,0,0,0.
 func (m Message) ScanMetaTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
-	if !m.Type().Is(MetaTimeSigMsg) {
+	if !m.Is(MetaTimeSigMsg) {
 		//fmt.Println("not timesig message")
 		return false
 	}
@@ -202,7 +202,7 @@ func bin2decDenom(bin uint8) uint8 {
 // Tempo returns true if (and only if) the message is a MetaTempoMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanMetaTempo(bpm *float64) (is bool) {
-	if !m.Type().Is(MetaTempoMsg) {
+	if !m.Is(MetaTempoMsg) {
 		return false
 	}
 
@@ -221,7 +221,7 @@ func (m Message) ScanMetaTempo(bpm *float64) (is bool) {
 // Lyric returns true if (and only if) the message is a MetaLyricMsg.
 // Then it also extracts the data to the given arguments
 func (m Message) ScanMetaLyric(text *string) (is bool) {
-	if !m.Type().Is(MetaLyricMsg) {
+	if !m.Is(MetaLyricMsg) {
 		return false
 	}
 	m.text(text)
@@ -334,7 +334,7 @@ func Is(mt1, mt2 midi.MessageType) bool {
 }
 */
 
-func ReadMetaData(tp midi.Type, rd io.Reader) (data []byte, err error) {
+func readMetaData(tp midi.Type, rd io.Reader) (data []byte, err error) {
 	return utils.ReadVarLengthData(rd)
 }
 
@@ -384,19 +384,19 @@ var metaMessages = map[byte]midi.Type{
 }
 
 // GetMetaType returns the MetaType of a meta message. It should not be used by the end consumer.
-func GetMetaType(b byte) midi.Type {
+func getMetaType(b byte) midi.Type {
 	return metaMessages[b]
 }
 
 const bpmFac = 60000000
 
 // NewMetaLyric returns the bytes of a lyric meta message
-func MetaLyric(text string) []byte {
+func MetaLyric(text string) Message {
 	return _MetaMessage(byteLyric, []byte(text))
 }
 
 // NewMetaCopyright returns the bytes of a copyright meta message
-func MetaCopyright(text string) []byte {
+func MetaCopyright(text string) Message {
 	return _MetaMessage(byteCopyright, []byte(text))
 }
 
