@@ -99,6 +99,14 @@ func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Opt
 		return nil, err
 	}
 
+	if !in.IsOpen() {
+		err = in.Open()
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var opt listeningOptions
 	for _, o := range opts {
 		o(&opt)
