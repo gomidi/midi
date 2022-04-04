@@ -46,6 +46,19 @@ func (t *Track) Add(deltaticks uint32, msgs ...[]byte) {
 	}
 }
 
+func (t *Track) RecordFrom(portno int, ticks MetricTicks, bpm float64) (stop func(), err error) {
+	t.Add(0, MetaTempo(bpm))
+	var absmillisec int32
+	//ticks := file.TimeFormat.(smf.MetricTicks)
+	return midi.ListenTo(portno, func(msg midi.Message, absms int32) {
+		deltams := absms - absmillisec
+		absmillisec = absms
+		//fmt.Printf("[%v] %s\n", deltams, msg.String())
+		delta := ticks.Ticks(bpm, time.Duration(deltams)*time.Millisecond)
+		t.Add(delta, msg)
+	})
+}
+
 func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver func(m midi.Message, timestampms int32)) {
 	var absDelta int64
 

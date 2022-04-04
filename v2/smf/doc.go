@@ -3,7 +3,9 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package midicatdrv provides a Driver to connect via the program midicat (from the tools).
+Package smf helps with reading and writing of Standard MIDI Files.
+
+The `tools` subdirectory provides command line tools based on this library.
 
 */
-package midicatdrv
+package smf

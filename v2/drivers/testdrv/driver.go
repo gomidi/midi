@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package testdrv provides a gomidi/midi.Driver for testing.
+Package testdrv provides a Driver for testing.
 
 */
 package testdrv

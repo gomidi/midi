@@ -7,34 +7,15 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-/*
-// Message represents a live MIDI message. It can be created from the MIDI bytes of a message, by calling NewMessage.
-type Message struct {
-
-	// Type represents the message type of the MIDI message
-	Type
-
-	// Data contains the bytes of the MiDI message
-	Data []byte
-}
-*/
-
+// Message is a complete midi message (not including meta messages)
 type Message []byte
 
-/*
-// NewMessage returns a new Message from the bytes of the message, by finding the correct type.
-// If the type could not be found, the Type of the Message is UnknownType.
-func NewMessage(bt []byte) (m Message) {
-	m.Type = GetType(bt)
-	m.Data = bt
-	return
-}
-*/
-
+// Bytes returns the underlying bytes of the message.
 func (m Message) Bytes() []byte {
 	return []byte(m)
 }
 
+// IsPlayable returns, if the message can be send to an instrument.
 func (m Message) IsPlayable() bool {
 	if m.Type() <= UnknownMsg {
 		return false
@@ -43,6 +24,7 @@ func (m Message) IsPlayable() bool {
 	return m.Type() < firstMetaMsg
 }
 
+// IsOneOf returns true, if the message has one of the given types.
 func (m Message) IsOneOf(checkers ...Type) bool {
 	for _, checker := range checkers {
 		if m.Is(checker) {
@@ -52,26 +34,19 @@ func (m Message) IsOneOf(checkers ...Type) bool {
 	return false
 }
 
-func (m Message) IsAllOf(checkers ...Type) bool {
-	for _, checker := range checkers {
-		if !m.Is(checker) {
-			return false
-		}
-	}
-	return true
-}
-
+// Type returns the type of the message.
 func (m Message) Type() Type {
 	return getType(m)
 }
 
+// Is returns true, if the message is of the given type.
 func (m Message) Is(t Type) bool {
 	return m.Type().Is(t)
 }
 
-// NoteOn returns true if (and only if) the message is a NoteOnMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
+// GetNoteOn returns true if (and only if) the message is a NoteOnMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetNoteOn(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) {
 		return false
 	}
@@ -81,9 +56,9 @@ func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
 	return true
 }
 
-// NoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
+// GetNoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetNoteStart(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) {
 		return false
 	}
@@ -96,9 +71,9 @@ func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
 	return true
 }
 
-// NoteOff returns true if (and only if) the message is a NoteOffMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
+// GetNoteOff returns true if (and only if) the message is a NoteOffMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOffMsg) {
 		return false
 	}
@@ -108,9 +83,9 @@ func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
 	return true
 }
 
-// Channel returns true if (and only if) the message is a ChannelMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanChannel(channel *uint8) (is bool) {
+// GetChannel returns true if (and only if) the message is a ChannelMsg.
+// Then it also extracts the channel to the given argument.
+func (m Message) GetChannel(channel *uint8) (is bool) {
 	if !m.Is(ChannelMsg) {
 		return false
 	}
@@ -119,9 +94,9 @@ func (m Message) ScanChannel(channel *uint8) (is bool) {
 	return true
 }
 
-// NoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanNoteEnd(channel, key, velocity *uint8) (is bool) {
+// GetNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetNoteEnd(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) && !m.Is(NoteOffMsg) {
 		return false
 	}
@@ -131,9 +106,9 @@ func (m Message) ScanNoteEnd(channel, key, velocity *uint8) (is bool) {
 	return m.Is(NoteOffMsg) || *velocity == 0
 }
 
-// PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
+// GetPolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	if !m.Is(PolyAfterTouchMsg) {
 		return false
 	}
@@ -143,9 +118,9 @@ func (m Message) ScanPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	return true
 }
 
-// AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanAfterTouch(channel, pressure *uint8) (is bool) {
+// GetAfterTouch returns true if (and only if) the message is a AfterTouchMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetAfterTouch(channel, pressure *uint8) (is bool) {
 	if !m.Is(AfterTouchMsg) {
 		return false
 	}
@@ -155,9 +130,9 @@ func (m Message) ScanAfterTouch(channel, pressure *uint8) (is bool) {
 	return true
 }
 
-// ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanProgramChange(channel, program *uint8) (is bool) {
+// GetProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetProgramChange(channel, program *uint8) (is bool) {
 	if !m.Is(ProgramChangeMsg) {
 		return false
 	}
@@ -167,10 +142,10 @@ func (m Message) ScanProgramChange(channel, program *uint8) (is bool) {
 	return true
 }
 
-// PitchBend returns true if (and only if) the message is a PitchBendMsg.
-// Then it also extracts the data to the given arguments
+// GetPitchBend returns true if (and only if) the message is a PitchBendMsg.
+// Then it also extracts the data to the given arguments.
 // Either relative or absolute may be nil, if not needed.
-func (m Message) ScanPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
+func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
 	if !m.Is(PitchBendMsg) {
 		return false
 	}
@@ -187,9 +162,9 @@ func (m Message) ScanPitchBend(channel *uint8, relative *int16, absolute *uint16
 	return true
 }
 
-// ControlChange returns true if (and only if) the message is a ControlChangeMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanControlChange(channel, controller, value *uint8) (is bool) {
+// GetControlChange returns true if (and only if) the message is a ControlChangeMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetControlChange(channel, controller, value *uint8) (is bool) {
 	if !m.Is(ControlChangeMsg) {
 		return false
 	}
@@ -222,8 +197,9 @@ cdefg = Hours (0-23)
 8	0111 0abc	Frame Rate, and Hours MSB
 */
 
-// MTC represents a MIDI timing code message (quarter frame)
-func (m Message) ScanMTC(quarterframe *uint8) (is bool) {
+// GetMTC returns true if (and only if) the message is a MTCMsg.
+// Then it also extracts the data to the given arguments.
+func (m Message) GetMTC(quarterframe *uint8) (is bool) {
 	if !m.Is(MTCMsg) {
 		return false
 	}
@@ -232,8 +208,9 @@ func (m Message) ScanMTC(quarterframe *uint8) (is bool) {
 	return true
 }
 
-// Song returns the song number of a MIDI song select system message
-func (m Message) ScanSongSelect(song *uint8) (is bool) {
+// GetSongSelect returns true if (and only if) the message is a SongSelectMsg.
+// Then it also extracts the song number to the given argument.
+func (m Message) GetSongSelect(song *uint8) (is bool) {
 	if !m.Is(SongSelectMsg) {
 		return false
 	}
@@ -242,8 +219,9 @@ func (m Message) ScanSongSelect(song *uint8) (is bool) {
 	return true
 }
 
-// SPP returns the song position pointer of a MIDI song position pointer system message
-func (m Message) ScanSPP(spp *uint16) (is bool) {
+// GetSPP returns true if (and only if) the message is a SPPMsg.
+// Then it also extracts the spp to the given argument.
+func (m Message) GetSPP(spp *uint16) (is bool) {
 	if !m.Is(SPPMsg) {
 		return false
 	}
@@ -252,7 +230,7 @@ func (m Message) ScanSPP(spp *uint16) (is bool) {
 	return true
 }
 
-// String represents the Message as a string that contains the MsgType and its properties.
+// String represents the Message as a string that contains the Type and its properties.
 func (m Message) String() string {
 	var bf bytes.Buffer
 	fmt.Fprintf(&bf, m.Type().String())
@@ -260,43 +238,32 @@ func (m Message) String() string {
 	var channel, val1, val2 uint8
 	var pitchabs uint16
 	var pitchrel int16
-	//	var text string
-	//	var bpm float64
 	var spp uint16
 
 	switch {
-	case m.ScanNoteOn(&channel, &val1, &val2):
+	case m.GetNoteOn(&channel, &val1, &val2):
 		fmt.Fprintf(&bf, " channel: %v key: %v velocity: %v", channel, val1, val2)
-	case m.ScanNoteOff(&channel, &val1, &val2):
+	case m.GetNoteOff(&channel, &val1, &val2):
 		if val2 > 0 {
 			fmt.Fprintf(&bf, " channel: %v key: %v velocity: %v", channel, val1, val2)
 		} else {
 			fmt.Fprintf(&bf, " channel: %v key: %v", channel, val1)
 		}
-	case m.ScanPolyAfterTouch(&channel, &val1, &val2):
+	case m.GetPolyAfterTouch(&channel, &val1, &val2):
 		fmt.Fprintf(&bf, " channel: %v key: %v pressure: %v", channel, val1, val2)
-	case m.ScanAfterTouch(&channel, &val1):
+	case m.GetAfterTouch(&channel, &val1):
 		fmt.Fprintf(&bf, " channel: %v pressure: %v", channel, val1)
-	case m.ScanControlChange(&channel, &val1, &val2):
+	case m.GetControlChange(&channel, &val1, &val2):
 		fmt.Fprintf(&bf, " channel: %v controller: %v value: %v", channel, val1, val2)
-	case m.ScanProgramChange(&channel, &val1):
+	case m.GetProgramChange(&channel, &val1):
 		fmt.Fprintf(&bf, " channel: %v program: %v", channel, val1)
-	case m.ScanPitchBend(&channel, &pitchrel, &pitchabs):
+	case m.GetPitchBend(&channel, &pitchrel, &pitchabs):
 		fmt.Fprintf(&bf, " channel: %v pitch: %v (%v)", channel, pitchrel, pitchabs)
-		/*
-			case m.Tempo(&bpm):
-				fmt.Fprintf(&bf, " bpm: %0.2f", bpm)
-			case m.Meter(&val1, &val2):
-				fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
-			case m.IsOneOf(MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg):
-				m.text(&text)
-				fmt.Fprintf(&bf, " text: %q", text)
-		*/
-	case m.ScanMTC(&val1):
+	case m.GetMTC(&val1):
 		fmt.Fprintf(&bf, " mtc: %v", val1)
-	case m.ScanSPP(&spp):
+	case m.GetSPP(&spp):
 		fmt.Fprintf(&bf, " spp: %v", spp)
-	case m.ScanSongSelect(&val1):
+	case m.GetSongSelect(&val1):
 		fmt.Fprintf(&bf, " song: %v", val1)
 	default:
 	}

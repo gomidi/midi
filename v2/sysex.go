@@ -1,5 +1,7 @@
 package midi
 
+// SysEx returns a system exclusive message. Only the inner bytes must be passed,
+// the bytes that represent the start and end of a sysex message are added.
 func SysEx(bt []byte) (m Message) {
 	var b = []byte{0xF0}
 	b = append(b, []byte(bt)...)
@@ -7,61 +9,6 @@ func SysEx(bt []byte) (m Message) {
 	//m.Type = SysExType
 	return m
 }
-
-/*
-type sysEx []byte
-
-func (s sysEx) Bytes() []byte {
-	var b = []byte{0xF0}
-	b = append(b, []byte(s)...)
-	b = append(b, 0xF7)
-	return b
-}
-
-func (s sysEx) Is(t MsgType) bool {
-	//return Is(m.MsgType, t)
-	return s.Type().Val()&t.Val() != 0
-}
-*/
-
-/*
-func (s SysEx) Kind() MsgKind {
-	return SysExMsg
-}
-*/
-
-/*
-func (s sysEx) Type() MessageType {
-	return SysEx
-}
-
-func (s sysEx) Category() MessageCategory {
-	return SysExMessages
-}
-
-func (s sysEx) String() string {
-	return fmt.Sprintf("Sysex % X", []byte(s))
-}
-*/
-
-/*
-func SysEx(msg []byte) []byte {
-	var b = []byte{0xF0}
-	b = append(b, []byte(msg)...)
-	b = append(b, 0xF7)
-	//return NewMessage(b)
-	return b
-}
-*/
-
-/*
-func IsSysEx(msg []byte) bool {
-	if len(msg) < 4 {
-		return false
-	}
-	return msg[0] == 0xF0 && msg[len(msg)-1] == 0xF7
-}
-*/
 
 /*
 import (

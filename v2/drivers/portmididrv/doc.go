@@ -3,8 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package portmididrv provides an gomidi/midi.Driver to connect to external MIDI ports via portmidi.
-See the example to get an idea how to use it.
+Package portmididrv provides an Driver to connect via portmidi.
 
 */
 package portmididrv

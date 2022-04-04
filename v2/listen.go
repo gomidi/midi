@@ -50,32 +50,38 @@ type listeningOptions struct {
 	OnError func(error)
 }
 
+// Option is an option for listening
 type Option func(*listeningOptions)
 
+// UseTimeCode is an option to receive time code messages
 func UseTimeCode() Option {
 	return func(l *listeningOptions) {
 		l.TimeCode = true
 	}
 }
 
+// UseActiveSense is an option to receive active sense messages
 func UseActiveSense() Option {
 	return func(l *listeningOptions) {
 		l.ActiveSense = true
 	}
 }
 
+// UseSysEx is an option to receive system exclusive messages
 func UseSysEx() Option {
 	return func(l *listeningOptions) {
 		l.SysEx = true
 	}
 }
 
+// SysExBufferSize is an option to set the buffer size for sysex messages
 func SysExBufferSize(size uint32) Option {
 	return func(l *listeningOptions) {
 		l.SysExBufferSize = size
 	}
 }
 
+// HandleError sets an error handler when receiving messages
 func HandleError(cb func(error)) Option {
 	return func(l *listeningOptions) {
 		l.OnError = cb

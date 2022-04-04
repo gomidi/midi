@@ -4,9 +4,10 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
+// Type is the type of a midi message
 type Type int8
 
-// t must not be a message kind (exception: sysex), but a concrete type
+// Is returns true, if the type correspond to the given type.
 func (t Type) Is(checker Type) bool {
 
 	switch {
@@ -36,7 +37,8 @@ func (t Type) Is(checker Type) bool {
 	}
 }
 
-// AddTypeName adds names for new types that do not yet have a type.
+// AddTypeName adds names for new types that are not part of this package (e.g. meta types from the smf package).
+// Don't use this function as a user, it is only internal to the library.
 // Returns false, if the type already has been named, and true on success.
 func AddTypeName(m Type, name string) bool {
 	if _, has := typeNames[m]; has {
@@ -102,7 +104,7 @@ var typeNames = map[Type]string{
 	reservedSysCommonMsg10: "reservedSysCommon10",
 }
 
-
+// String returns the name of the type.
 func (t Type) String() string {
 	if s, has := typeNames[t]; has {
 		return s
@@ -318,7 +320,7 @@ func getChannelType(canary byte) (mType Type) {
 	}
 }
 
-// GetRealtimeMsgType returns the MsgType of a realtime message. It should not be used by the end consumer.
+// getRealtimeMsgType returns the MsgType of a realtime message. It should not be used by the end consumer.
 func getRealtimeType(b byte) Type {
 	ty, has := rtMessages[b]
 	if !has {
@@ -327,7 +329,7 @@ func getRealtimeType(b byte) Type {
 	return ty
 }
 
-// GetSysCommonMsgType returns the MsgType of a sys common message. It should not be used by the end consumer.
+// getSysCommonMsgType returns the MsgType of a sys common message. It should not be used by the end consumer.
 func getSysCommonType(b byte) Type {
 	ty, has := syscommMessages[b]
 	if !has {

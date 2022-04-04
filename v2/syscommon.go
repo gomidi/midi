@@ -25,13 +25,13 @@ var syscommMessages = map[byte]Type{
 	byteSysTuneRequest:/* SysCommonMsg.Set(TuneMsg), */ TuneMsg,
 }
 
-// NewTune returns a MIDI tune message
+// Tune returns a tune message
 func Tune() Message {
 	//return NewMessage([]byte{byteSysTuneRequest})
 	return []byte{byteSysTuneRequest}
 }
 
-// NewSPP returns a MIDI song position pointer message
+// SPP returns a song position pointer message
 func SPP(pointer uint16) Message {
 	var b = make([]byte, 2)
 	b[1] = byte(pointer & 0x7F)
@@ -40,7 +40,7 @@ func SPP(pointer uint16) Message {
 	return []byte{byteSysSongPositionPointer, b[0], b[1]}
 }
 
-// NewSongSelect returns a MIDI song select message
+// SongSelect returns a song select message
 func SongSelect(song uint8) Message {
 	// TODO check - it is a guess
 	//return NewMessage([]byte{byteSysSongSelect, song})
@@ -70,7 +70,7 @@ cdefg = Hours (0-23)
 8	0111 0abc	Frame Rate, and Hours MSB
 */
 
-// NewMTC represents a MIDI timing code message (quarter frame)
+// MTC returns a timing code message (quarter frame)
 func MTC(m uint8) Message {
 	// TODO check - it is a guess
 	// TODO provide a better abstraction for MTC

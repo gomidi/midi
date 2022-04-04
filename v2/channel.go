@@ -17,7 +17,7 @@ const (
 	PitchHighest = 8191
 )
 
-// NewPitchbend returns the  bytes of a pitch bend message on the MIDI channel.
+// Pitchbend returns a pitch bend message.
 // If value is > 8191 (max), it will be set to 8191. If value is < -8192, it will be set to -8192.
 // A value of 0 is considered as neutral position.
 func Pitchbend(channel uint8, value int16) Message {
@@ -41,7 +41,7 @@ func Pitchbend(channel uint8, value int16) Message {
 	return channelMessage2(channel, 14, b[0], b[1])
 }
 
-// NewPolyAfterTouch returns the bytes of the polyphonic aftertouch message on the MIDI channel.
+// PolyAfterTouch returns a polyphonic aftertouch message.
 func PolyAfterTouch(channel, key, pressure uint8) Message {
 	if channel > 15 {
 		channel = 15
@@ -56,7 +56,7 @@ func PolyAfterTouch(channel, key, pressure uint8) Message {
 	return channelMessage2(channel, 10, key, pressure)
 }
 
-// NewNoteOn returns the bytes of a note on message on the MIDI channel.
+// NoteOn returns a note on message.
 func NoteOn(channel, key, velocity uint8) Message {
 	if channel > 15 {
 		channel = 15
@@ -71,7 +71,7 @@ func NoteOn(channel, key, velocity uint8) Message {
 	return channelMessage2(channel, 9, key, velocity)
 }
 
-// NewNoteOffVelocity returns the bytes of a note off message with velocity on the MIDI channel.
+// NoteOffVelocity returns a note off message with velocity.
 func NoteOffVelocity(channel, key, velocity uint8) Message {
 	if channel > 15 {
 		channel = 15
@@ -86,7 +86,7 @@ func NoteOffVelocity(channel, key, velocity uint8) Message {
 	return channelMessage2(channel, 8, key, velocity)
 }
 
-// NewNoteOff returns the bytes of a note off message on the MIDI channel.
+// NoteOff returns a note off message.
 func NoteOff(channel, key uint8) Message {
 	if channel > 15 {
 		channel = 15
@@ -98,7 +98,7 @@ func NoteOff(channel, key uint8) Message {
 	return channelMessage2(channel, 8, key, 0)
 }
 
-// NewProgramChange returns the bytes of a program change message on the MIDI channel.
+// ProgramChange returns a program change message.
 func ProgramChange(channel, program uint8) Message {
 	if channel > 15 {
 		channel = 15
@@ -110,7 +110,7 @@ func ProgramChange(channel, program uint8) Message {
 	return channelMessage1(channel, 12, program)
 }
 
-// NewAfterTouch returns the bytes of an aftertouch message on the MIDI channel.
+// AfterTouch returns an aftertouch message.
 func AfterTouch(channel, pressure uint8) Message {
 	if channel > 15 {
 		channel = 15
@@ -122,7 +122,7 @@ func AfterTouch(channel, pressure uint8) Message {
 	return channelMessage1(channel, 13, pressure)
 }
 
-// NewControlChange returns the bytes of a control change message on the MIDI channel.
+// ControlChange returns a control change message.
 func ControlChange(channel, controller, value uint8) Message {
 	if channel > 15 {
 		channel = 15

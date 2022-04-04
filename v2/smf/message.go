@@ -10,14 +10,25 @@ import (
 // Message is a MIDI message that might appear in a SMF file, i.e. channel messages, sysex messages and meta messages.
 type Message []byte
 
+// Bytes return the underlying bytes of the message.
 func (m Message) Bytes() []byte {
 	return []byte(m)
 }
 
+// IsPlayable returns true, if the message can be send to an instrument.
 func (m Message) IsPlayable() bool {
 	return midi.Message(m).IsPlayable()
 }
 
+// IsMeta returns true, if the message is a meta message.
+func (m Message) IsMeta() bool {
+	if len(m) == 0 {
+		return false
+	}
+	return m[0] == 0xFF
+}
+
+// Type returns the type of the message.
 func (m Message) Type() midi.Type {
 	return getType(m)
 }
@@ -33,72 +44,83 @@ func getType(msg []byte) midi.Type {
 	}
 }
 
+// Is returns true, if the message is of the given type.
 func (m Message) Is(t midi.Type) bool {
 	return m.Type().Is(t)
 }
 
-// ScanNoteOn returns true if (and only if) the message is a NoteOnMsg.
-// Then it also extracts the data to the given arguments
-func (m Message) ScanNoteOn(channel, key, velocity *uint8) (is bool) {
-	return midi.Message(m).ScanNoteOn(channel, key, velocity)
+// IsOneOf returns true, if the message is one of the given types.
+func (m Message) IsOneOf(checkers ...midi.Type) bool {
+	for _, checker := range checkers {
+		if m.Is(checker) {
+			return true
+		}
+	}
+	return false
 }
 
-// ScanNoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
+// GetNoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanNoteStart(channel, key, velocity *uint8) (is bool) {
-	return midi.Message(m).ScanNoteStart(channel, key, velocity)
+func (m Message) GetNoteOn(channel, key, velocity *uint8) (is bool) {
+	return midi.Message(m).GetNoteOn(channel, key, velocity)
 }
 
-// ScanNoteOff returns true if (and only if) the message is a NoteOffMsg.
+// GetNoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanNoteOff(channel, key, velocity *uint8) (is bool) {
-	return midi.Message(m).ScanNoteOff(channel, key, velocity)
+func (m Message) GetNoteStart(channel, key, velocity *uint8) (is bool) {
+	return midi.Message(m).GetNoteStart(channel, key, velocity)
 }
 
-// ScanChannel returns true if (and only if) the message is a ChannelMsg.
+// GetNoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanChannel(channel *uint8) (is bool) {
-	return midi.Message(m).ScanChannel(channel)
+func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
+	return midi.Message(m).GetNoteOff(channel, key, velocity)
 }
 
-// ScanNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
+// GetChannel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanNoteEnd(channel, key, velocity *uint8) (is bool) {
-	return midi.Message(m).ScanNoteEnd(channel, key, velocity)
+func (m Message) GetChannel(channel *uint8) (is bool) {
+	return midi.Message(m).GetChannel(channel)
 }
 
-// PolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
+// GetNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
-	return midi.Message(m).ScanPolyAfterTouch(channel, key, pressure)
+func (m Message) GetNoteEnd(channel, key, velocity *uint8) (is bool) {
+	return midi.Message(m).GetNoteEnd(channel, key, velocity)
 }
 
-// AfterTouch returns true if (and only if) the message is a AfterTouchMsg.
+// GetPolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanAfterTouch(channel, pressure *uint8) (is bool) {
-	return midi.Message(m).ScanAfterTouch(channel, pressure)
+func (m Message) GetPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
+	return midi.Message(m).GetPolyAfterTouch(channel, key, pressure)
 }
 
-// ProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
+// GetAfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanProgramChange(channel, program *uint8) (is bool) {
-	return midi.Message(m).ScanProgramChange(channel, program)
+func (m Message) GetAfterTouch(channel, pressure *uint8) (is bool) {
+	return midi.Message(m).GetAfterTouch(channel, pressure)
 }
 
-// PitchBend returns true if (and only if) the message is a PitchBendMsg.
+// GetProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
+// Then it also extracts the data to the given arguments
+func (m Message) GetProgramChange(channel, program *uint8) (is bool) {
+	return midi.Message(m).GetProgramChange(channel, program)
+}
+
+// GetPitchBend returns true if (and only if) the message is a PitchBendMsg.
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
-func (m Message) ScanPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
-	return midi.Message(m).ScanPitchBend(channel, relative, absolute)
+func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
+	return midi.Message(m).GetPitchBend(channel, relative, absolute)
 }
 
-// ControlChange returns true if (and only if) the message is a ControlChangeMsg.
+// GetControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) ScanControlChange(channel, controller, value *uint8) (is bool) {
-	return midi.Message(m).ScanControlChange(channel, controller, value)
+func (m Message) GetControlChange(channel, controller, value *uint8) (is bool) {
+	return midi.Message(m).GetControlChange(channel, controller, value)
 }
 
-// String represents the Message as a string that contains the MsgType and its properties.
+// String represents the Message as a string that contains the Type and its properties.
 func (m Message) String() string {
 
 	if m.IsMeta() {
@@ -118,21 +140,21 @@ func (m Message) String() string {
 		var bt []byte
 
 		switch {
-		case m.ScanMetaTempo(&bpm):
+		case m.GetMetaTempo(&bpm):
 			fmt.Fprintf(&bf, " bpm: %0.2f", bpm)
-		case m.ScanMetaMeter(&val1, &val2):
+		case m.GetMetaMeter(&val1, &val2):
 			fmt.Fprintf(&bf, " meter: %v/%v", val1, val2)
-		case m.ScanMetaChannel(&val1):
+		case m.GetMetaChannel(&val1):
 			fmt.Fprintf(&bf, " channel: %v", val1)
-		case m.ScanMetaPort(&val1):
+		case m.GetMetaPort(&val1):
 			fmt.Fprintf(&bf, " port: %v", val1)
-		case m.ScanMetaSeqNumber(&val16):
+		case m.GetMetaSeqNumber(&val16):
 			fmt.Fprintf(&bf, " number: %v", val16)
-		case m.ScanMetaSMPTEOffsetMsg(&val1, &val2, &val3, &val4, &val5):
+		case m.GetMetaSMPTEOffsetMsg(&val1, &val2, &val3, &val4, &val5):
 			fmt.Fprintf(&bf, " hour: %v minute: %v second: %v frame: %v fractframe: %v", val1, val2, val3, val4, val5)
-		case m.ScanMetaSeqData(&bt):
+		case m.GetMetaSeqData(&bt):
 			fmt.Fprintf(&bf, " bytes: % X", bt)
-		case m.ScanMetaKeySig(&val1, &val2, &bl1, &bl2):
+		case m.GetMetaKeySig(&val1, &val2, &bl1, &bl2):
 			fmt.Fprintf(&bf, " key: %v num: %v ismajor: %v isflat: %v", val1, val2, bl1, bl2)
 		default:
 			switch m.Type() {

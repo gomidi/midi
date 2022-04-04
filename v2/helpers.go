@@ -61,6 +61,7 @@ const (
 )
 
 // ReadChannelMessage reads a channel message for the given status byte from the given reader.
+// Don't use this function as a user, it is only internal to the library.
 func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err error) {
 	typ, channel := utils.ParseStatus(status)
 

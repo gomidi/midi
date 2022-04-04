@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package webmididrv provides a gomidi/midi.Driver to connect to MIDI ports in the browser (via webmidi).
+Package webmididrv provides a Driver to connect to MIDI ports in the browser (via webmidi).
 See the example to get an idea how to use it.
 
 */

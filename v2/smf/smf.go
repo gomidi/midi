@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"time"
 )
 
 // New returns a SMF file of format type 0 (single track), that becomes type 1 (multi track), if you add tracks
@@ -56,6 +57,47 @@ type SMF struct {
 	NoRunningStatus bool
 	Logger          Logger
 	TimeFormat      TimeFormat
+}
+
+// RecordTo records from the given midi in port into the given filename with the given tempo.
+// It returns a stop function that must be called to stop the recording. The file is then completed and saved.
+func RecordTo(inport int, bpm float64, filename string) (stop func() error, err error) {
+	file := New()
+	_stop, _err := file.RecordFrom(inport, bpm)
+
+	if _err != nil {
+		_stop()
+		return nil, _err
+	}
+
+	return func() error {
+		_stop()
+		return file.WriteFile(filename)
+	}, nil
+}
+
+// Record records from the given midi in port into a new track.
+// It returns a stop function that must be called to stop the recording.
+// It is up to the user to save the SMF.
+func (s *SMF) RecordFrom(inport int, bpm float64) (stop func(), err error) {
+	ticks := s.TimeFormat.(MetricTicks)
+
+	tr := NewTrack()
+
+	_stop, _err := tr.RecordFrom(inport, ticks, bpm)
+
+	if _err != nil {
+		_stop()
+		time.Sleep(time.Second)
+		s.AddAndClose(0, tr)
+		return nil, _err
+	}
+
+	return func() {
+		_stop()
+		time.Sleep(time.Second)
+		s.AddAndClose(0, tr)
+	}, nil
 }
 
 func (s *SMF) TempoChanges() TempoChanges {
