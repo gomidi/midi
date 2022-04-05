@@ -1,12 +1,9 @@
 # midispy
 Spy on MIDI data transmitted between a sending and a receiving device
 
-[![Documentation](http://godoc.org/gitlab.com/gomidi/midispy?status.png)](http://godoc.org/gitlab.com/gomidi/midispy)
-
 ## Usage (CLI)
 
-    go get -d gitlab.com/gomidi/midispy/cmd/midispy
-    go install gitlab.com/gomidi/midispy/cmd/midispy
+    go install gitlab.com/gomidi/v2/tools/midispy/cmd/midispy
 
 To get a list of available MIDI devices, run
 
@@ -52,59 +49,3 @@ To get help:
 
     midispy help   
 
-## Usage (library)
-
-    go get gitlab.com/gomidi/midispy@latest
-
-[![Documentation](http://godoc.org/gitlab.com/gomidi/midispy?status.png)](http://godoc.org/gitlab.com/gomidi/midispy)
-
-```go
-package main
-
-import (
-	"fmt"
-	"time"
-
-	"gitlab.com/gomidi/midi/mid"
-	"gitlab.com/gomidi/midispy"
-	driver "gitlab.com/gomidi/rtmididrv"
-)
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func main() {
-
-	drv, err := driver.New()
-	must(err)
-
-	defer drv.Close()
-
-	in, err := mid.OpenIn(drv, 6 /* change to fit your needs */, "")
-	must(err)
-
-	out, err := mid.OpenOut(drv, 4 /* change to fit your needs */, "")
-	must(err)
-
-	rd := mid.NewReader(mid.NoLogger())
-
-	// see gitlab.com/gomidi/midi/mid#Reader
-	// to learn how to listen to other messages
-	rd.Msg.Channel.NoteOn = func(_ *mid.Position, channel, key, velocity uint8) {
-		fmt.Printf("note on (channel: %d key: %d velocity: %d)\n", channel, key, velocity)
-	}
-
-	err = midispy.Run(in, out, rd)
-	must(err)
-
-	fmt.Println("start listening...")
-
-	time.Sleep(time.Minute)
-
-	fmt.Println("stop listening")
-
-}
-```
