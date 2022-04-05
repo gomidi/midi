@@ -109,9 +109,9 @@ func mkSMF() []byte {
 
 
 
-## Low level packages
+## Documentation
 
-[![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/midi.svg)](https://pkg.go.dev/gitlab.com/gomidi/midi)
+[![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/midi/v2.svg)](https://pkg.go.dev/gitlab.com/gomidi/midi/v2)
 
 ## License
 
