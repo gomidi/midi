@@ -1,4 +1,4 @@
-package cc
+package midi
 
 const (
 	Off uint8 = 0   // value meaning "off"
@@ -80,7 +80,7 @@ const (
 )
 
 // stolen from http://midi.teragonaudio.com/tech/midispec.htm
-var Name = map[uint8]string{
+var ControlChangeName = map[uint8]string{
 	0:   "Bank Select (MSB)",
 	1:   "Modulation Wheel (MSB)",
 	2:   "Breath controller (MSB)",

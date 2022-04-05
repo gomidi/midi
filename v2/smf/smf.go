@@ -40,7 +40,7 @@ type SMF struct {
 	// NumTracks is the number of tracks (0 indicates that the number is not set yet).
 	numTracks uint16
 
-	tracks []*Track
+	Tracks []Track
 
 	// TimeFormat is the time format (either MetricTicks or TimeCode).
 	//	timeFormat TimeFormat
@@ -82,21 +82,26 @@ func RecordTo(inport int, bpm float64, filename string) (stop func() error, err 
 func (s *SMF) RecordFrom(inport int, bpm float64) (stop func(), err error) {
 	ticks := s.TimeFormat.(MetricTicks)
 
-	tr := NewTrack()
+	//tr := NewTrack()
+	var tr Track
 
 	_stop, _err := tr.RecordFrom(inport, ticks, bpm)
 
 	if _err != nil {
 		_stop()
 		time.Sleep(time.Second)
-		s.AddAndClose(0, tr)
+		//s.AddAndClose(0, tr)
+		tr.Close(0)
+		s.Tracks = append(s.Tracks, tr)
 		return nil, _err
 	}
 
 	return func() {
 		_stop()
 		time.Sleep(time.Second)
-		s.AddAndClose(0, tr)
+		//s.AddAndClose(0, tr)
+		tr.Close(0)
+		s.Tracks = append(s.Tracks, tr)
 	}, nil
 }
 
@@ -142,12 +147,14 @@ func (s *SMF) TimeAt(absTicks int64) (absTimeMicroSec int64) {
 	return prevTc.AbsTimeMicroSec + mt.Duration(prevTc.BPM, uint32(absTicks-prevTc.AbsTicks)).Microseconds()
 }
 
-func (s *SMF) Tracks() []*Track {
+/*
+func (s *SMF) Tracks() []Track {
 	return s.tracks
 }
+*/
 
 func (s *SMF) NumTracks() uint16 {
-	return uint16(len(s.tracks))
+	return uint16(len(s.Tracks))
 }
 
 // WriteFile creates file, calls callback with a writer and closes file.
@@ -188,13 +195,23 @@ func (s *SMF) WriteFile(file string) error {
 }
 
 func (s *SMF) WriteTo(f io.Writer) (err error) {
-	s.numTracks = uint16(len(s.tracks))
+	s.numTracks = uint16(len(s.Tracks))
 	if s.numTracks == 0 {
 		return fmt.Errorf("no track added")
 	}
 	if s.numTracks > 1 && s.format == 0 {
 		s.format = 1
 	}
+
+	for i, tr := range s.Tracks {
+		if !tr.IsClosed() {
+			if s.Logger != nil {
+				s.Logger.Printf("track %v is not closed, adding end with delta 0", i)
+			}
+			tr.Close(0)
+		}
+	}
+
 	//wr := newWriter(f, options...)
 	//fmt.Printf("numtracks: %v\n", s.numTracks)
 	wr := newWriter(s, f)
@@ -203,9 +220,9 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 		return fmt.Errorf("could not write header: %v", err)
 	}
 
-	for _, t := range s.tracks {
-		t.Close(0) // just to be sure
-		for _, ev := range t.Events {
+	for _, t := range s.Tracks {
+		//t.Close(0) // just to be sure
+		for _, ev := range t {
 			//fmt.Printf("written ev: %v\n ", ev)
 			wr.SetDelta(ev.Delta)
 			err = wr.Write(ev.Message)
@@ -224,10 +241,21 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 	return
 }
 
+/*
 // AddAndClose closes the given track at deltatime and adds it to the smf
-func (s *SMF) AddAndClose(deltatime uint32, t *Track) {
+func (s *SMF) AddAndClose(deltatime uint32, t Track) {
 	t.Close(deltatime)
 	s.tracks = append(s.tracks, t)
+}
+*/
+
+// Add adds a track to the SMF and returns an error, if the track is not closed.
+func (s *SMF) Add(t Track) error {
+	s.Tracks = append(s.Tracks, t)
+	if !t.IsClosed() {
+		return fmt.Errorf("error: track was not closed")
+	}
+	return nil
 }
 
 //var ErrFinished = errors.New("SMF action finished successfully")

@@ -135,13 +135,13 @@ func (w *smfwriter) Write(raw []byte) []byte {
 
 	// for a different status, store runningStatus and write whole message
 	if firstByte != w.status {
-		// fmt.Printf("setting status to: % X (was: % X)\n", firstByte, w.status)
+		//fmt.Printf("setting status to: % X (was: % X)\n", firstByte, w.status)
 		w.status = firstByte
 		return raw
 	}
 
 	// we got the same status as runningStatus, so omit the status byte when writing
-	// fmt.Printf("taking running status (% X), writing: % X\n", w.status, raw[1:])
+	//fmt.Printf("taking running status (% X), writing: % X\n", w.status, raw[1:])
 	return raw[1:]
 }
 

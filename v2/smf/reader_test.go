@@ -30,10 +30,10 @@ func testRead(t *testing.T, input []byte) string {
 	out.WriteString(fmt.Sprintf("%v Track(s)\n", smf.NumTracks()))
 	out.WriteString(fmt.Sprintf("TimeFormat: %s\n", smf.TimeFormat))
 
-	tracks := smf.Tracks()
+	tracks := smf.Tracks
 
 	for i, track := range tracks {
-		for _, ev := range track.Events {
+		for _, ev := range track {
 			//out.WriteString(fmt.Sprintf("Track %v@%v %s\n", i, ev.Delta, ev.MessageType()))
 			//m := midi2.NewMessage(ev.Data)
 			//m.Type = midi2.GetMessageType(ev.Data)
@@ -89,29 +89,21 @@ Track 0@0 MetaEndOfTrack
 `
 	//l := log.Default()
 
-	//if got, want := testRead(t, SpecSMF0, Debug(l)), expected; got != want {
 	if got, want := testRead(t, SpecSMF0), expected; got != want {
 		t.Errorf("got:\n%v\n\nwanted\n%v\n\n", got, want)
 	}
 
 }
 
-/*
 func TestReadSMF1Missing(t *testing.T) {
 
-	rd := New(bytes.NewReader(examples.SpecSMF1Missing))
-	err := rd.ReadHeader()
-
-	for err == nil {
-		_, err = rd.Read()
-	}
+	_, err := ReadFrom(bytes.NewReader(SpecSMF1Missing))
 
 	if err != ErrMissing {
 		t.Errorf("expected ErrMissing, got: %#v", err)
 	}
 
 }
-*/
 
 func TestReadSMF1(t *testing.T) {
 	var expected = `
@@ -268,29 +260,28 @@ func TestReadSysEx(t *testing.T) {
 
 }
 
+*/
+
 func TestX(t *testing.T) {
 	src := []byte{0x4D, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x03, 0xC0, 0x4D, 0x54, 0x72, 0x6B, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x90, 0x32, 0x21, 0x02, 0x32, 0x00, 0x00, 0xFF, 0x2F, 0x00}
 	_ = src
 
-	rd := New(bytes.NewReader(src))
-
-	err := rd.ReadHeader()
+	rd, err := ReadFrom(bytes.NewReader(src))
 
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	}
 	_ = rd
 
-	// fmt.Printf("%v\n", rd.Header())
+	tr := rd.Tracks[0]
 
-	var msg midi.Message
-	msg, err = rd.Read()
-
-	if err != nil {
-		t.Fatalf("Error: %s", err.Error())
+	///fmt.Printf("%s\n", tr[0].Message)
+	var ch, key, vel uint8
+	if len(tr) > 0 && tr[0].Message.GetNoteOn(&ch, &key, &vel) {
+		if key != 50 || vel != 33 || ch != 0 {
+			t.Errorf("got %s", tr[0].Message)
+		}
+	} else {
+		t.Errorf("got no noteon message")
 	}
-
-	_ = msg
-	// fmt.Printf("%s\n", msg)
 }
-*/

@@ -239,6 +239,7 @@ func (m Message) String() string {
 	var pitchabs uint16
 	var pitchrel int16
 	var spp uint16
+	var sysex []byte
 
 	switch {
 	case m.GetNoteOn(&channel, &val1, &val2):
@@ -265,8 +266,29 @@ func (m Message) String() string {
 		fmt.Fprintf(&bf, " spp: %v", spp)
 	case m.GetSongSelect(&val1):
 		fmt.Fprintf(&bf, " song: %v", val1)
+	case m.GetSysEx(&sysex):
+		fmt.Fprintf(&bf, " data: % X", sysex)
 	default:
 	}
 
 	return bf.String()
+}
+
+// GetSysEx returns true, if the message is a sysex message.
+// Then it extracts the inner bytes to the given slice.
+func (m Message) GetSysEx(bt *[]byte) bool {
+	if len(m) < 3 {
+		return false
+	}
+
+	if !m.Is(SysExMsg) {
+		return false
+	}
+
+	if m[0] == 0xF0 && m[len(m)-1] == 0xF7 {
+		*bt = m[1 : len(m)-1]
+		return true
+	}
+
+	return false
 }

@@ -2,13 +2,46 @@ package smf
 
 import (
 	"fmt"
+	"io"
 	"sort"
 	"time"
+
+	"reflect"
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
+type Event struct {
+	Delta   uint32
+	Message Message
+}
+
+type Track []Event
+
+func (t Track) IsClosed() bool {
+	if len(t) == 0 {
+		return false
+	}
+
+	last := t[len(t)-1]
+	return reflect.DeepEqual(last.Message, EOT)
+}
+
+func (t Track) IsEmpty() bool {
+	if t.IsClosed() {
+		return len(t) == 1
+	}
+	return len(t) == 0
+}
+
+/*
+func NewTrack() (t Track) {
+	return
+}
+*/
+
+/*
 type Track struct {
 	Events []Event
 	Closed bool
@@ -24,24 +57,25 @@ func (t *Track) IsEmpty() bool {
 	}
 	return len(t.Events) == 0
 }
+*/
 
 func (t *Track) Close(deltaticks uint32) {
-	if t.Closed {
+	if t.IsClosed() {
 		return
 	}
-	t.Events = append(t.Events, Event{Delta: deltaticks, Message: EOT})
+	*t = append(*t, Event{Delta: deltaticks, Message: EOT})
 	//fmt.Printf("appending bytes: % X\n", EOT.Data)
-	t.Closed = true
+	//t.Closed = true
 }
 
 func (t *Track) Add(deltaticks uint32, msgs ...[]byte) {
-	if t.Closed {
+	if t.IsClosed() {
 		return
 	}
 	for _, msg := range msgs {
 		ev := Event{Delta: deltaticks, Message: msg}
 		//fmt.Printf("appending bytes: % X, evtype: %s\n", ev.Data, ev.MsgType())
-		t.Events = append(t.Events, ev)
+		*t = append(*t, ev)
 		deltaticks = 0
 	}
 }
@@ -62,7 +96,7 @@ func (t *Track) RecordFrom(portno int, ticks MetricTicks, bpm float64) (stop fun
 func (t *Track) SendTo(resolution MetricTicks, tc TempoChanges, receiver func(m midi.Message, timestampms int32)) {
 	var absDelta int64
 
-	for _, ev := range t.Events {
+	for _, ev := range *t {
 		absDelta += int64(ev.Delta)
 		if Message(ev.Message).IsPlayable() {
 			//		if m, ok := ev.Message().Type() <  .(midi.Msg); ok {
@@ -102,6 +136,21 @@ func ReadTracks(filepath string, tracks ...int) *TracksReader {
 		t.tracks[tr] = true
 	}
 	t.smf, t.err = ReadFile(filepath)
+	if _, ok := t.smf.TimeFormat.(MetricTicks); !ok {
+		t.err = fmt.Errorf("SMF time format is not metric ticks, but %s (currently not supported)", t.smf.TimeFormat.String())
+		return nil
+	}
+	return t
+}
+
+func ReadTracksFrom(rd io.Reader, tracks ...int) *TracksReader {
+	t := &TracksReader{}
+	t.tracks = map[int]bool{}
+	for _, tr := range tracks {
+		t.tracks[tr] = true
+	}
+
+	t.smf, t.err = ReadFrom(rd)
 	if _, ok := t.smf.TimeFormat.(MetricTicks); !ok {
 		t.err = fmt.Errorf("SMF time format is not metric ticks, but %s (currently not supported)", t.smf.TimeFormat.String())
 		return nil
@@ -219,7 +268,7 @@ func (t *TracksReader) play(last time.Duration, p playEvent) time.Duration {
 }
 
 func (t *TracksReader) Do(fn func(TrackEvent)) *TracksReader {
-	tracks := t.smf.Tracks()
+	tracks := t.smf.Tracks
 
 	//	ticks := t.smf.TimeFormat.(MetricTicks)
 	//tc := t.smf.TempoChanges()
@@ -227,7 +276,7 @@ func (t *TracksReader) Do(fn func(TrackEvent)) *TracksReader {
 	for no, tr := range tracks {
 		if t.doTrack(no) {
 			var absTicks int64
-			for _, ev := range tr.Events {
+			for _, ev := range tr {
 				te := TrackEvent{Event: ev, TrackNo: no}
 				d := int64(ev.Delta)
 				te.AbsTicks = absTicks + d

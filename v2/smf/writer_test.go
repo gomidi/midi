@@ -2,11 +2,60 @@ package smf
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"testing"
 
 	"gitlab.com/gomidi/midi/v2"
 )
+
+// SpecSMF1Missing is like SpecSMF1 but with missing data for last track
+var SpecSMF1Missing = []byte{
+	// header chunk
+	0x4D, 0x54, 0x68, 0x64, // MThd
+	0x00, 0x00, 0x00, 0x06, // chunk length
+	0x00, 0x01, // format 1
+	0x00, 0x04, // four tracks
+	0x00, 0x60, // 96 per quarter-note
+
+	// first track (only time signature/tempo)
+
+	// header of track 0
+	0x4D, 0x54, 0x72, 0x6B, // MTrk
+	0x00, 0x00, 0x00, 0x14, // chunk length (20)
+
+	// data of track 0
+	// delta          time event            comment
+	0x00 /* delta */, 0xFF, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08, // time signature 4 bytes; 4/4 time; 24 MIDI clocks/click, 8 32nd notes/24 MIDI clocks
+	0x00 /* delta */, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20, // tempo 120 BPM; 3 bytes: 500,000 usec/quarter note
+
+	0x83, 0x00 /* delta */, 0xFF, 0x2F, 0x00, // end of track
+
+	// second track
+
+	// header of track 1
+	0x4D, 0x54, 0x72, 0x6B, // MTrk
+	0x00, 0x00, 0x00, 0x10, // chunk length (16)
+
+	// data of track 1
+	0x00 /* delta */, 0xC0, 0x05, // Ch.1 Program Change 5
+	0x81, 0x40 /* delta */, 0x90, 0x4C, 0x20, // Ch.1 Note On E4, piano
+	0x81, 0x40 /* delta */, 0x4C, 0x00, // Ch.1 Note On E4, velocity 0 (==noteoff) - running status
+	0x00 /* delta */, 0xFF, 0x2F, 0x00, // end of track
+
+	// third track
+
+	// header of track 2
+	0x4D, 0x54, 0x72, 0x6B, // MTrk
+	0x00, 0x00, 0x00, 0x0F, // chunk length (15)
+
+	// data of track 2
+	0x00 /* delta */, 0xC1, 0x2E, // Ch.2 Program Change 46
+	0x60 /* delta */, 0x91, 0x43, 0x40, // Ch.2 Note On G3, mezzo-forte
+	0x82, 0x20 /* delta */, 0x43, 0x00, // Ch.2 Note On G3, velocity 0 (==noteoff) - running status
+	0x00 /* delta */, 0xFF, 0x2F, 0x00, // end of track
+
+}
 
 // SpecSMF0 is an example from SMF spec for SMF type 0
 var SpecSMF0 = []byte{
@@ -65,36 +114,36 @@ Track 0@0 meta.endOfTrack
 func TestWriteSMF0(t *testing.T) {
 
 	var (
-		bf    bytes.Buffer
-		track = NewTrack()
-		res   = MetricTicks(96)
-		//ch0   = midi.Channel(0)
-		//ch1   = midi.Channel(1)
-		//ch2   = midi.Channel(2)
+		bf  bytes.Buffer
+		tr  Track
+		res = MetricTicks(96)
 	)
 
-	track.Add(0, MetaTimeSig(4, 4, 24, 8))
-	track.Add(0, MetaTempo(120))
+	tr.Add(0, MetaTimeSig(4, 4, 24, 8))
+	tr.Add(0, MetaTempo(120))
 
-	track.Add(0, midi.ProgramChange(0, 5))
-	track.Add(0, midi.ProgramChange(1, 46))
-	track.Add(0, midi.ProgramChange(2, 70))
+	tr.Add(0, midi.ProgramChange(0, 5))
+	tr.Add(0, midi.ProgramChange(1, 46))
+	tr.Add(0, midi.ProgramChange(2, 70))
 
-	track.Add(0, midi.NoteOn(2, 48, 96))
-	track.Add(0, midi.NoteOn(2, 60, 96))
+	tr.Add(0, midi.NoteOn(2, 48, 96))
+	tr.Add(0, midi.NoteOn(2, 60, 96))
 
-	track.Add(res.Ticks4th(), midi.NoteOn(1, 67, 64))
-	track.Add(res.Ticks4th(), midi.NoteOn(0, 76, 32))
+	tr.Add(res.Ticks4th(), midi.NoteOn(1, 67, 64))
+	tr.Add(res.Ticks4th(), midi.NoteOn(0, 76, 32))
 
-	track.Add(res.Ticks4th()*2, midi.NoteOffVelocity(2, 48, 64))
+	tr.Add(res.Ticks4th()*2, midi.NoteOffVelocity(2, 48, 64))
 
-	track.Add(0, midi.NoteOffVelocity(2, 60, 64))
-	track.Add(0, midi.NoteOffVelocity(1, 67, 64))
-	track.Add(0, midi.NoteOffVelocity(0, 76, 64))
+	tr.Add(0, midi.NoteOffVelocity(2, 60, 64))
+	tr.Add(0, midi.NoteOffVelocity(1, 67, 64))
+	tr.Add(0, midi.NoteOffVelocity(0, 76, 64))
+
+	tr.Close(0)
 
 	smf := New()
 	smf.TimeFormat = res
-	smf.AddAndClose(0, track)
+	smf.Add(tr)
+
 	err := smf.WriteTo(&bf)
 
 	if err != nil {
@@ -196,7 +245,7 @@ func TestWriteSMF1(t *testing.T) {
 
 	var (
 		bf    bytes.Buffer
-		track *Track
+		track Track
 		ticks = MetricTicks(96)
 		smf   = New()
 		beat  = ticks.Ticks4th()
@@ -204,29 +253,33 @@ func TestWriteSMF1(t *testing.T) {
 
 	smf.TimeFormat = ticks
 
-	track = NewTrack()
+	track = Track{}
 	track.Add(0, MetaTimeSig(4, 4, 24, 8))
 	track.Add(0, MetaTempo(120))
-	smf.AddAndClose(beat*4, track)
+	track.Close(beat * 4)
+	smf.Tracks = append(smf.Tracks, track)
 
-	track = NewTrack()
+	track = Track{}
 	track.Add(0, midi.ProgramChange(0, 5))
 	track.Add(beat*2, midi.NoteOn(0, 76, 32))
 	track.Add(beat*2, midi.NoteOn(0, 76, 0))
-	smf.AddAndClose(0, track)
+	track.Close(0)
+	smf.Tracks = append(smf.Tracks, track)
 
-	track = NewTrack()
+	track = Track{}
 	track.Add(0, midi.ProgramChange(1, 46))
 	track.Add(beat, midi.NoteOn(1, 67, 64))
 	track.Add(beat*3, midi.NoteOn(1, 67, 0))
-	smf.AddAndClose(0, track)
+	track.Close(0)
+	smf.Tracks = append(smf.Tracks, track)
 
-	track = NewTrack()
+	track = Track{}
 	track.Add(0, midi.ProgramChange(2, 70))
 	track.Add(0, midi.NoteOn(2, 48, 96))
 	track.Add(0, midi.NoteOn(2, 60, 96))
 	track.Add(beat*4, midi.NoteOn(2, 48, 0), midi.NoteOn(2, 60, 0))
-	smf.AddAndClose(0, track)
+	track.Close(0)
+	smf.Tracks = append(smf.Tracks, track)
 
 	err := smf.WriteTo(&bf)
 
@@ -240,48 +293,67 @@ func TestWriteSMF1(t *testing.T) {
 
 }
 
-/*
+type llog func(format string, vals ...interface{})
+
+func (l llog) Printf(format string, vals ...interface{}) {
+	l(format, vals...)
+}
+
 func TestWriteSysEx(t *testing.T) {
 	var bf bytes.Buffer
 
-	wr := New(&bf)
-	wr.SetDelta(0)
-	wr.Write(channel.Channel2.NoteOn(65, 90))
-	wr.SetDelta(10)
-	wr.Write(sysex.SysEx([]byte{0x90, 0x51}))
-	wr.SetDelta(1)
-	wr.Write(channel.Channel2.NoteOff(65))
-	wr.Write(meta.EndOfTrack)
+	var smf = New()
 
-	rd := smfreader.New(bytes.NewReader(bf.Bytes()))
+	var tr Track
+	tr.Add(0, midi.NoteOn(2, 65, 90))
+	tr.Add(10, midi.SysEx([]byte{0x90, 0x51}))
+	tr.Add(1, midi.NoteOff(2, 65))
+	tr.Close(0)
 
-	var m midi.Message
-	var err error
+	smf.Tracks = append(smf.Tracks, tr)
+
+	err := smf.WriteTo(&bf)
+
+	if err != nil {
+		t.Errorf("Error while writing: %s\n", err.Error())
+	}
+
+	var lg = llog(func(format string, vals ...interface{}) {
+		fmt.Printf(format, vals...)
+	})
+
+	_ = lg
+
+	//rd, err := ReadFrom(&bf, Log(lg))
+	rd, err := ReadFrom(&bf)
+
+	if err != nil {
+		t.Errorf("Error while reading: %s\n", err.Error())
+	}
+
+	trrd := rd.Tracks[0]
+
+	var ch, key, velocity uint8
 
 	var res bytes.Buffer
 	res.WriteString("\n")
-	for {
-		m, err = rd.Read()
 
-		// breaking at least with io.EOF
-		if err != nil {
-			break
+	for _, ev := range trrd {
+		switch {
+		case ev.Message.GetNoteOn(&ch, &key, &velocity):
+			fmt.Fprintf(&res, "[%v] NoteOn at channel %v: key %v velocity: %v\n", ev.Delta, ch, key, velocity)
+		case ev.Message.GetNoteOff(&ch, &key, &velocity):
+			fmt.Fprintf(&res, "[%v] NoteOff at channel %v: key %v\n", ev.Delta, ch, key)
+		default:
+			if ev.Message.Is(midi.SysExMsg) {
+				fmt.Fprintf(&res, "[%v] Sysex: % X\n", ev.Delta, ev.Message.Bytes())
+			}
 		}
-
-		switch v := m.(type) {
-		case sysex.SysEx:
-			fmt.Fprintf(&res, "[%v] Sysex: % X\n", rd.Delta(), v.Data())
-		case channel.NoteOn:
-			fmt.Fprintf(&res, "[%v] NoteOn at channel %v: key %v velocity: %v\n", rd.Delta(), v.Channel(), v.Key(), v.Velocity())
-		case channel.NoteOff:
-			fmt.Fprintf(&res, "[%v] NoteOff at channel %v: key %v\n", rd.Delta(), v.Channel(), v.Key())
-		}
-
 	}
 
 	expected := `
 [0] NoteOn at channel 2: key 65 velocity: 90
-[10] Sysex: 90 51
+[10] Sysex: F0 90 51 F7
 [1] NoteOff at channel 2: key 65
 `
 
@@ -295,18 +367,19 @@ func TestRunningStatus(t *testing.T) {
 
 	var bf bytes.Buffer
 
-	wr := New(&bf)
+	var tr Track
+	tr.Add(0, midi.NoteOn(0, 50, 33))
+	tr.Add(2, midi.NoteOn(0, 50, 0)) // de facto a noteoff
+	tr.Close(0)
 
-	err := wr.WriteHeader()
+	wr := New()
+	wr.Tracks = []Track{tr}
+
+	err := wr.WriteTo(&bf)
 
 	if err != nil {
 		t.Fatalf("Error: %v", err)
 	}
-
-	wr.Write(channel.Channel0.NoteOn(50, 33))
-	wr.SetDelta(2)
-	wr.Write(channel.Channel0.NoteOff(50))
-	wr.Write(meta.EndOfTrack)
 
 	expected := "4D 54 68 64 00 00 00 06 00 00 00 01 03 C0 4D 54 72 6B 00 00 00 0B 00 90 32 21 02 32 00 00 FF 2F 00"
 
@@ -319,18 +392,20 @@ func TestNoRunningStatus(t *testing.T) {
 
 	var bf bytes.Buffer
 
-	wr := New(&bf, NoRunningStatus())
+	var tr Track
+	tr.Add(0, midi.NoteOn(0, 50, 33))
+	tr.Add(2, midi.NoteOn(0, 50, 0)) // de facto a noteoff
+	tr.Close(0)
 
-	err := wr.WriteHeader()
+	wr := New()
+	wr.NoRunningStatus = true
+	wr.Tracks = []Track{tr}
+
+	err := wr.WriteTo(&bf)
 
 	if err != nil {
 		t.Fatalf("Error: %v", err)
 	}
-
-	wr.Write(channel.Channel0.NoteOn(50, 33))
-	wr.SetDelta(2)
-	wr.Write(channel.Channel0.NoteOff(50))
-	wr.Write(meta.EndOfTrack)
 
 	expected := "4D 54 68 64 00 00 00 06 00 00 00 01 03 C0 4D 54 72 6B 00 00 00 0C 00 90 32 21 02 90 32 00 00 FF 2F 00"
 
@@ -338,4 +413,3 @@ func TestNoRunningStatus(t *testing.T) {
 		t.Errorf("got:\n%#v\nwanted:\n%#v\n\n", got, want)
 	}
 }
-*/

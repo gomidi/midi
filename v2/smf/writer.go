@@ -236,6 +236,7 @@ func (w *writer) addMessage(deltaTime uint32, raw Message) {
 	}
 
 	if w.runningWriter != nil {
+		//fmt.Printf("running writer set\n")
 		w.appendToChunk(deltaTime, w.runningWriter.Write(raw))
 		return
 	}

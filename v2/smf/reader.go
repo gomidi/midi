@@ -16,7 +16,7 @@ type Logger interface {
 }
 
 // ReadFile opens file, creates the SMF and closes file
-func ReadFile(file string) (*SMF, error) {
+func ReadFile(file string, opts ...ReadOption) (*SMF, error) {
 	f, err := os.Open(file)
 
 	if err != nil {
@@ -27,13 +27,33 @@ func ReadFile(file string) (*SMF, error) {
 		f.Close()
 	}()
 
-	return ReadFrom(f)
+	return ReadFrom(f, opts...)
+}
+
+// ReadOption is an option for reading of SMF files
+type ReadOption func(*readConfig)
+
+func Log(l Logger) ReadOption {
+	return func(c *readConfig) {
+		c.Logger = l
+	}
+}
+
+type readConfig struct {
+	Logger Logger
 }
 
 // Read reads a SMF from the given io.Reader
-func ReadFrom(f io.Reader) (*SMF, error) {
+func ReadFrom(f io.Reader, opts ...ReadOption) (*SMF, error) {
+
+	var c readConfig
+
+	for _, opt := range opts {
+		opt(&c)
+	}
 
 	rd := newReader(f)
+	rd.Logger = c.Logger
 
 	err := rd.ReadHeader()
 
@@ -94,7 +114,7 @@ func (r *reader) ReadHeader() error {
 	}
 
 	for i := 0; i < int(r.numTracks); i++ {
-		r.tracks = append(r.tracks, NewTrack())
+		r.Tracks = append(r.Tracks, Track{})
 	}
 
 	return r.error
@@ -168,7 +188,7 @@ func (r *reader) ReadTracks() (err error) {
 		*/
 		if m.Is(MetaEndOfTrackMsg) {
 			r.log("end of track")
-			r.tracks[tr].Close(r.deltatime)
+			r.Tracks[tr].Close(r.deltatime)
 			absTicks = 0
 			continue
 		}
@@ -187,7 +207,7 @@ func (r *reader) ReadTracks() (err error) {
 
 		r.log("add message %v to track %v", m, tr)
 		//fmt.Printf("add message %v to track %v\n", m, tr)
-		r.tracks[tr].Add(r.deltatime, m)
+		r.Tracks[tr].Add(r.deltatime, m)
 	}
 
 	r.SMF.finishTempoChanges()
@@ -342,7 +362,8 @@ func (r *reader) _readEvent(canary byte) (m Message, err error) {
 			if err != nil {
 				return m, err
 			}
-			return midi.SysEx(bt).Bytes(), nil
+			//return midi.SysEx(bt).Bytes(), nil
+			return Message(append([]byte{canary}, bt...)), nil
 		// meta event
 		case 0xFF:
 			var typ byte

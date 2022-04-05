@@ -1,25 +1,19 @@
 package gm
 
 import (
-	"fmt"
-
-	"gitlab.com/gomidi/midi"
-	"gitlab.com/gomidi/midi/cc"
-	"gitlab.com/gomidi/midi/midimessage/channel"
+	"gitlab.com/gomidi/midi/v2"
 )
 
-// WriteGMProgram is a shortcut to write GM bank select control change message followed
+// GMProgram is a shortcut to write GM bank select control change message followed
 // by a program change.
-func WriteGMProgram(wr midi.Writer, ch, prog uint8) error {
-	c := channel.Channel(ch)
-	err := wr.Write(c.ControlChange(cc.BankSelectMSB, 0))
-	if err != nil {
-		return err
-	}
-	return wr.Write(c.ProgramChange(prog))
+func GMProgram(ch, prog uint8) (msgs []midi.Message) {
+	//c := channel.Channel(ch)
+	msgs = append(msgs, midi.ControlChange(ch, midi.BankSelectMSB, 0))
+	msgs = append(msgs, midi.ProgramChange(ch, prog))
+	return
 }
 
-// WriteReset writes a kind of somewhat homegrown GM/GS reset message.
+// Reset writes a kind of somewhat homegrown GM/GS reset message.
 // The idea is inspired by http://www.artandscienceofsound.com/article/standardmidifiles.
 // The following messages will be written to the writer on the given channel:
 /*
@@ -31,26 +25,16 @@ func WriteGMProgram(wr midi.Writer, ch, prog uint8) error {
 	 cc hold pedal 0
 	 cc pan position 64
 */
-func WriteReset(wr midi.Writer, ch, prog uint8) error {
-	c := channel.Channel(ch)
-	var msgs = []midi.Message{
-		c.ControlChange(cc.BankSelectMSB, 0),
-		c.ProgramChange(prog),
-		c.ControlChange(cc.AllControllersOff, 0),
-		c.ControlChange(cc.VolumeMSB, 100),
-		c.ControlChange(cc.ExpressionMSB, 127),
-		c.ControlChange(cc.HoldPedalSwitch, 0),
-		c.ControlChange(cc.PanPositionMSB, 64),
+func Reset(ch, prog uint8) []midi.Message {
+	return []midi.Message{
+		midi.ControlChange(ch, midi.BankSelectMSB, 0),
+		midi.ProgramChange(ch, prog),
+		midi.ControlChange(ch, midi.AllControllersOff, 0),
+		midi.ControlChange(ch, midi.VolumeMSB, 100),
+		midi.ControlChange(ch, midi.ExpressionMSB, 127),
+		midi.ControlChange(ch, midi.HoldPedalSwitch, 0),
+		midi.ControlChange(ch, midi.PanPositionMSB, 64),
 	}
-
-	for _, msg := range msgs {
-		err := wr.Write(msg)
-
-		if err != nil {
-			return fmt.Errorf("writing GM reset failed: %v", err)
-		}
-	}
-	return nil
 }
 
 /*

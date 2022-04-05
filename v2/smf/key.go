@@ -1,8 +1,4 @@
-package key
-
-import (
-	"gitlab.com/gomidi/midi/v2/smf"
-)
+package smf
 
 type Key struct {
 	Key     uint8
@@ -17,12 +13,12 @@ func (k Key) String() string {
 
 var keyStrings = map[Key]string{}
 
-func key(key, num uint8, isMajor, isFlat bool) smf.Message {
-	return smf.MetaKey(key, isMajor, num, isFlat)
+func key(key, num uint8, isMajor, isFlat bool) Message {
+	return MetaKey(key, isMajor, num, isFlat)
 }
 
 // CMaj returns the MIDI key signature meta message for C Major
-func CMaj() smf.Message {
+func CMaj() Message {
 	return key(0, 0, true, false)
 }
 
@@ -31,7 +27,7 @@ func init() {
 }
 
 // DMaj returns the MIDI key signature meta message for D Major
-func DMaj() smf.Message {
+func DMaj() Message {
 	return key(2, 2, true, false)
 }
 
@@ -40,7 +36,7 @@ func init() {
 }
 
 // EMaj returns the MIDI key signature meta message for E Major
-func EMaj() smf.Message {
+func EMaj() Message {
 	return key(4, 4, true, false)
 }
 
@@ -49,7 +45,7 @@ func init() {
 }
 
 // FsharpMaj returns the MIDI key signature meta message for F# Major
-func FsharpMaj() smf.Message {
+func FsharpMaj() Message {
 	return key(6, 6, true, false)
 }
 
@@ -58,7 +54,7 @@ func init() {
 }
 
 // GMaj returns the MIDI key signature meta message for G Major
-func GMaj() smf.Message {
+func GMaj() Message {
 	return key(7, 1, true, false)
 }
 
@@ -67,7 +63,7 @@ func init() {
 }
 
 // AMaj returns the MIDI key signature meta message for A Major
-func AMaj() smf.Message {
+func AMaj() Message {
 	return key(9, 3, true, false)
 }
 
@@ -76,7 +72,7 @@ func init() {
 }
 
 // BMaj returns the MIDI key signature meta message for B Major
-func BMaj() smf.Message {
+func BMaj() Message {
 	return key(11, 5, true, false)
 }
 
@@ -85,7 +81,7 @@ func init() {
 }
 
 // FMaj returns the MIDI key signature meta message for F Major
-func FMaj() smf.Message {
+func FMaj() Message {
 	return key(5, 1, true, true)
 }
 
@@ -94,7 +90,7 @@ func init() {
 }
 
 // BbMaj returns the MIDI key signature meta message for Bb Major
-func BbMaj() smf.Message {
+func BbMaj() Message {
 	return key(10, 2, true, true)
 }
 
@@ -103,7 +99,7 @@ func init() {
 }
 
 // EbMaj returns the MIDI key signature meta message for Eb Major
-func EbMaj() smf.Message {
+func EbMaj() Message {
 	return key(3, 3, true, true)
 }
 
@@ -112,7 +108,7 @@ func init() {
 }
 
 // AbMaj returns the MIDI key signature meta message for Ab Major
-func AbMaj() smf.Message {
+func AbMaj() Message {
 	return key(8, 4, true, true)
 }
 
@@ -121,7 +117,7 @@ func init() {
 }
 
 // DbMaj returns the MIDI key signature meta message for Db Major
-func DbMaj() smf.Message {
+func DbMaj() Message {
 	return key(1, 5, true, true)
 }
 
@@ -130,7 +126,7 @@ func init() {
 }
 
 // GbMaj returns the MIDI key signature meta message for Gb Major
-func GbMaj() smf.Message {
+func GbMaj() Message {
 	return key(6, 6, true, true)
 }
 
@@ -173,7 +169,7 @@ func BSharpMaj() meta.Key {
 */
 
 // AMin returns the MIDI key signature meta message for A Minor
-func AMin() smf.Message {
+func AMin() Message {
 	return key(9, 0, false, false)
 }
 
@@ -182,7 +178,7 @@ func init() {
 }
 
 // BMin returns the MIDI key signature meta message for B Minor
-func BMin() smf.Message {
+func BMin() Message {
 	return key(11, 2, false, false)
 }
 
@@ -191,7 +187,7 @@ func init() {
 }
 
 // CsharpMin returns the MIDI key signature meta message for C# Minor
-func CsharpMin() smf.Message {
+func CsharpMin() Message {
 	return key(1, 4, false, false)
 }
 
@@ -200,7 +196,7 @@ func init() {
 }
 
 // DsharpMin returns the MIDI key signature meta message for D# Minor
-func DsharpMin() smf.Message {
+func DsharpMin() Message {
 	return key(3, 6, false, false)
 }
 
@@ -209,7 +205,7 @@ func init() {
 }
 
 // EMin returns the MIDI key signature meta message for E Minor
-func EMin() smf.Message {
+func EMin() Message {
 	return key(4, 1, false, false)
 }
 
@@ -218,7 +214,7 @@ func init() {
 }
 
 // FsharpMin returns the MIDI key signature meta message for F# Minor
-func FsharpMin() smf.Message {
+func FsharpMin() Message {
 	return key(6, 3, false, false)
 }
 
@@ -227,7 +223,7 @@ func init() {
 }
 
 // GsharpMin returns the MIDI key signature meta message for G# Minor
-func GsharpMin() smf.Message {
+func GsharpMin() Message {
 	return key(8, 5, false, false)
 }
 
@@ -236,7 +232,7 @@ func init() {
 }
 
 // DMin returns the MIDI key signature meta message for D Minor
-func DMin() smf.Message {
+func DMin() Message {
 	return key(2, 1, false, true)
 }
 
@@ -245,7 +241,7 @@ func init() {
 }
 
 // GMin returns the MIDI key signature meta message for G Minor
-func GMin() smf.Message {
+func GMin() Message {
 	return key(7, 2, false, true)
 }
 
@@ -254,7 +250,7 @@ func init() {
 }
 
 // CMin returns the MIDI key signature meta message for C Minor
-func CMin() smf.Message {
+func CMin() Message {
 	return key(0, 3, false, true)
 }
 
@@ -263,7 +259,7 @@ func init() {
 }
 
 // FMin returns the MIDI key signature meta message for F Minor
-func FMin() smf.Message {
+func FMin() Message {
 	return key(5, 4, false, true)
 }
 
@@ -272,7 +268,7 @@ func init() {
 }
 
 // BbMin returns the MIDI key signature meta message for Bb Minor
-func BbMin() smf.Message {
+func BbMin() Message {
 	return key(10, 5, false, true)
 }
 
@@ -281,7 +277,7 @@ func init() {
 }
 
 // EbMin returns the MIDI key signature meta message for Eb Minor
-func EbMin() smf.Message {
+func EbMin() Message {
 	return key(3, 6, false, true)
 }
 
