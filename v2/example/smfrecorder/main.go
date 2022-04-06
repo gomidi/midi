@@ -35,5 +35,12 @@ func run() error {
 
 	time.Sleep(5 * time.Second)
 
-	return stop()
+	stop()
+
+	out := midi.FindOutPort("qsynth")
+	if out < 0 {
+		return fmt.Errorf("can't find MIDI in port %q", "qsynth")
+	}
+
+	return smf.ReadTracks("recordedx.mid").Play(out)
 }

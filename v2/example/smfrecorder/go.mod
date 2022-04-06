@@ -1,4 +1,4 @@
-module gitlab.com/gomidi/midi/v2/example/smf0recorder
+module gitlab.com/gomidi/midi/v2/example/smfrecorder
 
 go 1.14
 

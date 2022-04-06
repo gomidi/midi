@@ -34,11 +34,11 @@ func run() error {
 		//Only(midi.NoteMsg, midi.ControlChangeMsg, midi.ProgramChangeMsg).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.ControlChangeMsg, midi.ProgramChangeMsg, smf.MetaTrackNameMsg).
 		//Only(midi.ProgramChangeMsg, smf.MetaTrackNameMsg, smf.MetaTempoMsg, smf.MetaTimeSigMsg).
-		//Only(midi.MetaMsg).
+		//Only(smf.MetaMsg).
 		Do(
 			func(te smf.TrackEvent) {
 				if te.Message.IsMeta() {
-					fmt.Printf("[%v] %s\n", te.TrackNo, te.Message.String())
+					fmt.Printf("[%v] @%vms %s\n", te.TrackNo, te.AbsMicroSeconds/1000, te.Message.String())
 					/*
 						var t string
 						if mm.Text(&t) {
@@ -52,7 +52,7 @@ func run() error {
 						}
 					*/
 				} else {
-					fmt.Printf("[%v] %s\n", te.TrackNo, te.Message)
+					//fmt.Printf("[%v] %s\n", te.TrackNo, te.Message)
 				}
 			},
 		).Play(out)
