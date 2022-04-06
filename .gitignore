@@ -35,3 +35,4 @@ examples/sysextest
 examples/tinygo
 .coverage.txt
 go.sum
+v1
