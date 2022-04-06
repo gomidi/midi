@@ -18,7 +18,14 @@ func (m Message) Bytes() []byte {
 
 // IsPlayable returns true, if the message can be send to an instrument.
 func (m Message) IsPlayable() bool {
-	return midi.Message(m).IsPlayable()
+	if m.IsMeta() {
+		return false
+	}
+
+	if m.Type() <= midi.UnknownMsg {
+		return false
+	}
+	return true
 }
 
 // IsMeta returns true, if the message is a meta message.

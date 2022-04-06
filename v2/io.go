@@ -25,7 +25,7 @@ func SendTo(portno int) (func(msg Message) error, error) {
 		}
 	}
 	return func(msg Message) error {
-		return out.Send(msg)
+		return out.Send(msg.Bytes())
 	}, nil
 }
 
