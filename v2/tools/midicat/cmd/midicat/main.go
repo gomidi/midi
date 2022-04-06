@@ -171,11 +171,11 @@ func runIn() (err error) {
 	var stopChan = make(chan bool, 1)
 	var stoppedChan = make(chan bool, 1)
 
-	recv := midi.ReceiverFunc(func(msg midi.Message, absmillisec int32) {
+	recv := func(msg midi.Message, absmillisec int32) {
 		//fmt.Printf("got message %s from in port %v\n", msg.String(), in)
 
 		msgChan <- timestampedMsg{absmillisec: absmillisec, msg: msg.Bytes()}
-	})
+	}
 
 	go func() {
 		for {
@@ -231,7 +231,7 @@ func runOut() (err error) {
 		out = midi.FindOutPort(argPortName.Get())
 	}
 
-	sender, err := midi.SendTo(out)
+	send, err := midi.SendTo(out)
 
 	if err != nil {
 		return err
@@ -264,7 +264,7 @@ func runOut() (err error) {
 
 				lastAbstime = abstime
 			*/
-			werr := sender.Send(b)
+			werr := send(b)
 
 			if werr != nil {
 				logMsg("midicat out: could not write % X to port %q: %s\n", b, out, werr.Error())
