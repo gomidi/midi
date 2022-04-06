@@ -3,7 +3,7 @@ module gitlab.com/gomidi/midi/v2/tools/midicat/cmd/midicat
 go 1.16
 
 require (
-	gitlab.com/gomidi/midi/v2 v2.0.0-alpha.15
+	gitlab.com/gomidi/midi/v2 v2.0.0-beta.5
 	gitlab.com/gomidi/midi/v2/drivers/rtmididrv v0.0.0-20210412062545-442b1d8545e9 // indirect
 	gitlab.com/metakeule/config v1.21.0
 )
