@@ -6,8 +6,8 @@ import (
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/smf"
 
-	//_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
-	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
+	//_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
 )
 
 func printPorts() {
@@ -33,7 +33,7 @@ func run() error {
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.MetaMsgType).
 		//Only(midi.NoteMsg, midi.ControlChangeMsg, midi.ProgramChangeMsg).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.ControlChangeMsg, midi.ProgramChangeMsg, smf.MetaTrackNameMsg).
-		Only(midi.ProgramChangeMsg, smf.MetaTrackNameMsg, smf.MetaTempoMsg, smf.MetaTimeSigMsg).
+		//Only(midi.ProgramChangeMsg, smf.MetaTrackNameMsg, smf.MetaTempoMsg, smf.MetaTimeSigMsg).
 		//Only(midi.MetaMsg).
 		Do(
 			func(te smf.TrackEvent) {
