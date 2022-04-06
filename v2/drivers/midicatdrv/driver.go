@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
-	"gitlab.com/metakeule/config"
+	//	"gitlab.com/metakeule/config"
 )
 
 func init() {
@@ -61,6 +61,7 @@ func barkTo(wr io.Writer) {
 	fmt.Fprintf(wr, "can't find midicat binary version >= %s in your PATH, please download from: %s\n", midicatVersion, midicatDownloadURL)
 }
 
+/*
 func isVersionLess(a, b *config.Version) bool {
 	if a.Major != b.Major {
 		return a.Major < b.Major
@@ -118,14 +119,17 @@ func CheckMIDICatBinary(barkTarget io.Writer) error {
 
 	return nil
 }
+*/
 
 // New returns a driver based on the default rtmidi in and out
 func New() (*Driver, error) {
-	err := CheckMIDICatBinary(nil)
-	if err != nil {
+	/*
+		err := CheckMIDICatBinary(nil)
+		if err != nil {
 
-		return nil, err
-	}
+			return nil, err
+		}
+	*/
 	return &Driver{}, nil
 }
 

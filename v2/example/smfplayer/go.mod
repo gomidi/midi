@@ -1,11 +1,11 @@
 module gitlab.com/gomidi/midi/v2/example/smfplayer
 
-go 1.14
+go 1.18
 
 require (
-	gitlab.com/gomidi/midi/v2 v2.0.0-alpha.15
-	gitlab.com/gomidi/midi/v2/drivers/rtmididrv v0.0.0-20210412062545-442b1d8545e9 // indirect
-	gitlab.com/gomidi/midi/v2/drivers/portmididrv v0.0.0
+	gitlab.com/gomidi/midi/v2 v2.0.0-beta.5
+	gitlab.com/gomidi/midi/v2/drivers/rtmididrv v2.0.0-beta.5 // indirect
+	gitlab.com/gomidi/midi/v2/drivers/portmididrv v2.0.0-beta.5
 )
 
 replace (

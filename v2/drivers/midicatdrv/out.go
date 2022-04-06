@@ -60,10 +60,12 @@ func (o *out) Send(b []byte) error {
 	o.Lock()
 	defer o.Unlock()
 	if o.cmd == nil {
+		fmt.Println("port closed")
 		return drivers.ErrPortClosed
 	}
-
-	_, err := fmt.Fprintf(o.wr, "%X\n", b)
+	//fmt.Printf("% X\n", b)
+	_, err := fmt.Fprintf(o.wr, "%d %X\n", 0, b)
+	//_, err := fmt.Fprintf(o.wr, "%X\n", b)
 	if err != nil {
 		return err
 	}
