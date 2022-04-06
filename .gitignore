@@ -24,3 +24,14 @@ specs
 *.wav
 examples/liverecord/liverecord
 examples/liverecord/recorded.mid
+recorder
+TODO.md
+*.sh
+slice-size.md
+.coverag.txt
+examples/filter
+examples/lowlevel
+examples/sysextest
+examples/tinygo
+.coverage.txt
+go.sum
