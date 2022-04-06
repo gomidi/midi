@@ -36,7 +36,54 @@ Currently the following drivers available in the drivers subdirectory (all multi
 - midicatdrv based on the midicat binaries via piping (stdin / stdout) (no CGO needed)
 - testdrv for testing (no CGO needed)
 
-### Example
+### Examples
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+
+	"gitlab.com/gomidi/midi/v2"
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
+)
+
+func main() {
+	defer midi.CloseDriver()
+
+	in := midi.FindInPort("VMPK")
+	if in < 0 {
+		fmt.Println("can't find VMPK")
+		return
+	}
+
+	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {
+		var bt []byte
+		var ch, key, vel uint8
+		switch {
+		case msg.GetSysEx(&bt):
+			fmt.Printf("got sysex: % X\n", bt)
+		case msg.GetNoteStart(&ch, &key, &vel):
+			fmt.Printf("starting note %s on channel %v with velocity %v\n", midi.Note(key), ch, vel)
+		case msg.GetNoteEnd(&ch, &key):
+			fmt.Printf("ending note %s on channel %v\n", midi.Note(key), ch)
+		default:
+			// ignore
+		}
+	}, midi.UseSysEx())
+
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err)
+		return
+	}
+
+	time.Sleep(time.Second * 5)
+
+	stop()
+}
+
+```
 
 ```go
 package main
@@ -71,8 +118,6 @@ func main() {
 	// read and play it
 	smf.ReadTracksFrom(rd).Do(func(ev smf.TrackEvent) {
 		fmt.Printf("track %v @%vms %s\n", ev.TrackNo, ev.AbsMicroSeconds/1000, ev.Message)
-		
-		// use the ev.Message.Get* methods to get the data
 	}).Play(out)
 }
 
@@ -89,11 +134,11 @@ func mkSMF() []byte {
 	tr.Add(0, smf.MetaTempo(140))
 	tr.Add(0, smf.MetaInstrument("Brass"))
 	tr.Add(0, midi.ProgramChange(0, gm.Instr_BrassSection.Value()))
-	tr.Add(0, midi.NoteOn(0, 76, 120))
-	tr.Add(clock.Ticks8th(), midi.NoteOn(0, 83, 120))
+	tr.Add(0, midi.NoteOn(0, midi.Ab(3), 120))
+	tr.Add(clock.Ticks8th(), midi.NoteOn(0, midi.C(4), 120))
 	// duration: a quarter note (96 ticks in our case)
-	tr.Add(clock.Ticks4th()*2, midi.NoteOff(0, 76))
-	tr.Add(0, midi.NoteOff(0, 83))
+	tr.Add(clock.Ticks4th()*2, midi.NoteOff(0, midi.Ab(3)))
+	tr.Add(0, midi.NoteOff(0, midi.C(4)))
 	tr.Close(0)
 
 	// create the SMF and add the tracks

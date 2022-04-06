@@ -96,14 +96,16 @@ func (m Message) GetChannel(channel *uint8) (is bool) {
 
 // GetNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments.
-func (m Message) GetNoteEnd(channel, key, velocity *uint8) (is bool) {
+func (m Message) GetNoteEnd(channel, key *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) && !m.Is(NoteOffMsg) {
 		return false
 	}
 
+	var velocity uint8
+
 	_, *channel = utils.ParseStatus(m[0])
-	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
-	return m.Is(NoteOffMsg) || *velocity == 0
+	*key, velocity = utils.ParseTwoUint7(m[1], m[2])
+	return m.Is(NoteOffMsg) || velocity == 0
 }
 
 // GetPolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.

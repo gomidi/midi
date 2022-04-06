@@ -1,0 +1,4 @@
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210412062545-442b1d8545e9 h1:zlbXAJw+2YRoVxa0fxRN9c0BZmT6LSa1yFvZz0zz0SI=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210412062545-442b1d8545e9/go.mod h1:OPj7tH2bUPFpPN1uU6E7ShXuDlJO0+RHlwp32KhcrtE=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210425073027-dcb5d7eb9e83 h1:FuKUpVHyDsZy9y+ZrWrT9uR2/HWY16MOj0/wY++IEY8=
+gitlab.com/gomidi/midi/v2/drivers/rtmididrv/imported/rtmidi v0.0.0-20210425073027-dcb5d7eb9e83/go.mod h1:OPj7tH2bUPFpPN1uU6E7ShXuDlJO0+RHlwp32KhcrtE=

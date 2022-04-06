@@ -28,7 +28,7 @@ func Example() {
 			fmt.Printf("note started at %vms channel: %v key: %v velocity: %v\n", timestampms, channel, key, velocity)
 
 		// is better, than to use GetNoteOff (handles note on messages with velocity of 0 as expected)
-		case msg.GetNoteEnd(&channel, &key, &velocity):
+		case msg.GetNoteEnd(&channel, &key):
 			fmt.Printf("note ended at %vms channel: %v key: %v\n", timestampms, channel, key)
 
 		case msg.GetControlChange(&channel, &cc, &val):
@@ -72,9 +72,9 @@ func Example() {
 	stop, _ := ListenTo(in, eachMessage)
 
 	{ // send some messages
-		send(NoteOn(0, 60, 100))
+		send(NoteOn(0, Db(4), 100))
 		time.Sleep(time.Millisecond * 30)
-		send(NoteOff(0, 60))
+		send(NoteOff(0, Db(4)))
 		send(Pitchbend(0, -12))
 		time.Sleep(time.Millisecond * 20)
 		send(ProgramChange(1, 12))
@@ -85,8 +85,8 @@ func Example() {
 	stop()
 
 	// Output:
-	// note started at 0ms channel: 0 key: 60 velocity: 100
-	// note ended at 30ms channel: 0 key: 60
+	// note started at 0ms channel: 0 key: 61 velocity: 100
+	// note ended at 30ms channel: 0 key: 61
 	// received PitchBend channel: 0 pitch: -12 (8180) at 30ms
 	// received ProgramChange channel: 1 program: 12 at 50ms
 	// control change 4 "Foot Pedal (MSB)" channel: 2 value: 127 at 50ms

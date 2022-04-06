@@ -99,8 +99,8 @@ func (m Message) GetChannel(channel *uint8) (is bool) {
 
 // GetNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
-func (m Message) GetNoteEnd(channel, key, velocity *uint8) (is bool) {
-	return midi.Message(m).GetNoteEnd(channel, key, velocity)
+func (m Message) GetNoteEnd(channel, key *uint8) (is bool) {
+	return midi.Message(m).GetNoteEnd(channel, key)
 }
 
 // GetPolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
