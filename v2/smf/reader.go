@@ -390,10 +390,8 @@ func (r *reader) _readEvent(canary byte) (m Message, err error) {
 		}
 
 		var mim midi.Message
-
 		mim, err = midi.ReadChannelMessage(status, arg1, r.input)
 		m = mim.Bytes()
-		fmt.Printf("status: % X, arg1: % X, channel message: %s % X\n", status, arg1, mim, mim.Bytes())
 
 		// since every possible status is covered by a voice message type, m can't be nil
 		r.log("got channel message: %#v, err: %v", m, err)

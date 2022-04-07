@@ -69,7 +69,7 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 
 	// one argument only
 	case byteProgramChange, byteChannelPressure:
-		m = channelMessage1(typ, channel, arg1)
+		m = channelMessage1(channel, typ, arg1)
 
 	// two Arguments needed
 	default:
@@ -79,7 +79,7 @@ func ReadChannelMessage(status byte, arg1 byte, rd io.Reader) (m Message, err er
 		if err != nil {
 			return
 		}
-		m = channelMessage2(typ, channel, arg1, arg2)
+		m = channelMessage2(channel, typ, arg1, arg2)
 	}
 	return
 }
