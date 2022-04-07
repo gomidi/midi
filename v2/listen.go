@@ -124,13 +124,14 @@ func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Opt
 
 	var onMsg = func(data []byte, millisec int32) {
 		status := data[0]
-		//var msg []byte
+
 		var msg Message
 		switch {
+
 		// realtime message
 		case status >= 0xF8:
-			//msg = NewMessage([]byte{status})
 			msg = []byte{status}
+
 		// here we clear for System Common Category messages
 		case status > 0xF0 && status < 0xF7:
 			isStatusSet = false
@@ -154,6 +155,7 @@ func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Opt
 		// semantic meaning in MIDI apart from cancelling running status.
 		case status == 0xF7:
 			isStatusSet = false
+
 		case status == 0xF0:
 			errmsg := fmt.Sprintf("error in driver: %q receiving 0xF0 in non sysex callback", drivers.Get().String())
 			if conf.OnErr != nil {
@@ -162,10 +164,13 @@ func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Opt
 				// TODO: maybe log
 				panic(errmsg)
 			}
+
+		// channel message
 		case status >= 0x80 && status <= 0xEF:
 			isStatusSet = true
 			typ, channel = midilib.ParseStatus(status)
 			msg = _channelMessage(typ, channel, data[1], data[2])
+
 		default:
 			// running status
 			if isStatusSet {

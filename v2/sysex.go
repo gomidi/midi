@@ -10,23 +10,7 @@ func SysEx(bt []byte) (m Message) {
 	return m
 }
 
-/*
-import (
-	"io"
 
-	"gitlab.com/gomidi/midi2/msg"
-)
-
-func newSysexReader() *sysexReader {
-	return &sysexReader{}
-}
-
-type sysexReader struct {
-	inSequence bool
-}
-*/
-
-//func (s *sysexReader) Read(startcode byte, rd io.Reader) (sys msg.Message, err error) {
 /*
 	what this means to us is relatively simple:
 	we read the data after the startcode based of the following length

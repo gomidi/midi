@@ -134,40 +134,6 @@ func init() {
 	keyStrings[Key{6, 6, true, true}] = "GbMaj"
 }
 
-/*
-func CFlatMaj() meta.Key {
-	return key(11, 5, true, false)
-}
-
-func CSharpMaj() meta.Key {
-	return key(1, 5, true, true)
-}
-
-func DSharpMaj() meta.Key {
-	return key(3, 3, true, true)
-}
-
-func ESharpMaj() meta.Key {
-	return key(5, 1, true, true)
-}
-
-func FFlatMaj() meta.Key {
-	return key(4, 4, true, false)
-}
-
-func GSharpMaj() meta.Key {
-	return key(8, 4, true, true)
-}
-
-func ASharpMaj() meta.Key {
-	return key(10, 2, true, true)
-}
-
-func BSharpMaj() meta.Key {
-	return key(0, 0, true, false)
-}
-*/
-
 // AMin returns the MIDI key signature meta message for A Minor
 func AMin() Message {
 	return key(9, 0, false, false)
@@ -284,41 +250,3 @@ func EbMin() Message {
 func init() {
 	keyStrings[Key{3, 6, false, true}] = "EbMin"
 }
-
-/*
-func CFlatMin() meta.Key {
-	return key(11, 2, false, false)
-}
-
-
-func ESharpMin() meta.Key {
-	return key(5, 4, false, true)
-}
-
-func FFlatMin() meta.Key {
-	return key(4, 1, false, false)
-}
-
-func GFlatMin() meta.Key {
-	return key(5, 3, false, false)
-}
-
-func AFlatMin() meta.Key {
-	return key(8, 5, false, false)
-}
-
-func ASharpMin() meta.Key {
-	return key(10, 5, false, true)
-}
-
-func BSharpMin() meta.Key {
-	return key(0, 3, false, true)
-}
-
-func DFlatMin() meta.Key {
-	return key(1, 4, false, false)
-}
-
-
-
-*/

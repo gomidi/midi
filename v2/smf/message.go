@@ -186,21 +186,11 @@ func (m Message) String() string {
 }
 
 func _MetaMessage(typ byte, data []byte) Message {
-	//func _MetaMessage(typ byte, data []byte) MetaMessage {
-	//fmt.Printf("NewMetaMessage %X % X\n", typ, data)
 	b := []byte{byte(0xFF), typ}
 	b = append(b, utils.VlqEncode(uint32(len(data)))...)
 	if len(data) != 0 {
 		b = append(b, data...)
 	}
-
-	/*
-		var m midi.Message
-		m.Type = GetMetaType(typ)
-		m.Data = b
-		return m
-	*/
-	//return midi.Message(b)
 	return b
 }
 

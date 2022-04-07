@@ -43,7 +43,7 @@ type readConfig struct {
 	Logger Logger
 }
 
-// Read reads a SMF from the given io.Reader
+// ReadFrom reads a SMF from the given io.Reader
 func ReadFrom(f io.Reader, opts ...ReadOption) (*SMF, error) {
 
 	var c readConfig
@@ -79,7 +79,7 @@ func ReadFrom(f io.Reader, opts ...ReadOption) (*SMF, error) {
 	return rd.SMF, nil
 }
 
-// New returns a smf.Reader
+// newReader returns a smf.Reader
 func newReader(src io.Reader) *reader {
 	rd := &reader{
 		input:           src,
@@ -165,27 +165,13 @@ func (r *reader) ReadTracks() (err error) {
 		//fmt.Printf("message %v\n", m)
 		tr := int(r.Track())
 
-		//var isMetaMsg bool
-
 		/*
 			// TODO maybe remove this after lots of tests
 			if m == nil {
 				continue
 			}
 		*/
-		//if m != nil {
-		//isMetaMsg = m.Type.Is(MetaMsg)
-		//}
 
-		/*
-			var mmsg MetaMessage
-
-			if isMetaMsg {
-				mmsg.Message = m
-			}
-
-			if isMetaMsg && mmsg.Type.Is(MetaEndOfTrack) {
-		*/
 		if m.Is(MetaEndOfTrackMsg) {
 			r.log("end of track")
 			r.Tracks[tr].Close(r.deltatime)
@@ -292,12 +278,7 @@ func (r *reader) readChunk() {
 		return
 	}
 
-	var (
-		// define the variables here that are shared along the for loop
-		// err error
-		//head chunkHeader
-		chunk chunk
-	)
+	var chunk chunk
 
 	r.expectedChunkLength, r.error = chunk.ReadHeader(r.input)
 	r.log("reading header of chunk: %v", r.error)
@@ -314,17 +295,9 @@ func (r *reader) readChunk() {
 		r.log("is track chunk")
 		r.processedTracks++
 		r.expectChunk = false
-		//p.state = stateExpectTrackEvent
 		// we are done, lets go to the track events
 		return
 	}
-
-	/*
-		if p.failOnUnknownChunks {
-			err = fmt.Errorf("unknown chunk of type %#v", chunk.Type())
-			break
-		}
-	*/
 
 	// The header is of an unknown type, skip over it.
 	_, r.error = io.CopyN(ioutil.Discard, r.input, int64(r.expectedChunkLength))
@@ -364,6 +337,7 @@ func (r *reader) _readEvent(canary byte) (m Message, err error) {
 			}
 			//return midi.SysEx(bt).Bytes(), nil
 			return Message(append([]byte{canary}, bt...)), nil
+
 		// meta event
 		case 0xFF:
 			var typ byte
@@ -398,6 +372,7 @@ func (r *reader) _readEvent(canary byte) (m Message, err error) {
 			r.log("got meta: %s data: % X\n", mm.Type(), mm)
 			//fmt.Printf("got meta: %s\n", mm)
 			m = mm
+
 		default:
 			panic(fmt.Sprintf("must not happen: invalid canary % X", canary))
 		}
@@ -418,34 +393,20 @@ func (r *reader) _readEvent(canary byte) (m Message, err error) {
 
 		mim, err = midi.ReadChannelMessage(status, arg1, r.input)
 		m = mim.Bytes()
+		fmt.Printf("status: % X, arg1: % X, channel message: %s % X\n", status, arg1, mim, mim.Bytes())
 
 		// since every possible status is covered by a voice message type, m can't be nil
-		//m, err = r.channelReader.Read(status, arg1)
 		r.log("got channel message: %#v, err: %v", m, err)
 	}
 
 	if err != nil {
 		r.log("got err: %v", err)
-		//fmt.Printf("error: %s\n", err.Error())
-		//return m, err
-		//var mm midi.Message
-		//mm.MsgType = msgType
-		//m = nil
 	}
 
 	if isMetaEndOfTrackMsg {
 		r.log("got end of track")
-		// p.absTrackTime = 0
-		//p.deltatime = 0
-		// Expect the next chunk midi.
 
-		/*
-			if p.processedTracks > -1 && uint16(p.processedTracks) == p.header.NumTracks {
-				p.log("last track has been read")
-				p.isDone = true
-				return nil, ErrFinished
-			}
-		*/
+		// Expect the next chunk midi.
 
 		// TODO check the read length of the track against the length thas has been read
 		// return ErrTruncatedTrack if meta.EndOfTrack comes to early or ErrOverflowingTrack it it comes too late
@@ -455,12 +416,9 @@ func (r *reader) _readEvent(canary byte) (m Message, err error) {
 		} else {
 			r.expectChunk = true
 		}
-
-		// p.state = stateExpectChunk
 	}
 
 	r.log("returning: %v", m)
-	//fmt.Printf("returning %s\n", m.String())
 	return m, nil
 }
 

@@ -32,31 +32,27 @@ func newSMF(format uint16) *SMF {
 }
 
 type SMF struct {
-	//Header       SMFHeader
-	// Format is the SMF file format: SMF0, SMF1 or SMF2.
-	format uint16
-	//Format
+	// NoRunningStatus is an option for writing to not write running status
+	NoRunningStatus bool
 
-	// NumTracks is the number of tracks (0 indicates that the number is not set yet).
-	numTracks uint16
-
-	Tracks []Track
+	// Logger allows logging when reading or writing
+	Logger Logger
 
 	// TimeFormat is the time format (either MetricTicks or TimeCode).
-	//	timeFormat TimeFormat
+	TimeFormat TimeFormat
 
-	tempoChanges TempoChanges
+	// Tracks contain the midi events
+	Tracks []Track
 
+	// format is the SMF file format: SMF0, SMF1 or SMF2.
+	format uint16
+
+	// numTracks is the number of tracks (0 indicates that the number is not set yet).
+	numTracks uint16
+
+	tempoChanges         TempoChanges
 	tempoChangesFinished bool
-
-	finished bool
-
-	//opts []Option
-	//Config Config
-
-	NoRunningStatus bool
-	Logger          Logger
-	TimeFormat      TimeFormat
+	finished             bool
 }
 
 // RecordTo records from the given midi in port into the given filename with the given tempo.
@@ -76,13 +72,12 @@ func RecordTo(inport int, bpm float64, filename string) (stop func() error, err 
 	}, nil
 }
 
-// Record records from the given midi in port into a new track.
+// RecordFrom records from the given midi in port into a new track.
 // It returns a stop function that must be called to stop the recording.
 // It is up to the user to save the SMF.
 func (s *SMF) RecordFrom(inport int, bpm float64) (stop func(), err error) {
 	ticks := s.TimeFormat.(MetricTicks)
 
-	//tr := NewTrack()
 	var tr Track
 
 	_stop, _err := tr.RecordFrom(inport, ticks, bpm)
@@ -90,18 +85,16 @@ func (s *SMF) RecordFrom(inport int, bpm float64) (stop func(), err error) {
 	if _err != nil {
 		_stop()
 		time.Sleep(time.Second)
-		//s.AddAndClose(0, tr)
 		tr.Close(0)
-		s.Tracks = append(s.Tracks, tr)
+		s.Add(tr)
 		return nil, _err
 	}
 
 	return func() {
 		_stop()
 		time.Sleep(time.Second)
-		//s.AddAndClose(0, tr)
 		tr.Close(0)
-		s.Tracks = append(s.Tracks, tr)
+		s.Add(tr)
 	}, nil
 }
 
@@ -137,6 +130,7 @@ func (s *SMF) calculateAbsTimes() {
 	}
 }
 
+// TimeAt returns the absolute time for a given absolute tick (considering the tempo changes)
 func (s *SMF) TimeAt(absTicks int64) (absTimeMicroSec int64) {
 	s.finishTempoChanges()
 	mt := s.TimeFormat.(MetricTicks)
@@ -147,34 +141,12 @@ func (s *SMF) TimeAt(absTicks int64) (absTimeMicroSec int64) {
 	return prevTc.AbsTimeMicroSec + mt.Duration(prevTc.BPM, uint32(absTicks-prevTc.AbsTicks)).Microseconds()
 }
 
-/*
-func (s *SMF) Tracks() []Track {
-	return s.tracks
-}
-*/
-
+// NumTracks returns the number of tracks
 func (s *SMF) NumTracks() uint16 {
 	return uint16(len(s.Tracks))
 }
 
-// WriteFile creates file, calls callback with a writer and closes file.
-//
-// WriteFile makes sure that the data of the last track is written by sending
-// an meta.EndOfTrack message after callback has been run.
-//
-// For single track (SMF0) files this makes sense since no meta.EndOfTrack message
-// must then be send from callback (although it does not harm).
-//
-// For multitrack files however there must be sending of meta.EndOfTrack anyway,
-// so it is better practise to send it after each track (including the last one).
-// The options and their defaults are the same as for New and they are documented
-// at the corresponding option.
-// The callback may call the given writer to write messages. If any of this write
-// results in an error, the file won't be written and the error is returned.
-// Only a successful write will manifest itself in the file being created.
-//func (s *SMF) WriteFile(file string, options ...Option) error {
-
-//var s io.WriterTo = &smf{}
+// WriteFile writes the SMF to the given filename
 func (s *SMF) WriteFile(file string) error {
 	f, err := os.Create(file)
 
@@ -194,6 +166,7 @@ func (s *SMF) WriteFile(file string) error {
 	return nil
 }
 
+// WriteTo writes the SMF to the given writer
 func (s *SMF) WriteTo(f io.Writer) (err error) {
 	s.numTracks = uint16(len(s.Tracks))
 	if s.numTracks == 0 {
@@ -212,7 +185,6 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 		}
 	}
 
-	//wr := newWriter(f, options...)
 	//fmt.Printf("numtracks: %v\n", s.numTracks)
 	wr := newWriter(s, f)
 	err = wr.WriteHeader()
@@ -221,7 +193,6 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 	}
 
 	for _, t := range s.Tracks {
-		//t.Close(0) // just to be sure
 		for _, ev := range t {
 			//fmt.Printf("written ev: %v\n ", ev)
 			wr.SetDelta(ev.Delta)
@@ -241,14 +212,6 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 	return
 }
 
-/*
-// AddAndClose closes the given track at deltatime and adds it to the smf
-func (s *SMF) AddAndClose(deltatime uint32, t Track) {
-	t.Close(deltatime)
-	s.tracks = append(s.tracks, t)
-}
-*/
-
 // Add adds a track to the SMF and returns an error, if the track is not closed.
 func (s *SMF) Add(t Track) error {
 	s.Tracks = append(s.Tracks, t)
@@ -257,8 +220,6 @@ func (s *SMF) Add(t Track) error {
 	}
 	return nil
 }
-
-//var ErrFinished = errors.New("SMF action finished successfully")
 
 func (s SMF) Format() uint16 {
 	return s.format

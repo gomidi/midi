@@ -117,12 +117,6 @@ func (t Type) String() string {
 	return "user defined"
 }
 
-/*
-func init() {
-	fmt.Printf("RT1: %v SysC10: %v Mt30: %v\n", RT1, SysC10, Mt30)
-}
-*/
-
 const (
 	// UnknownMsg is an invalid or unknown MIDI message
 	UnknownMsg Type = 0
@@ -260,11 +254,7 @@ const (
 )
 
 /*
-GetMsgType returns the message type for the given message (bytes that must include a status byte - no running status).
-
-The returned MsgType will be a combination of message types, if appropriate (binary flags). For example:
-A note on message on channel 0 will have a message type that is a combination of a ChannelMsg, a Channel0Msg, and a NoteOnMsg.
-A tempo meta message of a SMF file will have a message type that is a combination of a MetaMsg, and a MetaTempoMsg.
+getType returns the message type for the given message (bytes that must include a status byte - no running status).
 */
 func getType(bt []byte) (mType Type) {
 	//fmt.Printf("GetMsgType % X\n", msg)
@@ -296,7 +286,7 @@ func getType(bt []byte) (mType Type) {
 	}
 }
 
-// GetChannelMsgType returns the MsgType of a channel message. It should not be used by the end consumer.
+// getChannelType returns the MsgType of a channel message. It should not be used by the end consumer.
 func getChannelType(canary byte) (mType Type) {
 	tp, _ := utils.ParseStatus(canary)
 
