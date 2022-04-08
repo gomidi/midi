@@ -197,7 +197,7 @@ func runIn() (err error) {
 	var stop func()
 
 	go func() {
-		stop, err = midi.ListenTo(in, recv)
+		stop, err = midi.ListenTo(in, recv, midi.UseActiveSense(), midi.UseSysEx(), midi.UseTimeCode())
 
 		if err != nil {
 			stopChan <- true
