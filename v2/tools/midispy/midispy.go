@@ -12,7 +12,7 @@ import (
 // that is >= 0, write them to the out port.
 // All given port must be opened. Run will not close any ports.
 // Stop the spying by closing the ports.
-func Run(in drivers.In, out drivers.Out, recv midi.Receiver) error {
+func Run(in drivers.In, out drivers.Out, recv func(midi.Message, int32)) error {
 	if in == nil {
 		panic("MIDI in port is nil")
 	}
@@ -21,7 +21,7 @@ func Run(in drivers.In, out drivers.Out, recv midi.Receiver) error {
 		In:  in,
 	}
 
-	return s.SetListener(recv.Receive)
+	return s.SetListener(recv)
 }
 
 // spy connects a MIDI in port and a MIDI out port and allows
@@ -58,6 +58,10 @@ func (s *spy) SetListener(outer func(midi.Message, int32)) (err error) {
 	if listener != nil {
 		fmt.Println("setting listener")
 		var o drivers.ListenConfig
+		o.ActiveSense = true
+		o.SysEx = true
+		o.TimeCode = true
+		o.SysExBufferSize = 1024
 		stop, err = s.In.Listen(listener, o)
 		//err = s.In.SetListener(listener)
 		if err != nil {

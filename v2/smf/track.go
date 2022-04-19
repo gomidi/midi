@@ -106,9 +106,12 @@ func ReadTracks(filepath string, tracks ...int) *TracksReader {
 		t.tracks[tr] = true
 	}
 	t.smf, t.err = ReadFile(filepath)
+	if t.err != nil {
+		return t
+	}
 	if _, ok := t.smf.TimeFormat.(MetricTicks); !ok {
 		t.err = fmt.Errorf("SMF time format is not metric ticks, but %s (currently not supported)", t.smf.TimeFormat.String())
-		return nil
+		return t
 	}
 	return t
 }
@@ -121,9 +124,12 @@ func ReadTracksFrom(rd io.Reader, tracks ...int) *TracksReader {
 	}
 
 	t.smf, t.err = ReadFrom(rd)
+	if t.err != nil {
+		return t
+	}
 	if _, ok := t.smf.TimeFormat.(MetricTicks); !ok {
 		t.err = fmt.Errorf("SMF time format is not metric ticks, but %s (currently not supported)", t.smf.TimeFormat.String())
-		return nil
+		return t
 	}
 	return t
 }
@@ -165,6 +171,10 @@ func (p player) Len() int {
 
 // Play plays the tracks on the given out port
 func (t *TracksReader) Play(out int) error {
+	if t.err != nil {
+		return t.err
+	}
+
 	o, err := drivers.OutByNumber(out)
 	if err != nil {
 		return err
@@ -180,6 +190,9 @@ func (t *TracksReader) Play(out int) error {
 // MultiPlay plays tracks to different out ports.
 // If the map has an index of -1, it will be used to play all tracks that have no explicit out port.
 func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) error {
+	if t.err != nil {
+		return t.err
+	}
 	var pl player
 	if len(trackouts) == 0 {
 		t.err = fmt.Errorf("trackouts not set")
@@ -232,6 +245,9 @@ func (t *TracksReader) play(last time.Duration, p playEvent) time.Duration {
 }
 
 func (t *TracksReader) Do(fn func(TrackEvent)) *TracksReader {
+	if t.err != nil {
+		return t
+	}
 	tracks := t.smf.Tracks
 
 	for no, tr := range tracks {
