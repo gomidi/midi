@@ -13,16 +13,6 @@ Note: If you are reading this on Github, please note that the repo has moved to 
 go get gitlab.com/gomidi/midi/v2@latest
 ```
 
-For a driver one of these 
-
-```
-go get gitlab.com/gomidi/midi/v2/drivers/rtmididrv@latest
-go get gitlab.com/gomidi/midi/v2/drivers/portmididrv@latest
-go get gitlab.com/gomidi/midi/v2/drivers/midicatdrv@latest
-go get gitlab.com/gomidi/midi/v2/drivers/webmididrv@latest
-```
-
-
 ## Features
 
 This package provides a unified way to read and write "over the wire" MIDI data and MIDI files (SMF).
