@@ -8,10 +8,10 @@ import (
 // It returns -1, if the port can't be found.
 func FindInPort(name string) int {
 	in, err := drivers.InByName(name)
-	defer in.Close()
 	if err != nil {
 		return -1
 	}
+	in.Close()
 	return in.Number()
 }
 
@@ -21,17 +21,18 @@ func CloseInPort(num int) error {
 	if err != nil {
 		return err
 	}
-	return in.Close()
+	in.Close()
+	return nil
 }
 
 // FindOutPort returns the number of the midi out port with the given name
 // It returns -1, if the port can't be found.
 func FindOutPort(name string) int {
 	out, err := drivers.OutByName(name)
-	defer out.Close()
 	if err != nil {
 		return -1
 	}
+	out.Close()
 	return out.Number()
 }
 
@@ -41,5 +42,6 @@ func CloseOutPort(num int) error {
 	if err != nil {
 		return err
 	}
-	return out.Close()
+	out.Close()
+	return nil
 }
