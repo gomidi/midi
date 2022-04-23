@@ -4,3 +4,6 @@ simple/simple
 *.MID
 smfplayer/smfplayer
 smfrecorder/smfrecorder
+webmidi/main
+webmidi/main.wasm
+webmidi/webmidi

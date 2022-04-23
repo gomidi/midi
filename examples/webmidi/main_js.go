@@ -41,32 +41,32 @@ func main() {
 
 	log(bf.String())
 
-	stop, err := midi.ListenTo(0, midi.ReceiverFunc(func(msg midi.Message, timestamp int32) {
+	stop, err := midi.ListenTo(0, func(msg midi.Message, timestamp int32) {
 		log(fmt.Sprintf("got: %s<br />", msg))
-	}))
+	})
 	e(err)
 
-	s, err := midi.SendTo(0)
+	send, err := midi.SendTo(0)
 	e(err)
 
 	log(fmt.Sprintf("send: NoteOn key: %v veloctiy: %v on channel %v<br />", 60, 120, 3))
 
 	// do some writing: if you are using a loopback midi device on your os, you will see
 	// this messages in the browser window
-	s.Send(midi.NoteOn(3, 60, 120))
+	send(midi.NoteOn(3, 60, 120))
 	time.Sleep(time.Second)
 	log(fmt.Sprintf("send: NoteOff key: %v on channel %v<br />", 60, 3))
-	s.Send(midi.NoteOff(3, 60))
+	send(midi.NoteOff(3, 60))
 
 	qsynth := midi.FindOutPort("qsynth")
 
 	if qsynth >= 0 {
-		qs, err := midi.SendTo(qsynth)
+		qsend, err := midi.SendTo(qsynth)
 		e(err)
 
-		qs.Send(midi.NoteOn(0, 60, 120))
+		qsend(midi.NoteOn(0, 60, 120))
 		time.Sleep(time.Millisecond * 500)
-		qs.Send(midi.NoteOff(0, 60))
+		qsend(midi.NoteOff(0, 60))
 	}
 
 	// stay alive
