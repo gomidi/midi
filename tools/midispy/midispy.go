@@ -1,4 +1,4 @@
-package midispy
+package main
 
 import (
 	"fmt"

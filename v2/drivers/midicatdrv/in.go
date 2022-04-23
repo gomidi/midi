@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
-	lib "gitlab.com/gomidi/midi/v2/tools/midicat"
+	lib "gitlab.com/gomidi/midi/v2/drivers/midicat"
 )
 
 type in struct {

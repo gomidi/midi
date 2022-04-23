@@ -26,8 +26,8 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2"
+	lib "gitlab.com/gomidi/midi/v2/drivers/midicat"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
-	lib "gitlab.com/gomidi/midi/v2/tools/midicat"
 	"gitlab.com/metakeule/config"
 )
 

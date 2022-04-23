@@ -4,7 +4,7 @@ CLI tool to extract lyrics from a Standard MIDI File (SMF)
 
 ## Install
 
-    go install gitlab.com/gomidi/v2/tools/smflyrics
+    go install gitlab.com/gomidi/midi/tools/smflyrics
 
 ## Usage
 

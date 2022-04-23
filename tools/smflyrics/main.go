@@ -87,7 +87,7 @@ type Json struct {
 }
 
 func (p *Json) ReadSMF() {
-	for _, tr := range p.mf.Tracks() {
+	for _, tr := range p.mf.Tracks {
 		if p.requestedTrack < 0 || int(p.requestedTrack) == p.trackNo {
 			p.ReadTrack(tr)
 		}
@@ -95,36 +95,36 @@ func (p *Json) ReadSMF() {
 	}
 }
 
-func (t *Json) ReadTrack(tr *smf.Track) {
+func (t *Json) ReadTrack(tr smf.Track) {
 	var text string
-	for _, ev := range tr.Events {
+	for _, ev := range tr {
 		if !ev.Message.IsMeta() {
 			continue
 		}
 		msg := ev.Message
 
 		switch {
-		case msg.ScanLyric(&text):
+		case msg.GetMetaLyric(&text):
 			t.Tracks[t.current].addLyric(text)
 			if t.printText {
 				fmt.Print(text + " ")
 			}
-		case t.includeText && msg.ScanText(&text):
+		case t.includeText && msg.GetMetaText(&text):
 			t.Tracks[t.current].addText(text)
 			if t.printText {
 				fmt.Printf(" %q ", text)
 			}
-		case msg.ScanTrackName(&text):
+		case msg.GetMetaTrackName(&text):
 			t.Tracks[t.current].Name = text
 			if t.printText {
 				fmt.Println(fmt.Sprintf("[track: %v]\n", text))
 			}
-		case msg.ScanInstrument(&text):
+		case msg.GetMetaInstrument(&text):
 			t.Tracks[t.current].Instrument = text
 			if t.printText {
 				fmt.Println(fmt.Sprintf("[instrument: %v]\n", text))
 			}
-		case msg.ScanProgramName(&text):
+		case msg.GetMetaProgramName(&text):
 			t.Tracks[t.current].Program = text
 			if t.printText {
 				fmt.Println(fmt.Sprintf("[program: %v]\n", text))

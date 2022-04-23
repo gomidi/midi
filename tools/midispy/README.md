@@ -3,7 +3,7 @@ Spy on MIDI data transmitted between a sending and a receiving device
 
 ## Usage (CLI)
 
-    go install gitlab.com/gomidi/v2/tools/midispy/cmd/midispy
+    go install gitlab.com/gomidi/tools/midispy
 
 To get a list of available MIDI devices, run
 

@@ -22,9 +22,9 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 - [x] reading and optional writing with "running status"
 - [x] seamless integration with io.Reader and io.Writer
 - [x] no dependencies outside the standard library
-- [x] typed Messages 
 - [x] low overhead 
 - [x] shortcuts for General MIDI, Sysex messages etc.
+- [x] CLI tools that use the library
 
 ## Drivers
 

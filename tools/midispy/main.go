@@ -8,7 +8,6 @@ import (
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
-	"gitlab.com/gomidi/midi/v2/tools/midispy"
 
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 	"gitlab.com/metakeule/config"
@@ -122,7 +121,7 @@ func startSpying(shouldlog bool) error {
 		logfn = logger(in, 0)
 	}
 
-	var recv midi.ReceiverFunc
+	recv := func(m midi.Message, absmillisec int32) {}
 
 	if shouldlog {
 		recv = func(m midi.Message, absmillisec int32) {
@@ -130,7 +129,7 @@ func startSpying(shouldlog bool) error {
 		}
 	}
 
-	return midispy.Run(inPort, outPort, recv)
+	return Run(inPort, outPort, recv)
 }
 
 func logger(in, out int32) func(...interface{}) {
