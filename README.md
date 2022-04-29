@@ -156,7 +156,7 @@ func mkSMF() []byte {
 
 ## Documentation
 
-[![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/midi/v2.svg)](https://pkg.go.dev/gitlab.com/gomidi/midi/v2)
+see https://pkg.go.dev/gitlab.com/gomidi/midi/v2
 
 ## License
 
