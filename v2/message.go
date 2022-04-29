@@ -79,7 +79,11 @@ func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
 	}
 
 	_, *channel = utils.ParseStatus(m[0])
-	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
+	var vel uint8
+	*key, vel = utils.ParseTwoUint7(m[1], m[2])
+	if velocity != nil {
+		*velocity = vel
+	}
 	return true
 }
 
