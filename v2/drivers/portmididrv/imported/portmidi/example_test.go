@@ -1,15 +1,13 @@
-package portmidi_test
+package portmidi
 
 import (
 	"fmt"
 	"log"
 	"time"
-
-	"github.com/rakyll/portmidi"
 )
 
 func ExampleStream_WriteShort() {
-	out, err := portmidi.NewOutputStream(portmidi.DefaultOutputDeviceID(), 1024, 0)
+	out, err := NewOutputStream(DefaultOutputDeviceID(), 1024, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,29 +29,29 @@ func ExampleStream_WriteShort() {
 }
 
 func ExampleStream_WriteSysEx() {
-	out, err := portmidi.NewOutputStream(portmidi.DefaultOutputDeviceID(), 1024, 0)
+	out, err := NewOutputStream(DefaultOutputDeviceID(), 1024, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = out.WriteSysEx(portmidi.Time(), "F0 0A 0A 1B 00 7F 30 F7"); err != nil {
+	if err = out.WriteSysEx(Time(), "F0 0A 0A 1B 00 7F 30 F7"); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func ExampleStream_WriteSysExBytes() {
-	out, err := portmidi.NewOutputStream(portmidi.DefaultOutputDeviceID(), 1024, 0)
+	out, err := NewOutputStream(DefaultOutputDeviceID(), 1024, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = out.WriteSysExBytes(portmidi.Time(), []byte{0xF0, 0x0A, 0x0A, 0x1B, 0x00, 0x7F, 0x30, 0xF7}); err != nil {
+	if err = out.WriteSysExBytes(Time(), []byte{0xF0, 0x0A, 0x0A, 0x1B, 0x00, 0x7F, 0x30, 0xF7}); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func ExampleStream_ReadSysExBytes() {
-	in, err := portmidi.NewInputStream(portmidi.DefaultInputDeviceID(), 1024)
+	in, err := NewInputStream(DefaultInputDeviceID(), 1024)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +67,7 @@ func ExampleStream_ReadSysExBytes() {
 }
 
 func ExampleStream_Poll() {
-	in, err := portmidi.NewInputStream(portmidi.DefaultInputDeviceID(), 1024)
+	in, err := NewInputStream(DefaultInputDeviceID(), 1024)
 	if err != nil {
 		log.Fatal(err)
 	}
