@@ -1,3 +1,5 @@
+// +build js,wasm,!windows,!linux,!darwin
+
 package webmididrv
 
 import (

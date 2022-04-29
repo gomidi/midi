@@ -1,4 +1,4 @@
-// +build js,wasm
+// +build js,wasm,!windows,!linux,!darwin
 
 package main
 
