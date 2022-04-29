@@ -17,7 +17,6 @@ package portmidi
 //
 // #include <stdlib.h>
 // #include <portmidi.h>
-// #include <porttime.h>
 import "C"
 
 import (
@@ -118,7 +117,8 @@ func (s *Stream) Write(events []Event) error {
 	buffer := make([]C.PmEvent, size)
 	for i, evt := range events {
 		var event C.PmEvent
-		event.timestamp = C.PmTimestamp(evt.Timestamp)
+		//event.timestamp = C.PmTimestamp(evt.Timestamp)
+		event.timestamp = C.int(pmTimestamp(evt.Timestamp))
 		event.message = C.PmMessage((((evt.Data2 << 16) & 0xFF0000) | ((evt.Data1 << 8) & 0xFF00) | (evt.Status & 0xFF)))
 		buffer[i] = event
 	}
@@ -128,7 +128,8 @@ func (s *Stream) Write(events []Event) error {
 // WriteShort writes a MIDI event of three bytes immediately to the output stream.
 func (s *Stream) WriteShort(status int64, data1 int64, data2 int64) error {
 	evt := Event{
-		Timestamp: Timestamp(C.Pt_Time()),
+		//Timestamp: Timestamp(C.Pt_Time()),
+		Timestamp: Time(),
 		Status:    status,
 		Data1:     data1,
 		Data2:     data2,

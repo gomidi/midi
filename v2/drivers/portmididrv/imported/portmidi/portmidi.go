@@ -15,11 +15,10 @@
 // Package portmidi provides PortMidi bindings.
 package portmidi
 
-// #cgo LDFLAGS: -lportmidi -lporttime
+// #cgo LDFLAGS: -lportmidi
 //
 // #include <stdlib.h>
 // #include <portmidi.h>
-// #include <porttime.h>
 import "C"
 
 import (
@@ -40,6 +39,10 @@ type DeviceInfo struct {
 
 type Timestamp int64
 
+func pmTimestamp(ts Timestamp) int {
+	return int(C.PmTimestamp(ts))
+}
+
 // Initialize initializes the portmidi. Needs to be called before
 // making any other call from the portmidi package.
 // Once portmidi package is no longer required, Terminate should be
@@ -48,13 +51,15 @@ func Initialize() error {
 	if code := C.Pm_Initialize(); code != 0 {
 		return convertToError(code)
 	}
-	C.Pt_Start(C.int(1), nil, nil)
+	//C.Pt_Start(C.int(1), nil, nil)
+	ptStart()
 	return nil
 }
 
 // Terminate terminates and cleans up the midi streams.
 func Terminate() error {
-	C.Pt_Stop()
+	//C.Pt_Stop()
+	ptStop()
 	return convertToError(C.Pm_Terminate())
 }
 
@@ -87,11 +92,6 @@ func Info(deviceID DeviceID) *DeviceInfo {
 		IsOutputAvailable: info.output > 0,
 		IsOpened:          info.opened > 0,
 	}
-}
-
-// Time returns the portmidi timer's current time.
-func Time() Timestamp {
-	return Timestamp(C.Pt_Time())
 }
 
 // convertToError converts a portmidi error code to a Go error.
