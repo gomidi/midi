@@ -1,8 +1,6 @@
 package midi
 
 import (
-	"fmt"
-
 	"gitlab.com/gomidi/midi/v2/drivers"
 	midilib "gitlab.com/gomidi/midi/v2/internal/utils"
 )
@@ -156,14 +154,10 @@ func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Opt
 		case status == 0xF7:
 			isStatusSet = false
 
+		// sysex message
 		case status == 0xF0:
-			errmsg := fmt.Sprintf("error in driver: %q receiving 0xF0 in non sysex callback", drivers.Get().String())
-			if conf.OnErr != nil {
-				conf.OnErr(fmt.Errorf(errmsg))
-			} else {
-				// TODO: maybe log
-				panic(errmsg)
-			}
+			isStatusSet = false
+			msg = Message(data)
 
 		// channel message
 		case status >= 0x80 && status <= 0xEF:
