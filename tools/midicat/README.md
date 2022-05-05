@@ -2,6 +2,10 @@
 
 Download the binaries for Linux and Windows [here](https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip).
 
+Or install them via 
+
+    go install gitlab.com/gomidi/tools/midicat@latest
+
 When using windows, run the commands inside `cmd.exe`.
 
 ## Usage / Examples
