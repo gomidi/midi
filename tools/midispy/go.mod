@@ -1,4 +1,4 @@
-module gitlab.com/gomidi/midi/v2/tools/midispy/cmd/midispy
+module gitlab.com/gomidi/midi/tools/midispy
 
 go 1.16
 

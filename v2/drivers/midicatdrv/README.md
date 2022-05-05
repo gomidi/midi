@@ -4,7 +4,7 @@ This driver is based on the slim midicat tool (see tools/midicat for more inform
 
 ## Installation
 
-This is driver uses the `midicat` binary that you can get [here](https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip)
+This is driver uses the `midicat` binary that you can get [here](https://gitlab.com/gomidi/midi/uploads/b981d970a372596674ff5ee261e484ff/midicat_0-6.zip)
 for Windows and Linux (it should be possible to compile it on your own, e.g. for the Mac).
 
 The `midicat` binary is based on the rtmidi project and connects MIDI ports to Stdin and Stdout.
