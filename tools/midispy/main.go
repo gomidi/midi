@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	cfg      = config.MustNew("midispy", "2.0.0", "spy on the MIDI data that is sent from a device to another.")
+	cfg      = config.MustNew("midispy", "2.0.1", "spy on the MIDI data that is sent from a device to another.")
 	inArg    = cfg.NewInt32("in", "number of the input device", config.Required, config.Shortflag('i'))
 	outArg   = cfg.NewInt32("out", "number of the output device", config.Shortflag('o'))
 	noLogArg = cfg.NewBool("nolog", "don't log, just connect in and out", config.Shortflag('n'))
