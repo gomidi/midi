@@ -3,7 +3,6 @@ package midi_test
 import (
 	"fmt"
 	"os"
-	"time"
 
 	. "gitlab.com/gomidi/midi/v2"
 
@@ -25,17 +24,17 @@ func Example() {
 
 		// is better, than to use GetNoteOn (handles note on messages with velocity of 0 as expected)
 		case msg.GetNoteStart(&channel, &key, &velocity):
-			fmt.Printf("note started at %vms channel: %v key: %v velocity: %v\n", timestampms, channel, key, velocity)
+			fmt.Printf("note started channel: %v key: %v velocity: %v\n", channel, key, velocity)
 
 		// is better, than to use GetNoteOff (handles note on messages with velocity of 0 as expected)
 		case msg.GetNoteEnd(&channel, &key):
-			fmt.Printf("note ended at %vms channel: %v key: %v\n", timestampms, channel, key)
+			fmt.Printf("note ended channel: %v key: %v\n", channel, key)
 
 		case msg.GetControlChange(&channel, &cc, &val):
-			fmt.Printf("control change %v %q channel: %v value: %v at %vms\n", cc, ControlChangeName[cc], channel, val, timestampms)
+			fmt.Printf("control change %v %q channel: %v value: %v\n", cc, ControlChangeName[cc], channel, val)
 
 		default:
-			fmt.Printf("received %s at %vms\n", msg, timestampms)
+			fmt.Printf("received %s\n", msg)
 		}
 	}
 
@@ -72,11 +71,9 @@ func Example() {
 	stop, _ := ListenTo(in, eachMessage)
 
 	{ // send some messages
-		send(NoteOn(0, Db(4), 100))
-		time.Sleep(time.Millisecond * 30)
-		send(NoteOff(0, Db(4)))
+		send(NoteOn(0, Db(5), 100))
+		send(NoteOff(0, Db(5)))
 		send(Pitchbend(0, -12))
-		time.Sleep(time.Millisecond * 20)
 		send(ProgramChange(1, 12))
 		send(ControlChange(2, FootPedalMSB, On))
 	}
@@ -85,10 +82,10 @@ func Example() {
 	stop()
 
 	// Output:
-	// note started at 0ms channel: 0 key: 61 velocity: 100
-	// note ended at 30ms channel: 0 key: 61
-	// received PitchBend channel: 0 pitch: -12 (8180) at 30ms
-	// received ProgramChange channel: 1 program: 12 at 50ms
-	// control change 4 "Foot Pedal (MSB)" channel: 2 value: 127 at 50ms
+	// note started channel: 0 key: 61 velocity: 100
+	// note ended channel: 0 key: 61
+	// received PitchBend channel: 0 pitch: -12 (8180)
+	// received ProgramChange channel: 1 program: 12
+	// control change 4 "Foot Pedal (MSB)" channel: 2 value: 127
 
 }
