@@ -38,7 +38,7 @@ WindowsJob:
     - windows
   script:
 #    - go.exe test ./...
-    - go.exe test $(go list ./... | findstr /v "/drivers/")
+    - go.exe test $(go list ./... | findstr /v "drivers")
     
 #OSXJob:
 #  stage: test
