@@ -14,7 +14,8 @@ format:
   stage: test
   script:
 #    - apt-get install libasound2-dev
-    - apt-get install libasound-dev
+#    - apt-get install libasound-dev
+    - apt-cache search 'asound'
 #    - apt-get install libportmidi-dev
     - go fmt $(go list ./... | grep -v /drivers/)
     - go vet $(go list ./... | grep -v /drivers/)
