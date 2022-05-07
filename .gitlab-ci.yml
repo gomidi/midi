@@ -13,11 +13,11 @@ before_script:
 format:
   stage: test
   script:
-    - apt-get install libasound2-dev
-    - apt-get install libportmidi-dev
-    - go fmt $(go list ./... | grep -v /vendor/)
-    - go vet $(go list ./... | grep -v /vendor/)
-    - go test -race $(go list ./... | grep -v /vendor/)
+#    - apt-get install libasound2-dev
+#    - apt-get install libportmidi-dev
+    - go fmt $(go list ./... | grep -v /drivers/)
+    - go vet $(go list ./... | grep -v /drivers/)
+    - go test -race $(go list ./... | grep -v /drivers/)
 
 stages:
   - test
@@ -26,17 +26,18 @@ stages:
 test-project:
   stage: test
   script:
-    - apt-get install libasound2-dev
-    - apt-get install libportmidi-dev
-    - go test ./...
+#    - apt-get install libasound2-dev
+#    - apt-get install libportmidi-dev
+    - go test $(go list ./... | grep -v /drivers/)
 
 WindowsJob:
   stage: test
   tags:
     - windows
   script:
-    - go.exe test ./...
-
+#    - go.exe test ./...
+    - go.exe test $(go list ./... | grep -v /drivers/)
+    
 #OSXJob:
 #  stage: test
 #  tags:
