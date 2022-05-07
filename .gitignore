@@ -36,3 +36,8 @@ examples/tinygo
 .coverage.txt
 go.sum
 v1
+examples/examples
+tools/tools
+v2/drivers/portmididrv/imported/new/
+v2/drivers/portmididrv/imported/pm_*
+v2/drivers/portmididrv/imported/porttime/
