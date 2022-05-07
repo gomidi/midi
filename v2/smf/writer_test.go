@@ -144,7 +144,7 @@ func TestWriteSMF0(t *testing.T) {
 	smf.TimeFormat = res
 	smf.Add(tr)
 
-	err := smf.WriteTo(&bf)
+	_, err := smf.WriteTo(&bf)
 
 	if err != nil {
 		t.Errorf("ERROR: %s", err.Error())
@@ -281,7 +281,7 @@ func TestWriteSMF1(t *testing.T) {
 	track.Close(0)
 	smf.Tracks = append(smf.Tracks, track)
 
-	err := smf.WriteTo(&bf)
+	_, err := smf.WriteTo(&bf)
 
 	if err != nil {
 		t.Errorf("ERROR: %s", err.Error())
@@ -312,7 +312,7 @@ func TestWriteSysEx(t *testing.T) {
 
 	smf.Tracks = append(smf.Tracks, tr)
 
-	err := smf.WriteTo(&bf)
+	_, err := smf.WriteTo(&bf)
 
 	if err != nil {
 		t.Errorf("Error while writing: %s\n", err.Error())
@@ -375,7 +375,7 @@ func TestRunningStatus(t *testing.T) {
 	wr := New()
 	wr.Tracks = []Track{tr}
 
-	err := wr.WriteTo(&bf)
+	_, err := wr.WriteTo(&bf)
 
 	if err != nil {
 		t.Fatalf("Error: %v", err)
@@ -401,7 +401,7 @@ func TestNoRunningStatus(t *testing.T) {
 	wr.NoRunningStatus = true
 	wr.Tracks = []Track{tr}
 
-	err := wr.WriteTo(&bf)
+	_, err := wr.WriteTo(&bf)
 
 	if err != nil {
 		t.Fatalf("Error: %v", err)

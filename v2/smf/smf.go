@@ -155,7 +155,7 @@ func (s *SMF) WriteFile(file string) error {
 	}
 
 	//err = s.WriteTo(f)
-	err = s.WriteTo(f)
+	_, err = s.WriteTo(f)
 	f.Close()
 
 	if err != nil {
@@ -167,10 +167,10 @@ func (s *SMF) WriteFile(file string) error {
 }
 
 // WriteTo writes the SMF to the given writer
-func (s *SMF) WriteTo(f io.Writer) (err error) {
+func (s *SMF) WriteTo(f io.Writer) (size int64, err error) {
 	s.numTracks = uint16(len(s.Tracks))
 	if s.numTracks == 0 {
-		return fmt.Errorf("no track added")
+		return 0, fmt.Errorf("no track added")
 	}
 	if s.numTracks > 1 && s.format == 0 {
 		s.format = 1
@@ -189,7 +189,7 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 	wr := newWriter(s, f)
 	err = wr.WriteHeader()
 	if err != nil {
-		return fmt.Errorf("could not write header: %v", err)
+		return 0, fmt.Errorf("could not write header: %v", err)
 	}
 
 	for _, t := range s.Tracks {
@@ -209,7 +209,7 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 		}
 	}
 
-	return
+	return wr.output.size, nil
 }
 
 // Add adds a track to the SMF and returns an error, if the track is not closed.
