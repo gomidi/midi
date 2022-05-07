@@ -8,23 +8,22 @@ before_script:
   - echo $CI_BUILD_REF
   - echo $CI_PROJECT_DIR
   - echo $GOPATH
-  - cd v2
 
 format:
   stage: test
   script:
-#    - apt-get install libasound-dev
+    - cd v2
     - apt-get update
     - apt-cache search 'asound'
     - apt-cache search 'portmidi'
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
-#    - go fmt $(go list ./... | grep -v /drivers/)
     - go fmt $(go list ./... | grep -v /vendor/)
-#    - go vet $(go list ./... | grep -v /drivers/)
     - go vet $(go list ./... | grep -v /vendor/)
-#    - go test -race $(go list ./... | grep -v /drivers/)
     - go test -race $(go list ./... | grep -v /vendor/)
+#    - go fmt $(go list ./... | grep -v /drivers/)
+#    - go vet $(go list ./... | grep -v /drivers/)
+#    - go test -race $(go list ./... | grep -v /drivers/)
 
 stages:
   - test
@@ -33,9 +32,36 @@ stages:
 test-project:
   stage: test
   script:
-#    - apt-get install libasound2-dev
-#    - apt-get install libportmidi-dev
-    - go test $(go list ./... | grep -v /drivers/)
+    - cd v2
+    - apt-get update
+    - apt-cache search 'asound'
+    - apt-cache search 'portmidi'
+    - apt-get install -y libasound2-dev
+    - apt-get install -y libportmidi-dev
+    - go test $(go list ./... | grep -v /vendor/)
+
+test-examples:
+  stage: test
+  script:
+    - cd examples
+    - apt-get update
+    - apt-cache search 'asound'
+    - apt-cache search 'portmidi'
+    - apt-get install -y libasound2-dev
+    - apt-get install -y libportmidi-dev
+    - go test $(go list ./... | grep -v /vendor/)
+
+test-tools:
+  stage: test
+  script:
+    - cd tools
+    - apt-get update
+    - apt-cache search 'asound'
+    - apt-cache search 'portmidi'
+    - apt-get install -y libasound2-dev
+    - apt-get install -y libportmidi-dev
+    - go test $(go list ./... | grep -v /vendor/)
+
 
 WindowsJob:
   stage: test
@@ -43,7 +69,18 @@ WindowsJob:
     - windows
   script:
 #    - go.exe test ./...
+    - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
+
+OSXJob:
+  stage: test
+  tags:
+    - osx
+  script:
+    - cd v2
+    - uname -a
+    - go test $(go list ./... | grep -v /drivers/)
+
     
 #OSXJob:
 #  stage: test
