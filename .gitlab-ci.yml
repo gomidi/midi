@@ -66,14 +66,15 @@ WindowsJob:
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
-OSXJob:
-  stage: test
-  tags:
-    - osx
-  script:
-    - cd v2
-    - uname -a
-    - go test $(go list ./... | grep -v /drivers/)
+# no free runners
+#OSXJob:
+#  stage: test
+#  tags:
+#    - osx
+#  script:
+#    - cd v2
+#    - uname -a
+#    - go test $(go list ./... | grep -v /drivers/)
 
     
 #OSXJob:
