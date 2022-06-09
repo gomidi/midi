@@ -22,9 +22,9 @@ func main() {
 func run() error {
 
 	defer midi.CloseDriver()
-	in := midi.FindInPort("VMPK")
+	in, err := midi.FindInPort("VMPK")
 
-	if in < 0 {
+	if err != nil {
 		return fmt.Errorf("can't find MIDI in port %q", "VMPK")
 	}
 
@@ -38,8 +38,8 @@ func run() error {
 
 	stop()
 
-	out := midi.FindOutPort("qsynth")
-	if out < 0 {
+	out, err := midi.FindOutPort("qsynth")
+	if err != nil {
 		return fmt.Errorf("can't find MIDI in port %q", "qsynth")
 	}
 

@@ -44,25 +44,21 @@ func Example() {
 	// allows you to get the ports when using "real" drivers like rtmididrv or portmididrv
 	if len(os.Args) == 2 && os.Args[1] == "list" {
 		fmt.Printf("MIDI IN Ports\n")
-		for i, port := range InPorts() {
-			fmt.Printf("no: %v %q\n", i, port)
-		}
+		fmt.Println(GetInPorts())
 		fmt.Printf("\n\nMIDI OUT Ports\n")
-		for i, port := range OutPorts() {
-			fmt.Printf("no: %v %q\n", i, port)
-		}
+		fmt.Println(GetOutPorts())
 		fmt.Printf("\n\n")
 		return
 	}
 
-	var out int = 0
+	var out, _ = OutPort(0)
 	// takes the first out port, for real, consider
 	// var out = OutByName("my synth")
 
 	// creates a sender function to the out port
 	send, _ := SendTo(out)
 
-	var in int = 0
+	var in, _ = InPort(0)
 	// here we take first in port, for real, consider
 	// var in = InByName("my midi keyboard")
 

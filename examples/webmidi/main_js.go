@@ -29,24 +29,30 @@ func main() {
 	defer midi.CloseDriver()
 	var bf bytes.Buffer
 
-	for i, in := range midi.InPorts() {
+	for i, in := range midi.GetInPorts() {
 		fmt.Fprintf(&bf, "found MIDI in port: %v: %s<br />", i, in)
 	}
 
 	fmt.Fprintf(&bf, "<br><br>")
 
-	for i, out := range midi.OutPorts() {
+	for i, out := range midi.GetOutPorts() {
 		fmt.Fprintf(&bf, "found MIDI out port: %v: %s<br />", i, out)
 	}
 
 	log(bf.String())
 
-	stop, err := midi.ListenTo(0, func(msg midi.Message, timestamp int32) {
+	in, err := midi.InPort(0)
+	e(err)
+
+	stop, err := midi.ListenTo(in, func(msg midi.Message, timestamp int32) {
 		log(fmt.Sprintf("got: %s<br />", msg))
 	})
 	e(err)
 
-	send, err := midi.SendTo(0)
+	out, err := midi.OutPort(0)
+	e(err)
+
+	send, err := midi.SendTo(out)
 	e(err)
 
 	log(fmt.Sprintf("send: NoteOn key: %v veloctiy: %v on channel %v<br />", 60, 120, 3))
@@ -58,9 +64,9 @@ func main() {
 	log(fmt.Sprintf("send: NoteOff key: %v on channel %v<br />", 60, 3))
 	send(midi.NoteOff(3, 60))
 
-	qsynth := midi.FindOutPort("qsynth")
+	qsynth, err := midi.FindOutPort("qsynth")
 
-	if qsynth >= 0 {
+	if err == nil {
 		qsend, err := midi.SendTo(qsynth)
 		e(err)
 

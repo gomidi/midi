@@ -4,44 +4,34 @@ import (
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
-// FindInPort returns the number of the midi in port with the given name
-// It returns -1, if the port can't be found.
-func FindInPort(name string) int {
+// FindInPort returns the midi in port that contains the given name
+// and an error, if the port can't be found.
+func FindInPort(name string) (drivers.In, error) {
 	in, err := drivers.InByName(name)
 	if err != nil {
-		return -1
+		return nil, err
 	}
 	in.Close()
-	return in.Number()
+	return in, nil
 }
 
-// CloseInPort closes the in port
-func CloseInPort(num int) error {
-	in, err := drivers.InByNumber(num)
-	if err != nil {
-		return err
-	}
-	in.Close()
-	return nil
+// OutPort returns the midi out port for the given port number
+func OutPort(portnumber int) (drivers.Out, error) {
+	return drivers.OutByNumber(portnumber)
 }
 
-// FindOutPort returns the number of the midi out port with the given name
-// It returns -1, if the port can't be found.
-func FindOutPort(name string) int {
+// InPort returns the midi in port for the given port number
+func InPort(portnumber int) (drivers.In, error) {
+	return drivers.InByNumber(portnumber)
+}
+
+// FindOutPort returns the midi out port that contains the given name
+// and an error, if the port can't be found.
+func FindOutPort(name string) (drivers.Out, error) {
 	out, err := drivers.OutByName(name)
 	if err != nil {
-		return -1
+		return nil, err
 	}
 	out.Close()
-	return out.Number()
-}
-
-// CloseOutPort closes the out port
-func CloseOutPort(num int) error {
-	out, err := drivers.OutByNumber(num)
-	if err != nil {
-		return err
-	}
-	out.Close()
-	return nil
+	return out, nil
 }

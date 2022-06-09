@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"gitlab.com/gomidi/midi/v2"
-	"gitlab.com/gomidi/midi/v2/smf"
-
+	"gitlab.com/gomidi/midi/v2/drivers"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
+	"gitlab.com/gomidi/midi/v2/smf"
 )
 
-func record(in int, ticks smf.MetricTicks, bpm float64, send func(msg midi.Message) error) (stop func() smf.Track) {
+func record(in drivers.In, ticks smf.MetricTicks, bpm float64, send func(msg midi.Message) error) (stop func() smf.Track) {
 	var tr smf.Track
 	var absmillisec int32
 
@@ -40,13 +40,13 @@ func record(in int, ticks smf.MetricTicks, bpm float64, send func(msg midi.Messa
 func main() {
 	defer midi.CloseDriver()
 
-	in := midi.FindInPort("VMPK")
-	out := midi.FindOutPort("qsynth")
-	if in < 0 {
+	in, err := midi.FindInPort("VMPK")
+	if err != nil {
 		fmt.Println("can't find in port")
 		return
 	}
-	if out < 0 {
+	out, err := midi.FindOutPort("qsynth")
+	if err != nil {
 		fmt.Println("can't find out port")
 		return
 	}

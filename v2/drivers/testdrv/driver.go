@@ -53,16 +53,16 @@ func (f *in) Number() int             { return f.number }
 func (f *in) IsOpen() bool            { return f.isOpen }
 func (f *in) Underlying() interface{} { return nil }
 
-func (f *in) Listen(onMsg func([]byte, int32), conf drivers.ListenConfig) (func(), error) {
+func (f *in) Listen(onMsg func(msg []byte, milliseconds int32), conf drivers.ListenConfig) (stopFn func(), err error) {
 	f.driver.last = time.Now()
 
-	stopper := func() {
+	stopFn = func() {
 		f.driver.stopListening = true
 	}
 
 	f.driver.rd = drivers.NewReader(conf, onMsg)
 
-	return stopper, nil
+	return stopFn, nil
 }
 
 func (f *in) Close() error {

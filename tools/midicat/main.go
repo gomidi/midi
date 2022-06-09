@@ -26,6 +26,7 @@ import (
 	"sync"
 
 	"gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/drivers"
 	lib "gitlab.com/gomidi/midi/v2/drivers/midicat"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 	"gitlab.com/metakeule/config"
@@ -158,13 +159,19 @@ type timestampedMsg struct {
 }
 
 func runIn() (err error) {
-	var in int = 0 // default
+	var in drivers.In
 
 	switch {
 	case argPortNum.IsSet():
-		in = int(argPortNum.Get())
+		in, err = midi.InPort(int(argPortNum.Get()))
 	case argPortName.IsSet():
-		in = midi.FindInPort(argPortName.Get())
+		in, err = midi.FindInPort(argPortName.Get())
+	default:
+		in, err = midi.InPort(0)
+	}
+
+	if err != nil {
+		return
 	}
 
 	var msgChan = make(chan timestampedMsg, 1)
@@ -222,13 +229,19 @@ func runIn() (err error) {
 }
 
 func runOut() (err error) {
-	var out int = 0
+	var out drivers.Out
 
 	switch {
 	case argPortNum.IsSet():
-		out = int(argPortNum.Get())
+		out, err = midi.OutPort(int(argPortNum.Get()))
 	case argPortName.IsSet():
-		out = midi.FindOutPort(argPortName.Get())
+		out, err = midi.FindOutPort(argPortName.Get())
+	default:
+		out, err = midi.OutPort(0)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	send, err := midi.SendTo(out)
@@ -282,8 +295,8 @@ func runOut() (err error) {
 func showInJson() error {
 	var portm = map[int]string{}
 
-	for num, port := range midi.InPorts() {
-		portm[num] = port
+	for num, port := range midi.GetInPorts() {
+		portm[num] = port.String()
 	}
 
 	enc := json.NewEncoder(os.Stdout)
@@ -293,8 +306,8 @@ func showInJson() error {
 func showInPorts() error {
 	fmt.Fprintln(os.Stdout, "MIDI inputs")
 
-	for num, in := range midi.InPorts() {
-		fmt.Fprintf(os.Stdout, "[%v] %s\n", num, in)
+	for num, in := range midi.GetInPorts() {
+		fmt.Fprintf(os.Stdout, "[%v] %s\n", num, in.String())
 	}
 
 	return nil
@@ -303,8 +316,8 @@ func showInPorts() error {
 func showOutJson() error {
 	var portm = map[int]string{}
 
-	for num, port := range midi.OutPorts() {
-		portm[num] = port
+	for num, port := range midi.GetOutPorts() {
+		portm[num] = port.String()
 	}
 
 	enc := json.NewEncoder(os.Stdout)
@@ -314,8 +327,8 @@ func showOutJson() error {
 func showOutPorts() error {
 	fmt.Fprintln(os.Stdout, "MIDI outputs")
 
-	for num, out := range midi.OutPorts() {
-		fmt.Fprintf(os.Stdout, "[%v] %s\n", num, out)
+	for num, out := range midi.GetOutPorts() {
+		fmt.Fprintf(os.Stdout, "[%v] %s\n", num, out.String())
 	}
 
 	return nil

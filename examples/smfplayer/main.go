@@ -20,16 +20,13 @@ var prelude4, _ = f.ReadFile("Prelude4.mid")
 var voyager, _ = f.ReadFile("VOYAGER.MID")
 
 func printPorts() {
-	outs := midi.OutPorts()
-	for _, o := range outs {
-		fmt.Printf("out: %s\n", o)
-	}
+	fmt.Println(midi.GetOutPorts())
 }
 
 func run() error {
 	printPorts()
-	out := midi.FindOutPort("qsynth")
-	if out < 0 {
+	out, err := midi.FindOutPort("qsynth")
+	if err != nil {
 		return fmt.Errorf("can't find qsynth")
 	}
 

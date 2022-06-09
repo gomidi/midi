@@ -53,10 +53,16 @@ func (t *Track) Add(deltaticks uint32, msgs ...[]byte) {
 	}
 }
 
-func (t *Track) RecordFrom(portno int, ticks MetricTicks, bpm float64) (stop func(), err error) {
+func (t *Track) RecordFrom(inPort drivers.In, ticks MetricTicks, bpm float64) (stop func(), err error) {
+	if !inPort.IsOpen() {
+		err := inPort.Open()
+		if err != nil {
+			return nil, err
+		}
+	}
 	t.Add(0, MetaTempo(bpm))
 	var absmillisec int32
-	return midi.ListenTo(portno, func(msg midi.Message, absms int32) {
+	return midi.ListenTo(inPort, func(msg midi.Message, absms int32) {
 		deltams := absms - absmillisec
 		absmillisec = absms
 		delta := ticks.Ticks(bpm, time.Duration(deltams)*time.Millisecond)
@@ -170,21 +176,17 @@ func (p player) Len() int {
 }
 
 // Play plays the tracks on the given out port
-func (t *TracksReader) Play(out int) error {
+func (t *TracksReader) Play(out drivers.Out) error {
 	if t.err != nil {
 		return t.err
 	}
 
-	o, err := drivers.OutByNumber(out)
-	if err != nil {
-		return err
-	}
-	err = o.Open()
+	err := out.Open()
 	if err != nil {
 		return err
 	}
 
-	return t.MultiPlay(map[int]drivers.Out{-1: o})
+	return t.MultiPlay(map[int]drivers.Out{-1: out})
 }
 
 // MultiPlay plays tracks to different out ports.

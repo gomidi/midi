@@ -89,16 +89,11 @@ func HandleError(cb func(error)) Option {
 var ErrPortClosed = drivers.ErrPortClosed
 var ErrListenStopped = drivers.ErrListenStopped
 
-// ListenTo listens on the given port number and passes the received MIDI data to the given receiver.
+// ListenTo listens on the given port and passes the received MIDI data to the given receiver.
 // It returns a stop function that may be called to stop the listening.
-func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Option) (stop func(), err error) {
-	in, err := drivers.InByNumber(portno)
-	if err != nil {
-		return nil, err
-	}
-
-	if !in.IsOpen() {
-		err = in.Open()
+func ListenTo(inPort drivers.In, recv func(msg Message, timestampms int32), opts ...Option) (stop func(), err error) {
+	if !inPort.IsOpen() {
+		err = inPort.Open()
 
 		if err != nil {
 			return nil, err
@@ -175,5 +170,5 @@ func ListenTo(portno int, recv func(msg Message, timestampms int32), opts ...Opt
 		recv(msg, millisec)
 	}
 
-	return in.Listen(onMsg, conf)
+	return inPort.Listen(onMsg, conf)
 }

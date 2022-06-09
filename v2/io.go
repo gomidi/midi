@@ -3,6 +3,7 @@ package midi
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
@@ -13,24 +14,45 @@ func CloseDriver() {
 }
 
 // SendTo returns a function that can be used to send messages to the given midi port.
-func SendTo(portno int) (func(msg Message) error, error) {
-	out, err := drivers.OutByNumber(portno)
-	if err != nil {
-		return nil, err
-	}
-	if !out.IsOpen() {
-		err = out.Open()
+func SendTo(outPort drivers.Out) (func(msg Message) error, error) {
+	if !outPort.IsOpen() {
+		err := outPort.Open()
 		if err != nil {
 			return nil, err
 		}
 	}
 	return func(msg Message) error {
-		return out.Send(msg.Bytes())
+		return outPort.Send(msg.Bytes())
 	}, nil
 }
 
-// InPorts returns the MIDI input ports
-func InPorts() []string {
+type InPorts []drivers.In
+
+func (ip InPorts) String() string {
+	var bf strings.Builder
+
+	for i, p := range ip {
+		bf.WriteString(fmt.Sprintf("[%v] %s\n", i, p))
+	}
+
+	return bf.String()
+}
+
+type OutPorts []drivers.Out
+
+func (op OutPorts) String() string {
+	var bf strings.Builder
+
+	for i, p := range op {
+		bf.WriteString(fmt.Sprintf("[%v] %s\n", i, p))
+	}
+
+	return bf.String()
+}
+
+
+// GetInPorts returns the MIDI input ports
+func GetInPorts() InPorts {
 	ins, err := drivers.Ins()
 
 	if err != nil {
@@ -38,17 +60,11 @@ func InPorts() []string {
 		return nil
 	}
 
-	res := make([]string, len(ins))
-
-	for i, in := range ins {
-		res[i] = in.String()
-	}
-
-	return res
+	return ins
 }
 
-// OutPorts returns the MIDI output ports
-func OutPorts() []string {
+// GetOutPorts returns the MIDI output ports
+func GetOutPorts() OutPorts {
 	outs, err := drivers.Outs()
 
 	if err != nil {
@@ -56,11 +72,5 @@ func OutPorts() []string {
 		return nil
 	}
 
-	res := make([]string, len(outs))
-
-	for i, out := range outs {
-		res[i] = out.String()
-	}
-
-	return res
+	return outs
 }
