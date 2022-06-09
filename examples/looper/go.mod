@@ -1,4 +1,4 @@
-module gitlab.com/gomidi/midi/examples/simple
+module gitlab.com/gomidi/midi/examples/looper
 
 go 1.18
 

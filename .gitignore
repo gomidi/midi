@@ -24,6 +24,7 @@ specs
 *.wav
 examples/liverecord/liverecord
 examples/liverecord/recorded.mid
+examples/looper/looper
 recorder
 TODO.md
 *.sh
