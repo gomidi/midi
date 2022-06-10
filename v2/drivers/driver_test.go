@@ -166,11 +166,15 @@ func TestRunningStatusForRtMIDIDrv(t *testing.T) {
 	}
 	in, err := midi.FindInPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		//t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find in port Midi Through Port-0")
+		return
 	}
 	out, err := midi.FindOutPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find out port Midi Through Port-0")
+		return
+		//t.Fatalf("ERROR: %s", err.Error())
 	}
 
 	RunningStatusTest(t, in, out)
@@ -195,11 +199,15 @@ func TestFullStatusForRtMIDIDrv(t *testing.T) {
 	}
 	in, err := midi.FindInPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		//t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find in port Midi Through Port-0")
+		return
 	}
 	out, err := midi.FindOutPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find out port Midi Through Port-0")
+		return
+		//t.Fatalf("ERROR: %s", err.Error())
 	}
 
 	FullStatusTest(t, in, out)
@@ -214,11 +222,15 @@ func TestFullStatusForPortMIDIDrv(t *testing.T) {
 
 	in, err := midi.FindInPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		//t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find in port Midi Through Port-0")
+		return
 	}
 	out, err := midi.FindOutPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find out port Midi Through Port-0")
+		return
+		//t.Fatalf("ERROR: %s", err.Error())
 	}
 
 	FullStatusTest(t, in, out)
@@ -233,11 +245,15 @@ func TestRunningStatusForPortMIDIDrv(t *testing.T) {
 
 	in, err := midi.FindInPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		//t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find in port Midi Through Port-0")
+		return
 	}
 	out, err := midi.FindOutPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find out port Midi Through Port-0")
+		return
+		//t.Fatalf("ERROR: %s", err.Error())
 	}
 
 	RunningStatusTest(t, in, out)
@@ -252,11 +268,15 @@ func TestFullStatusForMidicatDrv(t *testing.T) {
 
 	in, err := midi.FindInPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		//t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find in port Midi Through Port-0")
+		return
 	}
 	out, err := midi.FindOutPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find out port Midi Through Port-0")
+		return
+		//t.Fatalf("ERROR: %s", err.Error())
 	}
 
 	//RunningStatusTest(t, in, out)
@@ -272,11 +292,15 @@ func TestRunningStatusForMidicatDrv(t *testing.T) {
 
 	in, err := midi.FindInPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		//t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find in port Midi Through Port-0")
+		return
 	}
 	out, err := midi.FindOutPort("Midi Through Port-0")
 	if err != nil {
-		t.Fatalf("ERROR: %s", err.Error())
+		t.Skipf("could not find out port Midi Through Port-0")
+		return
+		//t.Fatalf("ERROR: %s", err.Error())
 	}
 
 	RunningStatusTest(t, in, out)

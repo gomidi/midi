@@ -37,6 +37,8 @@ test-project:
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
     - go install gitlab.com/gomidi/tools/midicat@latest
+    - midicat ins
+    - midicat outs
     - go test $(go list ./... | grep -v /vendor/)
 
 test-examples:
