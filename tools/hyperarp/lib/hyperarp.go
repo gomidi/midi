@@ -216,12 +216,18 @@ type Arp struct {
 	finishListener    chan bool
 	finishedScheduler chan bool
 	finishedListener  chan bool
-	messages          chan midi.Message
-	nextArpNote       chan bool
+	//messages          chan midi.Message
+	messages    chan timeStampedMessage
+	nextArpNote chan bool
 
 	noteDistanceHandler    func(midi.Message) (dist float64, ok bool)
 	directionSwitchHandler func(midi.Message) (down bool, ok bool)
 	styleHandler           func(midi.Message) (val uint8, ok bool)
+}
+
+type timeStampedMessage struct {
+	timestampms int32
+	midi.Message
 }
 
 // New returns a new Arp, receiving from the given midi.In port and writing to the given midi.Out port
@@ -235,12 +241,13 @@ func New(in drivers.In, out drivers.Out, opts ...Option) *Arp {
 		channelOut:     0,
 		tempoBPM:       120.00,
 
-		start:             make(chan [2]uint8, 100),
-		stop:              make(chan bool),
-		stopped:           make(chan bool),
-		noteDist:          make(chan time.Duration),
-		noteLen:           make(chan time.Duration),
-		messages:          make(chan midi.Message, 100),
+		start:    make(chan [2]uint8, 100),
+		stop:     make(chan bool),
+		stopped:  make(chan bool),
+		noteDist: make(chan time.Duration),
+		noteLen:  make(chan time.Duration),
+		//messages:          make(chan midi.Message, 100),
+		messages:          make(chan timeStampedMessage, 100),
 		nextArpNote:       make(chan bool),
 		finishScheduler:   make(chan bool),
 		finishListener:    make(chan bool),
@@ -495,7 +502,10 @@ func (a *Arp) play() {
 		mx.Unlock()
 	}
 
+	var ready = make(chan bool, 1)
+
 	go func() {
+		ready <- true
 	loop:
 		for {
 			select {
@@ -546,7 +556,7 @@ func (a *Arp) play() {
 		//fmt.Println("send finished")
 		a.finishedScheduler <- true
 	}()
-
+	<-ready
 }
 
 func (a *Arp) Lock(by string) {
@@ -569,7 +579,7 @@ func (a *Arp) RUnLock() {
 	a.RWMutex.RUnlock()
 }
 
-func (a *Arp) handleMessage(msg midi.Message) {
+func (a *Arp) handleMessage(msg midi.Message, timestampms int32) {
 	if msg.Is(midi.ChannelMsg) {
 		var ch uint8
 		msg.GetChannel(&ch)
@@ -740,8 +750,10 @@ func (a *Arp) Run() error {
 	//var wg sync.WaitGroup
 
 	transp := a.transpose
+	var ready = make(chan bool, 1)
 
 	go func() {
+		ready <- true
 	loop:
 		for {
 			select {
@@ -750,9 +762,9 @@ func (a *Arp) Run() error {
 			case msg := <-a.messages:
 				//fmt.Printf("got message\n")
 				if transp == 0 {
-					a.handleMessage(msg)
+					a.handleMessage(msg.Message, msg.timestampms)
 				} else {
-					a.handleMessage(a._transpose(msg, transp))
+					a.handleMessage(a._transpose(msg.Message, transp), msg.timestampms)
 				}
 			default:
 			}
@@ -760,10 +772,14 @@ func (a *Arp) Run() error {
 		a.finishedListener <- true
 	}()
 
+	<-ready
+
 	var err error
 
 	a.stopper, err = midi.ListenTo(a.in, func(msg midi.Message, timestampms int32) {
-		a.messages <- msg
+		//fmt.Printf("msg %s at %v\n", msg, timestampms)
+		//a.messages <- msg
+		a.messages <- timeStampedMessage{timestampms, msg}
 	})
 
 	a.Unlock("Run")
