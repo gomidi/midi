@@ -114,8 +114,6 @@ func (at *arpTester) Close() {
 }
 
 func (at *arpTester) Result() string {
-	//at.cable1.Driver.Wait()
-	//at.cable2.Driver.Wait()
 	return at.bf.String()
 }
 
@@ -130,17 +128,9 @@ func TestFirst(t *testing.T) {
 	}{
 		{
 			func() {
-				//fmt.Printf("sending % X\n", midi.NoteOn(0, 70, 100).Bytes())
 				a.send(midi.NoteOn(0, 70, 100))
-				//a.cable1.Wait()
-				//a.cable2.Wait()
 				time.Sleep(200 * time.Millisecond)
-				//a.Sleep(200 * time.Millisecond)
-				//fmt.Printf("sending % X\n", midi.NoteOff(0, 70).Bytes())
 				a.send(midi.NoteOff(0, 70))
-				//time.Sleep(200 * time.Millisecond)
-				//a.cable1.Wait()
-				//a.cable2.Wait()
 			},
 			"note 70",
 			"[0] NoteOn channel: 0 key: 70 velocity: 100\n[167] NoteOff channel: 0 key: 70\n",
@@ -149,7 +139,6 @@ func TestFirst(t *testing.T) {
 			func() {
 				a.send(midi.Pitchbend(0, 1000))
 				time.Sleep(10 * time.Millisecond)
-				//a.Sleep(10 * time.Millisecond)
 			},
 			"pitchbend passthrough",
 			"[0] PitchBend channel: 0 pitch: 1000 (9192)\n",
@@ -159,7 +148,6 @@ func TestFirst(t *testing.T) {
 				a.send(midi.Pitchbend(0, 100))
 				a.send(midi.AfterTouch(0, 100))
 				time.Sleep(10 * time.Millisecond)
-				//a.Sleep(10 * time.Millisecond)
 			},
 			"pitchbend and aftertouch passthrough",
 			"[0] PitchBend channel: 0 pitch: 100 (8292)\n[0] AfterTouch channel: 0 pressure: 100\n",
@@ -170,11 +158,9 @@ func TestFirst(t *testing.T) {
 				a.send(midi.NoteOn(0, hyperarp.D, 100))
 				a.send(midi.NoteOn(0, uint8(12+hyperarp.E), 120))
 				time.Sleep(500 * time.Millisecond)
-				//a.Sleep(500 * time.Millisecond)
 				a.send(midi.NoteOff(0, hyperarp.D))
 				a.send(midi.NoteOff(0, uint8(12+hyperarp.E)))
 				time.Sleep(10 * time.Millisecond)
-				//a.Sleep(10 * time.Millisecond)
 			},
 			"2 arp notes upward",
 			`[0] NoteOn channel: 0 key: 16 velocity: 120
@@ -194,12 +180,10 @@ func TestFirst(t *testing.T) {
 				a.send(midi.NoteOn(0, hyperarp.G, 80))
 				a.send(midi.NoteOn(0, uint8(12+hyperarp.E), 120))
 				time.Sleep(530 * time.Millisecond)
-				//a.Sleep(530 * time.Millisecond)
 				a.send(midi.NoteOff(0, hyperarp.D))
 				a.send(midi.NoteOff(0, hyperarp.G))
 				a.send(midi.NoteOff(0, uint8(12+hyperarp.E)))
 				time.Sleep(10 * time.Millisecond)
-				//a.Sleep(10 * time.Millisecond)
 			},
 			"3 arp notes upward",
 			`[0] NoteOn channel: 0 key: 16 velocity: 120
@@ -218,17 +202,14 @@ func TestFirst(t *testing.T) {
 				a.send(midi.ControlChange(0, midi.GeneralPurposeSlider1, 3))
 				a.send(midi.ControlChange(0, midi.GeneralPurposeButton1Switch, midi.On))
 				time.Sleep(time.Microsecond)
-				//a.Sleep(time.Microsecond)
 				a.send(midi.NoteOn(0, hyperarp.D, 100))
 				a.send(midi.NoteOn(0, uint8(12+hyperarp.E), 120))
 				time.Sleep(500 * time.Millisecond)
-				//a.Sleep(500 * time.Millisecond)
 				a.send(midi.NoteOff(0, hyperarp.D))
 				a.send(midi.NoteOff(0, uint8(12+hyperarp.E)))
 				time.Sleep(time.Microsecond)
 				a.send(midi.ControlChange(0, midi.GeneralPurposeButton1Switch, midi.Off))
 				time.Sleep(10 * time.Millisecond)
-				//a.Sleep(10 * time.Millisecond)
 			},
 			"2 arp notes downward",
 			`[0] NoteOn channel: 0 key: 16 velocity: 120
@@ -252,44 +233,23 @@ func TestFirst(t *testing.T) {
 		//fmt.Printf("running test [%v]\n", i)
 		a = newArpTester()
 		a.Run()
-		//time.Sleep(100 * time.Millisecond)
-		/*
-			time.Sleep(100 * time.Millisecond)
-			a.cable1.Sleep(100 * time.Millisecond)
-			a.cable2.Sleep(100 * time.Millisecond)
-		*/
 
+		time.Sleep(20 * time.Millisecond)
 		a.ResetTimer()
-
-		//fmt.Println("let it start (400ms)")
-		//time.Sleep(100 * time.Millisecond)
 
 		test.fn()
 
-		//a.cable1.Wait()
-		//a.cable2.Wait()
-
-		//fmt.Println("waiting for result (2400ms)")
-		//fmt.Printf("after test %v\n", i)
-		//time.Sleep(2400 * time.Millisecond)
-		//time.Sleep(1000 * time.Millisecond)
-
-		//time.Sleep(200 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 
 		got := a.Result()
-		//fmt.Printf("got result %q\n", got)
 
-		//fmt.Println("before close")
 		a.Close()
-		//fmt.Println("after close")
 
 		if got != test.expected {
 			t.Errorf("[%v] %q\ngot:\n%s\n\nexpected:\n%s", i, test.descr, got, test.expected)
 		}
 
-		//a.cable1.Sleep(100 * time.Millisecond)
-		//a.cable2.Sleep(100 * time.Millisecond)
-		//time.Sleep(100 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 
 	}
 
