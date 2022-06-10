@@ -49,7 +49,7 @@ type Reader struct {
 	SysExBufferSize uint32
 	OnMsg           func([]byte, int32)
 	HandleSysex     bool
-	OnErr func(error)
+	OnErr           func(error)
 }
 
 func (r *Reader) withinChannelMessage(b byte) {
@@ -185,7 +185,7 @@ func (r *Reader) cleanState(b byte) {
 	}
 }
 
-func (r *Reader) eachByte(b byte) {
+func (r *Reader) EachByte(b byte) {
 	if b >= 0xF8 {
 		r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
 		return
@@ -222,7 +222,8 @@ func (r *Reader) eachByte(b byte) {
 			if r.HandleSysex {
 				r.sysexBf[r.sysexlen] = b
 				r.sysexlen++
-				go func(bb []byte, l int) {
+				//go
+				func(bb []byte, l int) {
 					var _bt = make([]byte, l)
 
 					for i := 0; i < l; i++ {
@@ -342,21 +343,29 @@ func NewReader(config ListenConfig, onMsg func([]byte, int32)) *Reader {
 	return &r
 }
 
+func (r *Reader) SetDelta(deltaMilliSeconds int32) {
+	r.ts_ms += deltaMilliSeconds
+}
+
+func (r *Reader) ResetStatus() {
+	r.statusByte = 0
+	r.issetBf = false // first: is set, second: the byte
+}
+
 //func (r *Reader) EachMessage(bt []byte, deltaSeconds float64) {
 func (r *Reader) EachMessage(bt []byte, deltaMilliSeconds int32) {
 
 	// TODO: verify
 	// assume that each call is without running state
-	r.statusByte = 0
-	r.issetBf = false // first: is set, second: the byte
+	r.ResetStatus()
 
-	r.ts_ms += deltaMilliSeconds // int32(math.Round(deltaSeconds * 1000))
+	r.SetDelta(deltaMilliSeconds) // int32(math.Round(deltaSeconds * 1000))
 
 	//fmt.Printf("got % X\n", bt)
 
 	for _, b := range bt {
 		// => realtime message
-		r.eachByte(b)
+		r.EachByte(b)
 
 	}
 
