@@ -4,7 +4,7 @@ Download the binaries for Linux and Windows [here](https://gitlab.com/gomidi/mid
 
 Or install them via 
 
-    go install gitlab.com/gomidi/tools/midicat@latest
+    go install gitlab.com/gomidi/midi/tools/midicat@latest
 
 When using windows, run the commands inside `cmd.exe`.
 
