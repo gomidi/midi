@@ -1,8 +1,10 @@
+//go:build js && wasm && !windows && !linux && !darwin
 // +build js,wasm,!windows,!linux,!darwin
 
 package webmididrv
 
 import (
+	"bytes"
 	"sync"
 	"syscall/js"
 
@@ -17,10 +19,12 @@ func newOut(driver *Driver, number int, name string, jsport js.Value) drivers.Ou
 type out struct {
 	number int
 	sync.RWMutex
-	driver *Driver
-	name   string
-	jsport js.Value
-	isOpen bool
+	driver  *Driver
+	name    string
+	jsport  js.Value
+	isOpen  bool
+	bf      bytes.Buffer
+	running *drivers.Reader
 }
 
 // IsOpen returns wether the port is open
@@ -40,6 +44,10 @@ func (o *out) Send(b []byte) error {
 		return drivers.ErrPortClosed
 	}
 	o.RUnlock()
+
+	o.running.EachMessage(b, 0)
+	b = o.bf.Bytes()
+	o.bf.Reset()
 
 	var arr = make([]interface{}, len(b))
 	for i, bt := range b {
@@ -87,6 +95,15 @@ func (o *out) Open() (err error) {
 	}
 
 	o.driver.Lock()
+	o.bf = bytes.Buffer{}
+	//o.running = runningstatus.NewLiveWriter(&o.bf)
+	var conf drivers.ListenConfig
+	conf.ActiveSense = true
+	conf.SysEx = false
+	conf.TimeCode = true
+	o.running = drivers.NewReader(conf, func(b []byte, ms int32) {
+		o.bf.Write(b)
+	})
 	o.isOpen = true
 	o.jsport.Call("open")
 	o.driver.opened = append(o.driver.opened, o)
