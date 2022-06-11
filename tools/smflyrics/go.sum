@@ -1,0 +1,14 @@
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/emersion/go-appdir v1.1.2 h1:3ceZKMz3b7MLy37ZB29shG2Y7Y3G/pcLbtnYP6BJ0eQ=
+github.com/emersion/go-appdir v1.1.2/go.mod h1:N15s1uA0vhxhVomEsNau6w15OdELRpp0aH1Ux4BuSPE=
+github.com/pelletier/go-toml v1.8.1/go.mod h1:T2/BmBdy8dvIRq1a/8aqjN41wvWlN4lrapLU/GW4pbc=
+github.com/pelletier/go-toml v1.9.1 h1:a6qW1EVNZWH9WGI6CsYdD8WAylkoXBS5yv0XHlh17Tc=
+github.com/pelletier/go-toml v1.9.1/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
+gitlab.com/gomidi/midi/v2 v2.0.20 h1:oFjdzzoLFaUaFEQOe7abNMVlScs0NXCUSzIUQKQ6jPA=
+gitlab.com/gomidi/midi/v2 v2.0.20/go.mod h1:quTyMKSQ4Klevxu6gY4gy2USbeZra0fV5SalndmPfsY=
+gitlab.com/metakeule/config v1.21.0 h1:pQ/J7OzyOyNkngFfWZwhhvvM6pTU5jXVy8LkZg4ffAU=
+gitlab.com/metakeule/config v1.21.0/go.mod h1:jooTFay2TFoNFs1y/I3+FhscrclQMxSlmBTTlWPceCk=
+gitlab.com/metakeule/fmtdate v1.2.0 h1:MCtqJiTO3j8yTn28aJvgvQy63f1DsjTj702f7TGaFOk=
+gitlab.com/metakeule/fmtdate v1.2.0/go.mod h1:uZUf21xepWGLp6PgJGBbHeBVWO+/gsKi3Gdh0Fu4lGg=
+golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 h1:hZR0X1kPW+nwyJ9xRxqZk1vx5RUObAPBdKVvXPDUH/E=
