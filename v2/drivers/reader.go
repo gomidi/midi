@@ -185,9 +185,10 @@ func (r *Reader) cleanState(b byte) {
 	}
 }
 
-func (r *Reader) EachByte(b byte) {
+func (r *Reader) eachByte(b byte) {
 	if b >= 0xF8 {
-		r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
+		//r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
+		r.OnMsg([]byte{b}, r.ts_ms)
 		return
 	}
 
@@ -343,11 +344,11 @@ func NewReader(config ListenConfig, onMsg func([]byte, int32)) *Reader {
 	return &r
 }
 
-func (r *Reader) SetDelta(deltaMilliSeconds int32) {
+func (r *Reader) setDelta(deltaMilliSeconds int32) {
 	r.ts_ms += deltaMilliSeconds
 }
 
-func (r *Reader) ResetStatus() {
+func (r *Reader) resetStatus() {
 	r.statusByte = 0
 	r.issetBf = false // first: is set, second: the byte
 }
@@ -357,15 +358,15 @@ func (r *Reader) EachMessage(bt []byte, deltaMilliSeconds int32) {
 
 	// TODO: verify
 	// assume that each call is without running state
-	r.ResetStatus()
+	//r.ResetStatus()
 
-	r.SetDelta(deltaMilliSeconds) // int32(math.Round(deltaSeconds * 1000))
+	r.setDelta(deltaMilliSeconds) // int32(math.Round(deltaSeconds * 1000))
 
 	//fmt.Printf("got % X\n", bt)
 
 	for _, b := range bt {
 		// => realtime message
-		r.EachByte(b)
+		r.eachByte(b)
 
 	}
 

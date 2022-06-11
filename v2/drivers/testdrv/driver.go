@@ -10,8 +10,10 @@ package testdrv
 
 import (
 	//"sync"
+
 	"time"
 
+	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
@@ -78,6 +80,20 @@ func (f *in) Listen(onMsg func(msg []byte, milliseconds int32), conf drivers.Lis
 	}
 
 	f.rd = drivers.NewReader(conf, func(m []byte, ms int32) {
+		msg := midi.Message(m)
+
+		if msg.Is(midi.ActiveSenseMsg) && !conf.ActiveSense {
+			return
+		}
+
+		if msg.Is(midi.TimingClockMsg) && !conf.TimeCode {
+			return
+		}
+
+		if msg.Is(midi.SysExMsg) && !conf.SysEx {
+			return
+		}
+
 		//fmt.Printf("handle message % X at [%v] in driver %q\n", m, ms, f.Driver.name)
 		onMsg(m, ms)
 		//	f.wg.Done()
@@ -136,12 +152,14 @@ func (f *out) Send(bt []byte) error {
 	ts_ms := int32(dur.Milliseconds())
 	f.last = f.now
 	//f.wg.Add(1)
-	//fmt.Printf("message added % X at [%v] in driver %q\n", bt, ts_ms, f.Driver.name)
-	//f.rd.EachMessage(bt, ts_ms)
-	f.rd.SetDelta(ts_ms)
-	for _, b := range bt {
-		f.rd.EachByte(b)
-	}
+	//fmt.Printf("message added % X (len %v) at [%v] in driver %q\n", bt, len(bt), ts_ms, f.Driver.name)
+	f.rd.EachMessage(bt, ts_ms)
+	/*
+		f.rd.SetDelta(ts_ms)
+		for _, b := range bt {
+			f.rd.EachByte(b)
+		}
+	*/
 	return nil
 }
 
