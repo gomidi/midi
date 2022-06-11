@@ -50,6 +50,19 @@ test-examples:
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
     - go test $(go list ./... | grep -v /vendor/)
+    - cd logger
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../looper
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../simple
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../smfplayer
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../smfrecorder
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../sysex
+    - go test $(go list ./... | grep -v /vendor/)
+
 
 test-tools:
   stage: test
@@ -58,8 +71,14 @@ test-tools:
     - apt-get update
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
+    - cd hyperarp
     - go test $(go list ./... | grep -v /vendor/)
-
+    - cd ../midicat
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../midispy
+    - go test $(go list ./... | grep -v /vendor/)
+    - cd ../smflyrics
+    - go test $(go list ./... | grep -v /vendor/)
 
 WindowsJob:
   stage: test
