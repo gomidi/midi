@@ -1,3 +1,4 @@
+//go:build js && wasm && !windows && !linux && !darwin
 // +build js,wasm,!windows,!linux,!darwin
 
 package webmididrv
@@ -8,6 +9,7 @@ import (
 	"sync/atomic"
 	"syscall/js"
 
+	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
@@ -133,15 +135,40 @@ func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.L
 		jsdata := args[0].Get("data")
 		jstime := args[0].Get("receivedTime")
 
-		var data = make([]byte, 3)
-		data[0] = byte(jsdata.Index(0).Int())
-		data[1] = byte(jsdata.Index(1).Int())
-		data[2] = byte(jsdata.Index(2).Int())
+		//var data = make([]byte, 3)
+		var data []byte
+		if !jsdata.Index(0).IsUndefined() {
+			//data[0] = byte(jsdata.Index(0).Int())
+			data = append(data, byte(jsdata.Index(0).Int()))
+		}
+		if !jsdata.Index(1).IsUndefined() {
+			//data[1] = byte(jsdata.Index(1).Int())
+			data = append(data, byte(jsdata.Index(1).Int()))
+		}
+		if !jsdata.Index(2).IsUndefined() {
+			//data[2] = byte(jsdata.Index(2).Int())
+			data = append(data, byte(jsdata.Index(2).Int()))
+		}
 		var t = int32(-1)
 		if jstime.Truthy() {
 			// round to milliseconds
 			t = int32(math.Round(jstime.Float()))
 		}
+
+		msg := midi.Message(data)
+
+		if msg.Is(midi.ActiveSenseMsg) && !config.ActiveSense {
+			return nil
+		}
+
+		if msg.Is(midi.TimingClockMsg) && !config.TimeCode {
+			return nil
+		}
+
+		if msg.Is(midi.SysExMsg) && !config.SysEx {
+			return nil
+		}
+
 		onMsg(data, t)
 		return nil
 	})
