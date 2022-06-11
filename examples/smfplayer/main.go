@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"embed"
 	"fmt"
 
 	"gitlab.com/gomidi/midi/v2"
@@ -12,12 +10,6 @@ import (
 	//_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
 	_ "gitlab.com/gomidi/midi/v2/drivers/midicatdrv"
 )
-
-//go:embed Prelude4.mid
-//go:embed VOYAGER.MID
-var f embed.FS
-var prelude4, _ = f.ReadFile("Prelude4.mid")
-var voyager, _ = f.ReadFile("VOYAGER.MID")
 
 func printPorts() {
 	fmt.Println(midi.GetOutPorts())
@@ -31,8 +23,8 @@ func run() error {
 	}
 
 	//return smf.ReadTracksFrom(bytes.NewReader(prelude4)).
-	return smf.ReadTracksFrom(bytes.NewReader(voyager)).
-		//result := smf.ReadTracks("VOYAGER.MID").
+	//return smf.ReadTracksFrom(bytes.NewReader(voyager)).
+	return smf.ReadTracks("Prelude4.mid").
 		//result := smf.ReadTracks("VOYAGER.MID", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.MetaMsgType).
