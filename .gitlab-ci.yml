@@ -71,9 +71,9 @@ test-tools:
     - apt-get update
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
-    - cd hyperarp
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../midicat
+#    - cd hyperarp
+#    - go test $(go list ./... | grep -v /vendor/)
+    - cd midicat
     - go test $(go list ./... | grep -v /vendor/)
     - cd ../midispy
     - go test $(go list ./... | grep -v /vendor/)
