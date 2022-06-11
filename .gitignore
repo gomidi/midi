@@ -35,7 +35,6 @@ examples/lowlevel
 examples/sysextest
 examples/tinygo
 .coverage.txt
-go.sum
 v1
 examples/examples
 tools/tools
