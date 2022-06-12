@@ -147,11 +147,12 @@ func (m Message) String() string {
 		var val4 uint8
 		var val5 uint8
 		var val16 uint16
-		var bl1 bool
-		var bl2 bool
+		//var bl1 bool
+		//var bl2 bool
 		var text string
 		var bpm float64
 		var bt []byte
+		var k Key
 
 		switch {
 		case m.GetMetaTempo(&bpm):
@@ -168,8 +169,10 @@ func (m Message) String() string {
 			fmt.Fprintf(&bf, " hour: %v minute: %v second: %v frame: %v fractframe: %v", val1, val2, val3, val4, val5)
 		case m.GetMetaSeqData(&bt):
 			fmt.Fprintf(&bf, " bytes: % X", bt)
-		case m.GetMetaKeySig(&val1, &val2, &bl1, &bl2):
-			fmt.Fprintf(&bf, " key: %v num: %v ismajor: %v isflat: %v", val1, val2, bl1, bl2)
+		case m.GetMetaKey(&k):
+			fmt.Fprintf(&bf, " key: %s", k.String())
+		//case m.GetMetaKeySig(&val1, &val2, &bl1, &bl2):
+		//	fmt.Fprintf(&bf, " key: %v num: %v ismajor: %v isflat: %v", val1, val2, bl1, bl2)
 		default:
 			switch m.Type() {
 			case MetaLyricMsg, MetaMarkerMsg, MetaCopyrightMsg, MetaTextMsg, MetaCuepointMsg, MetaDeviceMsg, MetaInstrumentMsg, MetaProgramNameMsg, MetaTrackNameMsg:
