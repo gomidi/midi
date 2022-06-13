@@ -212,7 +212,10 @@ func MetaProgram(text string) Message {
 func MetaSequenceNo(no uint16) Message {
 	var bf bytes.Buffer
 	binary.Write(&bf, binary.BigEndian, no)
-	return _MetaMessage(byteSequenceNumber, bf.Bytes())
+	//fmt.Printf("%X\n", bf.Bytes())
+	m := _MetaMessage(byteSequenceNumber, bf.Bytes())
+	//fmt.Printf("%X\n", m.Bytes())
+	return m
 }
 
 // MetaSequencerData returns a sequencer data meta message

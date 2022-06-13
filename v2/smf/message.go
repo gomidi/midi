@@ -246,8 +246,8 @@ func (m Message) GetMetaSeqNumber(sequenceNumber *uint16) bool {
 		*sequenceNumber = 0
 		return true
 	}
-
-	*sequenceNumber = utils.ParseUint16(m[2], m[3])
+	//fmt.Printf("% X\n", []byte{m[3], m[4]})
+	*sequenceNumber = utils.ParseUint16(m[3], m[4])
 
 	return true
 
