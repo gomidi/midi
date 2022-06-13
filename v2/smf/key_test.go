@@ -1,25 +1,20 @@
 package smf
 
 import (
-	"os"
 	"testing"
 
-	"gitlab.com/gomidi/midi/midimessage/channel"
-	"gitlab.com/gomidi/midi/midimessage/meta"
-	"gitlab.com/gomidi/midi/smf/smfwriter"
+	"gitlab.com/gomidi/midi/v2"
 )
 
-func writeFile(file string, sig meta.Key) {
-	f, _ := os.Create(file)
-	wr := smfwriter.New(f, smfwriter.NumTracks(1))
-	wr.WriteHeader()
-	wr.Write(sig)
-	wr.SetDelta(400)
-	wr.Write(channel.Channel0.NoteOn(64, 33))
-	wr.SetDelta(400)
-	wr.Write(channel.Channel0.NoteOff(64))
-	wr.Write(meta.EndOfTrack)
-	f.Close()
+func writeFile(file string, sig Message) {
+	s := New()
+	var t Track
+	t.Add(0, sig)
+	t.Add(400, midi.NoteOn(0, 64, 33))
+	t.Add(400, midi.NoteOff(0, 64))
+	t.Close(0)
+	s.Add(t)
+	s.WriteFile(file)
 }
 
 func TestKeys(t *testing.T) {
