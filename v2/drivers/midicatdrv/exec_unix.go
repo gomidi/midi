@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 package midicatdrv
@@ -9,7 +10,7 @@ import (
 )
 
 func _execCommand(c string) *exec.Cmd {
-	return exec.Command("/bin/sh", "-c", "exec "+c)
+	return exec.Command("sh", "-c", "exec "+c)
 }
 
 func midiCatOutCmd(index int) *exec.Cmd {
