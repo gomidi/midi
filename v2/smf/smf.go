@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
@@ -55,6 +56,85 @@ type SMF struct {
 	tempoChanges         TempoChanges
 	tempoChangesFinished bool
 	finished             bool
+}
+
+func (s SMF) String() string {
+	var bd strings.Builder
+
+	bd.WriteString(fmt.Sprintf("#### SMF Format: %v TimeFormat: %v NumTracks: %v ####\n", s.format, s.TimeFormat.String(), len(s.Tracks)))
+
+	for i, tr := range s.Tracks {
+		bd.WriteString(fmt.Sprintf("## TRACK %v ##\n", i))
+
+		for _, ev := range tr {
+			bd.WriteString(fmt.Sprintf("#%v [%v] %s\n", i, ev.Delta, ev.Message.String()))
+		}
+	}
+
+	return bd.String()
+}
+
+// ConvertToSMF1 converts a given SMF format 0 to SMF format 1
+// channel messages are distributed over the tracks by their channels
+// e.g. channel 0 -> track 1, channel 1 -> track 2 etc.
+// and everything else stays in track 0
+func (src SMF) ConvertToSMF1() (dest SMF) {
+	if src.format == 1 {
+		return src
+	}
+
+	var channelTracks [16]TrackEvents
+	var metaTrack TrackEvents
+
+	var absTicks int64
+	for _, ev := range src.Tracks[0] {
+		absTicks += int64(ev.Delta)
+		var te TrackEvent
+		te.AbsTicks = absTicks
+		te.Message = ev.Message
+
+		var channel uint8
+		if ev.Message.GetChannel(&channel) {
+			channelTracks[int(channel)] = append(channelTracks[int(channel)], &te)
+		} else {
+			metaTrack = append(metaTrack, &te)
+		}
+	}
+
+	sort.Sort(metaTrack)
+
+	var metaTarget Track
+
+	var lastAbs int64
+
+	for _, ev := range metaTrack {
+		delta := uint32(ev.AbsTicks - lastAbs)
+		metaTarget.Add(delta, ev.Message)
+		lastAbs = ev.AbsTicks
+	}
+
+	dest.TimeFormat = src.TimeFormat
+	dest.format = 1
+
+	metaTarget.Close(0)
+	dest.Add(metaTarget)
+
+	for i := 0; i < 16; i++ {
+		evts := channelTracks[i]
+		if len(evts) > 0 {
+			var t Track
+			lastAbs = 0
+			for _, ev := range evts {
+				delta := uint32(ev.AbsTicks - lastAbs)
+				t.Add(delta, ev.Message)
+				lastAbs = ev.AbsTicks
+			}
+			t.Close(0)
+			dest.Add(t)
+		}
+	}
+
+	return dest
 }
 
 // RecordTo records from the given midi in port into the given filename with the given tempo.

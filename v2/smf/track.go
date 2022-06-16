@@ -152,6 +152,20 @@ type TrackEvent struct {
 	AbsMicroSeconds int64
 }
 
+type TrackEvents []*TrackEvent
+
+func (b TrackEvents) Len() int {
+	return len(b)
+}
+
+func (br TrackEvents) Swap(a, b int) {
+	br[a], br[b] = br[b], br[a]
+}
+
+func (br TrackEvents) Less(a, b int) bool {
+	return br[a].AbsTicks < br[b].AbsTicks
+}
+
 type playEvent struct {
 	absTime int64
 	sleep   time.Duration
