@@ -2,6 +2,7 @@ package midi
 
 import (
 	"fmt"
+	"strings"
 )
 
 /*
@@ -104,10 +105,105 @@ func B(oct uint8) uint8 {
 	return o(11, oct)
 }
 
+type Interval int8
+
+const (
+	Unison            Interval = 0
+	MinorSecond       Interval = 1
+	MajorSecond       Interval = 2
+	MinorThird        Interval = 3
+	MajorThird        Interval = 4
+	Fourth            Interval = 5
+	Tritone           Interval = 6
+	Fifth             Interval = 7
+	MinorSixth        Interval = 8
+	MajorSixth        Interval = 9
+	MinorSeventh      Interval = 10
+	MajorSeventh      Interval = 11
+	Octave            Interval = 12
+	MinorNinth        Interval = 13
+	MajorNinth        Interval = 14
+	MinorTenth        Interval = 15
+	MajorTenth        Interval = 16
+	Eleventh          Interval = 17
+	DiminishedTwelfth Interval = 18
+	Twelfth           Interval = 19
+	MinorThirteenth   Interval = 20
+	MajorThirteenth   Interval = 21
+	MinorFourteenth   Interval = 22
+	MajorFourteenth   Interval = 23
+	DoubleOctave      Interval = 24
+)
+
+var intervalNames = map[Interval]string{
+	0:  "Unison",
+	1:  "MinorSecond",
+	2:  "MajorSecond",
+	3:  "MinorThird",
+	4:  "MajorThird",
+	5:  "Fourth",
+	6:  "Tritone",
+	7:  "Fifth",
+	8:  "MinorSixth",
+	9:  "MajorSixth",
+	10: "MinorSeventh",
+	11: "MajorSeventh",
+	12: "Octave",
+	13: "MinorNinth",
+	14: "MajorNinth",
+	15: "MinorTenth",
+	16: "MajorTenth",
+	17: "Eleventh",
+	18: "DiminishedTwelfth",
+	19: "Twelfth",
+	20: "MinorThirteenth",
+	21: "MajorThirteenth",
+	22: "MinorFourteenth",
+	23: "MajorFourteenth",
+	24: "DoubleOctave",
+}
+
+func (i Interval) String() string {
+	var down bool
+	if i < 0 {
+		down = true
+		i = (-1) * i
+	}
+
+	i = i % 24
+
+	var bd strings.Builder
+	bd.WriteString(intervalNames[i])
+
+	if down {
+		bd.WriteString(" down")
+	} else {
+		bd.WriteString(" up")
+	}
+
+	return bd.String()
+}
+
 type Note uint8
+
+func (n Note) Interval(o Note) Interval {
+	return Interval(int8(o) - int8(n))
+}
+
+func (n Note) Transpose(i Interval) Note {
+	res := int8(n) + int8(i)
+	if res < 0 {
+		res = 0
+	}
+	return Note(res)
+}
 
 func (n Note) Value() uint8 {
 	return uint8(n)
+}
+
+func (n Note) Base() uint8 {
+	return uint8(n) % 12
 }
 
 func (n Note) Name() (name string) {
