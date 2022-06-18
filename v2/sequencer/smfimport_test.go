@@ -140,7 +140,7 @@ func TestToSMF1(t *testing.T) {
 
 	got := strings.TrimSpace(sm.String())
 	expected := strings.TrimSpace(`
-#### SMF Format: 0 TimeFormat: 960 MetricTicks NumTracks: 3 ####
+#### SMF Format: 1 TimeFormat: 960 MetricTicks NumTracks: 3 ####
 ## TRACK 0 ##
 #0 [0] MetaText text: "testpiece"
 #0 [0] MetaCopyright text: "me"
@@ -251,7 +251,7 @@ func TestMkBars(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		var s Song
+		var s = New()
 		var sm smf.SMF
 
 		sm.TimeFormat = ticks
@@ -266,7 +266,7 @@ func TestMkBars(t *testing.T) {
 		tr.Close(test.closeTicks)
 		sm.Add(tr)
 
-		si := smfimport{&s, sm}
+		si := smfimport{s, sm}
 		si.mkBars()
 
 		bars := s.Bars()
@@ -290,4 +290,45 @@ func TestMkBars(t *testing.T) {
 		}
 
 	}
+}
+
+func TestFromSMF1(t *testing.T) {
+
+	ticks := smf.MetricTicks(960)
+
+	var sm smf.SMF
+
+	sm.TimeFormat = ticks
+
+	var t0, t1, t2 smf.Track
+
+	t0.Add(0, smf.AbMaj())
+	t0.Add(0, smf.MetaMeter(3, 4))
+	t0.Add(6*ticks.Ticks4th(), smf.MetaMeter(4, 4))
+	t0.Add(0, smf.MetaTempo(140.00))
+	t0.Close(4 * ticks.Ticks4th())
+	sm.Add(t0)
+
+	t1.Add(ticks.Ticks4th(), midi.NoteOn(0, 50, 100))
+	t1.Add(ticks.Ticks4th(), midi.NoteOff(0, 50))
+	t1.Close(0)
+	sm.Add(t1)
+
+	t2.Add(2*ticks.Ticks4th(), midi.NoteOn(1, 30, 100))
+	t2.Add(2*ticks.Ticks4th(), midi.NoteOff(1, 30))
+	t2.Close(0)
+	sm.Add(t2)
+
+	song := FromSMF(sm)
+
+	if len(song.Bars()) != 3 {
+		t.Errorf("wrong number of bars: %v // expected: %v", len(song.Bars()), 3)
+	}
+
+	if len(song.TrackNames) != 3 {
+		t.Errorf("wrong number of tracks: %v // expected: %v", len(song.TrackNames), 3)
+	}
+
+	// TODO: further tests
+
 }
