@@ -4,6 +4,29 @@ import (
 	"testing"
 )
 
+func TestNoteIs(t *testing.T) {
+	var tests = []struct {
+		noteA uint8
+		noteB uint8
+		equal bool
+	}{
+		{C(5), C(5), true},
+		{C(5), C(8), true},
+		{C(5), C(50), true},
+		{C(5), D(5), false},
+	}
+
+	for i, test := range tests {
+
+		got := Note(test.noteA).Is(Note(test.noteB))
+		expected := test.equal
+
+		if got != expected {
+			t.Errorf("[%v] %s.Is(%s) = %v // expected: %v", i, Note(test.noteA).String(), Note(test.noteB).String(), got, expected)
+		}
+	}
+}
+
 func TestTranspose(t *testing.T) {
 	var tests = []struct {
 		note     uint8
