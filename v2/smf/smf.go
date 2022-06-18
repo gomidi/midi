@@ -297,6 +297,9 @@ func (s *SMF) WriteTo(f io.Writer) (size int64, err error) {
 // Add adds a track to the SMF and returns an error, if the track is not closed.
 func (s *SMF) Add(t Track) error {
 	s.Tracks = append(s.Tracks, t)
+	if len(s.Tracks) > 1 && s.format == 0 {
+		s.format = 1
+	}
 	if !t.IsClosed() {
 		return fmt.Errorf("error: track was not closed")
 	}
