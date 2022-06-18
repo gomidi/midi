@@ -8,7 +8,7 @@ import (
 )
 
 func TestAddEvents(t *testing.T) {
-	var s Song
+	var s = New()
 	var sm smf.SMF
 	ticks := smf.MetricTicks(960)
 
@@ -43,7 +43,7 @@ func TestAddEvents(t *testing.T) {
 	tr1.Close(0)
 	sm.Add(tr1)
 
-	si := smfimport{&s, sm}
+	si := smfimport{s, sm}
 
 	si.mkBars()
 	si.addEvents()
