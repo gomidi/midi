@@ -38,7 +38,8 @@ A new message is created by the corresponding function, e.g.
    msg := midi.NoteOn(1, 60, 120) // channel, key, velocity
    fmt.Printf("% X\n", []byte(msg)) // prints 91 3C 78
 
-Sending and retrieving of midi data is done via drivers. Most of the time, a single driver is sufficient.
+Sending and retrieving of midi data is done via drivers. The drivers take care of converting a "running status" into a full status.
+Most of the time, a single driver is sufficient.
 Therefor it is handy, that the drivers autoregister themself. This also makes it easy to exchange a driver if needed (see the example).
 
 Different cross plattform implementations of the `Driver` interface can be found in the `drivers` subdirectory.
