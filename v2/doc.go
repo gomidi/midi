@@ -44,9 +44,9 @@ Therefor it is handy, that the drivers autoregister themself. This also makes it
 
 Different cross plattform implementations of the `Driver` interface can be found in the `drivers` subdirectory.
 
-The `smf` subpackage helps with writing to and reading from `Simple MIDI Files` (SMF).
+The `smf` subpackage helps with writing to and reading from `Simple MIDI Files` (SMF) (see https://pkg.go.dev/gitlab.com/gomidi/midi/v2/smf).
 
-The `tools` subdirectory provides command line tools based on this library.
+The `tools` subdirectory provides command line tools and libraries based on this library.
 
 */
 package midi
