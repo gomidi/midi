@@ -5,6 +5,7 @@ import (
 	"os"
 
 	. "gitlab.com/gomidi/midi/v2"
+	"gitlab.com/gomidi/midi/v2/gm"
 
 	// testdrv has one in port and one out port which is connected to the in port
 	_ "gitlab.com/gomidi/midi/v2/drivers/testdrv"
@@ -19,22 +20,25 @@ func Example() {
 			// ignore realtime messages
 			return
 		}
-		var channel, key, velocity, cc, val uint8
+		var channel, key, velocity, cc, val, prog uint8
 		switch {
 
 		// is better, than to use GetNoteOn (handles note on messages with velocity of 0 as expected)
 		case msg.GetNoteStart(&channel, &key, &velocity):
-			fmt.Printf("note started channel: %v key: %v note: %s velocity: %v\n", channel, key, Note(key), velocity)
+			fmt.Printf("note started channel: %v key: %v (%s) velocity: %v\n", channel, key, Note(key), velocity)
 
 		// is better, than to use GetNoteOff (handles note on messages with velocity of 0 as expected)
 		case msg.GetNoteEnd(&channel, &key):
-			fmt.Printf("note ended channel: %v key: %v note: %s\n", channel, key, Note(key))
+			fmt.Printf("note ended channel: %v key: %v (%s)\n", channel, key, Note(key))
 
 		case msg.GetControlChange(&channel, &cc, &val):
-			fmt.Printf("control change %v %q channel: %v value: %v\n", cc, ControlChangeName[cc], channel, val)
+			fmt.Printf("control change %v (%s) channel: %v value: %v\n", cc, ControlChangeName[cc], channel, val)
+
+		case msg.GetProgramChange(&channel, &prog):
+			fmt.Printf("program change %v (%s) channel: %v\n", prog, gm.Instr(prog), channel)
 
 		default:
-			fmt.Printf("received %s\n", msg)
+			fmt.Printf("%s\n", msg)
 		}
 	}
 
@@ -70,7 +74,7 @@ func Example() {
 		send(NoteOn(0, Db(5), 100))
 		send(NoteOff(0, Db(5)))
 		send(Pitchbend(0, -12))
-		send(ProgramChange(1, 12))
+		send(ProgramChange(1, gm.Instr_AcousticBass.Value()))
 		send(ControlChange(2, FootPedalMSB, On))
 	}
 
@@ -78,10 +82,10 @@ func Example() {
 	stop()
 
 	// Output:
-	// note started channel: 0 key: 61 note: Db5 velocity: 100
-	// note ended channel: 0 key: 61 note: Db5
-	// received PitchBend channel: 0 pitch: -12 (8180)
-	// received ProgramChange channel: 1 program: 12
-	// control change 4 "Foot Pedal (MSB)" channel: 2 value: 127
+	// note started channel: 0 key: 61 (Db5) velocity: 100
+	// note ended channel: 0 key: 61 (Db5)
+	// PitchBend channel: 0 pitch: -12 (8180)
+	// program change 32 (AcousticBass) channel: 1
+	// control change 4 (Foot Pedal (MSB)) channel: 2 value: 127
 
 }
