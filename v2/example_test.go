@@ -24,11 +24,11 @@ func Example() {
 
 		// is better, than to use GetNoteOn (handles note on messages with velocity of 0 as expected)
 		case msg.GetNoteStart(&channel, &key, &velocity):
-			fmt.Printf("note started channel: %v key: %v velocity: %v\n", channel, key, velocity)
+			fmt.Printf("note started channel: %v key: %v note: %s velocity: %v\n", channel, key, Note(key), velocity)
 
 		// is better, than to use GetNoteOff (handles note on messages with velocity of 0 as expected)
 		case msg.GetNoteEnd(&channel, &key):
-			fmt.Printf("note ended channel: %v key: %v\n", channel, key)
+			fmt.Printf("note ended channel: %v key: %v note: %s\n", channel, key, Note(key))
 
 		case msg.GetControlChange(&channel, &cc, &val):
 			fmt.Printf("control change %v %q channel: %v value: %v\n", cc, ControlChangeName[cc], channel, val)
@@ -78,8 +78,8 @@ func Example() {
 	stop()
 
 	// Output:
-	// note started channel: 0 key: 61 velocity: 100
-	// note ended channel: 0 key: 61
+	// note started channel: 0 key: 61 note: Db5 velocity: 100
+	// note ended channel: 0 key: 61 note: Db5
 	// received PitchBend channel: 0 pitch: -12 (8180)
 	// received ProgramChange channel: 1 program: 12
 	// control change 4 "Foot Pedal (MSB)" channel: 2 value: 127
