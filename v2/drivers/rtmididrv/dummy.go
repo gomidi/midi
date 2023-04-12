@@ -1,3 +1,6 @@
+//go:build dummy
+// +build dummy
+
 package rtmididrv
 
 import (

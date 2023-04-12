@@ -1,3 +1,6 @@
+//go:build dummy
+// +build dummy
+
 package cpp
 
 // dummy go file to help go mod vendor
