@@ -54,7 +54,9 @@ func (d *Driver) Close() (err error) {
 	return e
 }
 
-const midicatVersion = "0.3.6"
+//const midicatVersion = "0.3.6"
+//const midicatVersion = "0.4.0"
+const midicatVersion = "midicat version 0.6.0\n"
 const midicatDownloadURL = "https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip"
 
 func barkTo(wr io.Writer) {
@@ -121,6 +123,21 @@ func CheckMIDICatBinary(barkTarget io.Writer) error {
 }
 */
 
+func checkMIDICAT() bool {
+	b, err := midiCatVersionCmd().Output()
+
+	if err != nil {
+		panic("missing binary 'midicat'")
+	}
+
+	s := string(b)
+
+	if s != midicatVersion {
+		panic(fmt.Sprintf("%q", s))
+	}
+	return true
+}
+
 // New returns a driver based on the default rtmidi in and out
 func New() (*Driver, error) {
 	/*
@@ -130,6 +147,7 @@ func New() (*Driver, error) {
 			return nil, err
 		}
 	*/
+	checkMIDICAT()
 	return &Driver{}, nil
 }
 

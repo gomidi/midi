@@ -47,7 +47,7 @@ func Example() {
 	s.Add(bass)
 
 	// write the bytes to the buffer
-	err := s.WriteTo(&bf)
+	_, err := s.WriteTo(&bf)
 
 	if err != nil {
 		fmt.Printf("ERROR: %s", err.Error())

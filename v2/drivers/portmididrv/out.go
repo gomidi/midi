@@ -1,6 +1,7 @@
 package portmididrv
 
 import (
+	"bytes"
 	"fmt"
 
 	"gitlab.com/gomidi/midi/v2/drivers"
@@ -17,7 +18,9 @@ type out struct {
 	stream   *portmidi.Stream
 	name     string
 	//mx       sync.RWMutex
-	driver *Driver
+	driver  *Driver
+	bf      bytes.Buffer
+	running *drivers.Reader
 }
 
 // IsOpen returns, wether the port is open
@@ -73,6 +76,12 @@ func (o *out) Send(b []byte) error {
 			return fmt.Errorf("cannot send less than two message bytes")
 		}
 	*/
+
+	o.running.EachMessage(b, 0)
+	b = o.bf.Bytes()
+	o.bf.Reset()
+
+	//fmt.Printf("transformed to % X\n", b)
 
 	first := int64(b[0])
 
@@ -150,6 +159,15 @@ func (o *out) Open() (err error) {
 	}
 	//o.mx.RUnlock()
 
+	o.bf = bytes.Buffer{}
+	//o.running = runningstatus.NewLiveWriter(&o.bf)
+	var conf drivers.ListenConfig
+	conf.ActiveSense = true
+	conf.SysEx = false
+	conf.TimeCode = true
+	o.running = drivers.NewReader(conf, func(b []byte, ms int32) {
+		o.bf.Write(b)
+	})
 	//o.mx.Lock()
 	//defer o.mx.Unlock()
 	// we always open the outputstream with a latency of 0

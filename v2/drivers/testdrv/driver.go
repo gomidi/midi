@@ -9,8 +9,11 @@ Package testdrv provides a Driver for testing.
 package testdrv
 
 import (
+	//"sync"
+
 	"time"
 
+	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
@@ -24,17 +27,31 @@ type Driver struct {
 	out           *out
 	name          string
 	last          time.Time
+	now           time.Time
 	stopListening bool
 	rd            *drivers.Reader
+	//wg            sync.WaitGroup
 }
 
-func New(name string) drivers.Driver {
+func New(name string) *Driver {
 	d := &Driver{name: name}
-	d.in = &in{name: name + "-in", driver: d, number: 0}
-	d.out = &out{name: name + "-out", driver: d, number: 0}
+	d.in = &in{name: name + "-in", Driver: d, number: 0}
+	d.out = &out{name: name + "-out", Driver: d, number: 0}
 	d.last = time.Now()
+	d.now = d.last
 	return d
 }
+
+func (f *Driver) Sleep(d time.Duration) {
+	f.now = f.now.Add(d)
+}
+
+// wait until all messages are handled
+/*
+func (f *Driver) Wait() {
+	f.wg.Wait()
+}
+*/
 
 func (f *Driver) String() string               { return f.name }
 func (f *Driver) Close() error                 { return nil }
@@ -45,7 +62,7 @@ type in struct {
 	number int
 	name   string
 	isOpen bool
-	driver *Driver
+	*Driver
 }
 
 func (f *in) String() string          { return f.name }
@@ -53,16 +70,37 @@ func (f *in) Number() int             { return f.number }
 func (f *in) IsOpen() bool            { return f.isOpen }
 func (f *in) Underlying() interface{} { return nil }
 
-func (f *in) Listen(onMsg func([]byte, int32), conf drivers.ListenConfig) (func(), error) {
-	f.driver.last = time.Now()
+func (f *in) Listen(onMsg func(msg []byte, milliseconds int32), conf drivers.ListenConfig) (stopFn func(), err error) {
+	//fmt.Printf("listeining from in port of %s\n", f.Driver.name)
 
-	stopper := func() {
-		f.driver.stopListening = true
+	f.last = time.Now()
+
+	stopFn = func() {
+		f.stopListening = true
 	}
 
-	f.driver.rd = drivers.NewReader(conf, onMsg)
+	f.rd = drivers.NewReader(conf, func(m []byte, ms int32) {
+		msg := midi.Message(m)
 
-	return stopper, nil
+		if msg.Is(midi.ActiveSenseMsg) && !conf.ActiveSense {
+			return
+		}
+
+		if msg.Is(midi.TimingClockMsg) && !conf.TimeCode {
+			return
+		}
+
+		if msg.Is(midi.SysExMsg) && !conf.SysEx {
+			return
+		}
+
+		//fmt.Printf("handle message % X at [%v] in driver %q\n", m, ms, f.Driver.name)
+		onMsg(m, ms)
+		//	f.wg.Done()
+		//fmt.Println("msg handled")
+	})
+	f.rd.Reset()
+	return stopFn, nil
 }
 
 func (f *in) Close() error {
@@ -85,7 +123,7 @@ type out struct {
 	number int
 	name   string
 	isOpen bool
-	driver *Driver
+	*Driver
 }
 
 func (f *out) Number() int             { return f.number }
@@ -106,16 +144,22 @@ func (f *out) Send(bt []byte) error {
 		return drivers.ErrPortClosed
 	}
 
-	if f.driver.stopListening {
+	if f.stopListening {
 		return nil
 	}
 
-	now := time.Now()
-	dur := now.Sub(f.driver.last)
+	dur := f.now.Sub(f.last)
 	ts_ms := int32(dur.Milliseconds())
-	f.driver.last = now
-
-	f.driver.rd.EachMessage(bt, ts_ms)
+	f.last = f.now
+	//f.wg.Add(1)
+	//fmt.Printf("message added % X (len %v) at [%v] in driver %q\n", bt, len(bt), ts_ms, f.Driver.name)
+	f.rd.EachMessage(bt, ts_ms)
+	/*
+		f.rd.SetDelta(ts_ms)
+		for _, b := range bt {
+			f.rd.EachByte(b)
+		}
+	*/
 	return nil
 }
 

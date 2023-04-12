@@ -10,11 +10,24 @@ import (
 	vlq "gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
+type wrWrapper struct {
+	size int64
+	wr   io.Writer
+}
+
+var _ io.Writer = &wrWrapper{}
+
+func (w *wrWrapper) Write(p []byte) (int, error) {
+	s, err := w.wr.Write(p)
+	w.size += int64(s)
+	return s, err
+}
+
 func newWriter(s *SMF, output io.Writer) *writer {
 	// setup
 	wr := &writer{}
 	wr.SMF = s
-	wr.output = output
+	wr.output = &wrWrapper{wr: output}
 	wr.currentChunk.SetType([4]byte{byte('M'), byte('T'), byte('r'), byte('k')})
 
 	if !wr.SMF.NoRunningStatus {
@@ -26,7 +39,7 @@ func newWriter(s *SMF, output io.Writer) *writer {
 type writer struct {
 	*SMF
 	currentChunk    chunk
-	output          io.Writer
+	output          *wrWrapper
 	headerWritten   bool
 	tracksProcessed uint16
 	deltatime       uint32
@@ -44,7 +57,7 @@ func (w *writer) printf(format string, vals ...interface{}) {
 }
 
 func (w *writer) Close() error {
-	if cl, is := w.output.(io.WriteCloser); is {
+	if cl, is := w.output.wr.(io.WriteCloser); is {
 		w.printf("closing output")
 		return cl.Close()
 	}

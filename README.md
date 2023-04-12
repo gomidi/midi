@@ -52,8 +52,8 @@ import (
 func main() {
 	defer midi.CloseDriver()
 
-	in := midi.FindInPort("VMPK")
-	if in < 0 {
+	in, err := midi.FindInPort("VMPK")
+	if err != nil {
 		fmt.Println("can't find VMPK")
 		return
 	}
@@ -102,12 +102,10 @@ import (
 func main() {
 	defer midi.CloseDriver()
 
-	for _, o := range midi.OutPorts() {
-		fmt.Printf("out: %s\n", o)
-	}
+	fmt.Printf("outports:\n" + midi.GetOutPorts() + "\n")
 
-	out := midi.FindOutPort("qsynth")
-	if out < 0 {
+	out, err := midi.FindOutPort("qsynth")
+	if err != nil {
 		fmt.Printf("can't find qsynth")
 		return
 	}

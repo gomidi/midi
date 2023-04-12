@@ -65,8 +65,8 @@ func listMIDIDevices() {
 
 	fmt.Print("\n--- MIDI output ports ---\n\n")
 
-	for num, port := range midi.OutPorts() {
-		fmt.Printf("[%d] %#v\n", num, port)
+	for _, port := range midi.GetOutPorts() {
+		fmt.Printf("[%d] %#v\n", port.Number(), port.String())
 	}
 
 	return
@@ -75,8 +75,8 @@ func listMIDIDevices() {
 func listMIDIInDevices() {
 	fmt.Print("\n--- MIDI input ports ---\n\n")
 
-	for num, port := range midi.InPorts() {
-		fmt.Printf("[%d] %#v\n", num, port)
+	for _, port := range midi.GetInPorts() {
+		fmt.Printf("[%d] %#v\n", port.Number(), port.String())
 	}
 }
 

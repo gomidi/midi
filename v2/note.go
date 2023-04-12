@@ -2,6 +2,7 @@ package midi
 
 import (
 	"fmt"
+	"strings"
 )
 
 /*
@@ -27,17 +28,13 @@ const (
 )
 */
 
-func o(base uint8, oct int8) uint8 {
-	if oct > 9 {
-		oct = 9
+func o(base uint8, oct uint8) uint8 {
+	if oct > 10 {
+		oct = 10
 	}
 
 	if oct == 0 {
 		return base
-	}
-
-	if oct < -1 {
-		oct = -1
 	}
 
 	res := base + uint8(12*oct)
@@ -49,69 +46,164 @@ func o(base uint8, oct int8) uint8 {
 }
 
 // C returns the key for the MIDI note C in the given octave
-func C(oct int8) uint8 {
-	return o(12, oct)
+func C(oct uint8) uint8 {
+	return o(0, oct)
 }
 
 // Db returns the key for the MIDI note Db in the given octave
-func Db(oct int8) uint8 {
-	return o(13, oct)
+func Db(oct uint8) uint8 {
+	return o(1, oct)
 }
 
 // D returns the key for the MIDI note D in the given octave
-func D(oct int8) uint8 {
-	return o(14, oct)
+func D(oct uint8) uint8 {
+	return o(2, oct)
 }
 
 // Eb returns the key for the MIDI note Eb in the given octave
-func Eb(oct int8) uint8 {
-	return o(15, oct)
+func Eb(oct uint8) uint8 {
+	return o(3, oct)
 }
 
 // E returns the key for the MIDI note E in the given octave
-func E(oct int8) uint8 {
-	return o(16, oct)
+func E(oct uint8) uint8 {
+	return o(4, oct)
 }
 
 // F returns the key for the MIDI note F in the given octave
-func F(oct int8) uint8 {
-	return o(17, oct)
+func F(oct uint8) uint8 {
+	return o(5, oct)
 }
 
 // Gb returns the key for the MIDI note Gb in the given octave
-func Gb(oct int8) uint8 {
-	return o(18, oct)
+func Gb(oct uint8) uint8 {
+	return o(6, oct)
 }
 
 // G returns the key for the MIDI note G in the given octave
-func G(oct int8) uint8 {
-	return o(19, oct)
+func G(oct uint8) uint8 {
+	return o(7, oct)
 }
 
 // Ab returns the key for the MIDI note Ab in the given octave
-func Ab(oct int8) uint8 {
-	return o(20, oct)
+func Ab(oct uint8) uint8 {
+	return o(8, oct)
 }
 
 // A returns the key for the MIDI note A in the given octave
-func A(oct int8) uint8 {
-	return o(21, oct)
+func A(oct uint8) uint8 {
+	return o(9, oct)
 }
 
 // Bb returns the key for the MIDI note Bb in the given octave
-func Bb(oct int8) uint8 {
-	return o(22, oct)
+func Bb(oct uint8) uint8 {
+	return o(10, oct)
 }
 
 // B returns the key for the MIDI note B in the given octave
-func B(oct int8) uint8 {
-	return o(23, oct)
+func B(oct uint8) uint8 {
+	return o(11, oct)
+}
+
+type Interval int8
+
+const (
+	Unison            Interval = 0
+	MinorSecond       Interval = 1
+	MajorSecond       Interval = 2
+	MinorThird        Interval = 3
+	MajorThird        Interval = 4
+	Fourth            Interval = 5
+	Tritone           Interval = 6
+	Fifth             Interval = 7
+	MinorSixth        Interval = 8
+	MajorSixth        Interval = 9
+	MinorSeventh      Interval = 10
+	MajorSeventh      Interval = 11
+	Octave            Interval = 12
+	MinorNinth        Interval = 13
+	MajorNinth        Interval = 14
+	MinorTenth        Interval = 15
+	MajorTenth        Interval = 16
+	Eleventh          Interval = 17
+	DiminishedTwelfth Interval = 18
+	Twelfth           Interval = 19
+	MinorThirteenth   Interval = 20
+	MajorThirteenth   Interval = 21
+	MinorFourteenth   Interval = 22
+	MajorFourteenth   Interval = 23
+	DoubleOctave      Interval = 24
+)
+
+var intervalNames = map[Interval]string{
+	0:  "Unison",
+	1:  "MinorSecond",
+	2:  "MajorSecond",
+	3:  "MinorThird",
+	4:  "MajorThird",
+	5:  "Fourth",
+	6:  "Tritone",
+	7:  "Fifth",
+	8:  "MinorSixth",
+	9:  "MajorSixth",
+	10: "MinorSeventh",
+	11: "MajorSeventh",
+	12: "Octave",
+	13: "MinorNinth",
+	14: "MajorNinth",
+	15: "MinorTenth",
+	16: "MajorTenth",
+	17: "Eleventh",
+	18: "DiminishedTwelfth",
+	19: "Twelfth",
+	20: "MinorThirteenth",
+	21: "MajorThirteenth",
+	22: "MinorFourteenth",
+	23: "MajorFourteenth",
+	24: "DoubleOctave",
+}
+
+func (i Interval) String() string {
+	var down bool
+	if i < 0 {
+		down = true
+		i = (-1) * i
+	}
+
+	i = i % 24
+
+	var bd strings.Builder
+	bd.WriteString(intervalNames[i])
+
+	if down {
+		bd.WriteString(" down")
+	} else {
+		bd.WriteString(" up")
+	}
+
+	return bd.String()
 }
 
 type Note uint8
 
+func (n Note) Interval(o Note) Interval {
+	return Interval(int8(o) - int8(n))
+}
+
+func (n Note) Transpose(i Interval) Note {
+	res := int8(n) + int8(i)
+	if res < 0 {
+		res = 0
+	}
+	return Note(res)
+}
+
 func (n Note) Value() uint8 {
 	return uint8(n)
+}
+
+func (n Note) Base() uint8 {
+	return uint8(n) % 12
 }
 
 func (n Note) Name() (name string) {
@@ -155,8 +247,8 @@ func (n Note) String() string {
 	return name
 }
 
-func (n Note) Octave() int8 {
-	return int8(n/12) - 1
+func (n Note) Octave() uint8 {
+	return uint8(n / 12)
 }
 
 // Equal returns true if noteX is the same as noteY

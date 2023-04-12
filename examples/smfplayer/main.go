@@ -12,21 +12,19 @@ import (
 )
 
 func printPorts() {
-	outs := midi.OutPorts()
-	for _, o := range outs {
-		fmt.Printf("out: %s\n", o)
-	}
+	fmt.Println(midi.GetOutPorts())
 }
 
 func run() error {
 	printPorts()
-	out := midi.FindOutPort("qsynth")
-	if out < 0 {
+	out, err := midi.FindOutPort("qsynth")
+	if err != nil {
 		return fmt.Errorf("can't find qsynth")
 	}
 
+	//return smf.ReadTracksFrom(bytes.NewReader(prelude4)).
+	//return smf.ReadTracksFrom(bytes.NewReader(voyager)).
 	return smf.ReadTracks("Prelude4.mid").
-		//result := smf.ReadTracks("VOYAGER.MID").
 		//result := smf.ReadTracks("VOYAGER.MID", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg).
 		//Only(midi.NoteOnMsg, midi.NoteOffMsg, midi.MetaMsgType).

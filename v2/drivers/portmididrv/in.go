@@ -89,7 +89,7 @@ func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.L
 	}
 
 	if !config.TimeCode {
-		filters = append(filters, portmidi.FILTER_MTC)
+		filters = append(filters, portmidi.FILTER_CLOCK)
 	}
 
 	switch len(filters) {
@@ -279,4 +279,11 @@ func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.L
 	time.Sleep(time.Millisecond * 2)
 
 	return
+}
+
+// Underlying returns the underlying *portmidi.Stream. It will be nil, if the port is closed.
+// Use it with type casting:
+//   portOut := o.Underlying().(*portmidi.Stream)
+func (i *in) Underlying() interface{} {
+	return i.stream
 }

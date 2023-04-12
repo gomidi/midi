@@ -1,3 +1,4 @@
+//go:build !js
 // +build !js
 
 package main
@@ -20,7 +21,8 @@ func main() {
 	}
 }
 
-const wasmExecURL = "https://raw.githubusercontent.com/golang/go/release-branch.go1.12/misc/wasm/wasm_exec.js"
+//const wasmExecURL = "https://raw.githubusercontent.com/golang/go/release-branch.go1.12/misc/wasm/wasm_exec.js"
+const wasmExecURL = "https://raw.githubusercontent.com/golang/go/master/misc/wasm/wasm_exec.js"
 const wasmExecFile = "wasm_exec.js"
 
 func DownloadWasmExec() {

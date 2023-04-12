@@ -8,12 +8,11 @@ All drivers must obey the following rules. If not, it is considered a bug.
 3. The String() method must return a unique and indentifying string
 4. The driver expects multiple goroutines to use its writing and reading methods and locks accordingly (to be threadsafe).
 5. The midi.In ports respects any running status bytes when converting to midi.Message(s)
-6. The midi.Out ports may convert explicit status bytes to running status bytes.
+6. The midi.Out ports accept running status bytes.
 7. The New function may take optional driver specific arguments. These are all organized as functional optional arguments.
 8. The midi.In port is responsible for buffering of sysex data. Only complete sysex data is passed to the listener.
 9. The midi In port must check the ListenConfig and act accordingly.
 10. incomplete sysex data must be cached inside the sender and flushed, if the data is complete.
-11. The driver must have a pass through method which passes the data as is (for debugging).
 
 ## Reason for the timestamp choice of the listener callback
 

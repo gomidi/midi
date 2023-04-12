@@ -12,7 +12,9 @@ import (
 func main() {
 	defer midi.CloseDriver()
 
-	stop, err := midi.ListenTo(0, func(msg midi.Message, timestampms int32) {
+	in, _ := midi.InPort(0)
+
+	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {
 		var bt []byte
 		switch {
 		case msg.GetSysEx(&bt):
@@ -27,7 +29,9 @@ func main() {
 		return
 	}
 
-	send, err := midi.SendTo(0)
+	out, _ := midi.OutPort(0)
+
+	send, err := midi.SendTo(out)
 
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)

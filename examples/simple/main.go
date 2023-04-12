@@ -14,12 +14,10 @@ import (
 func main() {
 	defer midi.CloseDriver()
 
-	for _, o := range midi.OutPorts() {
-		fmt.Printf("out: %s\n", o)
-	}
+	fmt.Println("out ports: \n" + midi.GetOutPorts().String())
 
-	out := midi.FindOutPort("qsynth")
-	if out < 0 {
+	out, err := midi.FindOutPort("qsynth")
+	if err != nil {
 		fmt.Printf("can't find qsynth")
 		return
 	}

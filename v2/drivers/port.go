@@ -31,6 +31,9 @@ type Port interface {
 
 	// String represents the MIDI port by a string, aka name.
 	String() string
+
+	// Underlying returns the underlying implementation of the driver
+	Underlying() interface{}
 }
 
 // ListenConfig defines the configuration for in port listening

@@ -5,7 +5,10 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strings"
 	"time"
+
+	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
 // New returns a SMF file of format type 0 (single track), that becomes type 1 (multi track), if you add tracks
@@ -55,9 +58,88 @@ type SMF struct {
 	finished             bool
 }
 
+func (s SMF) String() string {
+	var bd strings.Builder
+
+	bd.WriteString(fmt.Sprintf("#### SMF Format: %v TimeFormat: %v NumTracks: %v ####\n", s.format, s.TimeFormat.String(), len(s.Tracks)))
+
+	for i, tr := range s.Tracks {
+		bd.WriteString(fmt.Sprintf("## TRACK %v ##\n", i))
+
+		for _, ev := range tr {
+			bd.WriteString(fmt.Sprintf("#%v [%v] %s\n", i, ev.Delta, ev.Message.String()))
+		}
+	}
+
+	return bd.String()
+}
+
+// ConvertToSMF1 converts a given SMF format 0 to SMF format 1
+// channel messages are distributed over the tracks by their channels
+// e.g. channel 0 -> track 1, channel 1 -> track 2 etc.
+// and everything else stays in track 0
+func (src SMF) ConvertToSMF1() (dest SMF) {
+	if src.format == 1 {
+		return src
+	}
+
+	var channelTracks [16]TrackEvents
+	var metaTrack TrackEvents
+
+	var absTicks int64
+	for _, ev := range src.Tracks[0] {
+		absTicks += int64(ev.Delta)
+		var te TrackEvent
+		te.AbsTicks = absTicks
+		te.Message = ev.Message
+
+		var channel uint8
+		if ev.Message.GetChannel(&channel) {
+			channelTracks[int(channel)] = append(channelTracks[int(channel)], &te)
+		} else {
+			metaTrack = append(metaTrack, &te)
+		}
+	}
+
+	sort.Sort(metaTrack)
+
+	var metaTarget Track
+
+	var lastAbs int64
+
+	for _, ev := range metaTrack {
+		delta := uint32(ev.AbsTicks - lastAbs)
+		metaTarget.Add(delta, ev.Message)
+		lastAbs = ev.AbsTicks
+	}
+
+	dest.TimeFormat = src.TimeFormat
+	dest.format = 1
+
+	metaTarget.Close(0)
+	dest.Add(metaTarget)
+
+	for i := 0; i < 16; i++ {
+		evts := channelTracks[i]
+		if len(evts) > 0 {
+			var t Track
+			lastAbs = 0
+			for _, ev := range evts {
+				delta := uint32(ev.AbsTicks - lastAbs)
+				t.Add(delta, ev.Message)
+				lastAbs = ev.AbsTicks
+			}
+			t.Close(0)
+			dest.Add(t)
+		}
+	}
+
+	return dest
+}
+
 // RecordTo records from the given midi in port into the given filename with the given tempo.
 // It returns a stop function that must be called to stop the recording. The file is then completed and saved.
-func RecordTo(inport int, bpm float64, filename string) (stop func() error, err error) {
+func RecordTo(inport drivers.In, bpm float64, filename string) (stop func() error, err error) {
 	file := New()
 	_stop, _err := file.RecordFrom(inport, bpm)
 
@@ -75,7 +157,7 @@ func RecordTo(inport int, bpm float64, filename string) (stop func() error, err 
 // RecordFrom records from the given midi in port into a new track.
 // It returns a stop function that must be called to stop the recording.
 // It is up to the user to save the SMF.
-func (s *SMF) RecordFrom(inport int, bpm float64) (stop func(), err error) {
+func (s *SMF) RecordFrom(inport drivers.In, bpm float64) (stop func(), err error) {
 	ticks := s.TimeFormat.(MetricTicks)
 
 	var tr Track
@@ -155,7 +237,7 @@ func (s *SMF) WriteFile(file string) error {
 	}
 
 	//err = s.WriteTo(f)
-	err = s.WriteTo(f)
+	_, err = s.WriteTo(f)
 	f.Close()
 
 	if err != nil {
@@ -167,10 +249,10 @@ func (s *SMF) WriteFile(file string) error {
 }
 
 // WriteTo writes the SMF to the given writer
-func (s *SMF) WriteTo(f io.Writer) (err error) {
+func (s *SMF) WriteTo(f io.Writer) (size int64, err error) {
 	s.numTracks = uint16(len(s.Tracks))
 	if s.numTracks == 0 {
-		return fmt.Errorf("no track added")
+		return 0, fmt.Errorf("no track added")
 	}
 	if s.numTracks > 1 && s.format == 0 {
 		s.format = 1
@@ -189,7 +271,7 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 	wr := newWriter(s, f)
 	err = wr.WriteHeader()
 	if err != nil {
-		return fmt.Errorf("could not write header: %v", err)
+		return 0, fmt.Errorf("could not write header: %v", err)
 	}
 
 	for _, t := range s.Tracks {
@@ -209,12 +291,15 @@ func (s *SMF) WriteTo(f io.Writer) (err error) {
 		}
 	}
 
-	return
+	return wr.output.size, nil
 }
 
 // Add adds a track to the SMF and returns an error, if the track is not closed.
 func (s *SMF) Add(t Track) error {
 	s.Tracks = append(s.Tracks, t)
+	if len(s.Tracks) > 1 && s.format == 0 {
+		s.format = 1
+	}
 	if !t.IsClosed() {
 		return fmt.Errorf("error: track was not closed")
 	}

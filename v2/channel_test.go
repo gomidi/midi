@@ -148,6 +148,58 @@ func TestChannelRaw(t *testing.T) {
 
 }
 
+func TestGetChannel(t *testing.T) {
+
+	tests := []struct {
+		input    []byte
+		expected int
+	}{
+		{ // 0
+			AfterTouch(1, 120),
+			1,
+		},
+		{ // 1
+			ControlChange(8, 7, 110),
+			8,
+		},
+		{ // 2
+			NoteOn(2, 100, 80),
+			2,
+		},
+		{ // 3
+			NoteOff(3, 80),
+			3,
+		},
+		{
+			NoteOffVelocity(4, 80, 20),
+			4,
+		},
+		{
+			Pitchbend(4, 300),
+			4,
+		},
+		{
+			PolyAfterTouch(4, 86, 109),
+			4,
+		},
+		{
+			ProgramChange(4, 83),
+			4,
+		},
+	}
+
+	for i, test := range tests {
+
+		var ch uint8
+		Message(test.input).GetChannel(&ch)
+
+		if got, want := int(ch), test.expected; got != want {
+			t.Errorf("[%v] got: %v; wanted %v", i, got, want)
+		}
+	}
+
+}
+
 /*
 func TestSetChannel(t *testing.T) {
 

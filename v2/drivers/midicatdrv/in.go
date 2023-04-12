@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 
+	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 	lib "gitlab.com/gomidi/midi/v2/drivers/midicat"
 )
@@ -163,7 +164,7 @@ func newIn(driver *Driver, number int, name string) drivers.In {
 	return &in{driver: driver, number: number, name: name}
 }
 
-func (i *in) Listen(onMsg func(msg []byte, absmilliseconds int32), config drivers.ListenConfig) (stopFn func(), err error) {
+func (i *in) Listen(onMsg func(msg []byte, absmilliseconds int32), conf drivers.ListenConfig) (stopFn func(), err error) {
 	stopFn = func() {
 		if !i.IsOpen() {
 			return
@@ -192,6 +193,19 @@ func (i *in) Listen(onMsg func(msg []byte, absmilliseconds int32), config driver
 	i.listener = func(data []byte, absmilliseconds int32) {
 		//rd.EachMessage(data, deltamillisecs)
 		//rd.EachMessage(data, -1)
+		msg := midi.Message(data)
+
+		if msg.Is(midi.ActiveSenseMsg) && !conf.ActiveSense {
+			return
+		}
+
+		if msg.Is(midi.TimingClockMsg) && !conf.TimeCode {
+			return
+		}
+
+		if msg.Is(midi.SysExMsg) && !conf.SysEx {
+			return
+		}
 		onMsg(data, absmilliseconds)
 	}
 	i.Unlock()
