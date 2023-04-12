@@ -13,18 +13,22 @@ import (
 )
 
 var (
-	cfg                = config.MustNew("sysex", "0.0.1", "a tool to read and write sysex data from / to a SMF file")
-	argFile            = cfg.LastString("file", "the file that is written to / read from", config.Required)
-	argRaw             = cfg.NewBool("raw", "don't interpret the sysex data as hex string, but use the raw bytes instead", config.Shortflag('r'))
+	cfg = config.MustNew("sysex", "0.0.1", "a tool to read and write sysex data from / to a SMF file")
+
+	argFile = cfg.LastString("file", "the file that is written to / read from", config.Required)
+	argRaw  = cfg.NewBool("raw", "don't interpret the sysex data as hex string, but use the raw bytes instead", config.Shortflag('r'))
+
 	cmdWrite           = cfg.MustCommand("write", "writes sysex data to a midi file")
-	argWriteSysex      = cmdWrite.NewString("sysex", "the sysex-data to be written", config.Required, config.Shortflag('x'))
+	argWriteSysex      = cmdWrite.NewString("sysex", "the sysex data to be written", config.Required, config.Shortflag('x'))
 	argWriteTrackname  = cmdWrite.NewString("trackname", "the name of the track", config.Shortflag('n'))
 	argWriteInstrument = cmdWrite.NewString("instrument", "the name of the instrument", config.Shortflag('i'))
 	argWriteAdd        = cmdWrite.NewBool("add", "add track to existing file, instead of writing a new file", config.Shortflag('a'))
-	cmdRead            = cfg.MustCommand("read", "reads sysex data")
-	argReadVerbose     = cmdRead.NewBool("verbose", "be verbose about printing", config.Shortflag('v'))
-	argTrackRead       = cmdRead.NewInt32("track", "number of the track to read from", config.Required, config.Shortflag('t'), config.Default(int32(1)))
-	cmdExample         = cfg.MustCommand("example", "write example sysex data")
+
+	cmdRead        = cfg.MustCommand("read", "reads sysex data")
+	argReadVerbose = cmdRead.NewBool("verbose", "be verbose about printing", config.Shortflag('v'))
+	argTrackRead   = cmdRead.NewInt32("track", "number of the track to read from", config.Required, config.Shortflag('t'), config.Default(int32(1)))
+
+	cmdExample = cfg.MustCommand("example", "write example sysex data")
 )
 
 func main() {
