@@ -12,27 +12,27 @@ import (
 
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 
-	"gitlab.com/metakeule/config"
+	"gitlab.com/golang-utils/config/v2"
 )
 
-var CONFIG = config.MustNew("hyperarp", VERSION, "hyper arpeggiator")
+var CONFIG = config.New("hyperarp", VERSION, "hyper arpeggiator")
 
 var (
-	inArg                = CONFIG.NewInt32("in", "number of the input MIDI port (use hyperarp list to see the available MIDI ports)", config.Required, config.Shortflag('i'))
-	outArg               = CONFIG.NewInt32("out", "number of the output MIDI port (use hyperarp list to see the available MIDI ports)", config.Required, config.Shortflag('o'))
-	transposeArg         = CONFIG.NewInt32("transpose", "transpose (number of semitones)", config.Default(int32(0)), config.Shortflag('t'))
-	tempoArg             = CONFIG.NewFloat32("tempo", "tempo (BPM)", config.Default(float32(120.0)), config.Shortflag('b'))
-	ccDirectionSwitchArg = CONFIG.NewInt32("ccdir", "controller number for the direction switch", config.Default(int32(midi.GeneralPurposeButton1Switch)))
-	ccTimeIntervalArg    = CONFIG.NewInt32("cctiming", "controller number to set the timing interval", config.Default(int32(midi.GeneralPurposeSlider1)))
-	ccStyleArg           = CONFIG.NewInt32("ccstyle", "controller number to select the playing style (staccato, non-legato, legato)", config.Default(int32(midi.GeneralPurposeSlider2)))
+	inArg                = CONFIG.Int("in", "number of the input MIDI port (use hyperarp list to see the available MIDI ports)", config.Required(), config.Shortflag('i'))
+	outArg               = CONFIG.Int("out", "number of the output MIDI port (use hyperarp list to see the available MIDI ports)", config.Required(), config.Shortflag('o'))
+	transposeArg         = CONFIG.Int("transpose", "transpose (number of semitones)", config.Default(0), config.Shortflag('t'))
+	tempoArg             = CONFIG.Float("tempo", "tempo (BPM)", config.Default(120.0), config.Shortflag('b'))
+	ccDirectionSwitchArg = CONFIG.Int("ccdir", "controller number for the direction switch", config.Default(int(midi.GeneralPurposeButton1Switch)))
+	ccTimeIntervalArg    = CONFIG.Int("cctiming", "controller number to set the timing interval", config.Default(int(midi.GeneralPurposeSlider1)))
+	ccStyleArg           = CONFIG.Int("ccstyle", "controller number to select the playing style (staccato, non-legato, legato)", config.Default(int(midi.GeneralPurposeSlider2)))
 
-	noteDirectionSwitchArg = CONFIG.NewInt32("notedir", "note (key) for the direction switch")
-	noteTimeIntervalArg    = CONFIG.NewInt32("notetiming", "note (key) for the timing interval")
-	noteStyleArg           = CONFIG.NewInt32("notestyle", "note (key) for the playing style (staccato, non-legato, legato)")
+	noteDirectionSwitchArg = CONFIG.Int("notedir", "note (key) for the direction switch")
+	noteTimeIntervalArg    = CONFIG.Int("notetiming", "note (key) for the timing interval")
+	noteStyleArg           = CONFIG.Int("notestyle", "note (key) for the playing style (staccato, non-legato, legato)")
 
-	controlChannelArg = CONFIG.NewInt32("ctrlch", "channel for control messages (only needed if not the same as the input channel")
+	controlChannelArg = CONFIG.Int("ctrlch", "channel for control messages (only needed if not the same as the input channel")
 
-	listCmd = CONFIG.MustCommand("list", "show the available MIDI ports").Skip("in").Skip("out").Skip("transpose").Skip("tempo").Skip("ccdir").Skip("cctiming").Skip("ccstyle").Skip("notedir").Skip("notetiming").Skip("notestyle").Skip("ctrlch")
+	listCmd = CONFIG.Command("list", "show the available MIDI ports").Skip("in").Skip("out").Skip("transpose").Skip("tempo").Skip("ccdir").Skip("cctiming").Skip("ccstyle").Skip("notedir").Skip("notetiming").Skip("notestyle").Skip("ctrlch")
 )
 
 func main() {

@@ -5,26 +5,26 @@ import (
 	"fmt"
 	"os"
 
+	"gitlab.com/golang-utils/config/v2"
 	"gitlab.com/gomidi/midi/v2/smf"
-	"gitlab.com/metakeule/config"
 )
 
 var (
-	cfg = config.MustNew("smflyrics", "1.6.1",
+	cfg = config.New("smflyrics", config.Version{1, 6, 1},
 		"extracts lyrics from a SMF file, tracks are separated by an empty line")
 
 	argFile = cfg.LastString("file",
 		"the SMF file that is read in",
-		config.Required)
+		config.Required())
 
-	argTrack = cfg.NewInt32("track",
+	argTrack = cfg.Int("track",
 		"the track from which the lyrics are taken. -1 means all tracks, 0 is the first, 1 the second etc",
-		config.Shortflag('t'), config.Default(int32(-1)))
+		config.Shortflag('t'), config.Default(-1))
 
-	argIncludeText = cfg.NewBool("text",
+	argIncludeText = cfg.Bool("text",
 		"include free text entries in the SMF file. Text is surrounded by doublequotes")
 
-	argJson = cfg.NewBool("json", "output json format",
+	argJson = cfg.Bool("json", "output json format",
 		config.Shortflag('j'))
 )
 

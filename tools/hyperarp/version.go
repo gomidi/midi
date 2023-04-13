@@ -1,3 +1,7 @@
 package main
 
-const VERSION = "0.0.19"
+import (
+	"gitlab.com/golang-utils/config/v2"
+)
+
+var VERSION = config.Version{0, 0, 20}

@@ -9,17 +9,17 @@ import (
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 
+	"gitlab.com/golang-utils/config/v2"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
-	"gitlab.com/metakeule/config"
 )
 
 var (
-	cfg      = config.MustNew("midispy", "1.21.2", "spy on the MIDI data that is sent from a device to another.")
-	inArg    = cfg.NewInt32("in", "number of the input device", config.Required, config.Shortflag('i'))
-	outArg   = cfg.NewInt32("out", "number of the output device", config.Shortflag('o'))
-	noLogArg = cfg.NewBool("nolog", "don't log, just connect in and out", config.Shortflag('n'))
-	shortArg = cfg.NewBool("short", "log the short way", config.Shortflag('s'))
-	listCmd  = cfg.MustCommand("list", "list devices").Relax("in").Relax("out")
+	cfg      = config.New("midispy", config.Version{1, 21, 2}, "spy on the MIDI data that is sent from a device to another.")
+	inArg    = cfg.Int("in", "number of the input device", config.Required(), config.Shortflag('i'))
+	outArg   = cfg.Int("out", "number of the output device", config.Shortflag('o'))
+	noLogArg = cfg.Bool("nolog", "don't log, just connect in and out", config.Shortflag('n'))
+	shortArg = cfg.Bool("short", "log the short way", config.Shortflag('s'))
+	listCmd  = cfg.Command("list", "list devices").Relax("in").Relax("out")
 )
 
 func main() {
@@ -132,7 +132,7 @@ func startSpying(shouldlog bool) error {
 	return Run(inPort, outPort, recv)
 }
 
-func logger(in, out int32) func(...interface{}) {
+func logger(in, out int) func(...interface{}) {
 	if shortArg.Get() {
 		return func(v ...interface{}) {
 			fmt.Println(v...)

@@ -25,28 +25,28 @@ import (
 	"runtime"
 	"sync"
 
+	"gitlab.com/golang-utils/config/v2"
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 	lib "gitlab.com/gomidi/midi/v2/drivers/midicat"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
-	"gitlab.com/metakeule/config"
 )
 
 var (
-	cfg = config.MustNew("midicat", VERSION, "midicat transfers MIDI data between midi ports and stdin/stdout")
+	cfg = config.New("midicat", VERSION, "midicat transfers MIDI data between midi ports and stdin/stdout")
 
-	argPortNum  = cfg.NewInt32("index", "index of the midi port. Only specify either the index or the name. If neither is given, the first port is used.", config.Shortflag('i'))
-	argPortName = cfg.NewString("name", "name of the midi port. Only specify either the index or the name. If neither is given, the first port is used.")
-	argJson     = cfg.NewBool("json", "return the list in JSON format")
+	argPortNum  = cfg.Int("index", "index of the midi port. Only specify either the index or the name. If neither is given, the first port is used.", config.Shortflag('i'))
+	argPortName = cfg.String("name", "name of the midi port. Only specify either the index or the name. If neither is given, the first port is used.")
+	argJson     = cfg.Bool("json", "return the list in JSON format")
 
-	cmdIn  = cfg.MustCommand("in", "read midi from an in port and print it to stdout").Skip("json")
-	cmdOut = cfg.MustCommand("out", "read midi from stdin and print it to an out port").Skip("json")
+	cmdIn  = cfg.Command("in", "read midi from an in port and print it to stdout").Skip("json")
+	cmdOut = cfg.Command("out", "read midi from stdin and print it to an out port").Skip("json")
 
-	cmdIns  = cfg.MustCommand("ins", "show the available midi in ports").SkipAllBut("json")
-	cmdOuts = cfg.MustCommand("outs", "show the available midi out ports").SkipAllBut("json")
+	cmdIns  = cfg.Command("ins", "show the available midi in ports").SkipAllBut("json")
+	cmdOuts = cfg.Command("outs", "show the available midi out ports").SkipAllBut("json")
 
-	cmdLog      = cfg.MustCommand("log", "pass the midi from stdin to stdout while logging it to stderr").SkipAllBut()
-	argLogNoOut = cmdLog.NewBool("nopass", "don't pass the midi to stdout")
+	cmdLog      = cfg.Command("log", "pass the midi from stdin to stdout while logging it to stderr").SkipAllBut()
+	argLogNoOut = cmdLog.Bool("nopass", "don't pass the midi to stdout")
 
 	shouldStop = make(chan bool, 1)
 	didStop    = make(chan bool, 1)
