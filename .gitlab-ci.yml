@@ -112,7 +112,7 @@ build-midicat-linux:
     - apt-get update
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
-    - GOBIN=`pwd` go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - GOBIN='.' go install gitlab.com/gomidi/midi/tools/midicat@latest
     - ls -al
     - mv midicat $CI_PROJECT_DIR
   artifacts:
