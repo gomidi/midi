@@ -138,8 +138,9 @@ build-midicat-windows:
     - apt-get update
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
+    - apt-get install -y gcc
     - cd tools/midicat
-    - GOOS=windows GOARCH=amd64 go build -o ../../midicat.exe .
+    - GOOS=windows GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -o ../../midicat.exe .
     - cd ../..
     - mkdir midicat-win64
     - ls -al
