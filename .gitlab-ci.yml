@@ -105,6 +105,16 @@ WindowsJob:
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
+WindowsDrivers:
+  stage: test
+  tags:
+    - windows
+    - cgo
+  script:
+#    - go.exe test ./...
+    - cd v2
+    - go.exe test $(go list ./... | findstr /v "drivers")
+
 # no free runners
 #OSXJob:
 #  stage: test
