@@ -43,6 +43,7 @@ format:
 
 stages:
   - build
+
 #  - test
   
 test-project:
