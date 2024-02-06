@@ -113,16 +113,15 @@ WindowsJob:
 
 build-midicat-linux:
   stage: build
-  when: manual
   script:
     - go env
     - apt-get update
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
-    - pwd
-    - export GOBIN=`pwd`
-    - set
-    - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - apt-get install -y gcc
+    - cd tools/midicat
+    - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -x -o ../../midicat .
+    - cd ../..
     - mkdir midicat-linux64
     - ls -al
     - mv midicat midicat-linux64/
@@ -143,7 +142,7 @@ build-midicat-windows:
     - apt-get install -y g++-mingw-w64-x86-64
     - ls /usr/bin/x86_64-*
     - cd tools/midicat
-    - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -o ../../midicat.exe .
+    - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -x -o ../../midicat.exe .
     - cd ../..
     - mkdir midicat-win64
     - ls -al
@@ -151,7 +150,7 @@ build-midicat-windows:
     - ls -al midicat-win64
   artifacts:
     paths:
-      - midicat-linux64/
+      - midicat-win64/
 
 # no free runners
 #OSXJob:
