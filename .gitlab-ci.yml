@@ -9,6 +9,20 @@ before_script:
   - echo $CI_PROJECT_DIR
   - echo $GOPATH
 
+mingo:
+  image: golang:1.19
+  stage: test
+  script:
+    - cd v2
+    - apt-get update
+    - apt-get install -y libasound2-dev
+    - apt-get install -y libportmidi-dev
+    - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - go env
+    - go fmt $(go list ./... | grep -v /vendor/)
+    - go vet $(go list ./... | grep -v /vendor/)
+    - go test $(go list ./... | grep -v /vendor/)
+
 format:
   stage: test
   script:
@@ -90,6 +104,15 @@ WindowsJob:
 #    - go.exe test ./...
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
+
+WindowsWithDrivers:
+  stage: test
+  tags:
+    - windows
+  script:
+#    - go.exe test ./...
+    - cd v2
+    - go.exe test $(go list ./... | findstr /v "portmididrv")
 
 # no free runners
 #OSXJob:
