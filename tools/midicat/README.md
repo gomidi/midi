@@ -1,6 +1,6 @@
 # midicat
 
-Download the binaries for Linux and Windows [here](https://gitlab.com/gomidi/midi/uploads/b981d970a372596674ff5ee261e484ff/midicat_0-6.zip).
+Download the binaries (for Windows) [here](https://gitlab.com/gomidi/midi/-/releases/v2.1.1).
 
 Or install them via 
 

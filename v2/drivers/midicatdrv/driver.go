@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -56,8 +57,8 @@ func (d *Driver) Close() (err error) {
 
 // const midicatVersion = "0.3.6"
 // const midicatVersion = "0.4.0"
-const midicatVersion = "0.6.1"
-const midicatDownloadURL = "https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip"
+const midicatVersion = "0.6.3"
+const midicatDownloadURL = "https://gitlab.com/gomidi/midi/-/releases/v2.1.1 midicat binaries (v0.6.3)"
 
 func barkTo(wr io.Writer) {
 	fmt.Fprintf(wr, "can't find midicat binary version >= %s in your PATH, please download from: %s\n", midicatVersion, midicatDownloadURL)
@@ -127,12 +128,14 @@ func checkMIDICAT() bool {
 	b, err := midiCatVersionCmd().Output()
 
 	if err != nil {
+		barkTo(os.Stdout)
 		panic("missing binary 'midicat'")
 	}
 
 	s := string(b)
 
 	if s != midicatVersion {
+		barkTo(os.Stdout)
 		panic(fmt.Sprintf("%q", s))
 	}
 	return true
