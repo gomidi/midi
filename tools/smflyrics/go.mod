@@ -1,6 +1,6 @@
 module gitlab.com/gomidi/midi/tools/smflyrics
 
-go 1.18
+go 1.19
 
 require (
 	gitlab.com/golang-utils/config/v2 v2.2.7

@@ -31,7 +31,7 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 For "cable" communication you need a `Driver`to connect with the MIDI system of your OS.
 Currently the following drivers available in the drivers subdirectory (all multi-platform):
 - rtmididrv based on rtmidi (requires CGO)
-- portmididrv based on portmidi (requires CGO)
+- portmididrv based on portmidi (requires CGO and portmidi installed)
 - webmididrv based on the Web MIDI standard (produces webassembly)
 - midicatdrv based on the midicat binaries via piping (stdin / stdout) (no CGO needed)
 - testdrv for testing (no CGO needed)
