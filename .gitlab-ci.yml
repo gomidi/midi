@@ -105,15 +105,6 @@ WindowsJob:
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
-WindowsWithDrivers:
-  stage: test
-  tags:
-    - windows
-  script:
-#    - go.exe test ./...
-    - cd v2
-    - go.exe test $(go list ./... | findstr /v "portmididrv")
-
 # no free runners
 #OSXJob:
 #  stage: test
