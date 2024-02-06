@@ -140,6 +140,7 @@ build-midicat-windows:
     - apt-get install -y libportmidi-dev
     - apt-get install -y gcc
     - apt-get install -y gcc-mingw-w64
+    - apt-get install -y g++-mingw-w64-x86-64
     - ls /usr/bin/x86_64-*
     - cd tools/midicat
     - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CGO_ENABLED='1' go build -o ../../midicat.exe .
