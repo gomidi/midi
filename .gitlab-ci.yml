@@ -105,6 +105,16 @@ WindowsJob:
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
+build-midicat-linux:
+  stage: build
+  script:
+    - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - mv midicat $CI_PROJECT_DIR
+  artifacts:
+    paths:
+      - artifacts/
+
+
 # no free runners
 #OSXJob:
 #  stage: test
