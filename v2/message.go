@@ -52,6 +52,10 @@ func (m Message) GetNoteOn(channel, key, velocity *uint8) (is bool) {
 		return false
 	}
 
+	if len(m) != 3 {
+		return false
+	}
+
 	if channel != nil {
 		_, *channel = utils.ParseStatus(m[0])
 	}
@@ -95,6 +99,10 @@ func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
 		return false
 	}
 
+	if len(m) != 3 {
+		return false
+	}
+
 	if channel != nil {
 		_, *channel = utils.ParseStatus(m[0])
 	}
@@ -119,6 +127,10 @@ func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetChannel(channel *uint8) (is bool) {
 	if !m.Is(ChannelMsg) {
+		return false
+	}
+
+	if len(m) < 1 {
 		return false
 	}
 
@@ -172,6 +184,10 @@ func (m Message) GetPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 		return false
 	}
 
+	if len(m) != 3 {
+		return false
+	}
+
 	if channel != nil {
 		_, *channel = utils.ParseStatus(m[0])
 	}
@@ -198,6 +214,10 @@ func (m Message) GetAfterTouch(channel, pressure *uint8) (is bool) {
 		return false
 	}
 
+	if len(m) != 2 {
+		return false
+	}
+
 	if channel != nil {
 		_, *channel = utils.ParseStatus(m[0])
 	}
@@ -213,6 +233,10 @@ func (m Message) GetAfterTouch(channel, pressure *uint8) (is bool) {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetProgramChange(channel, program *uint8) (is bool) {
 	if !m.Is(ProgramChangeMsg) {
+		return false
+	}
+
+	if len(m) != 2 {
 		return false
 	}
 
@@ -235,6 +259,10 @@ func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16)
 		return false
 	}
 
+	if len(m) != 3 {
+		return false
+	}
+
 	if channel != nil {
 		_, *channel = utils.ParseStatus(m[0])
 	}
@@ -254,6 +282,10 @@ func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16)
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetControlChange(channel, controller, value *uint8) (is bool) {
 	if !m.Is(ControlChangeMsg) {
+		return false
+	}
+
+	if len(m) != 3 {
 		return false
 	}
 
@@ -309,6 +341,10 @@ func (m Message) GetMTC(quarterframe *uint8) (is bool) {
 		return false
 	}
 
+	if len(m) != 2 {
+		return false
+	}
+
 	if quarterframe != nil {
 		*quarterframe = utils.ParseUint7(m[1])
 	}
@@ -324,6 +360,10 @@ func (m Message) GetSongSelect(song *uint8) (is bool) {
 		return false
 	}
 
+	if len(m) != 2 {
+		return false
+	}
+
 	if song != nil {
 		*song = utils.ParseUint7(m[1])
 	}
@@ -336,6 +376,10 @@ func (m Message) GetSongSelect(song *uint8) (is bool) {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetSPP(spp *uint16) (is bool) {
 	if !m.Is(SPPMsg) {
+		return false
+	}
+
+	if len(m) != 3 {
 		return false
 	}
 

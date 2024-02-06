@@ -46,6 +46,9 @@ func getType(msg []byte) midi.Type {
 		return midi.UnknownMsg
 	}
 	if Message(msg).IsMeta() {
+		if len(msg) == 1 {
+			return midi.UnknownMsg
+		}
 		return getMetaType(msg[1])
 	} else {
 		return midi.Message(msg).Type()
@@ -228,6 +231,10 @@ func (m Message) GetMetaChannel(channel *uint8) bool {
 		return false
 	}
 
+	if len(m) != 4 {
+		return false
+	}
+
 	if channel != nil {
 		data := m.metaDataWithoutVarlength()
 		*channel = data[0]
@@ -241,6 +248,10 @@ func (m Message) GetMetaChannel(channel *uint8) bool {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaPort(port *uint8) bool {
 	if !m.Is(MetaPortMsg) {
+		return false
+	}
+
+	if len(m) != 4 {
 		return false
 	}
 
@@ -258,6 +269,10 @@ func (m Message) GetMetaPort(port *uint8) bool {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaSeqNumber(sequenceNumber *uint16) bool {
 	if !m.Is(MetaSeqNumberMsg) {
+		return false
+	}
+
+	if len(m) != 2 && len(m) < 5 {
 		return false
 	}
 
@@ -280,6 +295,10 @@ func (m Message) GetMetaSeqNumber(sequenceNumber *uint16) bool {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaSeqData(bt *[]byte) bool {
 	if !m.Is(MetaSeqDataMsg) {
+		return false
+	}
+
+	if len(m) < 4 {
 		return false
 	}
 
@@ -308,6 +327,10 @@ func (m Message) GetMetaKey(key *Key) bool {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaKeySig(key, num *uint8, isMajor *bool, isFlat *bool) bool {
 	if !m.Is(MetaKeySigMsg) {
+		return false
+	}
+
+	if len(m) != 5 {
 		return false
 	}
 
@@ -356,6 +379,12 @@ func (m Message) GetMetaSMPTEOffsetMsg(hour, minute, second, frame, fractframe *
 		return false
 	}
 
+	if len(m) != 8 {
+		//err = unexpectedMessageLengthError("KeySignature expected length 2")
+		//return nil, err
+		return false
+	}
+
 	data := m.metaDataWithoutVarlength()
 
 	if len(data) != 5 {
@@ -396,6 +425,10 @@ func (m Message) GetMetaTimeSig(numerator, denominator, clocksPerClick, demiSemi
 		return false
 	}
 
+	if len(m) != 7 {
+		return false
+	}
+
 	data := m.metaDataWithoutVarlength()
 
 	if len(data) != 4 {
@@ -433,6 +466,10 @@ func (m Message) GetMetaTempo(bpm *float64) (is bool) {
 		return false
 	}
 
+	if len(m) < 4 {
+		return false
+	}
+
 	if bpm != nil {
 		//fmt.Printf("tempo pure bytes: % X\n", m.metaDataWithoutVarlength())
 		rd := bytes.NewReader(m.metaDataWithoutVarlength())
@@ -455,6 +492,10 @@ func (m Message) GetMetaLyric(text *string) (is bool) {
 		return false
 	}
 
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
@@ -467,6 +508,10 @@ func (m Message) GetMetaLyric(text *string) (is bool) {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaCopyright(text *string) (is bool) {
 	if !m.Is(MetaCopyrightMsg) {
+		return false
+	}
+
+	if len(m) < 3 {
 		return false
 	}
 
@@ -483,6 +528,11 @@ func (m Message) GetMetaCuepoint(text *string) (is bool) {
 	if !m.Is(MetaCuepointMsg) {
 		return false
 	}
+
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
@@ -496,6 +546,11 @@ func (m Message) GetMetaDevice(text *string) (is bool) {
 	if !m.Is(MetaDeviceMsg) {
 		return false
 	}
+
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
@@ -507,6 +562,10 @@ func (m Message) GetMetaDevice(text *string) (is bool) {
 // Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaInstrument(text *string) (is bool) {
 	if !m.Is(MetaInstrumentMsg) {
+		return false
+	}
+
+	if len(m) < 3 {
 		return false
 	}
 
@@ -523,6 +582,11 @@ func (m Message) GetMetaMarker(text *string) (is bool) {
 	if !m.Is(MetaMarkerMsg) {
 		return false
 	}
+
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
@@ -536,6 +600,11 @@ func (m Message) GetMetaProgramName(text *string) (is bool) {
 	if !m.Is(MetaProgramNameMsg) {
 		return false
 	}
+
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
@@ -549,6 +618,11 @@ func (m Message) GetMetaText(text *string) (is bool) {
 	if !m.Is(MetaTextMsg) {
 		return false
 	}
+
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
@@ -562,6 +636,11 @@ func (m Message) GetMetaTrackName(text *string) (is bool) {
 	if !m.Is(MetaTrackNameMsg) {
 		return false
 	}
+
+	if len(m) < 3 {
+		return false
+	}
+
 	if text != nil {
 		m.text(text)
 	}
