@@ -108,10 +108,11 @@ WindowsJob:
 build-midicat-linux:
   stage: build
   script:
+    - go env
     - apt-get update
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
-    - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - GOBIN='.' && go install gitlab.com/gomidi/midi/tools/midicat@latest
     - mv midicat $CI_PROJECT_DIR
     - ls -al
   artifacts:
