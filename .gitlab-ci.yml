@@ -123,11 +123,14 @@ build-midicat:
     - apt-get install -y g++-mingw-w64-x86-64
     - ls /usr/bin/x86_64-*
     - mkdir midicat
-    - mkdir midicat/linux64
-    - mkdir midicat/win64
+    - mkdir midicat/linux-amd64
+    - mkdir midicat/win-amd64
+    - mkdir midicat/mac-amd64
     - cd tools/midicat
-    - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -x -o ../../midicat/linux64/midicat .
-    - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -x -o ../../midicat/win64/midicat.exe .
+    - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -x -o ../../midicat/linux-amd64/midicat .
+    - GOOS=darwin GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -x -o ../../midicat/mac-amd64/midicat .
+    - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -x -o ../../midicat/win-amd64/midicat.exe .
+
   artifacts:
     paths:
       - midicat/
