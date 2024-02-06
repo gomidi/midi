@@ -11,6 +11,18 @@ import (
 	"gitlab.com/gomidi/midi/v2/drivers"
 )
 
+type writerLogger struct {
+	wr io.Writer
+}
+
+func (wl *writerLogger) Printf(format string, vals ...interface{}) {
+	fmt.Fprintf(wl.wr, format, vals...)
+}
+
+func LogTo(wr io.Writer) Logger {
+	return &writerLogger{wr}
+}
+
 // New returns a SMF file of format type 0 (single track), that becomes type 1 (multi track), if you add tracks
 func New() *SMF {
 	return newSMF(0)
@@ -294,14 +306,28 @@ func (s *SMF) WriteTo(f io.Writer) (size int64, err error) {
 	return wr.output.size, nil
 }
 
+func (s *SMF) log(format string, vals ...interface{}) {
+	if s.Logger != nil {
+		s.Logger.Printf(format+"\n", vals...)
+	}
+}
+
 // Add adds a track to the SMF and returns an error, if the track is not closed.
 func (s *SMF) Add(t Track) error {
+	if s.Logger != nil {
+		s.log("add track %v", len(s.Tracks)+1)
+
+		for _, ev := range t {
+			s.log("delta: %v message: %s", ev.Delta, ev.Message)
+		}
+	}
 	s.Tracks = append(s.Tracks, t)
 	if len(s.Tracks) > 1 && s.format == 0 {
 		s.format = 1
 	}
 	if !t.IsClosed() {
-		return fmt.Errorf("error: track was not closed")
+		s.log("error: track %v was not closed", len(s.Tracks))
+		return fmt.Errorf("error: track %v was not closed", len(s.Tracks))
 	}
 	return nil
 }

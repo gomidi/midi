@@ -277,7 +277,7 @@ func (si *smfimport) addEvents() {
 				// ignore
 			case ev.Message.GetMetaTempo(&bpm):
 				// should not happen, since the tempochanges should all be sorted out to sm.TempoChanges()
-				panic("should not happen")
+				//panic("should not happen")
 			default:
 				// ignore
 			}

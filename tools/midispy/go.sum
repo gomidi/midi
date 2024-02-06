@@ -4,10 +4,16 @@ github.com/emersion/go-appdir v1.1.2/go.mod h1:N15s1uA0vhxhVomEsNau6w15OdELRpp0a
 github.com/pelletier/go-toml v1.8.1/go.mod h1:T2/BmBdy8dvIRq1a/8aqjN41wvWlN4lrapLU/GW4pbc=
 github.com/pelletier/go-toml v1.9.1 h1:a6qW1EVNZWH9WGI6CsYdD8WAylkoXBS5yv0XHlh17Tc=
 github.com/pelletier/go-toml v1.9.1/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
+github.com/zs5460/art v0.2.0 h1:LErevbtLLt19PP+8xxeQgwT9lQkCOlXu4JC4d0iHNP0=
+github.com/zs5460/art v0.2.0/go.mod h1:rSm0CidXKfYg8Il0bFFBd5y8bnsEfteZd8VWI2u6CoQ=
 gitlab.com/golang-utils/config/v2 v2.0.3 h1:7/WYFSRLKKakFDeLuYHxchePD4H/AnQDCeDRdTBmekQ=
 gitlab.com/golang-utils/config/v2 v2.0.3/go.mod h1:+PrPixZIOCO1NotmztJgHILpsYT3q2OYERZPgMG8Qy8=
+gitlab.com/golang-utils/config/v2 v2.2.7 h1:ztA97oiHcpGC02tRrreKjMzfD6QtSddgEiaYlDi/JLM=
+gitlab.com/golang-utils/config/v2 v2.2.7/go.mod h1:N2IXkCs4y5cuLYD0ND8cMXijhzV9jzWX/CE1BqGex30=
 gitlab.com/golang-utils/fmtdate v1.0.0 h1:7rr9iFnpyw9lmyKqVvcYnwVNre9HAzd852KfEE73xVU=
 gitlab.com/golang-utils/fmtdate v1.0.0/go.mod h1:m2dG0UJPcES/+hFET++A9G7DrGKSia/M4Q/YfXqSYUM=
+gitlab.com/golang-utils/scaffold v1.7.2 h1:V4puB1ESX6mmUkseFPAOvUAU9v7VqqHDQc9aCHFUazc=
+gitlab.com/golang-utils/scaffold v1.7.2/go.mod h1:iU4dY6wR8MHzc5bQl59msKaO8c6eujioGRxNhni97CI=
 gitlab.com/golang-utils/version v1.0.1 h1:gjIGHnnBjkb+zpnAm0CdzNcSkUr2UC+kNKa3DylKbjs=
 gitlab.com/golang-utils/version v1.0.1/go.mod h1:6ogVlvvD9lN0lByxjfnnsa66aFbtuv/37eBMGIAE+XQ=
 gitlab.com/gomidi/midi/v2 v2.0.20 h1:oFjdzzoLFaUaFEQOe7abNMVlScs0NXCUSzIUQKQ6jPA=

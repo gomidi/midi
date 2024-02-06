@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package midicatdrv
@@ -14,7 +15,7 @@ func execCommand(c string) *exec.Cmd {
 	//return exec.Command("powershell.exe", "/Command",  `$Process = [Diagnostics.Process]::Start("` + c + `") ; echo $Process.Id `)
 	//return exec.Command("powershell.exe", "/Command", `$Process = [Diagnostics.Process]::Start("fluidsynth.exe", "-i -q -n $_file") ; echo $Process.Id `)
 	fmt.Println(c)
-	return exec.Command("cmd.exe", "/C", c)
+	return exec.Command("lib.exe", "/C", c)
 }
 */
 
@@ -28,7 +29,7 @@ func midiCatOutCmd(index int) *exec.Cmd {
 }
 
 func midiCatVersionCmd() *exec.Cmd {
-	return exec.Command("midicat.exe", "--version")
+	return exec.Command("midicat.exe", "version", "-s")
 }
 
 func midiCatInCmd(index int) *exec.Cmd {

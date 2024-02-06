@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	cfg = config.New("sysex", config.Version{0, 0, 2}, "a tool to read and write sysex data from / to a SMF file")
+	cfg = config.New("smfsysex", 0, 0, 2, "a tool to read and write sysex data from / to a SMF file",
+		config.AsciiArt("smfsysex"))
 
 	argFile = cfg.LastString("file", "the file that is written to / read from", config.Required())
 	argRaw  = cfg.Bool("raw", "don't interpret the sysex data as hex string, but use the raw bytes instead", config.Shortflag('r'))

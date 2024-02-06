@@ -15,7 +15,7 @@ import (
 	"gitlab.com/golang-utils/config/v2"
 )
 
-var CONFIG = config.New("hyperarp", VERSION, "hyper arpeggiator")
+var CONFIG = config.New("hyperarp", VERSION.Major, VERSION.Minor, VERSION.Patch, "hyper arpeggiator", config.AsciiArt("hyperarp"))
 
 var (
 	inArg                = CONFIG.Int("in", "number of the input MIDI port (use hyperarp list to see the available MIDI ports)", config.Required(), config.Shortflag('i'))

@@ -264,12 +264,10 @@ func MetaTrackSequenceName(text string) Message {
 	return _MetaMessage(byteTrackSequenceName, []byte(text))
 }
 
-/*
 // MetaUndefined returns an undefined meta message.
 func MetaUndefined(typ byte, data []byte) Message {
 	return _MetaMessage(typ, data)
 }
-*/
 
 const (
 	degreeC  = 0

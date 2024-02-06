@@ -54,9 +54,9 @@ func (d *Driver) Close() (err error) {
 	return e
 }
 
-//const midicatVersion = "0.3.6"
-//const midicatVersion = "0.4.0"
-const midicatVersion = "midicat version 0.6.0\n"
+// const midicatVersion = "0.3.6"
+// const midicatVersion = "0.4.0"
+const midicatVersion = "0.6.1"
 const midicatDownloadURL = "https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip"
 
 func barkTo(wr io.Writer) {

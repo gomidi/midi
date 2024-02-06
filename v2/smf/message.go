@@ -69,54 +69,63 @@ func (m Message) IsOneOf(checkers ...midi.Type) bool {
 
 // GetSysEx returns true, if the message is a sysex message.
 // Then it extracts the inner bytes to the given slice.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetSysEx(bt *[]byte) bool {
 	return midi.Message(m).GetSysEx(bt)
 }
 
 // GetNoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteOn(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).GetNoteOn(channel, key, velocity)
 }
 
 // GetNoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteStart(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).GetNoteStart(channel, key, velocity)
 }
 
 // GetNoteOff returns true if (and only if) the message is a NoteOffMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
 	return midi.Message(m).GetNoteOff(channel, key, velocity)
 }
 
 // GetChannel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetChannel(channel *uint8) (is bool) {
 	return midi.Message(m).GetChannel(channel)
 }
 
 // GetNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteEnd(channel, key *uint8) (is bool) {
 	return midi.Message(m).GetNoteEnd(channel, key)
 }
 
 // GetPolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	return midi.Message(m).GetPolyAfterTouch(channel, key, pressure)
 }
 
 // GetAfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetAfterTouch(channel, pressure *uint8) (is bool) {
 	return midi.Message(m).GetAfterTouch(channel, pressure)
 }
 
 // GetProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetProgramChange(channel, program *uint8) (is bool) {
 	return midi.Message(m).GetProgramChange(channel, program)
 }
@@ -124,12 +133,14 @@ func (m Message) GetProgramChange(channel, program *uint8) (is bool) {
 // GetPitchBend returns true if (and only if) the message is a PitchBendMsg.
 // Then it also extracts the data to the given arguments
 // Either relative or absolute may be nil, if not needed.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
 	return midi.Message(m).GetPitchBend(channel, relative, absolute)
 }
 
 // GetControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetControlChange(channel, controller, value *uint8) (is bool) {
 	return midi.Message(m).GetControlChange(channel, controller, value)
 }
@@ -198,6 +209,7 @@ func _MetaMessage(typ byte, data []byte) Message {
 }
 
 // GetMetaMeter is a handier wrapper around GetMetaTimeSig.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaMeter(num, denom *uint8) (is bool) {
 	return m.GetMetaTimeSig(num, denom, nil, nil)
 }
@@ -210,44 +222,54 @@ func (m Message) metaDataWithoutVarlength() []byte {
 
 // GetMetaChannel return true, if (and only if) the message is a MetaChannelMsg.
 // Then it also extracts the channel to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaChannel(channel *uint8) bool {
 	if !m.Is(MetaChannelMsg) {
 		return false
 	}
 
-	data := m.metaDataWithoutVarlength()
+	if channel != nil {
+		data := m.metaDataWithoutVarlength()
+		*channel = data[0]
+	}
 
-	*channel = data[0]
 	return true
 }
 
 // GetMetaPort return true, if (and only if) the message is a MetaPortMsg.
 // Then it also extracts the port to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaPort(port *uint8) bool {
 	if !m.Is(MetaPortMsg) {
 		return false
 	}
 
-	data := m.metaDataWithoutVarlength()
+	if port != nil {
+		data := m.metaDataWithoutVarlength()
 
-	*port = data[0]
+		*port = data[0]
+	}
+
 	return true
 }
 
 // GetMetaSeqNumber return true, if (and only if) the message is a MetaSeqNumberMsg.
 // Then it also extracts the sequenceNumber to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaSeqNumber(sequenceNumber *uint16) bool {
 	if !m.Is(MetaSeqNumberMsg) {
 		return false
 	}
 
-	// Zero length sequences allowed according to http://home.roadrunner.com/~jgglatt/tech/midifile/seq.htm
-	if len(m) == 2 {
-		*sequenceNumber = 0
-		return true
+	if sequenceNumber != nil {
+		// Zero length sequences allowed according to http://home.roadrunner.com/~jgglatt/tech/midifile/seq.htm
+		if len(m) == 2 {
+			*sequenceNumber = 0
+			return true
+		}
+		//fmt.Printf("% X\n", []byte{m[3], m[4]})
+		*sequenceNumber = utils.ParseUint16(m[3], m[4])
 	}
-	//fmt.Printf("% X\n", []byte{m[3], m[4]})
-	*sequenceNumber = utils.ParseUint16(m[3], m[4])
 
 	return true
 
@@ -255,21 +277,27 @@ func (m Message) GetMetaSeqNumber(sequenceNumber *uint16) bool {
 
 // GetMetaSeqData return true, if (and only if) the message is a MetaSeqDataMsg.
 // Then it also extracts the data to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaSeqData(bt *[]byte) bool {
 	if !m.Is(MetaSeqDataMsg) {
 		return false
 	}
 
-	data := m.metaDataWithoutVarlength()
-	*bt = data
+	if bt != nil {
+		data := m.metaDataWithoutVarlength()
+		*bt = data
+	}
 	return true
 }
 
 // GetMetaKey is a handier wrapper around GetMetaKeySig. It returns nil if the message is no MetaKeySigMsg.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaKey(key *Key) bool {
 	var k Key
 	if m.GetMetaKeySig(&k.Key, &k.Num, &k.IsMajor, &k.IsFlat) {
-		*key = k
+		if key != nil {
+			*key = k
+		}
 		return true
 	}
 	return false
@@ -277,6 +305,7 @@ func (m Message) GetMetaKey(key *Key) bool {
 
 // GetMetaKeySig return true, if (and only if) the message is a MetaKeySigMsg.
 // Then it also extracts the data to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaKeySig(key, num *uint8, isMajor *bool, isFlat *bool) bool {
 	if !m.Is(MetaKeySigMsg) {
 		return false
@@ -300,16 +329,28 @@ func (m Message) GetMetaKeySig(key, num *uint8, isMajor *bool, isFlat *bool) boo
 		_num = _num * (-1)
 	}
 
-	*key = utils.KeyFromSharpsOrFlats(sharpsOrFlats, mode)
-	*num = uint8(_num)
-	*isMajor = mode == majorMode
-	*isFlat = sharpsOrFlats < 0
+	if key != nil {
+		*key = utils.KeyFromSharpsOrFlats(sharpsOrFlats, mode)
+	}
+
+	if num != nil {
+		*num = uint8(_num)
+	}
+
+	if isMajor != nil {
+		*isMajor = mode == majorMode
+	}
+
+	if isFlat != nil {
+		*isFlat = sharpsOrFlats < 0
+	}
 
 	return true
 }
 
 // GetMetaSMPTEOffsetMsg return true, if (and only if) the message is a MetaSMPTEOffsetMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaSMPTEOffsetMsg(hour, minute, second, frame, fractframe *uint8) bool {
 	if !m.Is(MetaSMPTEOffsetMsg) {
 		return false
@@ -323,17 +364,32 @@ func (m Message) GetMetaSMPTEOffsetMsg(hour, minute, second, frame, fractframe *
 		return false
 	}
 
-	*hour = data[0]
-	*minute = data[1]
-	*second = data[2]
-	*frame = data[3]
-	*fractframe = data[4]
+	if hour != nil {
+		*hour = data[0]
+	}
+
+	if minute != nil {
+		*minute = data[1]
+	}
+
+	if second != nil {
+		*second = data[2]
+	}
+
+	if frame != nil {
+		*frame = data[3]
+	}
+
+	if fractframe != nil {
+		*fractframe = data[4]
+	}
 
 	return true
 }
 
 // GetMetaTimeSig return true, if (and only if) the message is a MetaTimeSigMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaTimeSig(numerator, denominator, clocksPerClick, demiSemiQuaverPerQuarter *uint8) (is bool) {
 	if !m.Is(MetaTimeSigMsg) {
 		//fmt.Println("not timesig message")
@@ -350,128 +406,172 @@ func (m Message) GetMetaTimeSig(numerator, denominator, clocksPerClick, demiSemi
 
 	//fmt.Printf("TimeSigData: % X\n", data)
 
-	*numerator = data[0]
-	*denominator = data[1]
+	if numerator != nil {
+		*numerator = data[0]
+	}
+
 	if clocksPerClick != nil {
 		*clocksPerClick = data[2]
 	}
+
 	if demiSemiQuaverPerQuarter != nil {
 		*demiSemiQuaverPerQuarter = data[3]
 	}
-	*denominator = bin2decDenom(*denominator)
+
+	if denominator != nil {
+		*denominator = bin2decDenom(data[1])
+	}
+
 	return true
 }
 
 // GetMetaTempo return true, if (and only if) the message is a MetaTempoMsg.
 // Then it also extracts the BPM to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaTempo(bpm *float64) (is bool) {
 	if !m.Is(MetaTempoMsg) {
 		return false
 	}
 
-	//fmt.Printf("tempo pure bytes: % X\n", m.metaDataWithoutVarlength())
-	rd := bytes.NewReader(m.metaDataWithoutVarlength())
-	microsecondsPerCrotchet, err := utils.ReadUint24(rd)
-	if err != nil {
-		return false
-	}
+	if bpm != nil {
+		//fmt.Printf("tempo pure bytes: % X\n", m.metaDataWithoutVarlength())
+		rd := bytes.NewReader(m.metaDataWithoutVarlength())
+		microsecondsPerCrotchet, err := utils.ReadUint24(rd)
+		if err != nil {
+			return false
+		}
 
-	*bpm = float64(60000000) / float64(microsecondsPerCrotchet)
+		*bpm = float64(60000000) / float64(microsecondsPerCrotchet)
+	}
 
 	return true
 }
 
 // GetMetaLyric return true, if (and only if) the message is a MetaLyricMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaLyric(text *string) (is bool) {
 	if !m.Is(MetaLyricMsg) {
 		return false
 	}
-	m.text(text)
+
+	if text != nil {
+		m.text(text)
+	}
+
 	return true
 }
 
 // GetMetaCopyright return true, if (and only if) the message is a MetaCopyrightMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaCopyright(text *string) (is bool) {
 	if !m.Is(MetaCopyrightMsg) {
 		return false
 	}
-	m.text(text)
+
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaCuepoint return true, if (and only if) the message is a MetaCuepointMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaCuepoint(text *string) (is bool) {
 	if !m.Is(MetaCuepointMsg) {
 		return false
 	}
-	m.text(text)
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaDevice return true, if (and only if) the message is a MetaDeviceMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaDevice(text *string) (is bool) {
 	if !m.Is(MetaDeviceMsg) {
 		return false
 	}
-	m.text(text)
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaInstrument return true, if (and only if) the message is a MetaInstrumentMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaInstrument(text *string) (is bool) {
 	if !m.Is(MetaInstrumentMsg) {
 		return false
 	}
-	m.text(text)
+
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaMarker return true, if (and only if) the message is a MetaMarkerMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaMarker(text *string) (is bool) {
 	if !m.Is(MetaMarkerMsg) {
 		return false
 	}
-	m.text(text)
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaProgramName return true, if (and only if) the message is a MetaProgramNameMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaProgramName(text *string) (is bool) {
 	if !m.Is(MetaProgramNameMsg) {
 		return false
 	}
-	m.text(text)
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaText return true, if (and only if) the message is a MetaTextMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaText(text *string) (is bool) {
 	if !m.Is(MetaTextMsg) {
 		return false
 	}
-	m.text(text)
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
 // GetMetaTrackName return true, if (and only if) the message is a MetaTrackNameMsg.
 // Then it also extracts the text to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMetaTrackName(text *string) (is bool) {
 	if !m.Is(MetaTrackNameMsg) {
 		return false
 	}
-	m.text(text)
+	if text != nil {
+		m.text(text)
+	}
 	return true
 }
 
+// Only arguments that are not nil are parsed and filled.
 func (m Message) text(text *string) {
-	*text, _ = utils.ReadText(bytes.NewReader(m[2:]))
+	if text != nil {
+		*text, _ = utils.ReadText(bytes.NewReader(m[2:]))
+	}
 	return
 }

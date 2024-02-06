@@ -8,7 +8,8 @@ import (
 	"gitlab.com/gomidi/midi/v2/gm"
 	"gitlab.com/gomidi/midi/v2/smf"
 
-	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
+	//_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 )
 
 func main() {

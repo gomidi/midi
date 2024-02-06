@@ -46,117 +46,198 @@ func (m Message) Is(t Type) bool {
 
 // GetNoteOn returns true if (and only if) the message is a NoteOnMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteOn(channel, key, velocity *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
-	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
+
+	if key != nil || velocity != nil {
+		_key, _velocity := utils.ParseTwoUint7(m[1], m[2])
+
+		if key != nil {
+			*key = _key
+		}
+
+		if velocity != nil {
+			*velocity = _velocity
+		}
+	}
+
 	return true
 }
 
 // GetNoteStart returns true if (and only if) the message is a NoteOnMsg with a velocity > 0.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteStart(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOnMsg) {
-		return false
-	}
-
-	_, *channel = utils.ParseStatus(m[0])
-	*key, *velocity = utils.ParseTwoUint7(m[1], m[2])
-	if *velocity == 0 {
-		return false
-	}
-	return true
-}
-
-// GetNoteOff returns true if (and only if) the message is a NoteOffMsg.
-// Then it also extracts the data to the given arguments.
-func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
-	if !m.Is(NoteOffMsg) {
-		return false
-	}
-
-	_, *channel = utils.ParseStatus(m[0])
 	var vel uint8
-	*key, vel = utils.ParseTwoUint7(m[1], m[2])
+
+	if !m.GetNoteOn(channel, key, &vel) || vel == 0 {
+		return false
+	}
+
 	if velocity != nil {
 		*velocity = vel
 	}
 	return true
 }
 
+// GetNoteOff returns true if (and only if) the message is a NoteOffMsg.
+// Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
+func (m Message) GetNoteOff(channel, key, velocity *uint8) (is bool) {
+	if !m.Is(NoteOffMsg) {
+		return false
+	}
+
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
+
+	if key != nil || velocity != nil {
+		_key, _velocity := utils.ParseTwoUint7(m[1], m[2])
+
+		if key != nil {
+			*key = _key
+		}
+
+		if velocity != nil {
+			*velocity = _velocity
+		}
+	}
+
+	return true
+}
+
 // GetChannel returns true if (and only if) the message is a ChannelMsg.
 // Then it also extracts the channel to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetChannel(channel *uint8) (is bool) {
 	if !m.Is(ChannelMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
 	return true
 }
 
 // GetNoteEnd returns true if (and only if) the message is a NoteOnMsg with a velocity == 0 or a NoteOffMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetNoteEnd(channel, key *uint8) (is bool) {
 	if !m.Is(NoteOnMsg) && !m.Is(NoteOffMsg) {
 		return false
 	}
 
-	var velocity uint8
+	var vel uint8
+	var ch uint8
+	var k uint8
 
-	_, *channel = utils.ParseStatus(m[0])
-	*key, velocity = utils.ParseTwoUint7(m[1], m[2])
-	return m.Is(NoteOffMsg) || velocity == 0
+	is = false
+
+	switch {
+	case m.GetNoteOn(&ch, &k, &vel):
+		is = vel == 0
+	case m.GetNoteOff(&ch, &k, &vel):
+		is = true
+	}
+
+	if !is {
+		return false
+	}
+
+	if channel != nil {
+		*channel = ch
+	}
+
+	if key != nil {
+		*key = k
+	}
+
+	return true
 }
 
 // GetPolyAfterTouch returns true if (and only if) the message is a PolyAfterTouchMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetPolyAfterTouch(channel, key, pressure *uint8) (is bool) {
 	if !m.Is(PolyAfterTouchMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
-	*key, *pressure = utils.ParseTwoUint7(m[1], m[2])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
+
+	if key != nil || pressure != nil {
+		var _key, _pressure = utils.ParseTwoUint7(m[1], m[2])
+
+		if key != nil {
+			*key = _key
+		}
+
+		if pressure != nil {
+			*pressure = _pressure
+		}
+	}
 	return true
 }
 
 // GetAfterTouch returns true if (and only if) the message is a AfterTouchMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetAfterTouch(channel, pressure *uint8) (is bool) {
 	if !m.Is(AfterTouchMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
-	*pressure = utils.ParseUint7(m[1])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
+
+	if pressure != nil {
+		*pressure = utils.ParseUint7(m[1])
+	}
 	return true
 }
 
 // GetProgramChange returns true if (and only if) the message is a ProgramChangeMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetProgramChange(channel, program *uint8) (is bool) {
 	if !m.Is(ProgramChangeMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
-	*program = utils.ParseUint7(m[1])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
+
+	if program != nil {
+		*program = utils.ParseUint7(m[1])
+	}
 	return true
 }
 
 // GetPitchBend returns true if (and only if) the message is a PitchBendMsg.
 // Then it also extracts the data to the given arguments.
 // Either relative or absolute may be nil, if not needed.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16) (is bool) {
 	if !m.Is(PitchBendMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
 
 	rel, abs := utils.ParsePitchWheelVals(m[1], m[2])
 	if relative != nil {
@@ -170,13 +251,30 @@ func (m Message) GetPitchBend(channel *uint8, relative *int16, absolute *uint16)
 
 // GetControlChange returns true if (and only if) the message is a ControlChangeMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetControlChange(channel, controller, value *uint8) (is bool) {
 	if !m.Is(ControlChangeMsg) {
 		return false
 	}
 
-	_, *channel = utils.ParseStatus(m[0])
-	*controller, *value = utils.ParseTwoUint7(m[1], m[2])
+	if channel != nil {
+		_, *channel = utils.ParseStatus(m[0])
+	}
+
+	if controller != nil || value != nil {
+		var _controller, _value uint8
+
+		_controller, _value = utils.ParseTwoUint7(m[1], m[2])
+
+		if controller != nil {
+			*controller = _controller
+		}
+
+		if value != nil {
+			*value = _value
+		}
+	}
+
 	return true
 }
 
@@ -205,34 +303,46 @@ cdefg = Hours (0-23)
 
 // GetMTC returns true if (and only if) the message is a MTCMsg.
 // Then it also extracts the data to the given arguments.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetMTC(quarterframe *uint8) (is bool) {
 	if !m.Is(MTCMsg) {
 		return false
 	}
 
-	*quarterframe = utils.ParseUint7(m[1])
+	if quarterframe != nil {
+		*quarterframe = utils.ParseUint7(m[1])
+	}
+
 	return true
 }
 
 // GetSongSelect returns true if (and only if) the message is a SongSelectMsg.
 // Then it also extracts the song number to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetSongSelect(song *uint8) (is bool) {
 	if !m.Is(SongSelectMsg) {
 		return false
 	}
 
-	*song = utils.ParseUint7(m[1])
+	if song != nil {
+		*song = utils.ParseUint7(m[1])
+	}
+
 	return true
 }
 
 // GetSPP returns true if (and only if) the message is a SPPMsg.
 // Then it also extracts the spp to the given argument.
+// Only arguments that are not nil are parsed and filled.
 func (m Message) GetSPP(spp *uint16) (is bool) {
 	if !m.Is(SPPMsg) {
 		return false
 	}
 
-	_, *spp = utils.ParsePitchWheelVals(m[2], m[1])
+	if spp != nil {
+		_, *spp = utils.ParsePitchWheelVals(m[2], m[1])
+	}
+
 	return true
 }
 

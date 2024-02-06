@@ -33,7 +33,11 @@ import (
 )
 
 var (
-	cfg = config.New("midicat", VERSION, "midicat transfers MIDI data between midi ports and stdin/stdout")
+	cfg = config.New("midicat",
+		VERSION.Major, VERSION.Minor, VERSION.Patch,
+		"midicat transfers MIDI data between midi ports and stdin/stdout",
+		config.AsciiArt("midicat"),
+	)
 
 	argPortNum  = cfg.Int("index", "index of the midi port. Only specify either the index or the name. If neither is given, the first port is used.", config.Shortflag('i'))
 	argPortName = cfg.String("name", "name of the midi port. Only specify either the index or the name. If neither is given, the first port is used.")
