@@ -42,8 +42,8 @@ format:
 #    - go test -race $(go list ./... | grep -v /drivers/)
 
 stages:
-#  - test
   - build
+#  - test
   
 test-project:
   stage: test
@@ -115,7 +115,7 @@ build-midicat-linux:
     - pwd
     - export GOBIN='.' 
     - set
-    - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - GOBIN='.' go install gitlab.com/gomidi/midi/tools/midicat@latest
     - ls
     - mv midicat $CI_PROJECT_DIR
   artifacts:
