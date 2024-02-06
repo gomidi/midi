@@ -12,6 +12,7 @@ before_script:
 mingo:
   image: golang:1.19
   stage: test
+  when: manual
   script:
     - cd v2
     - apt-get update
@@ -25,6 +26,7 @@ mingo:
 
 format:
   stage: test
+  when: manual
   script:
     - cd v2
     - apt-get update
@@ -43,11 +45,11 @@ format:
 
 stages:
   - build
-
-#  - test
+  - test
   
 test-project:
   stage: test
+  when: manual
   script:
     - cd v2
     - apt-get update
@@ -61,6 +63,7 @@ test-project:
 
 test-examples:
   stage: test
+  when: manual
   script:
     - cd examples
     - apt-get update
@@ -83,6 +86,7 @@ test-examples:
 
 test-tools:
   stage: test
+  when: manual
   script:
     - cd tools
     - apt-get update
@@ -99,6 +103,7 @@ test-tools:
 
 WindowsJob:
   stage: test
+  when: manual
   tags:
     - windows
   script:
@@ -114,9 +119,9 @@ build-midicat-linux:
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
     - pwd
-    - export GOBIN='.' 
+    - export GOBIN=`pwd`
     - set
-    - GOBIN='.' go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - go install gitlab.com/gomidi/midi/tools/midicat@latest
     - mkdir artifacts
     - ls -al
     - mv midicat artifacts/
