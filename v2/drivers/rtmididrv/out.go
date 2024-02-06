@@ -106,7 +106,8 @@ func (o *out) send(bt []byte) error {
 */
 
 // Underlying returns the underlying rtmidi.MIDIOut. Use it with type casting:
-//   rtOut := o.Underlying().(rtmidi.MIDIOut)
+//
+//	rtOut := o.Underlying().(rtmidi.MIDIOut)
 func (o *out) Underlying() interface{} {
 	return o.midiOut
 }

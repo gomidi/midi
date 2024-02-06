@@ -10,7 +10,6 @@ func SysEx(bt []byte) (m Message) {
 	return m
 }
 
-
 /*
 	what this means to us is relatively simple:
 	we read the data after the startcode based of the following length

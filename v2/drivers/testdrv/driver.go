@@ -4,7 +4,6 @@
 
 /*
 Package testdrv provides a Driver for testing.
-
 */
 package testdrv
 

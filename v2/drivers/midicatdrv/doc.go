@@ -4,6 +4,5 @@
 
 /*
 Package midicatdrv provides a Driver to connect via the program midicat (from the tools).
-
 */
 package midicatdrv

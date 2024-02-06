@@ -353,7 +353,7 @@ func (r *Reader) resetStatus() {
 	r.issetBf = false // first: is set, second: the byte
 }
 
-//func (r *Reader) EachMessage(bt []byte, deltaSeconds float64) {
+// func (r *Reader) EachMessage(bt []byte, deltaSeconds float64) {
 func (r *Reader) EachMessage(bt []byte, deltaMilliSeconds int32) {
 
 	// TODO: verify

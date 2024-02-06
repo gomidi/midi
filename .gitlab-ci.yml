@@ -17,6 +17,7 @@ format:
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
     - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - go env
     - go fmt $(go list ./... | grep -v /vendor/)
     - go vet $(go list ./... | grep -v /vendor/)
     - go test -race $(go list ./... | grep -v /vendor/)
@@ -38,6 +39,7 @@ test-project:
     - apt-get install -y libasound2-dev
     - apt-get install -y libportmidi-dev
     - go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - go env
     - midicat ins
     - midicat outs
     - go test $(go list ./... | grep -v /vendor/)

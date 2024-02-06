@@ -5,6 +5,5 @@
 /*
 Package webmididrv provides a Driver to connect to MIDI ports in the browser (via webmidi).
 See the example to get an idea how to use it.
-
 */
 package webmididrv

@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"testing"
-
 )
 
 func TestKeyFromSharpsOrFlats(t *testing.T) {

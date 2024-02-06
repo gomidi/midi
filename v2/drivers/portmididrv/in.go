@@ -283,7 +283,8 @@ func (i *in) Listen(onMsg func(msg []byte, milliseconds int32), config drivers.L
 
 // Underlying returns the underlying *portmidi.Stream. It will be nil, if the port is closed.
 // Use it with type casting:
-//   portOut := o.Underlying().(*portmidi.Stream)
+//
+//	portOut := o.Underlying().(*portmidi.Stream)
 func (i *in) Underlying() interface{} {
 	return i.stream
 }

@@ -29,25 +29,29 @@ sub-IDs:
 type Command byte
 
 /*
-  01 Stop
-  02 Play
-  03 Deferred Play (play after no longer busy)
-  04 Fast Forward
-  05 Rewind
-  06 Record Strobe (AKA [[Punch in/out|Punch In]])
-  07 Record Exit (AKA [[Punch out (music)|Punch out]])
-  08 Record Pause
-  09 Pause (pause playback)
-  0A Eject (disengage media container from MMC device)
-  0B Chase
-  0D MMC Reset (to default/startup state)
-  40 Write (AKA Record Ready, AKA Arm Tracks)
-    parameters: <length1> 4F <length2> <track-bitmap-bytes>
-  44 Goto (AKA Locate)
-    parameters: <length>=06 01 <hours> <minutes> <seconds> <frames> <subframes>
-  47 Shuttle
-    parameters: <length>=03 <sh> <sm> <sl> (MIDI Standard Speed codes)
+01 Stop
+02 Play
+03 Deferred Play (play after no longer busy)
+04 Fast Forward
+05 Rewind
+06 Record Strobe (AKA [[Punch in/out|Punch In]])
+07 Record Exit (AKA [[Punch out (music)|Punch out]])
+08 Record Pause
+09 Pause (pause playback)
+0A Eject (disengage media container from MMC device)
+0B Chase
+0D MMC Reset (to default/startup state)
+40 Write (AKA Record Ready, AKA Arm Tracks)
 
+	parameters: <length1> 4F <length2> <track-bitmap-bytes>
+
+44 Goto (AKA Locate)
+
+	parameters: <length>=06 01 <hours> <minutes> <seconds> <frames> <subframes>
+
+47 Shuttle
+
+	parameters: <length>=03 <sh> <sm> <sl> (MIDI Standard Speed codes)
 */
 const (
 	StopCmd         Command = 0x01

@@ -4,7 +4,5 @@
 
 /*
 Package mmc helps with reading and writing of MIDI Universal Real Time SysEx Commands.
-
-
 */
 package mmc

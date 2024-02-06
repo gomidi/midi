@@ -4,6 +4,5 @@
 
 /*
 Package portmididrv provides an Driver to connect via portmidi.
-
 */
 package portmididrv

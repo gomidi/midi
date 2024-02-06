@@ -4,6 +4,5 @@
 
 /*
 Package rtmididrv provides a Driver to connect via rtmidi.
-
 */
 package rtmididrv

@@ -50,7 +50,6 @@ func (op OutPorts) String() string {
 	return bf.String()
 }
 
-
 // GetInPorts returns the MIDI input ports
 func GetInPorts() InPorts {
 	ins, err := drivers.Ins()

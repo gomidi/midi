@@ -113,7 +113,8 @@ func (o *out) Send(b []byte) error {
 
 // Underlying returns the underlying *portmidi.Stream. It will be nil, if the port is closed.
 // Use it with type casting:
-//   portOut := o.Underlying().(*portmidi.Stream)
+//
+//	portOut := o.Underlying().(*portmidi.Stream)
 func (o *out) Underlying() interface{} {
 	return o.stream
 }

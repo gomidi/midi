@@ -111,29 +111,27 @@ func (w *writer) Write(m Message) (err error) {
 }
 
 /*
+				| time type            | bit 15 | bits 14 thru 8        | bits 7 thru 0   |
+				-----------------------------------------------------------------------------
+			  | metrical time        |      0 |         ticks per quarter-note          |
+			  | time-code-based time |      1 | negative SMPTE format | ticks per frame |
 
-					| time type            | bit 15 | bits 14 thru 8        | bits 7 thru 0   |
-					-----------------------------------------------------------------------------
-				  | metrical time        |      0 |         ticks per quarter-note          |
-				  | time-code-based time |      1 | negative SMPTE format | ticks per frame |
+	If bit 15 of <division> is zero, the bits 14 thru 0 represent the number of delta time "ticks" which make up a
+	quarter-note. For instance, if division is 96, then a time interval of an eighth-note between two events in the
+	file would be 48.
 
-		If bit 15 of <division> is zero, the bits 14 thru 0 represent the number of delta time "ticks" which make up a
-		quarter-note. For instance, if division is 96, then a time interval of an eighth-note between two events in the
-		file would be 48.
+	If bit 15 of <division> is a one, delta times in a file correspond to subdivisions of a second, in a way
+	consistent with SMPTE and MIDI Time Code. Bits 14 thru 8 contain one of the four values -24, -25, -29, or
+	-30, corresponding to the four standard SMPTE and MIDI Time Code formats (-29 corresponds to 30 drop
+	frame), and represents the number of frames per second. These negative numbers are stored in two's
+	compliment form. The second byte (stored positive) is the resolution within a frame: typical values may be 4
+	(MIDI Time Code resolution), 8, 10, 80 (bit resolution), or 100. This stream allows exact specifications of
+	time-code-based tracks, but also allows millisecond-based tracks by specifying 25 frames/sec and a resolution
+	of 40 units per frame. If the events in a file are stored with a bit resolution of thirty-frame time code, the
+	division word would be E250 hex. (=> 1110001001010000 or 57936)
 
-		If bit 15 of <division> is a one, delta times in a file correspond to subdivisions of a second, in a way
-		consistent with SMPTE and MIDI Time Code. Bits 14 thru 8 contain one of the four values -24, -25, -29, or
-		-30, corresponding to the four standard SMPTE and MIDI Time Code formats (-29 corresponds to 30 drop
-		frame), and represents the number of frames per second. These negative numbers are stored in two's
-		compliment form. The second byte (stored positive) is the resolution within a frame: typical values may be 4
-		(MIDI Time Code resolution), 8, 10, 80 (bit resolution), or 100. This stream allows exact specifications of
-		time-code-based tracks, but also allows millisecond-based tracks by specifying 25 frames/sec and a resolution
-		of 40 units per frame. If the events in a file are stored with a bit resolution of thirty-frame time code, the
-		division word would be E250 hex. (=> 1110001001010000 or 57936)
-
-
-	/* unit of time for delta timing. If the value is positive, then it represents the units per beat.
-	For example, +96 would mean 96 ticks per beat. If the value is negative, delta times are in SMPTE compatible units.
+/* unit of time for delta timing. If the value is positive, then it represents the units per beat.
+For example, +96 would mean 96 ticks per beat. If the value is negative, delta times are in SMPTE compatible units.
 */
 func (w *writer) writeTimeFormat(wr io.Writer) error {
 	switch tf := w.SMF.TimeFormat.(type) {

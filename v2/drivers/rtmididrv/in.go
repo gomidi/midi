@@ -31,7 +31,8 @@ func (i *in) String() string {
 }
 
 // Underlying returns the underlying rtmidi.MIDIIn. Use it with type casting:
-//   rtIn := i.Underlying().(rtmidi.MIDIIn)
+//
+//	rtIn := i.Underlying().(rtmidi.MIDIIn)
 func (i *in) Underlying() interface{} {
 	return i.midiIn
 }
