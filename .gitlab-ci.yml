@@ -121,7 +121,7 @@ build-midicat-linux:
     - pwd
     - export GOBIN=`pwd`
     - set
-    - GOBIN='.' go install gitlab.com/gomidi/midi/tools/midicat@latest
+    - go install gitlab.com/gomidi/midi/tools/midicat@latest
     - ls
     - mv midicat $CI_PROJECT_DIR
   artifacts:
