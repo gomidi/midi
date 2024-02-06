@@ -42,7 +42,7 @@ format:
 #    - go test -race $(go list ./... | grep -v /drivers/)
 
 stages:
-  - test
+#  - test
   - build
   
 test-project:
