@@ -57,8 +57,8 @@ func (d *Driver) Close() (err error) {
 
 // const midicatVersion = "0.3.6"
 // const midicatVersion = "0.4.0"
-const midicatVersion = "0.6.3"
-const midicatDownloadURL = "https://gitlab.com/gomidi/midi/-/releases/v2.1.1 midicat binaries (v0.6.3)"
+const midicatVersion = "0.6.4"
+const midicatDownloadURL = "https://gitlab.com/gomidi/midi/-/releases/v2.1.2 midicat binaries (v0.6.4)"
 
 func barkTo(wr io.Writer) {
 	fmt.Fprintf(wr, "can't find midicat binary version >= %s in your PATH, please download from: %s\n", midicatVersion, midicatDownloadURL)

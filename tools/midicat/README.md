@@ -1,6 +1,6 @@
 # midicat
 
-Download the binaries (for Windows) [here](https://gitlab.com/gomidi/midi/-/releases/v2.1.1).
+Download the binaries (for Windows) [here](https://gitlab.com/gomidi/midi/-/releases/v2.1.2).
 
 Or install them via 
 

@@ -6,7 +6,7 @@ This driver is based on the slim midicat tool (see tools/midicat for more inform
 
 This is driver uses the `midicat` binary.
 
-Download the binaries (for Windows) [here](https://gitlab.com/gomidi/midi/-/releases/v2.1.1).
+Download the binaries (for Windows) [here](https://gitlab.com/gomidi/midi/-/releases/v2.1.2).
 
 Or install them via 
 
@@ -22,4 +22,4 @@ This driver connects to the `midicat` binary via Stdin and Stdout while providin
 (like that would be the case otherwise).
 
 Download or compile the `midicat` binary and place it in your `PATH` before using this driver.
-**midicat version >= 0.6.3 is required**.
+**midicat version >= 0.6.4 is required**.

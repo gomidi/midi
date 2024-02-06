@@ -22,6 +22,8 @@ gitlab.com/gomidi/midi/v2 v2.0.25 h1:dkzVBqbaFHjyWwP71MrQNX7IeRUIDonddmHbPpO/Ucg
 gitlab.com/gomidi/midi/v2 v2.0.25/go.mod h1:quTyMKSQ4Klevxu6gY4gy2USbeZra0fV5SalndmPfsY=
 gitlab.com/gomidi/midi/v2 v2.0.29 h1:uQ/m7uoTnhCXYjkqmYQiUPHEE+T8kkt3ZvfqOZRPiWM=
 gitlab.com/gomidi/midi/v2 v2.0.29/go.mod h1:quTyMKSQ4Klevxu6gY4gy2USbeZra0fV5SalndmPfsY=
+gitlab.com/gomidi/midi/v2 v2.1.1 h1:NlxKAlQ072XY344h7wi1s4WqA4d6uysVHffoBSNaC2Y=
+gitlab.com/gomidi/midi/v2 v2.1.1/go.mod h1:Y6IFFyABN415AYsFMPJb0/43TRIuVYDpGKp2gDYLTLI=
 gitlab.com/metakeule/config v1.21.0 h1:pQ/J7OzyOyNkngFfWZwhhvvM6pTU5jXVy8LkZg4ffAU=
 gitlab.com/metakeule/config v1.21.0/go.mod h1:jooTFay2TFoNFs1y/I3+FhscrclQMxSlmBTTlWPceCk=
 gitlab.com/metakeule/fmtdate v1.2.0 h1:MCtqJiTO3j8yTn28aJvgvQy63f1DsjTj702f7TGaFOk=

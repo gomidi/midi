@@ -4,11 +4,7 @@ go 1.18
 
 require (
 	gitlab.com/golang-utils/config/v2 v2.2.7
-	gitlab.com/gomidi/midi/v2 v2.0.29
-)
-
-replace (
-	gitlab.com/gomidi/midi/v2 => ../../v2
+	gitlab.com/gomidi/midi/v2 v2.1.2
 )
 
 require (
