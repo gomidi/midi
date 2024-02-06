@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 
+	"gitlab.com/golang-utils/version"
 	"gitlab.com/gomidi/midi/v2/drivers"
 	//	"gitlab.com/metakeule/config"
 )
@@ -57,11 +58,13 @@ func (d *Driver) Close() (err error) {
 
 // const midicatVersion = "0.3.6"
 // const midicatVersion = "0.4.0"
-const midicatVersion = "0.6.4"
-const midicatDownloadURL = "https://gitlab.com/gomidi/midi/-/releases/v2.1.2 midicat binaries (v0.6.4)"
+var minMidicatVersion = version.Version{0, 6, 4}
+var maxMidicatVersion = version.Version{0, 7, 0}
+
+var midicatDownloadURL = fmt.Sprintf("https://gitlab.com/gomidi/midi/-/releases")
 
 func barkTo(wr io.Writer) {
-	fmt.Fprintf(wr, "can't find midicat binary version >= %s in your PATH, please download from: %s\n", midicatVersion, midicatDownloadURL)
+	fmt.Fprintf(wr, "can't find midicat binary %s > version >= %s in your PATH, please download from: %s\n", maxMidicatVersion, minMidicatVersion, midicatDownloadURL)
 }
 
 /*
@@ -134,7 +137,19 @@ func checkMIDICAT() bool {
 
 	s := string(b)
 
-	if s != midicatVersion {
+	vReal, err := version.Parse(s)
+
+	if err != nil {
+		panic(fmt.Sprintf("can't parse midicat version: %s is not a version", s))
+	}
+
+	//if s != minMidicatVersion {
+	if vReal.Less(minMidicatVersion) {
+		barkTo(os.Stdout)
+		panic(fmt.Sprintf("%q", s))
+	}
+
+	if !vReal.Less(maxMidicatVersion) {
 		barkTo(os.Stdout)
 		panic(fmt.Sprintf("%q", s))
 	}
