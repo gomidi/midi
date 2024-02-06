@@ -4,4 +4,4 @@ import (
 	"gitlab.com/golang-utils/config/v2"
 )
 
-var VERSION = config.Version{0, 6, 4}
+var VERSION = config.Version{0, 6, 5}
