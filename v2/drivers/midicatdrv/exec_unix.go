@@ -20,7 +20,7 @@ func midiCatOutCmd(index int) *exec.Cmd {
 }
 
 func midiCatVersionCmd() *exec.Cmd {
-	return exec.Command("midicat", "--version")
+	return exec.Command("midicat", "version", "-s")
 }
 
 func midiCatInCmd(index int) *exec.Cmd {
