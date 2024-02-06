@@ -111,26 +111,7 @@ WindowsJob:
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
-build-midicat-linux:
-  stage: build
-  script:
-    - go env
-    - apt-get update
-    - apt-get install -y libasound2-dev
-    - apt-get install -y libportmidi-dev
-    - apt-get install -y gcc
-    - cd tools/midicat
-    - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -x -o ../../midicat .
-    - cd ../..
-    - mkdir midicat-linux64
-    - ls -al
-    - mv midicat midicat-linux64/
-    - ls -al midicat-linux64
-  artifacts:
-    paths:
-      - midicat-linux64/
-
-build-midicat-windows:
+build-midicat:
   stage: build
   script:
     - go env
@@ -141,6 +122,11 @@ build-midicat-windows:
     - apt-get install -y gcc-mingw-w64
     - apt-get install -y g++-mingw-w64-x86-64
     - ls /usr/bin/x86_64-*
+    - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -x -o ../../midicat .
+    - cd ../..
+    - mkdir midicat-linux64
+    - ls -al
+    - mv midicat midicat-linux64/
     - cd tools/midicat
     - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -x -o ../../midicat.exe .
     - cd ../..
@@ -151,6 +137,7 @@ build-midicat-windows:
   artifacts:
     paths:
       - midicat-win64/
+      - midicat-linux64/
 
 # no free runners
 #OSXJob:
