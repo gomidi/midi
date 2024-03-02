@@ -15,7 +15,7 @@
 // Package portmidi provides PortMidi bindings.
 package portmidi
 
-// #cgo linux LDFLAGS: -lporttime
+// #cgo linux LDFLAGS: -lportmidi
 // #cgo windows LDFLAGS: -lporttime
 // #cgo darwin LDFLAGS: -lportmidi
 //
