@@ -206,21 +206,29 @@ func (s *SMF) finishTempoChanges() {
 }
 
 func (s *SMF) calculateAbsTimes() {
-	var lasttcTick int64
+	var lasttcTick, lasttcTimeMicroSec int64
 	mt := s.TimeFormat.(MetricTicks)
 	for _, tc := range s.tempoChanges {
+		diffTicks := tc.AbsTicks - lasttcTick
+
+		// if the tempo change is at the same tick as the last one, we just copy the time
+		if diffTicks == 0 {
+			tc.AbsTimeMicroSec = lasttcTimeMicroSec
+			continue
+		}
+
 		prev := s.tempoChanges.TempoChangeAt(tc.AbsTicks - 1)
 		var prevTime int64
 		if prev != nil {
 			prevTime = prev.AbsTimeMicroSec
 		}
-		diffTicks := tc.AbsTicks - lasttcTick
 		prevTempo := s.tempoChanges.TempoAt(tc.AbsTicks - 1)
 		//fmt.Printf("tc at: %v diff ticks: %v (uint32: %v)\n", tc.AbsTicks, diffTicks, uint32(diffTicks))
 		// calculate time for diffTicks with the help of the last tempo and the MetricTicks
 		tc.AbsTimeMicroSec = prevTime + mt.Duration(prevTempo, uint32(diffTicks)).Microseconds()
 
 		lasttcTick = tc.AbsTicks
+		lasttcTimeMicroSec = tc.AbsTimeMicroSec
 	}
 }
 
