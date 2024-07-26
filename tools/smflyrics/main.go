@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	cfg = config.New("smflyrics", 1, 6, 1,
+	cfg = config.New("smflyrics", 1, 6, 2,
 		"extracts lyrics from a SMF file, tracks are separated by an empty line",
 		config.AsciiArt("smflyrics"))
 
