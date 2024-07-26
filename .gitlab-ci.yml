@@ -106,7 +106,8 @@ WindowsJob:
   stage: test
 #  when: manual
   tags:
-    - windows
+#    - windows
+    - saas-windows-medium-amd64
   script:
 #    - go.exe test ./...
     - cd v2
