@@ -278,12 +278,12 @@ func (s *SMF) WriteTo(f io.Writer) (size int64, err error) {
 		s.format = 1
 	}
 
-	for i, tr := range s.Tracks {
-		if !tr.IsClosed() {
+	for i := range s.Tracks {
+		if !s.Tracks[i].IsClosed() {
 			if s.Logger != nil {
 				s.Logger.Printf("track %v is not closed, adding end with delta 0", i)
 			}
-			tr.Close(0)
+			s.Tracks[i].Close(0)
 		}
 	}
 

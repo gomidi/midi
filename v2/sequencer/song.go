@@ -166,6 +166,7 @@ func (s Song) ToSMF1() smf.SMF {
 				lasttick = ev.AbsTicks
 			}
 		}
+		t.Close(uint32(s.lastTick - lasttick))
 		sm.Add(t)
 
 	}

@@ -153,11 +153,13 @@ func TestToSMF1(t *testing.T) {
 #1 [1920] NoteOff channel: 0 key: 50
 #1 [960] NoteOn channel: 0 key: 55 velocity: 90
 #1 [1920] NoteOff channel: 0 key: 55
+#1 [960] MetaEndOfTrack
 ## TRACK 2 ##
 #2 [0] MetaTrackName text: "track-1"
 #2 [960] NoteOn channel: 0 key: 60 velocity: 100
 #2 [480] NoteOff channel: 0 key: 60
 #2 [2400] ControlChange channel: 0 controller: 22 value: 127
+#2 [1920] MetaEndOfTrack
 `)
 
 	if got != expected {
