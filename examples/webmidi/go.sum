@@ -1,2 +1,4 @@
 gitlab.com/gomidi/midi/v2 v2.0.30 h1:RgRYbQeQSab5ZaP1lqRcCTnTSBQroE3CE6V9HgMmOAc=
 gitlab.com/gomidi/midi/v2 v2.0.30/go.mod h1:Y6IFFyABN415AYsFMPJb0/43TRIuVYDpGKp2gDYLTLI=
+gitlab.com/gomidi/midi/v2 v2.2.0 h1:JI3anDOmoBaAbl95UaKZdMFz/5TWcCg/dkoxrJ57o6E=
+gitlab.com/gomidi/midi/v2 v2.2.0/go.mod h1:niWYL8M/3yJtEkZw64AA2w/h+ylsqaxMCTcSZsqkaCQ=
