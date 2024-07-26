@@ -10,7 +10,7 @@ before_script:
   - echo $GOPATH
 
 mingo:
-  image: golang:1.22.1
+  image: golang:1.22.2
   stage: test
 #  when: manual
   script:
