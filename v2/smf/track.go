@@ -245,7 +245,7 @@ func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) error {
 
 	var last time.Duration = 0
 
-	for i, _ := range pl {
+	for i := range pl {
 		last = t.play(last, pl[i])
 	}
 

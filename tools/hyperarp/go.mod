@@ -1,12 +1,10 @@
 module gitlab.com/gomidi/midi/tools/hyperarp
 
-go 1.22.1
-
-toolchain go1.22.2
+go 1.22.2
 
 require (
 	gitlab.com/golang-utils/config/v2 v2.5.0
-	gitlab.com/gomidi/midi/v2 v2.1.7
+	gitlab.com/gomidi/midi/v2 v2.2.0
 )
 
 require (

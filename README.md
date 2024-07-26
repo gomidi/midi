@@ -4,7 +4,7 @@ library for reading and writing of MIDI messages and SMF/MIDI files with Go.
 
 **Note: If you are reading this on Github, please note that the repo has moved to Gitlab (gitlab.com/gomidi/midi) and this is only a mirror.**
 
-- Go version: >= 1.22.1
+- Go version: >= 1.22.2
 - OS/architectures: everywhere Go runs (tested on Linux and Windows).
 
 ## Installation
