@@ -45,11 +45,11 @@ If you want to define own mappings, use the library and create a ColorMapper.
 
 color note mapping
 
-![example image](https://gitlab.com/gomidi/midi/tools/smfimage/raw/master/example.png)
+![example image](https://gitlab.com/gomidi/midi/-/raw/master/tools/smfimage/example.png)
 
 monochrome mode: velocity mapping: quiet (red) <-> loud (yellow) 
 
-![example image](https://gitlab.com/gomidi/midi/tools/smfimage/raw/master/example2.png)
+![example image](https://gitlab.com/gomidi/midi/-/raw/master/tools/smfimage/example2.png)
 
 ## Documentation
 
