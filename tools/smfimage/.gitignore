@@ -1,0 +1,9 @@
+artifacts
+cmd/smfimage/smfimage
+curve/test.png
+curve/test/test.png
+tester
+testdata/midifiles
+test.png
+test.mid
+colors.xcf
