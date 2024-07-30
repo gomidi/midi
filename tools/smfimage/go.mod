@@ -6,7 +6,7 @@ require (
 	github.com/fogleman/gg v1.1.0
 	github.com/metakeule/observe v0.0.5
 	gitlab.com/golang-utils/config/v2 v2.5.2
-	gitlab.com/gomidi/midi/tools/smftrack v0.8.0
+	gitlab.com/gomidi/midi/tools/smftrack v0.0.0-00010101000000-000000000000
 	gitlab.com/gomidi/midi/v2 v2.2.3
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 )
