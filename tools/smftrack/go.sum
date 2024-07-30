@@ -62,8 +62,6 @@ gitlab.com/golang-utils/spectest v0.0.3 h1:Rz1KzsKXHUgHa53ukGdutVwXNoZSOhL1WthEm
 gitlab.com/golang-utils/spectest v0.0.3/go.mod h1:duj8q8L5kwulDdZon48q/kMY52/8RVv8k7kh9cpOmsU=
 gitlab.com/golang-utils/version v1.0.1 h1:gjIGHnnBjkb+zpnAm0CdzNcSkUr2UC+kNKa3DylKbjs=
 gitlab.com/golang-utils/version v1.0.1/go.mod h1:6ogVlvvD9lN0lByxjfnnsa66aFbtuv/37eBMGIAE+XQ=
-gitlab.com/gomidi/midi/v2 v2.2.3 h1:EWCwOwqEE7ZnOBu1eH3+GqLd62+zoJy+gmSo4Ghwir8=
-gitlab.com/gomidi/midi/v2 v2.2.3/go.mod h1:ENtYaJPOwb2N+y7ihv/L7R4GtWjbknouhIIkMrJ5C0g=
 golang.org/x/sync v0.3.0 h1:ftCYgMx6zT/asHUrPw8BLLscYtGznsLAnjq5RH9P66E=
 golang.org/x/sync v0.3.0/go.mod h1:FU7BRWz2tNW+3quACPkgCx/L+uEAv1htQ0V83Z9Rj+Y=
 golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

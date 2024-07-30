@@ -40,3 +40,5 @@ require (
 	golang.org/x/term v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 )
+
+replace gitlab.com/gomidi/midi/v2 => ../../v2
