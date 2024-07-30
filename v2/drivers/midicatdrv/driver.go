@@ -11,8 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"gitlab.com/golang-utils/version"
 	"gitlab.com/gomidi/midi/v2/drivers"
+	"gitlab.com/gomidi/midi/v2/drivers/internal/version"
 	//	"gitlab.com/metakeule/config"
 )
 
