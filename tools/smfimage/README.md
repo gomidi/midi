@@ -2,19 +2,15 @@
 
 Converts a Standard MIDI File (SMF) file to an image (PNG), based on keys and timing; separated by track.
 
-[![Go Reference](https://pkg.go.dev/badge/gitlab.com/gomidi/smfimage.svg)](https://pkg.go.dev/gitlab.com/gomidi/smfimage)
-
 ## Status
 
 usable (experimental)
 
 ## Installation of the CLI tool
 
-     go install github.com/gomidi/smfimage/cmd/smfimage
+     go install gitlab.com/gomidi/midi/tools/smfimage/cmd/smfimage
 
 ## Usage 
-
-Try it online at https://smfimage.herokuapp.com/
 
 The following command creates the file `my-midi-file.png` reflecting the notes of `midi-file.mid`
 
@@ -49,12 +45,12 @@ If you want to define own mappings, use the library and create a ColorMapper.
 
 color note mapping
 
-![example image](https://gitlab.com/gomidi/smfimage/raw/master/example.png)
+![example image](https://gitlab.com/gomidi/midi/tools/smfimage/raw/master/example.png)
 
 monochrome mode: velocity mapping: quiet (red) <-> loud (yellow) 
 
-![example image](https://gitlab.com/gomidi/smfimage/raw/master/example2.png)
+![example image](https://gitlab.com/gomidi/midi/tools/smfimage/raw/master/example2.png)
 
 ## Documentation
 
-smfimage can also be used as library, see https://pkg.go.dev/gitlab.com/gomidi/smfimage
+smfimage can also be used as library, see https://pkg.go.dev/gitlab.com/gomidi/midi/tools/smfimage
