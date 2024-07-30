@@ -3,6 +3,7 @@ package smf
 import (
 	"fmt"
 	"io"
+	"runtime"
 	"sort"
 	"time"
 
@@ -244,6 +245,9 @@ func (t *TracksReader) MultiPlay(trackouts map[int]drivers.Out) error {
 	sort.Sort(pl)
 
 	var last time.Duration = 0
+
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 
 	for i := range pl {
 		last = t.play(last, pl[i])
