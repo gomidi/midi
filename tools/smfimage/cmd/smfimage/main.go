@@ -22,7 +22,7 @@ var (
 	skipArg         = cfg.String("skip", "skip tracks: comma separated list of track channels (counting from 0), e.g. '3,2,0'")
 	baseArg         = cfg.String("base", "base note. -1=most used note, c, c#/db, d, etc.", config.Shortflag('b'), config.Default("-1"))
 	watchArg        = cfg.Bool("watch", "watching the file and export the image on every change", config.Shortflag('w'))
-	sleepingTimeArg = cfg.Int("sleep", "sleeping time between invocations (in milliseconds)", config.Default(int32(10)))
+	sleepingTimeArg = cfg.Int("sleep", "sleeping time between invocations (in milliseconds)", config.Default(10))
 
 	heightArg      = cfg.Int("height", "height of a 32th in pixel.", config.Default(8))
 	trackborderArg = cfg.Int("border", "border of a track in pixel.", config.Default(4))
