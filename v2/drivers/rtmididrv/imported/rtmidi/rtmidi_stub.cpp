@@ -1,5 +1,5 @@
-#include "cpp/RtMidi.h"
+#include "RtMidi.h"
 
 #define RTMIDI_SOURCE_INCLUDED
-#include "cpp/RtMidi.cpp"
-#include "cpp/rtmidi_c.cpp"
+#include "RtMidi.cpp"
+#include "rtmidi_c.cpp"

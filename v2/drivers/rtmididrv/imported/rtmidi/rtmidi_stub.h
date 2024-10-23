@@ -1,1 +1,1 @@
-#include "cpp/rtmidi_c.h"
+#include "rtmidi_c.h"
