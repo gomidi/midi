@@ -27,11 +27,11 @@ func TestToSMF0(t *testing.T) {
 	b.Key = &k
 	b.TimeSig = [2]uint8{3, 4}
 
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message:  smf.Message(midi.NoteOn(0, 50, 100)),
 		Duration: 16,
 	})
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message:  smf.Message(midi.NoteOn(1, 60, 100)),
 		Pos:      8,
 		Duration: 4,
@@ -43,11 +43,11 @@ func TestToSMF0(t *testing.T) {
 	s.AddBar(b)
 
 	b = Bar{}
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message:  smf.Message(midi.NoteOn(0, 55, 90)),
 		Duration: 16,
 	})
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message: smf.Message(midi.ControlChange(1, 22, 127)),
 		Pos:     8,
 	})
@@ -102,12 +102,12 @@ func TestToSMF1(t *testing.T) {
 	b.Key = &k
 	b.TimeSig = [2]uint8{3, 4}
 
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message:  smf.Message(midi.NoteOn(0, 50, 100)),
 		Duration: 16,
 		TrackNo:  0,
 	})
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message:  smf.Message(midi.NoteOn(0, 60, 100)),
 		Pos:      8,
 		Duration: 4,
@@ -120,12 +120,12 @@ func TestToSMF1(t *testing.T) {
 	s.AddBar(b)
 
 	b = Bar{}
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message:  smf.Message(midi.NoteOn(0, 55, 90)),
 		Duration: 16,
 		TrackNo:  0,
 	})
-	b.Events = append(b.Events, &Event{
+	b.AddEvent(&AtomEvent{
 		Message: smf.Message(midi.ControlChange(0, 22, 127)),
 		Pos:     8,
 		TrackNo: 1,

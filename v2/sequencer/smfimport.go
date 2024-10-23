@@ -54,7 +54,7 @@ func (si *smfimport) addTempoChanges() {
 	ticks := sm.TimeFormat.(smf.MetricTicks)
 
 	for _, tc := range tcs {
-		var change Event
+		var change AtomEvent
 
 		b := s.FindBar(tc.AbsTicks)
 
@@ -63,7 +63,7 @@ func (si *smfimport) addTempoChanges() {
 			change.absTicks = tc.AbsTicks
 			change.Message = smf.MetaTempo(tc.BPM)
 			change.TrackNo = 0
-			b.Events = append(b.Events, &change)
+			b.AddEvent(&change)
 			b.SortEvents()
 		}
 	}
@@ -234,7 +234,7 @@ func (si *smfimport) addEvents() {
 	for trackno, tr := range sm.Tracks {
 		//var t Track
 		//var te []*smf.TrackEvent
-		var noteOns = map[[2]uint8]*Event{} // [2]uint8{channel,key} to *Event
+		var noteOns = map[[2]uint8]*AtomEvent{} // [2]uint8{channel,key} to *Event
 
 		var absTicks int64
 
@@ -246,7 +246,7 @@ func (si *smfimport) addEvents() {
 			var nkey smf.Key
 			var bpm float64
 			var channel, key, velocity uint8
-			var e Event
+			var e AtomEvent
 			e.absTicks = absTicks
 			e.TrackNo = trackno
 			e.Pos = b.barPos(absTicks, ticks)
@@ -255,7 +255,7 @@ func (si *smfimport) addEvents() {
 			case ev.Message.GetNoteStart(&channel, &key, &velocity):
 				e.Message = ev.Message
 				epoint := &e
-				b.Events = append(b.Events, epoint)
+				b.AddEvent(epoint)
 				noteOns[[2]uint8{channel, key}] = epoint
 
 			case ev.Message.GetNoteEnd(&channel, &key):
@@ -268,11 +268,11 @@ func (si *smfimport) addEvents() {
 			case ev.Message.Is(midi.ChannelMsg):
 				e.Message = ev.Message
 				epoint := &e
-				b.Events = append(b.Events, epoint)
+				b.AddEvent(epoint)
 			case ev.Message.Is(midi.SysExMsg):
 				e.Message = ev.Message
 				epoint := &e
-				b.Events = append(b.Events, epoint)
+				b.AddEvent(epoint)
 			case ev.Message.GetMetaKey(&nkey):
 				// ignore
 			case ev.Message.GetMetaTempo(&bpm):

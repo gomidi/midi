@@ -85,7 +85,7 @@ func (s *Song) ToSMF0() smf.SMF {
 	evts, _ := s.mkBarLine(s.Ticks)
 
 	for _, b := range s.bars {
-		evts = append(evts, b.trackEvents(s.Ticks)...)
+		evts = append(evts, b.TrackEvents(s.Ticks)...)
 	}
 
 	sort.Sort(evts)
@@ -126,7 +126,7 @@ func (s Song) ToSMF1() smf.SMF {
 	var allevts smf.TrackEvents
 
 	for _, b := range s.bars {
-		allevts = append(allevts, b.trackEvents(s.Ticks)...)
+		allevts = append(allevts, b.TrackEvents(s.Ticks)...)
 	}
 
 	var settracks = map[int]bool{}
