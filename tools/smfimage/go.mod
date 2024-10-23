@@ -8,7 +8,7 @@ require (
 	github.com/metakeule/observe v0.0.5
 	gitlab.com/golang-utils/config/v2 v2.5.2
 	gitlab.com/gomidi/midi/tools/smftrack v0.8.1
-	gitlab.com/gomidi/midi/v2 v2.2.3
+	gitlab.com/gomidi/midi/v2 v2.2.13
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 )
 

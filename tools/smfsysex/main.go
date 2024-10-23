@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	cfg = config.New("smfsysex", 0, 0, 3, "a tool to read and write sysex data from / to a SMF file",
+	cfg = config.New("smfsysex", 0, 0, 4, "a tool to read and write sysex data from / to a SMF file",
 		config.AsciiArt("smfsysex"))
 
 	argFile = cfg.LastString("file", "the file that is written to / read from", config.Required())
