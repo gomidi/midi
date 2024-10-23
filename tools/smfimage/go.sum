@@ -10,6 +10,8 @@ github.com/charmbracelet/lipgloss v0.7.1 h1:17WMwi7N1b1rVWOjMT+rCh7sQkvDU75B2hbZ
 github.com/charmbracelet/lipgloss v0.7.1/go.mod h1:yG0k3giv8Qj8edTCbbg6AlQ5e8KNWpFujkNawKNhE2c=
 github.com/containerd/console v1.0.4-0.20230706203907-8f6c4e4faef5 h1:Ig+OPkE3XQrrl+SKsOqAjlkrBN/zrr+Qpw7rCuDjRCE=
 github.com/containerd/console v1.0.4-0.20230706203907-8f6c4e4faef5/go.mod h1:YynlIjWYF8myEu6sdkwKIvGQq+cOckRm6So2avqoYAk=
+github.com/crazy3lf/colorconv v1.2.0 h1:UM7kSZWnwFMGiC+PpYrjxQSOd6sEyWb+dRKKTd3KslA=
+github.com/crazy3lf/colorconv v1.2.0/go.mod h1:2jTJ7QCWCj2sSLOhF4Gzi0J5/hoX8/VY8VzNvXAlD1I=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/emersion/go-appdir v1.1.2 h1:3ceZKMz3b7MLy37ZB29shG2Y7Y3G/pcLbtnYP6BJ0eQ=
@@ -70,6 +72,10 @@ gitlab.com/golang-utils/spectest v0.0.3 h1:Rz1KzsKXHUgHa53ukGdutVwXNoZSOhL1WthEm
 gitlab.com/golang-utils/spectest v0.0.3/go.mod h1:duj8q8L5kwulDdZon48q/kMY52/8RVv8k7kh9cpOmsU=
 gitlab.com/golang-utils/version v1.0.1 h1:gjIGHnnBjkb+zpnAm0CdzNcSkUr2UC+kNKa3DylKbjs=
 gitlab.com/golang-utils/version v1.0.1/go.mod h1:6ogVlvvD9lN0lByxjfnnsa66aFbtuv/37eBMGIAE+XQ=
+gitlab.com/gomidi/midi/tools/smftrack v0.8.1 h1:QqbK8mu74Qv7wA0Uf666tRXWBYGpyL8WN5eCLZRBQFs=
+gitlab.com/gomidi/midi/tools/smftrack v0.8.1/go.mod h1:Dwyj9HekJacot2L9I0/r3UnHBdw6747Ra0vdYy7bUyg=
+gitlab.com/gomidi/midi/v2 v2.2.3 h1:EWCwOwqEE7ZnOBu1eH3+GqLd62+zoJy+gmSo4Ghwir8=
+gitlab.com/gomidi/midi/v2 v2.2.3/go.mod h1:ENtYaJPOwb2N+y7ihv/L7R4GtWjbknouhIIkMrJ5C0g=
 gitlab.com/metakeule/config v1.18.9/go.mod h1:glEQ76SztqrtydnmgxvrlTtN9BBmgM0lNy7/S2eiZbw=
 gitlab.com/metakeule/fmtdate v1.2.0/go.mod h1:uZUf21xepWGLp6PgJGBbHeBVWO+/gsKi3Gdh0Fu4lGg=
 golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 h1:00VmoueYNlNz/aHIilyyQz/MHSqGoWJzpFv/HW8xpzI=

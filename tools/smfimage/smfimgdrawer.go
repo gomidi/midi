@@ -49,7 +49,7 @@ func (s *smfimgDrawer) PreHeight() int {
 	return 0
 }
 
-func (s *smfimgDrawer) draw(_32th, track, nnote int, col color.Color) {
+func (s *smfimgDrawer) draw(_32th, track, nnote int, col color.RGBA) {
 	s.smfimage.draw((_32th * s.noteWidth), (11-nnote)*s.noteHeight, s.noteWidth, s.noteHeight, col)
 }
 

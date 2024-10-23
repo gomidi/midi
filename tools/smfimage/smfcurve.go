@@ -88,7 +88,7 @@ func (s *smfCurve) PreHeight() int {
 	return int(roundFloat(5+float64(s.LineWidth)+float64(s.LineWidth)*12+(11*float64(s.LineWidth)*float64(12)), 0)) + 5
 }
 
-func (s *smfCurve) draw(_32th, track int, nt int, cl color.Color) {
+func (s *smfCurve) draw(_32th, track int, nt int, cl color.RGBA) {
 	start := float64(s.numFirst32th * s.noteWidth)
 	// if track != 3 {
 	// return

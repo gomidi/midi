@@ -8,6 +8,7 @@ import (
 	"image/draw"
 	"io"
 
+	"github.com/crazy3lf/colorconv"
 	"gitlab.com/gomidi/midi/tools/smftrack"
 	"gitlab.com/gomidi/midi/v2/smf"
 	"golang.org/x/image/font"
@@ -61,7 +62,7 @@ type drawer interface {
 	drawBar(x, y int)
 	makeMonoChromeImage(xMax, yMax int)
 	makePaletteImage(xMax, yMax int)
-	draw(_32th, track, nnote int, col color.Color)
+	draw(_32th, track, nnote int, col color.RGBA)
 	makeHarmonic()
 	drawBars()
 	mkSongPicture(rd *smf.SMF, names []string) error
@@ -502,7 +503,36 @@ func (c *smfimage) mkNote(pitch, velocity byte) *coloredNote {
 		sq.rgbColor.Green = green
 		sq.rgbColor.Blue = blue
 	*/
-	sq.color = c.colorMapper.Map(Interval((pitch - byte(c.baseNote)) % 12))
+	//sq.color = c.colorMapper.Map(Interval((pitch - byte(c.baseNote)) % 12))
+	col := c.colorMapper.Map(Interval((pitch - byte(c.baseNote)) % 12))
+	//r, g, b, a := col.RGBA()
+	//sq.color = color.RGBA{uint8(r), uint8(g), uint8(b), uint8(velocity * 2)}
+	//sq.color = color.RGBA{col.R, col.G, col.B, 10}
+
+	h, s, l := colorconv.RGBToHSL(col.R, col.G, col.B)
+
+	//fmt.Printf("%0.2f %0.2f %0.2f %0.2f\n", h, s, l, float64(velocity)/127)
+
+	norm := float64(velocity) / 127
+
+	if norm < 0.6 {
+		norm = 0.6
+	}
+
+	r, g, b, err := colorconv.HSLToRGB(h, (s * norm), l)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	_ = col
+	//color.RGBToYCbCr()
+	//cc, m, y, k := color.RGBToCMYK(col.R, col.G, col.B)
+	//_ = k
+	//cmyk := color.CMYK{c, m, y, velocity * 2}
+	//r, g, b := color.CMYKToRGB(cc, m, y, 255-(velocity*2)go)
+	//fmt.Println(velocity)
+	sq.color = color.RGBA{r, g, b, 255}
 	return sq
 }
 
@@ -669,7 +699,7 @@ func (c *smfimage) paint(_32th int, track int, squares []*coloredNote) {
 		sq := squares[i]
 		currentY := baseY + ((c.maxTrackPolpyphony[track] - i) * c.noteHeight)
 		if sq != nil {
-			var col color.Color
+			var col color.RGBA
 			if c.monochrome {
 				col = color.RGBA{255, byte(roundFloat(float64(sq.velocity-c.minVelocity)*velRange, 0)), 0, 255}
 			} else {

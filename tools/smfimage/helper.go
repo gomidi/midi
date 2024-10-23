@@ -91,6 +91,6 @@ func sortByRange(tr ...*smftrack.Track) (trackOrder []int) {
 type coloredNote struct {
 	pitch byte
 	//rgbColor rgbColor
-	color    color.Color
+	color    color.RGBA
 	velocity byte
 }

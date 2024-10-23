@@ -6,9 +6,9 @@ import (
 	"image/color"
 )
 
-type colorMapper map[Interval]color.Color
+type colorMapper map[Interval]color.RGBA
 
-func (c colorMapper) Map(i Interval) color.Color {
+func (c colorMapper) Map(i Interval) color.RGBA {
 	return c[i]
 }
 
@@ -239,7 +239,7 @@ func (p *palette) Quantize(pl color.Palette, im image.Image) color.Palette {
 	return pl
 }
 
-var RainbowColors colorMapper = map[Interval]color.Color{
+var RainbowColors colorMapper = map[Interval]color.RGBA{
 	Prime:      PrimeColor,      // yellow prime/oktave (c)
 	MinSecond:  MinSecondColor,  // mint kl. sekunde (des)
 	MajSecond:  MajSecondColor,  // orange gr sekunde    (d)
@@ -256,5 +256,5 @@ var RainbowColors colorMapper = map[Interval]color.Color{
 
 // ColorMapper maps an interval (counted from basenote) to a color
 type ColorMapper interface {
-	Map(i Interval) color.Color
+	Map(i Interval) color.RGBA
 }

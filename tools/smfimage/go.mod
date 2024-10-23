@@ -3,6 +3,7 @@ module gitlab.com/gomidi/midi/tools/smfimage
 go 1.22.2
 
 require (
+	github.com/crazy3lf/colorconv v1.2.0
 	github.com/fogleman/gg v1.1.0
 	github.com/metakeule/observe v0.0.5
 	gitlab.com/golang-utils/config/v2 v2.5.2
@@ -47,4 +48,3 @@ require (
 	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 )
-
