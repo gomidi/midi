@@ -96,6 +96,7 @@ test-tools:
 #    - cd hyperarp
 #    - go test $(go list ./... | grep -v /vendor/)
     - cd midicat
+    - go get gitlab.com/gomidi/midi/tools/midicat
     - go test $(go list ./... | grep -v /vendor/)
     - cd ../midispy
     - go test $(go list ./... | grep -v /vendor/)
