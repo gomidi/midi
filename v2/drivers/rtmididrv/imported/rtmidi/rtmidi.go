@@ -2,7 +2,7 @@ package rtmidi
 
 /*
 #cgo CXXFLAGS: -g -std=c++11
-#cgo LDFLAGS: -g
+#cgo LDFLAGS: -g -Wl,--allow-multiple-definition
 
 #cgo linux CXXFLAGS: -D__LINUX_ALSA__
 #cgo linux LDFLAGS: -lasound -pthread
