@@ -129,6 +129,7 @@ build-midicat:
     - mkdir midicat/win-amd64
 #    - mkdir midicat/mac-amd64
     - cd tools/midicat
+    - go get gitlab.com/gomidi/midi/tools/midicat
     - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -o ../../midicat/linux-amd64/midicat .
     - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -o ../../midicat/win-amd64/midicat.exe .
 #    - GOOS=darwin GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -o ../../midicat/mac-amd64/midicat .    
