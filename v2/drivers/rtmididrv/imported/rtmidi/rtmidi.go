@@ -5,9 +5,9 @@ package rtmidi
 #cgo LDFLAGS: -g
 
 #cgo linux CXXFLAGS: -D__LINUX_ALSA__
-#cgo linux LDFLAGS: -lasound -pthread
+#cgo linux LDFLAGS: -lasound -pthread -Wl,--allow-multiple-definition
 #cgo windows CXXFLAGS: -D__WINDOWS_MM__
-#cgo windows LDFLAGS: -luuid -lksuser -lwinmm -lole32
+#cgo windows LDFLAGS: -luuid -lksuser -lwinmm -lole32 -Wl,--allow-multiple-definition
 #cgo darwin CXXFLAGS: -D__MACOSX_CORE__
 #cgo darwin LDFLAGS: -framework CoreServices -framework CoreAudio -framework CoreMIDI -framework CoreFoundation
 
