@@ -5,15 +5,15 @@ package rtmidi
 #cgo LDFLAGS: -g
 
 #cgo linux CXXFLAGS: -D__LINUX_ALSA__
-#cgo linux LDFLAGS: -lasound -pthread -Wl,--allow-multiple-definition
+#cgo linux LDFLAGS: -lasound -pthread
 #cgo windows CXXFLAGS: -D__WINDOWS_MM__
-#cgo windows LDFLAGS: -luuid -lksuser -lwinmm -lole32 -Wl,--allow-multiple-definition
+#cgo windows LDFLAGS: -luuid -lksuser -lwinmm -lole32
 #cgo darwin CXXFLAGS: -D__MACOSX_CORE__
 #cgo darwin LDFLAGS: -framework CoreServices -framework CoreAudio -framework CoreMIDI -framework CoreFoundation
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "rtmidi_stub.h"
+#include "rtmidi_c.h"
 
 extern void goMIDIInCallback(double ts, unsigned char *msg, size_t msgsz, void *arg);
 

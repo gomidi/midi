@@ -2,7 +2,16 @@ package rtmidi
 
 import (
 	"log"
+	"testing"
 )
+
+func TestMidiIn(t *testing.T) {
+	_, err := NewMIDIInDefault()
+	if err != nil {
+		//return nil, fmt.Errorf("can't open default MIDI in: %v", err)
+		t.Errorf("can't open default MIDI in: %v", err)
+	}
+}
 
 func ExampleCompiledAPI() {
 	for _, api := range CompiledAPI() {
