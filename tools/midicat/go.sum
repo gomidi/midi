@@ -62,6 +62,8 @@ gitlab.com/golang-utils/version v1.0.1 h1:gjIGHnnBjkb+zpnAm0CdzNcSkUr2UC+kNKa3Dy
 gitlab.com/golang-utils/version v1.0.1/go.mod h1:6ogVlvvD9lN0lByxjfnnsa66aFbtuv/37eBMGIAE+XQ=
 gitlab.com/gomidi/midi/v2 v2.2.0 h1:JI3anDOmoBaAbl95UaKZdMFz/5TWcCg/dkoxrJ57o6E=
 gitlab.com/gomidi/midi/v2 v2.2.0/go.mod h1:niWYL8M/3yJtEkZw64AA2w/h+ylsqaxMCTcSZsqkaCQ=
+gitlab.com/gomidi/midi/v2 v2.2.19 h1:/Ktpf21SIOX61gg8PJ7wYLSsD+dOU1e3z3tlO9OS+Zs=
+gitlab.com/gomidi/midi/v2 v2.2.19/go.mod h1:ENtYaJPOwb2N+y7ihv/L7R4GtWjbknouhIIkMrJ5C0g=
 golang.org/x/sync v0.3.0 h1:ftCYgMx6zT/asHUrPw8BLLscYtGznsLAnjq5RH9P66E=
 golang.org/x/sync v0.3.0/go.mod h1:FU7BRWz2tNW+3quACPkgCx/L+uEAv1htQ0V83Z9Rj+Y=
 golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

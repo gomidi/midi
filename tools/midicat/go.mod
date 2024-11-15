@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	gitlab.com/golang-utils/config/v2 v2.5.0
-	gitlab.com/gomidi/midi/v2 v2.2.18
+	gitlab.com/gomidi/midi/v2 v2.2.19
 )
 
 require (
