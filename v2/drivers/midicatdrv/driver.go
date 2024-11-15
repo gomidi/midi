@@ -59,7 +59,7 @@ func (d *Driver) Close() (err error) {
 // const midicatVersion = "0.3.6"
 // const midicatVersion = "0.4.0"
 var minMidicatVersion = version.Version{Major: 0, Minor: 7, Patch: 8}
-var maxMidicatVersion = version.Version{Major: 0, Minor: 8, Patch: 0}
+var maxMidicatVersion = version.Version{Major: 0, Minor: 8, Patch: 10}
 
 var midicatDownloadURL = fmt.Sprintf("https://gitlab.com/gomidi/midi/-/releases")
 
