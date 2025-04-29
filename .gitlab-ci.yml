@@ -69,12 +69,10 @@ WindowsJob:
     - saas-windows-medium-amd64
   script:
 # we are in the powershell on windows 11, see https://stackoverflow.com/questions/74000780/echo-path-not-working-on-my-windows-11-instance
-# $env:path += ';c:\java\jdk-22.0.1\bin'
-#    - echo $SHELL
 # all env variables
-    - gci env:
+    - "gci env:"
     - md bin
-    - $env:Path += (Get-Location) + '\\bin'
+    - "$env:Path += (Get-Location) + '\\bin'"
     - echo $env:Path
 #    - bash -c "echo $PWD" 
     - nuget install WGETWindows
