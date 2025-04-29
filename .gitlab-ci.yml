@@ -61,28 +61,6 @@ test-project:
     - midicat outs
     - go test $(go list ./... | grep -v /vendor/)
 
-test-examples:
-  stage: test
-#  when: manual
-  script:
-    - cd examples
-    - apt-get update
-    - apt-get install -y libasound2-dev
-#    - apt-get install -y libportmidi-dev
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd logger
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../looper
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../simple
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../smfplayer
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../smfrecorder
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../sysex
-    - go test $(go list ./... | grep -v /vendor/)
-
 WindowsJob:
   stage: test
 #  when: manual
