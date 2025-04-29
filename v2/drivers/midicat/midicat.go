@@ -3,6 +3,8 @@ package midicat
 import (
 	"fmt"
 	"io"
+
+	"gitlab.com/gomidi/midi/v2/drivers/internal/version"
 )
 
 func read(rd io.Reader) (byte, error) {
@@ -85,3 +87,5 @@ func ReadAndConvert(rd io.Reader) (out []byte, deltams int32, err error) {
 	conv, err := convert(out)
 	return conv, deltams, err
 }
+
+var Version = version.Version{Major: 0, Minor: 9, Patch: 5}

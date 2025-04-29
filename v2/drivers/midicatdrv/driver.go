@@ -1,3 +1,5 @@
+//go:build !js
+
 package midicatdrv
 
 import (
@@ -13,6 +15,7 @@ import (
 
 	"gitlab.com/gomidi/midi/v2/drivers"
 	"gitlab.com/gomidi/midi/v2/drivers/internal/version"
+	"gitlab.com/gomidi/midi/v2/drivers/midicat"
 	//	"gitlab.com/metakeule/config"
 )
 
@@ -56,15 +59,26 @@ func (d *Driver) Close() (err error) {
 	return e
 }
 
-// const midicatVersion = "0.3.6"
-// const midicatVersion = "0.4.0"
-var minMidicatVersion = version.Version{Major: 0, Minor: 7, Patch: 8}
-var maxMidicatVersion = version.Version{Major: 0, Minor: 8, Patch: 10}
+type checker struct {
+	downloadURL             string
+	minVersion, nextVersion version.Version
+}
 
-var midicatDownloadURL = fmt.Sprintf("https://gitlab.com/gomidi/midi/-/releases")
+func MakeChecker() (c checker) {
+	c.downloadURL = fmt.Sprintf("https://gitlab.com/gomidi/tools/midicat/-/releases")
+	var ver = midicat.Version
 
-func barkTo(wr io.Writer) {
-	fmt.Fprintf(wr, "can't find midicat binary %s > version >= %s in your PATH, please download from: %s\n", maxMidicatVersion, minMidicatVersion, midicatDownloadURL)
+	c.minVersion = ver
+	c.minVersion.Patch = 0
+
+	c.nextVersion = ver
+	c.nextVersion.Patch = 0
+	c.nextVersion.Minor += 1
+	return c
+}
+
+func (c *checker) barkTo(wr io.Writer) {
+	fmt.Fprintf(wr, "can't find midicat binary %s > version >= %s in your PATH, please download from: %s\n", c.nextVersion, c.minVersion, c.downloadURL)
 }
 
 /*
@@ -127,11 +141,11 @@ func CheckMIDICatBinary(barkTarget io.Writer) error {
 }
 */
 
-func checkMIDICAT() bool {
+func (c *checker) checkMIDICAT() bool {
 	b, err := midiCatVersionCmd().Output()
 
 	if err != nil {
-		barkTo(os.Stdout)
+		c.barkTo(os.Stdout)
 		panic("missing binary 'midicat'")
 	}
 
@@ -144,13 +158,13 @@ func checkMIDICAT() bool {
 	}
 
 	//if s != minMidicatVersion {
-	if vReal.Less(minMidicatVersion) {
-		barkTo(os.Stdout)
+	if vReal.Less(c.minVersion) {
+		c.barkTo(os.Stdout)
 		panic(fmt.Sprintf("%q", s))
 	}
 
-	if !vReal.Less(maxMidicatVersion) {
-		barkTo(os.Stdout)
+	if !vReal.Less(c.nextVersion) {
+		c.barkTo(os.Stdout)
 		panic(fmt.Sprintf("%q", s))
 	}
 	return true
@@ -165,7 +179,8 @@ func New() (*Driver, error) {
 			return nil, err
 		}
 	*/
-	checkMIDICAT()
+	ch := MakeChecker()
+	ch.checkMIDICAT()
 	return &Driver{}, nil
 }
 

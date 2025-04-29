@@ -4,7 +4,7 @@ library for reading and writing of MIDI messages and SMF/MIDI files with Go.
 
 **Note: If you are reading this on Github, please note that the repo has moved to Gitlab (gitlab.com/gomidi/midi) and this is only a mirror.**
 
-- Go version: >= 1.22.2
+- Go version: >= 1.24.2
 - OS/architectures: everywhere Go runs (tested on Linux and Windows).
 
 ## Installation
@@ -31,10 +31,11 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 For "cable" communication you need a `Driver`to connect with the MIDI system of your OS.
 Currently the following drivers available in the drivers subdirectory (all multi-platform):
 - rtmididrv based on rtmidi (requires CGO)
-- portmididrv based on portmidi (requires CGO and portmidi installed)
 - webmididrv based on the Web MIDI standard (produces webassembly)
 - midicatdrv based on the midicat binaries via piping (stdin / stdout) (no CGO needed)
 - testdrv for testing (no CGO needed)
+
+(there used to be a driver, based on portmidi, but this is not supported anymore)
 
 ### Examples
 
@@ -96,7 +97,7 @@ import (
 	"gitlab.com/gomidi/midi/v2/gm"
 	"gitlab.com/gomidi/midi/v2/smf"
 
-	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv" // autoregisters driver
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
 )
 
 func main() {

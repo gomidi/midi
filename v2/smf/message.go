@@ -153,7 +153,7 @@ func (m Message) String() string {
 
 	if m.IsMeta() {
 		var bf bytes.Buffer
-		fmt.Fprintf(&bf, m.Type().String())
+		fmt.Fprint(&bf, m.Type().String())
 
 		var val1 uint8
 		var val2 uint8

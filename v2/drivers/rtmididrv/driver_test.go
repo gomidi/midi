@@ -1,3 +1,6 @@
+//go:build !js
+// +build !js
+
 package rtmididrv
 
 import (
@@ -5,7 +8,7 @@ import (
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
-	"gitlab.com/gomidi/midi/v2/drivers/internal/drivertest"
+	"gitlab.com/gomidi/midi/v2/drivers/drivertest"
 )
 
 func runTest(t *testing.T, fn func(*testing.T, drivers.In, drivers.Out)) func(*testing.T) {

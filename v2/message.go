@@ -393,7 +393,7 @@ func (m Message) GetSPP(spp *uint16) (is bool) {
 // String represents the Message as a string that contains the Type and its properties.
 func (m Message) String() string {
 	var bf bytes.Buffer
-	fmt.Fprintf(&bf, m.Type().String())
+	fmt.Fprint(&bf, m.Type().String())
 
 	var channel, val1, val2 uint8
 	var pitchabs uint16
