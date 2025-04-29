@@ -83,7 +83,7 @@ WindowsJob:
     - 7z.exe e artifacts.zip
     - dir
 #    - set PATH=%PATH%;%cd%
-    - move win-amd64/midicat.exe bin/
+    - move midicat.exe bin/
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
