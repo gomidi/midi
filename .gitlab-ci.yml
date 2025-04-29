@@ -71,6 +71,7 @@ WindowsJob:
     - echo $SHELL
 #    - export
 #    - set env:
+    - bash -c "echo $PWD" 
     - nuget install WGETWindows
     - nuget install 7-Zip.CommandLine
     - dir 7-Zip.CommandLine.18.1.0
