@@ -70,7 +70,7 @@ WindowsJob:
   script:
 # we are in the powershell on windows 11, see https://stackoverflow.com/questions/74000780/echo-path-not-working-on-my-windows-11-instance
 # all env variables
-    - "gci env:"
+#    - "gci env:"
     - md bin
     - "$env:Path = $env:Path + ';' + (Get-Location) + '\\bin'"
     - echo $env:Path
@@ -83,7 +83,7 @@ WindowsJob:
     - 7z.exe e artifacts.zip
     - dir
 #    - set PATH=%PATH%;%cd%
-    - move build-midicat/win-amd64/midicat.exe bin/
+    - move win-amd64/midicat.exe bin/
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
