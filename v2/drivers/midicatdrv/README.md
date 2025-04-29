@@ -6,7 +6,7 @@ This driver is based on the slim midicat tool (see tools/midicat for more inform
 
 This is driver uses the `midicat` binary.
 
-Download the binaries (for Windows) [here](https://gitlab.com/gomidi/midi/-/releases).
+Download the binaries (for Linux and Windows) [here](https://gitlab.com/gomidi/tools/-/releases).
 
 Or install them via 
 
