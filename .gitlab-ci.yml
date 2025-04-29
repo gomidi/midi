@@ -68,20 +68,24 @@ WindowsJob:
 #    - windows
     - saas-windows-medium-amd64
   script:
-    - echo $SHELL
-#    - export
-#    - set env:
+# we are in the powershell on windows 11, see https://stackoverflow.com/questions/74000780/echo-path-not-working-on-my-windows-11-instance
+# $env:path += ';c:\java\jdk-22.0.1\bin'
+#    - echo $SHELL
+# all env variables
+    - gci env:
+    - md bin
+    - $env:Path += (Get-Location) + '\\bin'
     - echo $env:Path
-    - bash -c "echo $PWD" 
+#    - bash -c "echo $PWD" 
     - nuget install WGETWindows
     - nuget install 7-Zip.CommandLine
     - dir 7-Zip.CommandLine.18.1.0
     - dir WGETWindows.1.11.4
     - wget.exe --no-check-certificate --output-document=artifacts.zip https://gitlab.com/gomidi/tools/-/jobs/9861847349/artifacts/download?file_type=archive
     - 7z.exe e artifacts.zip
-    - dir
+
 #    - set PATH=%PATH%;%cd%
-    - move build-midicat/win-amd64/midicat.exe %cd%
+    - move build-midicat/win-amd64/midicat.exe bin/
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
 
