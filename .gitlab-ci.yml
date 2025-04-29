@@ -75,7 +75,8 @@ WindowsJob:
     - nuget install 7-Zip.CommandLine
     - dir 7-Zip.CommandLine.18.1.0
     - dir WGETWindows.1.11.4
-    - wget.exe --no-check-certificate --output-file=artifacts.zip https://gitlab.com/gomidi/tools/-/jobs/9861847349/artifacts/download?file_type=archive
+    - wget.exe --no-check-certificate --output-document=artifacts.zip https://gitlab.com/gomidi/tools/-/jobs/9861847349/artifacts/download?file_type=archive
+    - cat artifacts.zip
     - 7z.exe e artifacts.zip
 #    - mkdir 
     - set PATH=%PATH%;%cd%
