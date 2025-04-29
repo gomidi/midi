@@ -72,7 +72,7 @@ WindowsJob:
 # all env variables
     - "gci env:"
     - md bin
-    - "$env:Path += (Get-Location) + '\\bin'"
+    - "$env:Path = $env:Path + ';' + (Get-Location) + '\\bin'"
     - echo $env:Path
 #    - bash -c "echo $PWD" 
     - nuget install WGETWindows
