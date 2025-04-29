@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"gitlab.com/gomidi/midi/v2"
-	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
+	_ "gitlab.com/gomidi/midi/v2/drivers/midicatdrv"
 )
 
 func main() {
