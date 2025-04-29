@@ -44,7 +44,6 @@ format:
 #    - go test -race $(go list ./... | grep -v /drivers/)
 
 stages:
-  - build
   - test
 
   
@@ -84,25 +83,6 @@ test-examples:
     - cd ../sysex
     - go test $(go list ./... | grep -v /vendor/)
 
-
-test-tools:
-  stage: test
-#  when: manual
-  script:
-    - cd tools
-    - apt-get update
-    - apt-get install -y libasound2-dev
-#    - apt-get install -y libportmidi-dev
-#    - cd hyperarp
-#    - go test $(go list ./... | grep -v /vendor/)
-    - cd midicat
-    - go get gitlab.com/gomidi/midi/tools/midicat
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../midispy
-    - go test $(go list ./... | grep -v /vendor/)
-    - cd ../smflyrics
-    - go test $(go list ./... | grep -v /vendor/)
-
 WindowsJob:
   stage: test
 #  when: manual
@@ -113,31 +93,6 @@ WindowsJob:
 #    - go.exe test ./...
     - cd v2
     - go.exe test $(go list ./... | findstr /v "drivers")
-
-build-midicat:
-  stage: build
-  script:
-    - go env
-    - apt-get update
-    - apt-get install -y libasound2-dev
-#    - apt-get install -y libportmidi-dev
-    - apt-get install -y gcc
-    - apt-get install -y gcc-mingw-w64
-    - apt-get install -y g++-mingw-w64-x86-64
-    - ls /usr/bin/x86_64-*
-    - mkdir midicat
-    - mkdir midicat/linux-amd64
-    - mkdir midicat/win-amd64
-#    - mkdir midicat/mac-amd64
-    - cd tools/midicat
-    - go get gitlab.com/gomidi/midi/tools/midicat
-    - GOOS=linux GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -o ../../midicat/linux-amd64/midicat .
-    - GOOS=windows GOARCH=amd64 CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' CGO_ENABLED='1' go build -o ../../midicat/win-amd64/midicat.exe .
-#    - GOOS=darwin GOARCH=amd64 CC='gcc' CXX='g++' CGO_ENABLED='1' go build -o ../../midicat/mac-amd64/midicat .    
-
-  artifacts:
-    paths:
-      - midicat/
 
 # no free runners
 #OSXJob:
