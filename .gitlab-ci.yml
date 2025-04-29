@@ -69,6 +69,8 @@ WindowsJob:
     - saas-windows-medium-amd64
   script:
     - echo $SHELL
+    - export
+    - dir env:
     - echo %PATH%
 #    - go.exe test ./...
     - nuget install WGETWindows
