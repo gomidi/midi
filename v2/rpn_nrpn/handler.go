@@ -8,19 +8,19 @@ type Handler struct {
 	RPN struct {
 
 		// MSB is called, when the MSB of a RPN arrives
-		MSB func(channel, typ1, typ2, msbVal uint8)
+		MSB func(channel, typ1, typ2, msbVal uint8) (handled bool)
 
 		// LSB is called, when the MSB of a RPN arrives
-		LSB func(channel, typ1, typ2, lsbVal uint8)
+		LSB func(channel, typ1, typ2, lsbVal uint8) (handled bool)
 
 		// Increment is called, when the increment of a RPN arrives
-		Increment func(channel, typ1, typ2 uint8)
+		Increment func(channel, typ1, typ2 uint8) (handled bool)
 
 		// Decrement is called, when the decrement of a RPN arrives
-		Decrement func(channel, typ1, typ2 uint8)
+		Decrement func(channel, typ1, typ2 uint8) (handled bool)
 
 		// Reset is called, when the reset or null RPN arrives
-		Reset func(channel uint8)
+		Reset func(channel uint8) (handled bool)
 	}
 
 	// NRPN deals with Non-Registered Program Numbers (NRPN) and their values.
@@ -28,63 +28,39 @@ type Handler struct {
 	NRPN struct {
 
 		// MSB is called, when the MSB of a NRPN arrives
-		MSB func(channel uint8, typ1, typ2, msbVal uint8)
+		MSB func(channel uint8, typ1, typ2, msbVal uint8) (handled bool)
 
 		// LSB is called, when the LSB of a NRPN arrives
-		LSB func(channel uint8, typ1, typ2, lsbVal uint8)
+		LSB func(channel uint8, typ1, typ2, lsbVal uint8) (handled bool)
 
 		// Increment is called, when the increment of a NRPN arrives
-		Increment func(channel, typ1, typ2 uint8)
+		Increment func(channel, typ1, typ2 uint8) (handled bool)
 
 		// Decrement is called, when the decrement of a NRPN arrives
-		Decrement func(channel, typ1, typ2 uint8)
+		Decrement func(channel, typ1, typ2 uint8) (handled bool)
 
 		// Reset is called, when the reset or null NRPN arrives
-		Reset func(channel uint8)
+		Reset func(channel uint8) (handled bool)
 	}
 }
 
-var (
-	CC_RPN0 = uint8(101)
-	CC_RPN1 = uint8(100)
-
-	CC_NRPN0 = uint8(99)
-	CC_NRPN1 = uint8(98)
-
-	CC_INC = uint8(96)
-	CC_DEC = uint8(97)
-
-	CC_MSB = uint8(6)
-	CC_LSB = uint8(38)
-
-	VAL_SET   = uint8(127)
-	VAL_UNSET = uint8(0)
-)
-
-func (r *Handler) _RPN_NRPN_Reset(ch uint8, isRPN bool) {
+func (r *Handler) _RPN_NRPN_Reset(ch uint8, isRPN bool) (handled bool) {
 	// reset tracking on this channel
 	r.valBuffer[ch] = [4]uint8{VAL_UNSET, VAL_UNSET, VAL_UNSET, VAL_UNSET}
 
 	if isRPN {
 		if r.RPN.Reset != nil {
-			r.RPN.Reset(ch)
-			return
-		}
-		if r.RPN.MSB != nil {
-			r.RPN.MSB(ch, VAL_SET, VAL_SET, VAL_UNSET)
+			return r.RPN.Reset(ch)
 		}
 
-		return
+		return false
 	}
 
 	if r.NRPN.Reset != nil {
-		r.NRPN.Reset(ch)
-		return
-	}
-	if r.NRPN.MSB != nil {
-		r.NRPN.MSB(ch, VAL_SET, VAL_SET, VAL_UNSET)
+		return r.NRPN.Reset(ch)
 	}
 
+	return false
 }
 
 func (r *Handler) hasRPNCallback() bool {
@@ -99,7 +75,9 @@ func (r *Handler) hasNoRPNorNRPNCallback() bool {
 	return !r.hasRPNCallback() && !r.hasNRPNCallback()
 }
 
-func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
+// handled is only true, if a complete message was handled (not partially),
+// this allows simple to pass the "not handled" data to the next handler (for a different channel of rpn/nrpn type)
+func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 
 	switch cc {
 
@@ -128,15 +106,13 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 
 		// RPN reset (127,127)
 		if val+r.valBuffer[ch][3] == 2*VAL_SET {
-			r._RPN_NRPN_Reset(ch, cc == CC_RPN0)
+			return r._RPN_NRPN_Reset(ch, cc == CC_RPN0)
 		} else {
 			// register first ident cc
 			r.valBuffer[ch][0] = cc
 			// track the first ident value
 			r.valBuffer[ch][2] = val
 		}
-
-		return true
 
 	// second identifier of a RPN/NRPN message
 	case CC_RPN1, CC_NRPN1:
@@ -147,7 +123,7 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 
 		// RPN reset (127,127)
 		if val+r.valBuffer[ch][2] == 2*VAL_SET {
-			r._RPN_NRPN_Reset(ch, cc == CC_RPN1)
+			return r._RPN_NRPN_Reset(ch, cc == CC_RPN1)
 		} else {
 			// register second ident cc
 			r.valBuffer[ch][1] = cc
@@ -155,12 +131,9 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 			r.valBuffer[ch][3] = val
 		}
 
-		return true
-
 	// the data entry controller
 	case CC_MSB:
 		if r.hasNoRPNorNRPNCallback() {
-			//println("early return on cc6")
 			return false
 		}
 		switch {
@@ -168,23 +141,15 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 		// is a valid RPN
 		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
 			if r.RPN.MSB != nil {
-				r.RPN.MSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
-				return true
+				return r.RPN.MSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
 			}
-			return false
 
 		// is a valid NRPN
 		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
 			if r.NRPN.MSB != nil {
-				r.NRPN.MSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
-				return true
+				return r.NRPN.MSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
 			}
-			return false
 
-		// is no valid RPN/NRPN, send as controller change
-		default:
-			//				println("invalid RPN/NRPN on cc6")
-			return false
 		}
 
 	// the lsb
@@ -198,22 +163,15 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 		// is a valid RPN
 		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
 			if r.RPN.LSB != nil {
-				r.RPN.LSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
-				return true
+				return r.RPN.LSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
 			}
-			return false
 
 		// is a valid NRPN
 		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
 			if r.NRPN.LSB != nil {
-				r.NRPN.LSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
-				return true
+				return r.NRPN.LSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
 			}
-			return false
 
-		// is no valid RPN/NRPN, send as controller change
-		default:
-			return false
 		}
 
 	// the increment
@@ -221,27 +179,21 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 		if r.RPN.Increment == nil && r.NRPN.Increment == nil {
 			return false
 		}
+
 		switch {
 
 		// is a valid RPN
 		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
 			if r.RPN.Increment != nil {
-				r.RPN.Increment(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
-				return true
+				return r.RPN.Increment(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
 			}
-			return false
 
 		// is a valid NRPN
 		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
 			if r.NRPN.Increment != nil {
-				r.NRPN.Increment(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
-				return true
+				return r.NRPN.Increment(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
 			}
-			return false
 
-		// is no valid RPN/NRPN, send as controller change
-		default:
-			return false
 		}
 
 	// the decrement
@@ -249,31 +201,21 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (used bool) {
 		if r.RPN.Decrement == nil && r.NRPN.Decrement == nil {
 			return false
 		}
-		switch {
 
+		switch {
 		// is a valid RPN
 		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
 			if r.RPN.Decrement != nil {
-				r.RPN.Decrement(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
-				return true
+				return r.RPN.Decrement(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
 			}
-			return false
 
 		// is a valid NRPN
 		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
 			if r.NRPN.Decrement != nil {
-				r.NRPN.Decrement(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
-				return true
+				return r.NRPN.Decrement(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
 			}
-			return false
-
-		// is no valid RPN/NRPN, send as controller change
-		default:
-			return false
 		}
-
-	default:
-		return false
 	}
 
+	return false
 }

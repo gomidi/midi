@@ -18,29 +18,26 @@ func RPNReset(channel uint8) []midi.Message {
 
 // RPN message consisting of a val101 and val100 to identify the RPN and a msb and lsb for the value
 func RPN(channel, val101, val100, msbVal, lsbVal uint8) []midi.Message {
-	msgs := append([]midi.Message{},
+	return []midi.Message{
 		cc(channel, CC_RPN0, val101),
 		cc(channel, CC_RPN1, val100),
 		cc(channel, CC_MSB, msbVal),
-		cc(channel, CC_LSB, lsbVal))
-
-	return append(msgs, RPNReset(channel)...)
+		cc(channel, CC_LSB, lsbVal),
+	}
 }
 
 func RPNIncrement(channel, val101, val100 uint8) []midi.Message {
-	msgs := append([]midi.Message{},
+	return []midi.Message{
 		cc(channel, CC_RPN0, val101),
 		cc(channel, CC_RPN1, val100),
-		cc(channel, CC_INC, VAL_UNSET))
-
-	return append(msgs, RPNReset(channel)...)
+		cc(channel, CC_INC, VAL_UNSET),
+	}
 }
 
 func RPNDecrement(channel, val101, val100 uint8) []midi.Message {
-	msgs := append([]midi.Message{},
+	return []midi.Message{
 		cc(channel, CC_RPN0, val101),
 		cc(channel, CC_RPN1, val100),
-		cc(channel, CC_DEC, VAL_UNSET))
-
-	return append(msgs, RPNReset(channel)...)
+		cc(channel, CC_DEC, VAL_UNSET),
+	}
 }
