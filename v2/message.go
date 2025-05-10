@@ -7,6 +7,16 @@ import (
 	"gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
+type Messages []Message
+
+// Bytes returns all bytes of all the messages
+func (m Messages) Bytes() (all []byte) {
+	for _, msg := range m {
+		all = append(all, msg.Bytes()...)
+	}
+	return
+}
+
 // Message is a complete midi message (not including meta messages)
 type Message []byte
 
