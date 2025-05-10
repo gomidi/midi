@@ -1,7 +1,7 @@
 package rpn_nrpn
 
 type Handler struct {
-	valBuffer [16][4]uint8 // channel -> [cc0,cc1,valcc0,valcc1], initial value [-1,-1,-1,-1]
+	cache [16][4]uint8 // channel -> [cc0,cc1,valcc0,valcc1], initial value [-1,-1,-1,-1]
 
 	// RPN deals with Registered Program Numbers (RPN) and their values.
 	// If the callbacks are set, the corresponding control change messages will not be passed of ControlChange.Each.
@@ -44,9 +44,9 @@ type Handler struct {
 	}
 }
 
-func (r *Handler) _RPN_NRPN_Reset(ch uint8, isRPN bool) (handled bool) {
+func (r *Handler) reset(ch uint8, isRPN bool) (handled bool) {
 	// reset tracking on this channel
-	r.valBuffer[ch] = [4]uint8{VAL_UNSET, VAL_UNSET, VAL_UNSET, VAL_UNSET}
+	r.cache[ch] = [4]uint8{VAL_UNSET, VAL_UNSET, VAL_UNSET, VAL_UNSET}
 
 	if isRPN {
 		if r.RPN.Reset != nil {
@@ -75,9 +75,10 @@ func (r *Handler) hasNoRPNorNRPNCallback() bool {
 	return !r.hasRPNCallback() && !r.hasNRPNCallback()
 }
 
-// handled is only true, if a complete message was handled (not partially),
-// this allows simple to pass the "not handled" data to the next handler (for a different channel of rpn/nrpn type)
-func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
+// ReadCCMessage reads a controller message, eventually resulting in a complete rpn / nrpn message.
+// handled is only true, if the rpn/nrpn was completed and handled, so while the message is being composed, handled is false.
+// This allows a simply way to pass the "not handled" data to the next handler (for a different channel of rpn/nrpn type).
+func (r *Handler) ReadCCMessage(ch, cc, val uint8) (handled bool) {
 
 	switch cc {
 
@@ -105,13 +106,13 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 		}
 
 		// RPN reset (127,127)
-		if val+r.valBuffer[ch][3] == 2*VAL_SET {
-			return r._RPN_NRPN_Reset(ch, cc == CC_RPN0)
+		if val+r.cache[ch][3] == 2*VAL_SET {
+			return r.reset(ch, cc == CC_RPN0)
 		} else {
 			// register first ident cc
-			r.valBuffer[ch][0] = cc
+			r.cache[ch][0] = cc
 			// track the first ident value
-			r.valBuffer[ch][2] = val
+			r.cache[ch][2] = val
 		}
 
 	// second identifier of a RPN/NRPN message
@@ -122,13 +123,13 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 		}
 
 		// RPN reset (127,127)
-		if val+r.valBuffer[ch][2] == 2*VAL_SET {
-			return r._RPN_NRPN_Reset(ch, cc == CC_RPN1)
+		if val+r.cache[ch][2] == 2*VAL_SET {
+			return r.reset(ch, cc == CC_RPN1)
 		} else {
 			// register second ident cc
-			r.valBuffer[ch][1] = cc
+			r.cache[ch][1] = cc
 			// track the second ident value
-			r.valBuffer[ch][3] = val
+			r.cache[ch][3] = val
 		}
 
 	// the data entry controller
@@ -139,15 +140,15 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 		switch {
 
 		// is a valid RPN
-		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
+		case r.cache[ch][0] == CC_RPN0 && r.cache[ch][1] == CC_RPN1:
 			if r.RPN.MSB != nil {
-				return r.RPN.MSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
+				return r.RPN.MSB(ch, r.cache[ch][2], r.cache[ch][3], val)
 			}
 
 		// is a valid NRPN
-		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
+		case r.cache[ch][0] == CC_NRPN0 && r.cache[ch][1] == CC_NRPN1:
 			if r.NRPN.MSB != nil {
-				return r.NRPN.MSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
+				return r.NRPN.MSB(ch, r.cache[ch][2], r.cache[ch][3], val)
 			}
 
 		}
@@ -161,15 +162,15 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 		switch {
 
 		// is a valid RPN
-		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
+		case r.cache[ch][0] == CC_RPN0 && r.cache[ch][1] == CC_RPN1:
 			if r.RPN.LSB != nil {
-				return r.RPN.LSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
+				return r.RPN.LSB(ch, r.cache[ch][2], r.cache[ch][3], val)
 			}
 
 		// is a valid NRPN
-		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
+		case r.cache[ch][0] == CC_NRPN0 && r.cache[ch][1] == CC_NRPN1:
 			if r.NRPN.LSB != nil {
-				return r.NRPN.LSB(ch, r.valBuffer[ch][2], r.valBuffer[ch][3], val)
+				return r.NRPN.LSB(ch, r.cache[ch][2], r.cache[ch][3], val)
 			}
 
 		}
@@ -183,15 +184,15 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 		switch {
 
 		// is a valid RPN
-		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
+		case r.cache[ch][0] == CC_RPN0 && r.cache[ch][1] == CC_RPN1:
 			if r.RPN.Increment != nil {
-				return r.RPN.Increment(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
+				return r.RPN.Increment(ch, r.cache[ch][2], r.cache[ch][3])
 			}
 
 		// is a valid NRPN
-		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
+		case r.cache[ch][0] == CC_NRPN0 && r.cache[ch][1] == CC_NRPN1:
 			if r.NRPN.Increment != nil {
-				return r.NRPN.Increment(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
+				return r.NRPN.Increment(ch, r.cache[ch][2], r.cache[ch][3])
 			}
 
 		}
@@ -204,15 +205,15 @@ func (r *Handler) AddMessage(ch, cc, val uint8) (handled bool) {
 
 		switch {
 		// is a valid RPN
-		case r.valBuffer[ch][0] == CC_RPN0 && r.valBuffer[ch][1] == CC_RPN1:
+		case r.cache[ch][0] == CC_RPN0 && r.cache[ch][1] == CC_RPN1:
 			if r.RPN.Decrement != nil {
-				return r.RPN.Decrement(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
+				return r.RPN.Decrement(ch, r.cache[ch][2], r.cache[ch][3])
 			}
 
 		// is a valid NRPN
-		case r.valBuffer[ch][0] == CC_NRPN0 && r.valBuffer[ch][1] == CC_NRPN1:
+		case r.cache[ch][0] == CC_NRPN0 && r.cache[ch][1] == CC_NRPN1:
 			if r.NRPN.Decrement != nil {
-				return r.NRPN.Decrement(ch, r.valBuffer[ch][2], r.valBuffer[ch][3])
+				return r.NRPN.Decrement(ch, r.cache[ch][2], r.cache[ch][3])
 			}
 		}
 	}

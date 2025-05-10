@@ -143,7 +143,7 @@ CC: ch 2 cc: 12 val: 123
 		for _, msg := range test.messages {
 			var ch, cc, val uint8
 			if msg.GetControlChange(&ch, &cc, &val) {
-				used := th.handler.AddMessage(ch, cc, val)
+				used := th.handler.ReadCCMessage(ch, cc, val)
 				if !used {
 					th.handleCC(ch, cc, val)
 				}
