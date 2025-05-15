@@ -162,7 +162,7 @@ func (q MetricTicks) Ticks1024th() uint32 {
 
 // String returns the string representation of the quarter note resolution
 func (q MetricTicks) String() string {
-	return fmt.Sprintf("%v MetricTicks", q.Ticks4th())
+	return fmt.Sprintf("%v MetricTicks", q.Resolution())
 }
 
 func (q MetricTicks) timeformat() {}

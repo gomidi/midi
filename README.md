@@ -25,10 +25,11 @@ This package provides a unified way to read and write "over the wire" MIDI data 
 - [x] low overhead 
 - [x] shortcuts for General MIDI, Sysex messages etc.
 - [x] CLI tools that use the library
+- [x] SMF files can be converted back and forth into a human readable JSON format
 
 ## Drivers
 
-For "cable" communication you need a `Driver`to connect with the MIDI system of your OS.
+For "cable" communication you need a `Driver` to connect with the MIDI system of your OS.
 Currently the following drivers available in the drivers subdirectory (all multi-platform):
 - rtmididrv based on rtmidi (requires CGO)
 - webmididrv based on the Web MIDI standard (produces webassembly)

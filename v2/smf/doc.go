@@ -24,5 +24,7 @@ There are also helper functions for playing and recording.
 
 The TracksReader provides handy shortcuts for reading multiple tracks and also converts the time,
 based on the tick resolution and the tempo changes.
+
+The SMF type is also a JSON Marshaler/Unmarshaler. So it is possible to convert a SMF midi file into a human readable text file back and forth.
 */
 package smf
