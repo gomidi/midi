@@ -53,7 +53,7 @@ func (w *writer) printf(format string, vals ...interface{}) {
 		return
 	}
 
-	w.SMF.Logger.Printf("smfwriter: "+format, vals...)
+	w.SMF.Logger.Printf("smfwriter: "+format+"\n", vals...)
 }
 
 func (w *writer) Close() error {
