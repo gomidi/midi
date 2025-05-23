@@ -1,6 +1,7 @@
 package smf
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -266,6 +267,15 @@ func (s *SMF) WriteFile(file string) error {
 	}
 
 	return nil
+}
+
+func (s *SMF) Bytes() (data []byte, err error) {
+	var bf bytes.Buffer
+	_, err = s.WriteTo(&bf)
+	if err != nil {
+		return
+	}
+	return bf.Bytes(), nil
 }
 
 // WriteTo writes the SMF to the given writer

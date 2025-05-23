@@ -7,6 +7,8 @@ import (
 	// "os"
 	//"log"
 	"testing"
+
+	"gitlab.com/gomidi/midi/v2"
 )
 
 func testRead(t *testing.T, input []byte) string {
@@ -64,6 +66,46 @@ func testRead(t *testing.T, input []byte) string {
 	*/
 
 	return out.String()
+
+}
+
+var fullExample []byte
+
+func init() {
+	smf := NewSMF1()
+	ticks := MetricTicks(1920)
+	smf.TimeFormat = ticks
+
+	var t1 Track
+
+	t1.Add(0, midi.Pitchbend(1, 500))
+	t1.Close(0)
+	smf.Add(t1)
+
+	var bf bytes.Buffer
+	_, err := smf.WriteTo(&bf)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println(midi.Pitchbend(1, 500).String())
+
+	fullExample = bf.Bytes()
+}
+
+func TestReadFullExample(t *testing.T) {
+	var expected = `
+SMF1
+1 Track(s)
+TimeFormat: 1920 MetricTicks
+Track 0@0 PitchBend channel: 1 pitch: 500 (8692)
+Track 0@0 MetaEndOfTrack
+`
+	//l := log.Default()
+
+	if got, want := testRead(t, fullExample), expected; got != want {
+		t.Errorf("got:\n%v\n\nwanted\n%v\n\n", got, want)
+	}
 
 }
 
