@@ -5,22 +5,22 @@ import (
 	midilib "gitlab.com/gomidi/midi/v2/internal/utils"
 )
 
-func _channelMessage(typ, channel, data1, data2 byte) Message {
+func _channelMessage(typ, channel byte, data []byte) Message {
 	switch typ {
 	case byteChannelPressure:
-		return AfterTouch(channel, data1)
+		return AfterTouch(channel, data[1])
 	case byteProgramChange:
-		return ProgramChange(channel, data1)
+		return ProgramChange(channel, data[1])
 	case byteControlChange:
-		return ControlChange(channel, data1, data2)
+		return ControlChange(channel, data[1], data[2])
 	case byteNoteOn:
-		return NoteOn(channel, data1, data2)
+		return NoteOn(channel, data[1], data[2])
 	case byteNoteOff:
-		return NoteOffVelocity(channel, data1, data2)
+		return NoteOffVelocity(channel, data[1], data[2])
 	case bytePolyphonicKeyPressure:
-		return PolyAfterTouch(channel, data1, data2)
+		return PolyAfterTouch(channel, data[1], data[2])
 	case bytePitchWheel:
-		rel, _ := midilib.ParsePitchWheelVals(data1, data2)
+		rel, _ := midilib.ParsePitchWheelVals(data[1], data[2])
 		return Pitchbend(channel, rel)
 	default:
 		panic("unknown typ")
@@ -158,12 +158,12 @@ func ListenTo(inPort drivers.In, recv func(msg Message, timestampms int32), opts
 		case status >= 0x80 && status <= 0xEF:
 			isStatusSet = true
 			typ, channel = midilib.ParseStatus(status)
-			msg = _channelMessage(typ, channel, data[1], data[2])
+			msg = _channelMessage(typ, channel, data)
 
 		default:
 			// running status
 			if isStatusSet {
-				msg = _channelMessage(typ, channel, data[1], data[2])
+				msg = _channelMessage(typ, channel, data)
 			}
 		}
 
