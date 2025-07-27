@@ -59,12 +59,12 @@ func (r *Reader) withinChannelMessage(b byte) {
 		r.issetBf = false
 		r.state = readerStateClean
 		//p.receiver.Receive(Channel(p.channel).Aftertouch(b), p.timestamp)
-		r.OnMsg([]byte{r.statusByte, b, 0}, r.ts_ms)
+		r.OnMsg([]byte{r.statusByte, b}, r.ts_ms)
 	case byteProgramChange:
 		r.issetBf = false // first: is set, second: the byte
 		r.state = readerStateClean
 		//p.receiver.Receive(Channel(p.channel).ProgramChange(b), p.timestamp)
-		r.OnMsg([]byte{r.statusByte, b, 0}, r.ts_ms)
+		r.OnMsg([]byte{r.statusByte, b}, r.ts_ms)
 	case byteControlChange:
 		if r.issetBf {
 			r.issetBf = false // first: is set, second: the byte
@@ -144,7 +144,7 @@ func (r *Reader) cleanState(b byte) {
 		r.sysexBf = nil
 		r.sysexlen = 0
 		r.statusByte = 0
-		r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
+		r.OnMsg([]byte{b}, r.ts_ms)
 
 	// here we clear for System Common Category messages
 	case b > 0xF0 && b < 0xF7:
@@ -156,7 +156,7 @@ func (r *Reader) cleanState(b byte) {
 			r.state = readerStateWithinSysCommon
 			r.typ = b
 		case byteSysTuneRequest:
-			r.OnMsg([]byte{b, 0, 0}, r.ts_ms)
+			r.OnMsg([]byte{b}, r.ts_ms)
 			/*
 				if p.syscommonHander != nil {
 					p.syscommonHander(Tune(), p.timestamp)
@@ -277,7 +277,7 @@ func (r *Reader) eachByte(b byte) {
 			*/
 			r.issetBf = false
 			r.state = readerStateClean
-			r.OnMsg([]byte{r.typ, b, 0}, r.ts_ms)
+			r.OnMsg([]byte{r.typ, b}, r.ts_ms)
 		case byteSysSongPositionPointer:
 			if r.issetBf {
 				/*
@@ -301,7 +301,7 @@ func (r *Reader) eachByte(b byte) {
 			*/
 			r.issetBf = false
 			r.state = readerStateClean
-			r.OnMsg([]byte{r.typ, b, 0}, r.ts_ms)
+			r.OnMsg([]byte{r.typ, b}, r.ts_ms)
 		case byteSysTuneRequest:
 			//panic("must not be handled here, but within clean state")
 		default:
