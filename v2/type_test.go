@@ -91,6 +91,10 @@ func TestIsType(t *testing.T) {
 			Tune(),
 			[]Type{TuneMsg, SysCommonMsg},
 		},
+		{
+			SysEx([]byte{2, 3, 4}),
+			[]Type{SysExMsg},
+		},
 	}
 
 	for i, test := range tests {
@@ -195,6 +199,10 @@ func TestIsNotType(t *testing.T) {
 		{
 			Tune(),
 			[]Type{metaMsg, ChannelMsg, UnknownMsg, RealTimeMsg, SysExMsg},
+		},
+		{
+			SysEx([]byte{2, 3, 4}),
+			[]Type{metaMsg, ChannelMsg, UnknownMsg, RealTimeMsg, SysCommonMsg},
 		},
 	}
 
